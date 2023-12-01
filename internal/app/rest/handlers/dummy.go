@@ -9,7 +9,6 @@ import (
 // Dummy - тестовый хендлер.
 func (h *Handlers) Dummy(c *gin.Context) {
 	message := "Hello!"
-
 	c.JSON(
 		http.StatusOK,
 		message,

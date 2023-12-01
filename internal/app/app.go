@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/training-of-new-employees/qon/app/rest"
+	"github.com/training-of-new-employees/qon/internal/app/rest"
 )
 
 // TODO: перенести, после реализации пакета config.

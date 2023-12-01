@@ -3,7 +3,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/training-of-new-employees/qon/app/rest/middlewares"
+	"github.com/training-of-new-employees/qon/internal/app/rest/middlewares"
 )
 
 // Handler - HTTP-хендлеры для API.

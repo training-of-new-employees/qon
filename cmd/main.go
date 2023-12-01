@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/training-of-new-employees/qon/app"
+	"github.com/training-of-new-employees/qon/internal/app"
 )
 
 func main() {

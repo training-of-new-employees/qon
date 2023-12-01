@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/training-of-new-employees/qon/app/rest/handlers"
+	"github.com/training-of-new-employees/qon/internal/app/rest/handlers"
 )
 
 // RestServer - реализация rest-сервера.
@@ -16,7 +16,7 @@ type RestServer struct {
 // New - конструктор для RestServer.
 func New() *RestServer {
 	gin.SetMode(gin.ReleaseMode)
-
+	
 	s := &RestServer{
 		router: handlers.NewHandler().InitRoutes(),
 	}
