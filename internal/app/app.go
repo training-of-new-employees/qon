@@ -7,19 +7,17 @@ import (
 	"net/http"
 
 	"github.com/training-of-new-employees/qon/internal/app/rest"
+	"github.com/training-of-new-employees/qon/internal/config"
 )
 
-// TODO: перенести, после реализации пакета config.
-var defaultRunAddr = "127.0.0.1:8080"
-
 // StartApp запускает приложение.
-func StartApp() error {
+func StartApp(cfg *config.Config) error {
 	srv := &http.Server{
 		Handler: rest.New(),
-		Addr:    defaultRunAddr,
+		Addr:    cfg.Address,
 	}
 
-	log.Println(fmt.Sprintf("Running server on '%s'", defaultRunAddr))
+	log.Println(fmt.Sprintf("Running server on '%s'", cfg.Address))
 
 	return srv.ListenAndServe()
 }
