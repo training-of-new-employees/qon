@@ -7,12 +7,14 @@ import (
 )
 
 var (
-	runAddr string
-	dsn     string
+	logLevel string
+	runAddr  string
+	dsn      string
 )
 
 // Config хранит настройки приложения.
 type Config struct {
+	LogLevel    string
 	Address     string
 	DatabaseDSN string
 }
@@ -20,6 +22,7 @@ type Config struct {
 // InitConfig определяет настройки приложения по флагам, переменным окружения.
 func InitConfig() *Config {
 	// Флаги
+	flag.StringVar(&logLevel, "l", defaultLogLevel, "log level")
 	flag.StringVar(&runAddr, "a", defaultRunAddr, "address and port to run server")
 	flag.StringVar(&dsn, "d", defaultDSN, "db address")
 	// NOTE: здесь определяем последующие флаги
@@ -28,6 +31,9 @@ func InitConfig() *Config {
 	flag.Parse()
 
 	// Переменные окружения (ENV)
+	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != "" {
+		logLevel = envLogLevel
+	}
 	if envRunAddr := os.Getenv("RUN_ADDR"); envRunAddr != "" {
 		runAddr = envRunAddr
 	}
@@ -40,6 +46,7 @@ func InitConfig() *Config {
 
 	// Определение конфига
 	config := &Config{
+		LogLevel:    logLevel,
 		Address:     runAddr,
 		DatabaseDSN: dsn,
 	}

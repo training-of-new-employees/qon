@@ -4,9 +4,10 @@ package pg
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/training-of-new-employees/qon/internal/logger"
+	"go.uber.org/zap"
 )
 
 // Store реализует интерфейс Store (для PostgreSQL).
@@ -21,12 +22,12 @@ func NewStore(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("connection to db established")
+	logger.Log.Info("connection to db established")
 
 	s := &Store{
 		conn: db,
 	}
-	log.Println("store successfully created")
+	logger.Log.Info("store successfully created")
 
 	return s, nil
 }
@@ -34,10 +35,10 @@ func NewStore(dsn string) (*Store, error) {
 // Close - деструктор для store.
 func (s *Store) Close() {
 	if err := s.conn.Close(); err != nil {
-		log.Println("db close error: ", err)
+		logger.Log.Error("db close error", zap.Error(err))
 		return
 	}
-	log.Println("store has been closed successfully")
+	logger.Log.Info("store closed successfully")
 }
 
 // newPostgresDB устанавливает соединение с PostgreSQL.
