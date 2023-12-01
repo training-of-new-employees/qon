@@ -19,14 +19,19 @@ type Config struct {
 func InitConfig() *Config {
 	// Флаги
 	flag.StringVar(&runAddr, "a", defaultRunAddr, "address and port to run server")
+	// TODO: здесь определяем последующие флаги
+	// ...
+
 	flag.Parse()
 
-	// Переменные окружения
+	// Переменные окружения (ENV)
 	if envRunAddr := os.Getenv("RUN_ADDR"); envRunAddr != "" {
 		runAddr = envRunAddr
 	}
+	// TODO: здесь определяем последующие ENV
+	// ...
 
-	//
+	// Определение конфига
 	config := &Config{
 		Address: runAddr,
 	}
