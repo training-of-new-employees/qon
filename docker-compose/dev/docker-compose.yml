@@ -7,9 +7,9 @@ services:
     environment:
       POSTGRES_DB: qon_dev
       PGDATABASE: qon_dev
-      POSTGRES_USER: qon_dev
-      PGUSER: qon
-      POSTGRES_PASSWORD: qon
+      POSTGRES_USER: quickon
+      PGUSER: quickon
+      POSTGRES_PASSWORD: quickon
     volumes:
       - dev-db-qon:/var/lib/postgresql/data
 

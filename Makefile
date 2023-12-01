@@ -5,18 +5,17 @@ CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
 
 ## Docker:
-
 docker-dev-db-up: ## Create and run dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml up -d --force-recreate
 
 docker-dev-db-down: ## Stop and remove dev container with db
-	docker compose --file docker-compose/dev/docker-compose.yml down
+	docker compose --file docker-compose/dev/docker-compose.yml down -v
 
 ## Test:
 test: ## Run tests
 	@docker compose --file docker-compose/test/docker-compose.yml up -d
 	@go test -count=1 -v ./...
-	@docker compose --file docker-compose/test/docker-compose.yml down
+	@docker compose --file docker-compose/test/docker-compose.yml down -v
 
 ## Info:
 info: ## Show help information
