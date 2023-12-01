@@ -1,0 +1,17 @@
+services:
+  postgres:
+    container_name: test_db_qon
+    image: postgres:14.3-alpine
+    ports:
+      - "15439:5432"
+    environment:
+      POSTGRES_DB: qon_test
+      PGDATABASE: qon_test
+      POSTGRES_USER: qon
+      PGUSER: qon
+      POSTGRES_PASSWORD: qon
+    volumes:
+      - test-db-qon:/var/lib/postgresql/data
+
+volumes:
+  test-db-qon:
