@@ -24,6 +24,11 @@ func NewStore(dsn string) (*Store, error) {
 	}
 	logger.Log.Info("connection to db established")
 
+	if err := MigrationsUp(db); err != nil {
+		return nil, err
+	}
+	logger.Log.Info("db migrated")
+
 	s := &Store{
 		conn: db,
 	}
