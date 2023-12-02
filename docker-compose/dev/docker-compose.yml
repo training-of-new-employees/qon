@@ -1,0 +1,17 @@
+services:
+  postgres:
+    container_name: dev_db_qon
+    image: postgres:14.3-alpine
+    ports:
+      - "15438:5432"
+    environment:
+      POSTGRES_DB: qon_dev
+      PGDATABASE: qon_dev
+      POSTGRES_USER: quickon
+      PGUSER: quickon
+      POSTGRES_PASSWORD: quickon
+    volumes:
+      - dev-db-qon:/var/lib/postgresql/data
+
+volumes:
+  dev-db-qon:
