@@ -12,7 +12,8 @@ import (
 
 // Store реализует интерфейс Store (для PostgreSQL).
 type Store struct {
-	conn *sql.DB
+	conn      *sql.DB
+	userStore *uStorages
 }
 
 // NewStore - конструктор для Store.
@@ -22,11 +23,13 @@ func NewStore(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	logger.Log.Info("connection to db established")
 
 	if err := MigrationsUp(db); err != nil {
 		return nil, err
 	}
+
 	logger.Log.Info("db migrated")
 
 	s := &Store{
@@ -38,12 +41,14 @@ func NewStore(dsn string) (*Store, error) {
 }
 
 // Close - деструктор для store.
-func (s *Store) Close() {
+func (s *Store) Close() error {
 	if err := s.conn.Close(); err != nil {
 		logger.Log.Error("db close error", zap.Error(err))
-		return
+		return err
 	}
 	logger.Log.Info("store closed successfully")
+
+	return nil
 }
 
 // newPostgresDB устанавливает соединение с PostgreSQL.
@@ -58,4 +63,14 @@ func newPostgresDB(dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+// UserStorage - возвращает хранилище пользователей.
+func (s *Store) UserStorage() *uStorages {
+	if s.userStore != nil {
+		return s.userStore
+	}
+
+	s.userStore = newUStorages(s.conn)
+	return s.userStore
 }

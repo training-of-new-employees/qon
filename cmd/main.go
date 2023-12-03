@@ -33,16 +33,21 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	defer store.Close()
+
+	defer func() {
+		if err = store.Close(); err != nil {
+			logger.Log.Warn("closing store: %v", zap.Error(err))
+		}
+	}()
 
 	// Создаём сервер
-	server := rest.New()
+	server := rest.New(cfg.SecretKey)
 
 	app := &http.Server{
 		Handler: server,
 		Addr:    cfg.Address,
 	}
 	logger.Log.Info(fmt.Sprintf("Running server with log level '%s'", cfg.LogLevel), zap.String("address", cfg.Address))
-	
+
 	return app.ListenAndServe()
 }
