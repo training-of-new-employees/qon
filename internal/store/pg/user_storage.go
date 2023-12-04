@@ -51,7 +51,7 @@ func (u *uStorages) CreateUser(ctx context.Context, val model.UserCreate) (*mode
 	return &createdUser, nil
 }
 
-func (u *uStorages) CreateAdmin(ctx context.Context, admin model.UserCreate, companyName string) (*model.User, error) {
+func (u *uStorages) CreateAdmin(ctx context.Context, admin model.AdminCreate, companyName string) (*model.User, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
 		return &model.User{}, fmt.Errorf("beginning tx: %w", err)
