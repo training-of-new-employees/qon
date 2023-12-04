@@ -3,7 +3,7 @@ package jwttoken
 import "time"
 
 type JWTGenerator interface {
-	GenerateToken(id int, email string, isAdmin bool, orgID int, exp time.Duration) (string, error)
+	GenerateToken(id int, isAdmin bool, orgID int, exp time.Duration) (string, error)
 }
 
 type JWTValidator interface {

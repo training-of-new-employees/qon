@@ -1,12 +1,15 @@
 package impl
 
 import (
+	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	"time"
 )
 
+// Services - структура, которая содержит в себе все сервисы.
 type Services struct {
 	db          store.Storages
 	cache       cache.Cache
@@ -14,20 +17,21 @@ type Services struct {
 	aTokenTime  time.Duration
 	rTokenTime  time.Duration
 	userService *uService
+	sender      doar.EmailSender
 }
 
-func NewServices(userService *uService, db store.Storages, cache cache.Cache, secretKey string, aTokTimeDur time.Duration, rTokTimeDur time.Duration) *Services {
+func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTimeDur time.Duration, rTokTimeDur time.Duration) *Services {
 	return &Services{
-		userService: userService,
-		db:          db,
-		cache:       cache,
-		secretKey:   secretKey,
-		aTokenTime:  aTokTimeDur,
-		rTokenTime:  rTokTimeDur,
+		db:         db,
+		cache:      cache,
+		secretKey:  secretKey,
+		aTokenTime: aTokTimeDur,
+		rTokenTime: rTokTimeDur,
 	}
 }
 
-func (s *Services) User() *uService {
+func (s *Services) User() service.ServiceUser {
+
 	if s.userService != nil {
 		return s.userService
 	}

@@ -1,10 +1,9 @@
-package cache
+package cacheredis
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/redis/go-redis/v9"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
@@ -35,6 +34,7 @@ func (r *Redis) Get(ctx context.Context, key string) (*model.CreateAdmin, error)
 	if err = json.Unmarshal([]byte(val), &admin); err != nil {
 		return nil, err
 	}
+
 	return &admin, nil
 }
 
@@ -43,7 +43,7 @@ func (r *Redis) Set(ctx context.Context, uuid string, admin model.CreateAdmin) e
 	if err != nil {
 		return err
 	}
-	// TODO
+
 	err = r.client.Set(ctx, uuid, adminJSON, 0).Err()
 	if err != nil {
 		return ErrWritingCache
@@ -53,9 +53,7 @@ func (r *Redis) Set(ctx context.Context, uuid string, admin model.CreateAdmin) e
 }
 
 func (r *Redis) Delete(ctx context.Context, key string) error {
-	result, err := r.client.Del(ctx, key).Result()
-	// TODO
-	fmt.Println("Result:", result)
+	_, err := r.client.Del(ctx, key).Result()
 	if err != nil {
 		return ErrDeletingCache
 	}

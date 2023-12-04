@@ -11,17 +11,13 @@ var _ JWTGenerator = (*TokenGenerator)(nil)
 // TokenGenerator имплементирует JWTGenerator.
 type TokenGenerator struct {
 	secretKey string
-	//accessToken  time.Duration
-	//refreshToken time.Duration
 }
 
 type MyClaims struct {
 	jwt.RegisteredClaims
-	UserID  int    `json:"id"`
-	Email   string `json:"email"`
-	ReqID   string `json:"req_id"`
-	IsAdmin bool   `json:"is_admin"`
-	OrgID   int    `json:"org_id"`
+	UserID  int  `json:"id"`
+	IsAdmin bool `json:"is_admin"`
+	OrgID   int  `json:"org_id"`
 }
 
 func NewTokenGenerator(secretKey string) *TokenGenerator {
@@ -30,11 +26,10 @@ func NewTokenGenerator(secretKey string) *TokenGenerator {
 	}
 }
 
-func (g *TokenGenerator) GenerateToken(id int, email string, isAdmin bool, orgID int, exp time.Duration) (string, error) {
+func (g *TokenGenerator) GenerateToken(id int, isAdmin bool, orgID int, exp time.Duration) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := MyClaims{
 		UserID:  id,
-		Email:   email,
 		IsAdmin: isAdmin,
 		OrgID:   orgID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -46,7 +41,7 @@ func (g *TokenGenerator) GenerateToken(id int, email string, isAdmin bool, orgID
 
 	tokenStr, err := token.SignedString([]byte(g.secretKey))
 	if err != nil {
-		return "", fmt.Errorf("err failed GenerateToken %v", err)
+		return "", fmt.Errorf("error failed GenerateToken %v", err)
 	}
 
 	return tokenStr, nil

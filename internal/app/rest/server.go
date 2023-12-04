@@ -3,6 +3,7 @@ package rest
 
 import (
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	"github.com/training-of-new-employees/qon/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,16 +14,18 @@ type RestServer struct {
 	router    *gin.Engine
 	secretKey string
 	tokenVal  jwttoken.JWTValidator
+	services  service.Service
 }
 
 // New - конструктор для RestServer.
-func New(secretKey string) *RestServer {
+func New(secretKey string, services service.Service) *RestServer {
 	gin.SetMode(gin.ReleaseMode)
 
 	s := &RestServer{
 		router:    gin.New(),
 		secretKey: secretKey,
 		tokenVal:  jwttoken.NewTokenValidator(secretKey),
+		services:  services,
 	}
 
 	s.InitRoutes()

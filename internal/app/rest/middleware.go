@@ -40,7 +40,6 @@ func (r *RestServer) IsAuthenticated() gin.HandlerFunc {
 
 		c.Next()
 	}
-
 }
 
 // IsAdmin - middleware для проверки прав администратора.

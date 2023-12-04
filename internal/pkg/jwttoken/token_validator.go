@@ -23,7 +23,7 @@ func (t *TokenValidator) ValidateToken(tokenStr string) (*MyClaims, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("err failed ValidateToken %w", err)
+		return nil, fmt.Errorf("error failed ValidateToken %w", err)
 	}
 
 	if claims, ok := token.Claims.(*MyClaims); ok && token.Valid {

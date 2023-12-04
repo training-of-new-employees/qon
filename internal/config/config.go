@@ -4,21 +4,30 @@ package config
 import (
 	"flag"
 	"os"
+	"time"
 )
 
 var (
-	logLevel     string
-	runAddr      string
-	dsn          string
-	jwtSecretKey string
+	logLevel      string
+	runAddr       string
+	dsn           string
+	jwtSecretKey  string
+	redisDSN      string
+	redisPassword string
+	redisDB       int
 )
 
 // Config хранит настройки приложения.
 type Config struct {
-	LogLevel    string
-	Address     string
-	DatabaseDSN string
-	SecretKey   string
+	LogLevel            string
+	Address             string
+	DatabaseDSN         string
+	SecretKey           string
+	RedisDSN            string
+	RedisPassword       string
+	RedisDB             int
+	AccessTokenExpires  time.Duration
+	RefreshTokenExpires time.Duration
 }
 
 // InitConfig определяет настройки приложения по флагам, переменным окружения.
@@ -28,6 +37,9 @@ func InitConfig() *Config {
 	flag.StringVar(&runAddr, "a", defaultRunAddr, "address and port to run server")
 	flag.StringVar(&dsn, "d", defaultDSN, "db address")
 	flag.StringVar(&jwtSecretKey, "j", defaultSecretKey, "jwt secret key")
+	flag.StringVar(&redisDSN, "r", defaultRedisDSN, "cacheredis address")
+	flag.StringVar(&redisPassword, "rp", defaultRedisPassword, "cacheredis password")
+	flag.IntVar(&redisDB, "rd", defaultRedisDB, "cacheredis db")
 	// NOTE: здесь определяем последующие флаги
 	// ...
 
@@ -46,8 +58,16 @@ func InitConfig() *Config {
 		dsn = envDatabaseDSN
 	}
 
-	if jwt := os.Getenv("JWT_SECRET_KEY"); jwt != "" {
-		jwtSecretKey = jwt
+	if envJWT := os.Getenv("JWT_SECRET_KEY"); envJWT != "" {
+		jwtSecretKey = envJWT
+	}
+
+	if envRedisDSN := os.Getenv("REDIS_DSN"); envRedisDSN != "" {
+		redisDSN = envRedisDSN
+	}
+
+	if envRedisPassword := os.Getenv("REDIS_PASSWORD"); envRedisPassword != "" {
+		redisPassword = envRedisPassword
 	}
 
 	// NOTE: здесь определяем последующие ENV
@@ -55,10 +75,15 @@ func InitConfig() *Config {
 
 	// Определение конфига
 	config := &Config{
-		LogLevel:    logLevel,
-		Address:     runAddr,
-		DatabaseDSN: dsn,
-		SecretKey:   jwtSecretKey,
+		LogLevel:            logLevel,
+		Address:             runAddr,
+		DatabaseDSN:         dsn,
+		SecretKey:           jwtSecretKey,
+		RedisDSN:            redisDSN,
+		RedisPassword:       redisPassword,
+		RedisDB:             0,
+		AccessTokenExpires:  time.Minute * 15,
+		RefreshTokenExpires: time.Hour * 120,
 	}
 
 	return config

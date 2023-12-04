@@ -2,17 +2,20 @@
 package pg
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	"github.com/training-of-new-employees/qon/internal/store"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"go.uber.org/zap"
 )
 
+var _ store.Storages = (*Store)(nil)
+
 // Store реализует интерфейс Store (для PostgreSQL).
 type Store struct {
-	conn      *sql.DB
+	conn      *sqlx.DB
 	userStore *uStorages
 }
 
@@ -35,6 +38,7 @@ func NewStore(dsn string) (*Store, error) {
 	s := &Store{
 		conn: db,
 	}
+
 	logger.Log.Info("store successfully created")
 
 	return s, nil
@@ -52,8 +56,8 @@ func (s *Store) Close() error {
 }
 
 // newPostgresDB устанавливает соединение с PostgreSQL.
-func newPostgresDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("pgx", dsn)
+func newPostgresDB(dsn string) (*sqlx.DB, error) {
+	db, err := sqlx.Open("pgx", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("db open error: %w", err)
 	}
@@ -66,7 +70,7 @@ func newPostgresDB(dsn string) (*sql.DB, error) {
 }
 
 // UserStorage - возвращает хранилище пользователей.
-func (s *Store) UserStorage() *uStorages {
+func (s *Store) UserStorage() store.RepositoryUser {
 	if s.userStore != nil {
 		return s.userStore
 	}

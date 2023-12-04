@@ -1,9 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/redis/go-redis/v9"
+	"github.com/training-of-new-employees/qon/internal/service/impl"
+	"github.com/training-of-new-employees/qon/internal/store/cache/cacheredis"
 	"log"
 	"net/http"
+	"os/signal"
+	"syscall"
 
 	"github.com/training-of-new-employees/qon/internal/app/rest"
 	"github.com/training-of-new-employees/qon/internal/config"
@@ -23,6 +30,9 @@ func run() error {
 	// Инициализация настроек приложения
 	cfg := config.InitConfig()
 
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGHUP, syscall.SIGTERM)
+	defer cancel()
+
 	// Инициализация логгера (logger.Log)
 	if err := logger.InitLogger(cfg.LogLevel); err != nil {
 		return err
@@ -40,8 +50,25 @@ func run() error {
 		}
 	}()
 
+	clientRedis := redis.NewClient(&redis.Options{
+		Addr:     cfg.RedisDSN,
+		Password: cfg.RedisPassword,
+		DB:       cfg.RedisDB,
+	})
+	logger.Log.Info("Redis up")
+	status := clientRedis.Ping(ctx)
+	logger.Log.Info("Status up")
+	if status.Err() != nil {
+		logger.Log.Warn("cacheredis ping: %v", zap.Error(err))
+		return status.Err()
+	}
+
+	redis := cacheredis.NewRedis(clientRedis)
+	logger.Log.Info("Redis up")
+
+	services := impl.NewServices(store, redis, cfg.SecretKey, cfg.AccessTokenExpires, cfg.RefreshTokenExpires)
 	// Создаём сервер
-	server := rest.New(cfg.SecretKey)
+	server := rest.New(cfg.SecretKey, services)
 
 	app := &http.Server{
 		Handler: server,
