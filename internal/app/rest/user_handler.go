@@ -12,7 +12,6 @@ import (
 	//"net/http"
 )
 
-// create an admin in the cache
 func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 	ctx := c.Request.Context()
 	createAdmin := model.CreateAdmin{}
@@ -32,7 +31,7 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 		return
 	}
 
-	_, err := r.services.User().WriteAdminToCache(ctx, createAdmin)
+	admin, err := r.services.User().WriteAdminToCache(ctx, createAdmin)
 	switch {
 	case errors.Is(err, model.ErrEmailAlreadyExists):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -43,7 +42,7 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 		return
 	}
 
-	return
+	c.JSON(http.StatusCreated, gin.H{"admin": admin.Email})
 }
 
 func (r *RestServer) handlerCreateUser(c *gin.Context) {
@@ -59,12 +58,10 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	switch {
 	case errors.Is(err, model.ErrEmailAlreadyExists):
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-
 		return
 	case err != nil:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		logger.Log.Warn("error", zap.Error(err))
-
 		return
 	}
 
@@ -109,7 +106,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"access token": tokens.AccessToken})
 }
 
-func (r *RestServer) EmailVerificationAndAdminCreation(c *gin.Context) {
+func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 	ctx := c.Request.Context()
 	key := model.Key{}
 
@@ -139,6 +136,6 @@ func (r *RestServer) EmailVerificationAndAdminCreation(c *gin.Context) {
 
 	_ = r.services.User().DeleteAdminFromCache(ctx, key.Key)
 
-	c.JSON(http.StatusOK, gin.H{"admin created": createdAdmin.Email})
+	c.JSON(http.StatusCreated, gin.H{"admin created": createdAdmin.Email})
 
 }
