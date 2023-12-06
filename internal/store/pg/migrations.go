@@ -1,7 +1,7 @@
 package pg
 
 import (
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"strings"
 
@@ -12,21 +12,21 @@ import (
 var migrationPath = getMigrationPath()
 
 // MigrationsUp запускает миграции.
-func MigrationsUp(db *sql.DB) error {
+func MigrationsUp(db *sqlx.DB) error {
 	if err := goose.SetDialect("pgx"); err != nil {
 		return err
 	}
 
-	return goose.Up(db, migrationPath)
+	return goose.Up(db.DB, migrationPath)
 }
 
 // MigrationsDown откатывает миграции.
-func MigrationsDown(db *sql.DB) error {
+func MigrationsDown(db *sqlx.DB) error {
 	if err := goose.SetDialect("pgx"); err != nil {
 		return err
 	}
 
-	return goose.Down(db, migrationPath)
+	return goose.Down(db.DB, migrationPath)
 }
 
 // getMigrationPath возвращает путь к миграциям.

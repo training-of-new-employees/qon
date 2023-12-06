@@ -1,4 +1,4 @@
-package handlers
+package rest
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // Dummy - тестовый хендлер.
-func (h *Handlers) Dummy(c *gin.Context) {
+func (h *RestServer) Dummy(c *gin.Context) {
 	message := "Hello!"
 	c.JSON(
 		http.StatusOK,
