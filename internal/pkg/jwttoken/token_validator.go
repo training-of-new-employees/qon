@@ -17,8 +17,8 @@ func NewTokenValidator(secretKey string) *TokenValidator {
 }
 
 func (t *TokenValidator) ValidateToken(tokenStr string) (*MyClaims, error) {
-	myClaims := &MyClaims{}
-	token, err := jwt.ParseWithClaims(tokenStr, myClaims, func(token *jwt.Token) (interface{}, error) {
+	myClaims := MyClaims{}
+	token, err := jwt.ParseWithClaims(tokenStr, &myClaims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(t.secretKey), nil
 	})
 

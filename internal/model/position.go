@@ -11,4 +11,9 @@ type (
 		CreatedAt time.Time `db:"created_at" json:"created_at"`
 		UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 	}
+
+	CreatePosition struct {
+		CompanyID string `json:"company_id" db:"company_id"`
+		Name      string `json:"name" db:"name"`
+	}
 )

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/redis/go-redis/v9"
+	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/service/impl"
 	"github.com/training-of-new-employees/qon/internal/store/cache/cacheredis"
 	"log"
@@ -65,8 +66,9 @@ func run() error {
 
 	redis := cacheredis.NewRedis(clientRedis)
 	logger.Log.Info("Redis up")
+	sender := doar.NewSender(cfg.SenderEmail, cfg.SenderPassword)
 
-	services := impl.NewServices(store, redis, cfg.SecretKey, cfg.AccessTokenExpires, cfg.RefreshTokenExpires)
+	services := impl.NewServices(store, redis, cfg.SecretKey, cfg.AccessTokenExpires, cfg.RefreshTokenExpires, sender)
 	// Создаём сервер
 	server := rest.New(cfg.SecretKey, services)
 

@@ -7,7 +7,7 @@ import (
 
 type ServiceUser interface {
 	CreateUser(ctx context.Context, user model.UserCreate) (*model.User, error)
-	WriteAdminToCache(ctx context.Context, admin model.CreateAdmin) (*model.User, error)
+	WriteAdminToCache(ctx context.Context, admin model.CreateAdmin) (*model.CreateAdmin, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 	GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyId int) (*model.Tokens, error)
 	CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error)

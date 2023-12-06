@@ -26,10 +26,11 @@ type uService struct {
 	rTokenTime time.Duration
 	tokenGen   jwttoken.JWTGenerator
 	tokenVal   jwttoken.JWTValidator
+	sender     doar.EmailSender
 }
 
 func newUserService(db store.Storages, secretKey string, aTokenTime time.Duration,
-	rTokenTime time.Duration, cache cache.Cache, jwtGen jwttoken.JWTGenerator, jwtVal jwttoken.JWTValidator) *uService {
+	rTokenTime time.Duration, cache cache.Cache, jwtGen jwttoken.JWTGenerator, jwtVal jwttoken.JWTValidator, sender doar.EmailSender) *uService {
 	return &uService{
 		db:         db,
 		secretKey:  secretKey,
@@ -38,10 +39,11 @@ func newUserService(db store.Storages, secretKey string, aTokenTime time.Duratio
 		rTokenTime: rTokenTime,
 		tokenGen:   jwtGen,
 		tokenVal:   jwtVal,
+		sender:     sender,
 	}
 }
 
-func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin) (*model.User, error) {
+func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin) (*model.CreateAdmin, error) {
 
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
@@ -63,13 +65,11 @@ func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin)
 
 	logger.Log.Info("cache write successful", zap.String("key", key))
 
-	//TODO sender
-	sender := doar.NewSender(val.Email, key)
-	if err = sender.SendEmail(); err != nil {
+	if err = u.sender.SendEmail(val.Email, key); err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &val, nil
 }
 
 func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {

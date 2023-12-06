@@ -14,19 +14,19 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ store.RepositoryUser = (*uStorages)(nil)
+var _ store.RepositoryUser = (*uStorage)(nil)
 
-type uStorages struct {
+type uStorage struct {
 	db *sqlx.DB
 }
 
-func newUStorages(db *sqlx.DB) *uStorages {
-	return &uStorages{
+func newUStorages(db *sqlx.DB) *uStorage {
+	return &uStorage{
 		db: db,
 	}
 }
 
-func (u *uStorages) CreateUser(ctx context.Context, val model.UserCreate) (*model.User, error) {
+func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model.User, error) {
 	var pgErr *pgconn.PgError
 
 	createdUser := model.User{}
@@ -51,7 +51,7 @@ func (u *uStorages) CreateUser(ctx context.Context, val model.UserCreate) (*mode
 	return &createdUser, nil
 }
 
-func (u *uStorages) CreateAdmin(ctx context.Context, admin model.AdminCreate, companyName string) (*model.User, error) {
+func (u *uStorage) CreateAdmin(ctx context.Context, admin model.AdminCreate, companyName string) (*model.User, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
 		return &model.User{}, fmt.Errorf("beginning tx: %w", err)
@@ -100,7 +100,7 @@ func (u *uStorages) CreateAdmin(ctx context.Context, admin model.AdminCreate, co
 	return &createdAdmin, nil
 }
 
-func (u *uStorages) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
 
 	query := `SELECT id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 

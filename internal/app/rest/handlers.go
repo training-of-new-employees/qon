@@ -15,6 +15,11 @@ func (s *RestServer) InitRoutes() {
 	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
 	userGroup := mvp.Group("/users")
 	userGroup.POST("/", s.handlerCreateUser)
+	position := mvp.Group("/position")
+	position.POST("/positions", s.handlerCreatePosition)
+	position.GET("/positions/{id}", s.handlerGetPosition)
+	position.PATCH("/positions/{id}", s.handlerUpdatePosition)
+	position.DELETE("/positions/{id}", s.handlerDeletePosition)
 	//s.router.Use(s.IsAuthenticated())
 	//s.router.Use(s.IsAdmin())
 }

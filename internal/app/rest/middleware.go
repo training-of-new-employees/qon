@@ -3,6 +3,7 @@ package rest
 
 import (
 	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"go.uber.org/zap"
 	"log"
 	"log/slog"
@@ -23,13 +24,9 @@ func (r *RestServer) DummyMiddleware() gin.HandlerFunc {
 // IsAuthenticated - middleware для проверки авторизации.
 func (r *RestServer) IsAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString, err := c.Cookie("qon_token")
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-			return
-		}
+		token := jwttoken.GetToken(c)
 
-		_, err = r.tokenVal.ValidateToken(tokenString)
+		_, err := r.tokenVal.ValidateToken(token)
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
@@ -45,14 +42,9 @@ func (r *RestServer) IsAuthenticated() gin.HandlerFunc {
 // IsAdmin - middleware для проверки прав администратора.
 func (r *RestServer) IsAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString, err := c.Cookie("qon_token")
+		token := jwttoken.GetToken(c)
 
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-			return
-		}
-
-		claims, err := r.tokenVal.ValidateToken(tokenString)
+		claims, err := r.tokenVal.ValidateToken(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 			logger.Log.Warn("error invalid token: %v", zap.Error(err))

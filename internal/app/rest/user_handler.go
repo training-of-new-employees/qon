@@ -99,9 +99,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 		return
 	}
 
-	c.Request.AddCookie(&http.Cookie{
-		Name:  "qon_token",
-		Value: tokens.AccessToken})
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
 
 	c.JSON(http.StatusOK, gin.H{"access token": tokens.AccessToken})
 }

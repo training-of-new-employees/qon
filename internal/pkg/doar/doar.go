@@ -6,35 +6,35 @@ import (
 )
 
 type EmailSender interface {
-	SendEmail() error
+	SendEmail(email string, key string) error
+	InviteUser(email string) error
 }
 
 type Sender struct {
 	EmailServiceAddress  string
 	EmailServicePassword string
 	ClientEmail          string
-	CacheKey             string
-	EmailTitle           string
-	EmailBody            string
+	AdminTitle           string
+	AdminBody            string
 }
 
 // TODO
-func NewSender(clientEmail string, cacheKey string) *Sender {
+func NewSender(serviceEmail string, password string) *Sender {
 	return &Sender{
-		EmailServiceAddress:  "",
-		EmailServicePassword: "",
-		ClientEmail:          clientEmail,
-		CacheKey:             cacheKey,
-		EmailTitle:           "Подтверждение регистрации",
+		EmailServiceAddress:  serviceEmail,
+		EmailServicePassword: password,
+		ClientEmail:          "",
+		AdminTitle:           "Подтверждение регистрации",
+		AdminBody:            "Код верификации:  ",
 	}
 }
 
-func (s *Sender) SendEmail() error {
+func (s *Sender) SendEmail(email string, key string) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", s.EmailServiceAddress)
-	m.SetHeader("To", s.ClientEmail)
-	m.SetHeader("Subject", s.EmailTitle)
-	m.SetBody("text/html", "Код верификации:  "+s.CacheKey)
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", s.AdminTitle)
+	m.SetBody("text/html", s.AdminBody+key)
 
 	d := gomail.NewDialer("smtp.gmail.com", 587, s.EmailServiceAddress, s.EmailServicePassword)
 	err := d.DialAndSend(m)
@@ -45,5 +45,9 @@ func (s *Sender) SendEmail() error {
 		fmt.Println("Email Sent")
 	}
 
+	return nil
+}
+
+func (s *Sender) InviteUser(email string) error {
 	return nil
 }

@@ -4,4 +4,5 @@ package service
 // Service - общий сервис.
 type Service interface {
 	User() ServiceUser
+	Position() ServicePosition
 }

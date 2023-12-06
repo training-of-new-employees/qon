@@ -15,8 +15,9 @@ var _ store.Storages = (*Store)(nil)
 
 // Store реализует интерфейс Store (для PostgreSQL).
 type Store struct {
-	conn      *sqlx.DB
-	userStore *uStorages
+	conn          *sqlx.DB
+	userStore     *uStorage
+	positionStore *positionStorage
 }
 
 // NewStore - конструктор для Store.
@@ -77,4 +78,15 @@ func (s *Store) UserStorage() store.RepositoryUser {
 
 	s.userStore = newUStorages(s.conn)
 	return s.userStore
+}
+
+func (s *Store) PositionStorage() store.RepositoryPosition {
+
+	if s.positionStore != nil {
+		return nil
+	}
+
+	s.positionStore = newPositionStorage(s.conn)
+
+	return s.positionStore
 }

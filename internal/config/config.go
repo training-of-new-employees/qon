@@ -8,13 +8,15 @@ import (
 )
 
 var (
-	logLevel      string
-	runAddr       string
-	dsn           string
-	jwtSecretKey  string
-	redisDSN      string
-	redisPassword string
-	redisDB       int
+	logLevel       string
+	runAddr        string
+	dsn            string
+	jwtSecretKey   string
+	redisDSN       string
+	redisPassword  string
+	redisDB        int
+	senderEmail    string
+	senderPassword string
 )
 
 // Config хранит настройки приложения.
@@ -28,6 +30,8 @@ type Config struct {
 	RedisDB             int
 	AccessTokenExpires  time.Duration
 	RefreshTokenExpires time.Duration
+	SenderEmail         string
+	SenderPassword      string
 }
 
 // InitConfig определяет настройки приложения по флагам, переменным окружения.
@@ -42,6 +46,9 @@ func InitConfig() *Config {
 	flag.IntVar(&redisDB, "rd", defaultRedisDB, "cacheredis db")
 	// NOTE: здесь определяем последующие флаги
 	// ...
+
+	flag.StringVar(&senderEmail, "se", defaultSenderEmail, "sender email")
+	flag.StringVar(&senderPassword, "sp", defaultSenderPassword, "sender password")
 
 	flag.Parse()
 
@@ -70,6 +77,14 @@ func InitConfig() *Config {
 		redisPassword = envRedisPassword
 	}
 
+	if envSenderEmail := os.Getenv("SENDER_EMAIL"); envSenderEmail != "" {
+		senderEmail = envSenderEmail
+	}
+
+	if envSenderPassword := os.Getenv("SENDER_PASSWORD"); envSenderPassword != "" {
+		senderPassword = envSenderPassword
+	}
+
 	// NOTE: здесь определяем последующие ENV
 	// ...
 
@@ -84,6 +99,8 @@ func InitConfig() *Config {
 		RedisDB:             0,
 		AccessTokenExpires:  time.Minute * 15,
 		RefreshTokenExpires: time.Hour * 120,
+		SenderEmail:         senderEmail,
+		SenderPassword:      senderPassword,
 	}
 
 	return config

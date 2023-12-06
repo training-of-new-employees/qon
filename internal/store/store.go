@@ -3,4 +3,5 @@ package store
 
 type Storages interface {
 	UserStorage() RepositoryUser
+	PositionStorage() RepositoryPosition
 }
