@@ -124,7 +124,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 
 func (u *uService) GetAdminFromCache(ctx context.Context, code string) (*model.CreateAdmin, error) {
 	key := strings.Join([]string{"register", "admin", code}, ":")
-	
+
 	admin, err := u.cache.Get(ctx, key)
 	if err != nil {
 		return nil, fmt.Errorf("err GetAdminFromCache: %v", err)

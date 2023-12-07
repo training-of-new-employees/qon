@@ -1,7 +1,10 @@
 package model
 
 import (
-	"errors"
+	// "errors"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type Code struct {
@@ -9,10 +12,7 @@ type Code struct {
 }
 
 func (c *Code) Validate() error {
-
-	if c.Code == "" {
-		return errors.New("error validation Code empty values")
-	}
-
-	return nil
+	return validation.ValidateStruct(c,
+		validation.Field(&c.Code, validation.Required, is.Digit, validation.Length(4, 4)),
+	)
 }
