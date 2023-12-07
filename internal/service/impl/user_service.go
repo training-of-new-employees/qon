@@ -3,16 +3,18 @@ package impl
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
+	"strings"
+	"time"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	randomdigit "github.com/training-of-new-employees/qon/internal/pkg/random-digit"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	"go.uber.org/zap"
-	"time"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -58,14 +60,16 @@ func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin)
 		return nil, model.ErrEmailAlreadyExists
 	}
 
-	key := uuid.New().String()
+	code := randomdigit.RandomDigitNumber(4)
+	key := strings.Join([]string{"register", "admin", code}, ":")
+
 	if err := u.cache.Set(ctx, key, val); err != nil {
 		return nil, err
 	}
 
 	logger.Log.Info("cache write successful", zap.String("key", key))
 
-	if err = u.sender.SendEmail(val.Email, key); err != nil {
+	if err = u.sender.SendEmail(val.Email, code); err != nil {
 		return nil, err
 	}
 
@@ -118,8 +122,9 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	return createdUser, nil
 }
 
-func (u *uService) GetAdminFromCache(ctx context.Context, key string) (*model.CreateAdmin, error) {
-
+func (u *uService) GetAdminFromCache(ctx context.Context, code string) (*model.CreateAdmin, error) {
+	key := strings.Join([]string{"register", "admin", code}, ":")
+	
 	admin, err := u.cache.Get(ctx, key)
 	if err != nil {
 		return nil, fmt.Errorf("err GetAdminFromCache: %v", err)
