@@ -3,6 +3,8 @@ package impl
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -12,7 +14,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	"go.uber.org/zap"
-	"time"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -156,4 +157,23 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	}
 
 	return createdAdmin, nil
+}
+func (u *uService) ResetPassword(ctx context.Context, email string) error {
+	user, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if user.Email == "" {
+		return model.ErrUserNotFound
+	}
+
+	password, err := model.GenerateHash(model.GeneratePassword())
+	if err != nil {
+		return err
+	}
+
+	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.Email, password); err != nil {
+		return err
+	}
+	return nil
 }

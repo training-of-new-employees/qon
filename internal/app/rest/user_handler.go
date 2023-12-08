@@ -2,12 +2,15 @@ package rest
 
 import (
 	"errors"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"go.uber.org/zap"
+
 	//"errors"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/training-of-new-employees/qon/internal/model"
-	"net/http"
 	//"github.com/training-of-new-employees/qon/internal/model"
 	//"net/http"
 )
@@ -136,4 +139,24 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"admin created": createdAdmin.Email})
 
+}
+
+func (r *RestServer) handlerResetPassword(c *gin.Context) {
+	ctx := c.Request.Context()
+	email := model.EmailReset{}
+	if err := c.ShouldBindJSON(&email); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
+		if errors.Is(err, model.ErrUserNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

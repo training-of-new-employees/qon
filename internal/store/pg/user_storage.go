@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
@@ -117,4 +118,14 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	}
 
 	return &user, nil
+}
+func (u *uStorage) UpdateUserPassword(ctx context.Context, email string,
+	password string) error {
+
+	query := `UPDATE users SET password = $1 WHERE email = $2`
+	_, err := u.db.ExecContext(ctx, query, password, email)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
@@ -13,4 +14,5 @@ type ServiceUser interface {
 	CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error)
 	GetAdminFromCache(context.Context, string) (*model.CreateAdmin, error)
 	DeleteAdminFromCache(ctx context.Context, key string) error
+	ResetPassword(ctx context.Context, email string) error
 }
