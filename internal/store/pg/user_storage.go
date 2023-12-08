@@ -122,8 +122,8 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 func (u *uStorage) UpdateUserPassword(ctx context.Context, email string,
 	password string) error {
 
-	query := `UPDATE users SET enc_password = $1 WHERE email = $2`
-	_, err := u.db.ExecContext(ctx, query, password, email)
+	queryUpd := `UPDATE users SET enc_password = $1 WHERE email = $2`
+	_, err := u.db.ExecContext(ctx, queryUpd, password, email)
 	if err != nil {
 		return err
 	}
