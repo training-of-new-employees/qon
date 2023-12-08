@@ -15,9 +15,11 @@ func (s *RestServer) InitRoutes() {
 	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
 	adminGroup.POST("/employee", s.handlerCreateUser)
 
-
 	userGroup := mvp.Group("/users")
-	userGroup.POST("/", s.handlerCreateUser)
+	userGroup.POST("/register", s.handlerFirstIn)
+
+	// userGroup.POST("/", s.handlerCreateUser)
+
 	position := mvp.Group("/position")
 	position.POST("/positions", s.handlerCreatePosition)
 	position.GET("/positions/{id}", s.handlerGetPosition)

@@ -157,3 +157,23 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 
 	return createdAdmin, nil
 }
+
+func (u *uService) UpdatePassword(ctx context.Context, email string, password string) error {
+	user, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if user.Email == "" {
+		return model.ErrUserNotFound
+	}
+
+	encPassword, err := model.EncryptPassword(password)
+	if err != nil {
+		return err
+	}
+
+	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.Email, encPassword); err != nil {
+		return err
+	}
+	return nil
+}

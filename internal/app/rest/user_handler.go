@@ -69,6 +69,41 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 }
 
+func (r *RestServer) handlerFirstIn(c *gin.Context) {
+	ctx := c.Request.Context()
+	userReq := model.UserSignIn{}
+
+	if err := c.ShouldBindJSON(&userReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := userReq.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := r.services.User().UpdatePassword(ctx, userReq.Email, userReq.Password); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
+
+	c.JSON(http.StatusOK, gin.H{"access token": tokens.AccessToken})
+}
+
 func (r *RestServer) handlerSignIn(c *gin.Context) {
 	ctx := c.Request.Context()
 	userReq := model.UserSignIn{}
