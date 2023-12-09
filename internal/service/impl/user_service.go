@@ -3,7 +3,11 @@ package impl
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
@@ -11,8 +15,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
-	"go.uber.org/zap"
-	"time"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -29,8 +31,16 @@ type uService struct {
 	sender     doar.EmailSender
 }
 
-func newUserService(db store.Storages, secretKey string, aTokenTime time.Duration,
-	rTokenTime time.Duration, cache cache.Cache, jwtGen jwttoken.JWTGenerator, jwtVal jwttoken.JWTValidator, sender doar.EmailSender) *uService {
+func newUserService(
+	db store.Storages,
+	secretKey string,
+	aTokenTime time.Duration,
+	rTokenTime time.Duration,
+	cache cache.Cache,
+	jwtGen jwttoken.JWTGenerator,
+	jwtVal jwttoken.JWTValidator,
+	sender doar.EmailSender,
+) *uService {
 	return &uService{
 		db:         db,
 		secretKey:  secretKey,
@@ -43,7 +53,10 @@ func newUserService(db store.Storages, secretKey string, aTokenTime time.Duratio
 	}
 }
 
-func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin) (*model.CreateAdmin, error) {
+func (u *uService) WriteAdminToCache(
+	ctx context.Context,
+	val model.CreateAdmin,
+) (*model.CreateAdmin, error) {
 
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
@@ -82,7 +95,12 @@ func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return userResp, nil
 }
 
-func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyId int) (*model.Tokens, error) {
+func (u *uService) GenerateTokenPair(
+	ctx context.Context,
+	userId int,
+	isAdmin bool,
+	companyId int,
+) (*model.Tokens, error) {
 
 	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.aTokenTime)
 	if err != nil {
@@ -156,4 +174,14 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	}
 
 	return createdAdmin, nil
+}
+
+func (u *uService) ChangeAdmin(
+	ctx context.Context,
+	val model.ChangeAdminInfo,
+) (*model.ChangeAdminInfo, error) {
+	u.db.UserStorage().ChangeAdmin(ctx, val)
+
+	return nil, nil
+
 }

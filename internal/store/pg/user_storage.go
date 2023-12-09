@@ -5,13 +5,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
-	"go.uber.org/zap"
 )
 
 var _ store.RepositoryUser = (*uStorage)(nil)
@@ -37,8 +39,20 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		RETURNING id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 
 		created_at, updated_at`
 
-	err := u.db.GetContext(ctx, &createdUser, query, val.CompanyID, val.PositionID, val.Email, val.Password,
-		val.IsActive, val.IsAdmin, val.Name, val.Surname, val.Patronymic)
+	err := u.db.GetContext(
+		ctx,
+		&createdUser,
+		query,
+		val.CompanyID,
+		val.PositionID,
+		val.Email,
+		val.Password,
+		val.IsActive,
+		val.IsAdmin,
+		val.Name,
+		val.Surname,
+		val.Patronymic,
+	)
 
 	if err != nil {
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
@@ -51,7 +65,11 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	return &createdUser, nil
 }
 
-func (u *uStorage) CreateAdmin(ctx context.Context, admin model.AdminCreate, companyName string) (*model.User, error) {
+func (u *uStorage) CreateAdmin(
+	ctx context.Context,
+	admin model.AdminCreate,
+	companyName string,
+) (*model.User, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
 		return &model.User{}, fmt.Errorf("beginning tx: %w", err)
@@ -98,6 +116,44 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.AdminCreate, com
 	}
 
 	return &createdAdmin, nil
+}
+
+func (u *uStorage) ChangeAdmin(
+	ctx context.Context,
+	admin model.ChangeAdminInfo,
+) (*model.ChangeAdminInfo, error) {
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return nil, fmt.Errorf("beginning tx: %w", err)
+	}
+
+	defer func() {
+		if err != nil {
+			if err := tx.Rollback(); err != nil {
+				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+			}
+		}
+	}()
+
+	query := `UPDATE users SET name=$1, surname=$2, patronymic=$3, email=$4 WHERE id=$5 RETURNING company_id`
+	var company_id int
+
+	if err = tx.GetContext(ctx, &company_id, query, admin.Firstname, admin.Surname, admin.Patronymic, admin.Email, admin.ID); err != nil {
+		return nil, err
+	}
+
+	query = `UPDATE companies SET name=$1 WHERE id=$2`
+
+	if _, err = tx.ExecContext(ctx, query, admin.Company, company_id); err != nil {
+		return nil, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return nil, fmt.Errorf("committing tx: %w", err)
+	}
+
+	return &admin, nil
+
 }
 
 func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {

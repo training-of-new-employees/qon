@@ -2,14 +2,14 @@ package rest
 
 import (
 	"errors"
-	"github.com/training-of-new-employees/qon/internal/logger"
-	"go.uber.org/zap"
-	//"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/training-of-new-employees/qon/internal/model"
 	"net/http"
-	//"github.com/training-of-new-employees/qon/internal/model"
-	//"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
+	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
 
 func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
@@ -136,4 +136,31 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"admin created": createdAdmin.Email})
 
+}
+
+func (r *RestServer) handlerAdminInfoChange(c *gin.Context) {
+	ctx := c.Request.Context()
+	edit := model.ChangeAdminInfo{}
+	if err := c.ShouldBindJSON(edit); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := edit.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	token := jwttoken.GetToken(c)
+	claims, err := r.tokenVal.ValidateToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	edit.ID = claims.UserID
+
+	edited, err := r.services.User().ChangeAdmin(ctx, edit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, edited)
 }
