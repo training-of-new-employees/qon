@@ -152,19 +152,19 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 
 func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 	ctx := c.Request.Context()
-	key := model.Key{}
+	code := model.Code{}
 
-	if err := c.ShouldBindJSON(&key); err != nil {
+	if err := c.ShouldBindJSON(&code); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := key.Validate(); err != nil {
+	if err := code.Validate(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	adminFromCache, err := r.services.User().GetAdminFromCache(ctx, key.Key)
+	adminFromCache, err := r.services.User().GetAdminFromCache(ctx, code.Code)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -178,7 +178,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 		return
 	}
 
-	_ = r.services.User().DeleteAdminFromCache(ctx, key.Key)
+	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
 	c.JSON(http.StatusCreated, gin.H{"admin created": createdAdmin.Email})
 
