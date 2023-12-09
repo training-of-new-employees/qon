@@ -57,6 +57,11 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 		return
 	}
 
+	if err := userReq.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	user, err := r.services.User().CreateUser(ctx, userReq)
 	switch {
 	case errors.Is(err, model.ErrEmailAlreadyExists):
@@ -70,6 +75,47 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"user": user})
 
+}
+
+func (r *RestServer) handlerSetPassword(c *gin.Context) {
+	ctx := c.Request.Context()
+	userReq := model.UserSignIn{}
+
+	if err := c.ShouldBindJSON(&userReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := userReq.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user.IsActive {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "this is not the user's first login"})
+		return
+	}
+
+	if err := r.services.User().UpdatePasswordAndActivateUser(ctx, userReq.Email, userReq.Password); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
+
+	c.JSON(http.StatusOK, gin.H{"access token": tokens.AccessToken})
 }
 
 func (r *RestServer) handlerSignIn(c *gin.Context) {
