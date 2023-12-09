@@ -42,6 +42,17 @@ type (
 	}
 )
 
+func (u *UserCreate) Validation() error {
+	return validation.ValidateStruct(u,
+		validation.Field(&u.Email, validation.Required, is.Email),
+		validation.Field(&u.CompanyID, validation.Required),
+		validation.Field(&u.PositionID, validation.Required),
+		validation.Field(&u.Name, validation.Required),
+		validation.Field(&u.Surname, validation.Required),
+		validation.Field(&u.Patronymic, validation.Required),
+	)
+}
+
 func (u *UserCreate) SetPassword() error {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)

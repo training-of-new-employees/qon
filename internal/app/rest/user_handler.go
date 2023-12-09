@@ -54,6 +54,11 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 		return
 	}
 
+	if err := userReq.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	user, err := r.services.User().CreateUser(ctx, userReq)
 	switch {
 	case errors.Is(err, model.ErrEmailAlreadyExists):
