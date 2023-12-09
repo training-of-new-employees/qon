@@ -2,10 +2,12 @@ package model
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type (
@@ -39,6 +41,9 @@ type (
 		Name       string    `json:"name" db:"name"`
 		Surname    string    `json:"surname" db:"surname"`
 		Patronymic string    `json:"patronymic" db:"patronymic"`
+	}
+	EmailReset struct {
+		Email string `json:"email"`
 	}
 )
 
@@ -152,4 +157,22 @@ func (u *CreateAdmin) SetPassword() error {
 
 	return nil
 
+}
+
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func GeneratePassword() string {
+	password := make([]byte, 6)
+	for i := 0; i < 6; i++ {
+		password[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(password)
+}
+
+func GenerateHash(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
@@ -150,6 +151,32 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 
 	return nil
 }
+  
+func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password string) error {
+  tx, err := u.db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+
+	defer func() {
+		if err != nil {
+			if err := tx.Rollback(); err != nil {
+				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+			}
+		}
+	}()
+  
+  // Установка нового пароля
+	if err := u.updatePasswordTx(ctx, tx, userID, encPassword); err != nil {
+		return err
+	}
+  
+  if err = tx.Commit(); err != nil {
+		return fmt.Errorf("committing tx: %w", err)
+	}
+
+	return nil
+}
 
 // updatePasswordTx обновляет пароль пользователя.
 // ВAЖНО: может вызываться только внутри транзакции.
@@ -170,7 +197,6 @@ func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) 
 	_, err := tx.ExecContext(ctx, query, userID)
 	if err != nil {
 		return err
-	}
-
+  }
 	return nil
 }
