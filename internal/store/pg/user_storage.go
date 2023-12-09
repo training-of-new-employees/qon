@@ -167,7 +167,7 @@ func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password 
 	}()
   
   // Установка нового пароля
-	if err := u.updatePasswordTx(ctx, tx, userID, encPassword); err != nil {
+	if err := u.updatePasswordTx(ctx, tx, userID, password); err != nil {
 		return err
 	}
   
