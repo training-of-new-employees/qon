@@ -39,12 +39,22 @@ type (
 		Name       string    `json:"name" db:"name"`
 		Surname    string    `json:"surname" db:"surname"`
 		Patronymic string    `json:"patronymic" db:"patronymic"`
-		CreatedAt  time.Time `json:"created_at" db:"created_at"`
-		UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 	}
 )
 
 func (u *UserCreate) SetPassword() error {
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
+	if err != nil {
+		return fmt.Errorf("error SetPassword: %v", err)
+	}
+
+	u.Password = string(hash)
+
+	return nil
+}
+
+func (u *UserCreate) SetActive() error {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 	if err != nil {
@@ -91,8 +101,6 @@ type (
 		Name       string    `json:"name" db:"name"`
 		Surname    string    `json:"surname" db:"surname"`
 		Patronymic string    `json:"patronymic" db:"patronymic"`
-		CreatedAt  time.Time `json:"created_at" db:"created_at"`
-		UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 	}
 )
 

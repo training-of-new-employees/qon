@@ -69,7 +69,7 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 }
 
-func (r *RestServer) handlerFirstIn(c *gin.Context) {
+func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
 	userReq := model.UserSignIn{}
 
@@ -80,11 +80,17 @@ func (r *RestServer) handlerFirstIn(c *gin.Context) {
 
 	if err := userReq.Validation(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user.IsActive {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "this is not the user's first login"})
 		return
 	}
 

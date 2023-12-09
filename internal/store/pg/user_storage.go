@@ -105,7 +105,7 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 
 	query := `SELECT id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 
        		  created_at, updated_at
-			  FROM users WHERE email = $1 AND active = true`
+			  FROM users WHERE email = $1`
 
 	err := u.db.GetContext(ctx, &user, query, email)
 	if err != nil {
@@ -119,11 +119,58 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return &user, nil
 }
 
-func (u *uStorage) UpdateUserPassword(ctx context.Context, email string, password string) error {
-	query := `UPDATE users SET enc_password = $1 WHERE email = $2`
-	_, err := u.db.ExecContext(ctx, query, password, email)
+// SetPasswordAndActivateUser установка пароля и активация пользователя.
+func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, encPassword string) error {
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+
+	defer func() {
+		if err != nil {
+			if err := tx.Rollback(); err != nil {
+				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+			}
+		}
+	}()
+
+	// Установка нового пароля
+	if err := u.updatePasswordTx(ctx, tx, userID, encPassword); err != nil {
+		return err
+	}
+
+	// Активация пользователя
+	if err := u.activateUserTx(ctx, tx, userID); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("committing tx: %w", err)
+	}
+
+	return nil
+}
+
+// updatePasswordTx обновляет пароль пользователя.
+// ВAЖНО: может вызываться только внутри транзакции.
+func (u *uStorage) updatePasswordTx(ctx context.Context, tx *sqlx.Tx, userID int, encPassword string) error {
+	query := `UPDATE users SET enc_password = $1 WHERE id = $2`
+	_, err := tx.ExecContext(ctx, query, encPassword, userID)
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// activateUserTx активирует пользователя.
+// ВAЖНО: может вызываться только внутри транзакции.
+func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) error {
+	query := `UPDATE users SET active = true WHERE id = $1`
+	_, err := tx.ExecContext(ctx, query, userID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

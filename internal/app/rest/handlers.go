@@ -16,7 +16,7 @@ func (s *RestServer) InitRoutes() {
 	adminGroup.POST("/employee", s.handlerCreateUser)
 
 	userGroup := mvp.Group("/users")
-	userGroup.POST("/register", s.handlerFirstIn)
+	userGroup.POST("/set-password", s.handlerSetPassword)
 
 	// userGroup.POST("/", s.handlerCreateUser)
 

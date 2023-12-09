@@ -3,6 +3,8 @@ package impl
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -11,8 +13,8 @@ import (
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
+	"github.com/training-of-new-employees/qon/internal/utils.go"
 	"go.uber.org/zap"
-	"time"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -158,7 +160,7 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	return createdAdmin, nil
 }
 
-func (u *uService) UpdatePassword(ctx context.Context, email string, password string) error {
+func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
@@ -167,12 +169,12 @@ func (u *uService) UpdatePassword(ctx context.Context, email string, password st
 		return model.ErrUserNotFound
 	}
 
-	encPassword, err := model.EncryptPassword(password)
+	encPassword, err := utils.EncryptPassword(password)
 	if err != nil {
 		return err
 	}
 
-	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.Email, encPassword); err != nil {
+	if err = u.db.UserStorage().SetPasswordAndActivateUser(ctx, user.ID, encPassword); err != nil {
 		return err
 	}
 	return nil
