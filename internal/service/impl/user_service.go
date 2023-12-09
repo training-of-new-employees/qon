@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"strings"
-	"time"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
@@ -16,6 +14,8 @@ import (
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	"github.com/training-of-new-employees/qon/internal/utils.go"
 	"go.uber.org/zap"
+	"strings"
+	"time"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -164,7 +164,6 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	return createdAdmin, nil
 }
 
-
 func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -174,11 +173,11 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 		return model.ErrUserNotFound
 	}
 
-  encPassword, err := utils.EncryptPassword(password)
+	encPassword, err := utils.EncryptPassword(password)
 	if err != nil {
 		return err
 	}
-  
+
 	if err = u.db.UserStorage().SetPasswordAndActivateUser(ctx, user.ID, encPassword); err != nil {
 		return err
 	}
@@ -187,22 +186,22 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 }
 
 func (u *uService) ResetPassword(ctx context.Context, email string) error {
-  user, err := u.GetUserByEmail(ctx, email)
+	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
 	}
 	if user.Email == "" {
 		return model.ErrUserNotFound
 	}
-  
-  password, err := model.GenerateHash(model.GeneratePassword())
+
+	password, err := model.GenerateHash(model.GeneratePassword())
 	if err != nil {
 		return err
 	}
-  
-  if err = u.db.UserStorage().UpdateUserPassword(ctx, user.ID, password); err != nil {
+
+	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.ID, password); err != nil {
 		return err
 	}
- 
+
 	return nil
 }

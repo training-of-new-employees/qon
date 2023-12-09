@@ -151,9 +151,9 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 
 	return nil
 }
-  
+
 func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password string) error {
-  tx, err := u.db.Beginx()
+	tx, err := u.db.Beginx()
 	if err != nil {
 		return fmt.Errorf("beginning tx: %w", err)
 	}
@@ -165,13 +165,13 @@ func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password 
 			}
 		}
 	}()
-  
-  // Установка нового пароля
+
+	// Установка нового пароля
 	if err := u.updatePasswordTx(ctx, tx, userID, password); err != nil {
 		return err
 	}
-  
-  if err = tx.Commit(); err != nil {
+
+	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("committing tx: %w", err)
 	}
 
@@ -197,6 +197,6 @@ func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) 
 	_, err := tx.ExecContext(ctx, query, userID)
 	if err != nil {
 		return err
-  }
+	}
 	return nil
 }
