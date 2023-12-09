@@ -94,7 +94,7 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 		return
 	}
 
-	if err := r.services.User().UpdatePassword(ctx, userReq.Email, userReq.Password); err != nil {
+	if err := r.services.User().UpdatePasswordAndActivateUser(ctx, userReq.Email, userReq.Password); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
