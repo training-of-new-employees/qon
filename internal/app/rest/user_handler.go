@@ -155,7 +155,10 @@ func (r *RestServer) handlerAdminEditInfo(c *gin.Context) {
 	edit.ID = claims.UserID
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
-	if err != nil {
+	switch {
+	case errors.Is(err, model.ErrUserNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	case err != nil:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
