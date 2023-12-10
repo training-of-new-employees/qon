@@ -12,7 +12,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
-	"github.com/training-of-new-employees/qon/internal/utils.go"
+	"github.com/training-of-new-employees/qon/internal/utils"
 	"go.uber.org/zap"
 	"strings"
 	"time"
