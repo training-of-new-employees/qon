@@ -16,7 +16,6 @@ func (s *RestServer) InitRoutes() {
 	adminGroup.PATCH("/info", s.handlerAdminEditInfo)
 	userGroup := mvp.Group("/users")
 	userGroup.POST("/", s.handlerCreateUser)
-	userGroup.PATCH("/", s.handlerCreateUser)
 	position := mvp.Group("/position")
 	position.POST("/positions", s.handlerCreatePosition)
 	position.GET("/positions/{id}", s.handlerGetPosition)
