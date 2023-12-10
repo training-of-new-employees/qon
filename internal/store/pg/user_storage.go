@@ -118,34 +118,40 @@ func (u *uStorage) CreateAdmin(
 	return &createdAdmin, nil
 }
 
-func (u *uStorage) ChangeAdmin(
+func (u *uStorage) EditAdmin(
 	ctx context.Context,
-	admin model.ChangeAdminInfo,
-) (*model.ChangeAdminInfo, error) {
+	admin model.AdminEdit,
+) (*model.AdminEdit, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
 		return nil, fmt.Errorf("beginning tx: %w", err)
 	}
 
 	defer func() {
-		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
+		if err := tx.Rollback(); err != nil {
+			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
 		}
 	}()
 
-	query := `UPDATE users SET name=$1, surname=$2, patronymic=$3, email=$4 WHERE id=$5 RETURNING company_id`
-	var company_id int
+	var pgErr *pgconn.PgError
+	var companyID int
 
-	if err = tx.GetContext(ctx, &company_id, query, admin.Firstname, admin.Surname, admin.Patronymic, admin.Email, admin.ID); err != nil {
+	query := `UPDATE users SET name = $1, surname = $2, patronymic = $3, email = $4 WHERE id = $5 RETURNING company_id`
+
+	if err = tx.GetContext(ctx, &companyID, query, admin.Name, admin.Surname, admin.Patronymic, admin.Email, admin.ID); err != nil {
+		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.NoDataFound {
+			return nil, model.ErrUserNotFound
+		}
 		return nil, err
+
 	}
 
-	query = `UPDATE companies SET name=$1 WHERE id=$2`
+	query = `UPDATE companies SET name = $1 WHERE id = $2`
 
-	if _, err = tx.ExecContext(ctx, query, admin.Company, company_id); err != nil {
-		return nil, err
+	if admin.Company != "" {
+		if _, err = tx.ExecContext(ctx, query, admin.Company, companyID); err != nil {
+			return nil, err
+		}
 	}
 
 	if err = tx.Commit(); err != nil {

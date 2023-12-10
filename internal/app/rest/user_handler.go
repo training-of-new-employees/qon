@@ -138,17 +138,14 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 }
 
-func (r *RestServer) handlerAdminInfoChange(c *gin.Context) {
+func (r *RestServer) handlerAdminEditInfo(c *gin.Context) {
 	ctx := c.Request.Context()
-	edit := model.ChangeAdminInfo{}
-	if err := c.ShouldBindJSON(edit); err != nil {
+	edit := model.AdminEdit{}
+	if err := c.ShouldBindJSON(&edit); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := edit.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+
 	token := jwttoken.GetToken(c)
 	claims, err := r.tokenVal.ValidateToken(token)
 	if err != nil {
@@ -157,7 +154,7 @@ func (r *RestServer) handlerAdminInfoChange(c *gin.Context) {
 	}
 	edit.ID = claims.UserID
 
-	edited, err := r.services.User().ChangeAdmin(ctx, edit)
+	edited, err := r.services.User().EditAdmin(ctx, edit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

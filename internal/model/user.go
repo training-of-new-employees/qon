@@ -96,11 +96,11 @@ type (
 		UpdatedAt  time.Time `json:"updated_at"  db:"updated_at"`
 	}
 
-	ChangeAdminInfo struct {
+	AdminEdit struct {
 		ID         int    `json:"id,omitempty"           db:"id"`
 		Email      string `json:"email,omitempty"        db:"email"`
 		Company    string `json:"company_name,omitempty" db:"company_name"`
-		Firstname  string `json:"firstname,omitempty"    db:"firstname"`
+		Name       string `json:"name,omitempty"         db:"name"`
 		Patronymic string `json:"patronymic,omitempty"   db:"patronymic"`
 		Surname    string `json:"surname,omitempty"      db:"surname"`
 	}
@@ -145,13 +145,13 @@ func (u *CreateAdmin) SetPassword() error {
 
 }
 
-func (e *ChangeAdminInfo) Validation() error {
+func (e *AdminEdit) Validation() error {
 	return validation.ValidateStruct(e,
-		validation.Field(&e.Email, validation.Required, is.Email, validation.Length(5, 50)),
-		validation.Field(&e.Company, validation.Required, validation.Length(3, 30)),
-		validation.Field(&e.Firstname, validation.Required, validation.Length(0, 128)),
-		validation.Field(&e.Surname, validation.Required, validation.Length(0, 128)),
-		validation.Field(&e.Patronymic, validation.Required, validation.Length(0, 128)),
+		validation.Field(&e.Email, is.Email, validation.Length(5, 50)),
+		validation.Field(&e.Company, validation.Length(3, 30)),
+		validation.Field(&e.Name, validation.Length(0, 128)),
+		validation.Field(&e.Surname, validation.Length(0, 128)),
+		validation.Field(&e.Patronymic, validation.Length(0, 128)),
 	)
 
 }
