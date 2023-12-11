@@ -3,12 +3,13 @@ package pg
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/training-of-new-employees/qon/internal/store"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
-	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
+
+	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/store"
 )
 
 var _ store.Storages = (*Store)(nil)

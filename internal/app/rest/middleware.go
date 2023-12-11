@@ -55,7 +55,7 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 			return
 		}
 
-		if claims.IsAdmin != true {
+		if !claims.IsAdmin {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			logger.Log.Warn("error permission denied: %v", zap.Error(err))
 			return
@@ -68,7 +68,11 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 
 func (r *RestServer) LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		logger.Log.Info("request", zap.String("method", c.Request.Method), zap.String("path", c.Request.URL.Path))
+		logger.Log.Info(
+			"request",
+			zap.String("method", c.Request.Method),
+			zap.String("path", c.Request.URL.Path),
+		)
 		c.Next()
 	}
 }
