@@ -2,14 +2,15 @@
 package rest
 
 import (
-	"github.com/training-of-new-employees/qon/internal/logger"
-	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
-	"go.uber.org/zap"
 	"log"
 	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
+	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
 
 // DummyMiddleware - тестовый middleware, используется для проверки.
@@ -65,7 +66,11 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 
 func (r *RestServer) LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		logger.Log.Info("request", zap.String("method", c.Request.Method), zap.String("path", c.Request.URL.Path))
+		logger.Log.Info(
+			"request",
+			zap.String("method", c.Request.Method),
+			zap.String("path", c.Request.URL.Path),
+		)
 		c.Next()
 	}
 }

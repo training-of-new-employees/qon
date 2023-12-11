@@ -16,4 +16,5 @@ type ServiceUser interface {
 	DeleteAdminFromCache(ctx context.Context, key string) error
 	UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error
 	ResetPassword(ctx context.Context, email string) error
+	EditAdmin(ctx context.Context, val *model.AdminEdit) (*model.AdminEdit, error)
 }

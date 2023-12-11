@@ -3,6 +3,10 @@ package impl
 import (
 	"context"
 	"fmt"
+	"time"
+
+
+	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -13,9 +17,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	"github.com/training-of-new-employees/qon/internal/utils"
-	"go.uber.org/zap"
 	"strings"
-	"time"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -32,8 +34,16 @@ type uService struct {
 	sender     doar.EmailSender
 }
 
-func newUserService(db store.Storages, secretKey string, aTokenTime time.Duration,
-	rTokenTime time.Duration, cache cache.Cache, jwtGen jwttoken.JWTGenerator, jwtVal jwttoken.JWTValidator, sender doar.EmailSender) *uService {
+func newUserService(
+	db store.Storages,
+	secretKey string,
+	aTokenTime time.Duration,
+	rTokenTime time.Duration,
+	cache cache.Cache,
+	jwtGen jwttoken.JWTGenerator,
+	jwtVal jwttoken.JWTValidator,
+	sender doar.EmailSender,
+) *uService {
 	return &uService{
 		db:         db,
 		secretKey:  secretKey,
@@ -46,7 +56,10 @@ func newUserService(db store.Storages, secretKey string, aTokenTime time.Duratio
 	}
 }
 
-func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin) (*model.CreateAdmin, error) {
+func (u *uService) WriteAdminToCache(
+	ctx context.Context,
+	val model.CreateAdmin,
+) (*model.CreateAdmin, error) {
 
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
@@ -222,4 +235,20 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	}
 
 	return nil
+}
+
+// EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке
+func (u *uService) EditAdmin(ctx context.Context, val *model.AdminEdit) (*model.AdminEdit, error) {
+
+	err := val.Validation()
+	if err != nil {
+		return nil, err
+	}
+
+	edited, err := u.db.UserStorage().EditAdmin(ctx, val)
+	if err != nil {
+		return nil, fmt.Errorf("can't edit user: %w", err)
+	}
+	return edited, nil
+
 }
