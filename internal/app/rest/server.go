@@ -2,11 +2,10 @@
 package rest
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 // RestServer - реализация rest-сервера.

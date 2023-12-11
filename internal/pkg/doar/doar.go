@@ -18,7 +18,6 @@ type Sender struct {
 	AdminBody            string
 }
 
-// TODO
 func NewSender(serviceEmail string, password string) *Sender {
 	return &Sender{
 		EmailServiceAddress:  serviceEmail,

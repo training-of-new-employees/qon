@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -12,7 +11,6 @@ func Test_SetPassword(t *testing.T) {
 		err := user.SetPassword()
 		assert.NoError(t, err)
 		assert.NotEmpty(t, user.Password)
-		fmt.Println(user.Password)
 	})
 }
 

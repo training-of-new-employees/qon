@@ -6,5 +6,9 @@ import (
 )
 
 type RepositoryPosition interface {
-	CreatePosition(ctx context.Context, position model.CreatePosition) (*model.Position, error)
+	CreatePositionDB(ctx context.Context, position model.PositionCreate) (*model.Position, error)
+	GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error)
+	GetPositionsDB(ctx context.Context, id int) ([]*model.Position, error)
+	UpdatePositionDB(ctx context.Context, id int, position model.PositionUpdate) (*model.Position, error)
+	DeletePositionDB(ctx context.Context, id int, companyID int) error
 }

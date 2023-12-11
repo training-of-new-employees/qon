@@ -2,14 +2,11 @@ package rest
 
 import (
 	"errors"
-	"github.com/training-of-new-employees/qon/internal/logger"
-	"go.uber.org/zap"
-	//"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"go.uber.org/zap"
 	"net/http"
-	//"github.com/training-of-new-employees/qon/internal/model"
-	//"net/http"
 )
 
 func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {

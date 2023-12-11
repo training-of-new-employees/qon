@@ -83,7 +83,7 @@ func (s *Store) UserStorage() store.RepositoryUser {
 func (s *Store) PositionStorage() store.RepositoryPosition {
 
 	if s.positionStore != nil {
-		return nil
+		return s.positionStore
 	}
 
 	s.positionStore = newPositionStorage(s.conn)

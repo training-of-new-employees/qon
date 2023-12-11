@@ -3,8 +3,6 @@ package rest
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
 
-	//s.router.Use(s.DummyMiddleware())
-	//s.router.GET("/api/v1/dummy", s.Dummy)
 	s.router.Use(s.LoggerMiddleware())
 	allRoutes := s.router.Group("/api")
 	mvp := allRoutes.Group("/v1")
@@ -15,11 +13,13 @@ func (s *RestServer) InitRoutes() {
 	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
 	userGroup := mvp.Group("/users")
 	userGroup.POST("/", s.handlerCreateUser)
-	position := mvp.Group("/position")
-	position.POST("/positions", s.handlerCreatePosition)
-	position.GET("/positions/{id}", s.handlerGetPosition)
-	position.PATCH("/positions/{id}", s.handlerUpdatePosition)
-	position.DELETE("/positions/{id}", s.handlerDeletePosition)
-	//s.router.Use(s.IsAuthenticated())
-	//s.router.Use(s.IsAdmin())
+
+	position := mvp.Group("/positions")
+	position.Use(s.IsAuthenticated())
+	position.Use(s.IsAdmin())
+	position.POST("/", s.handlerCreatePosition)
+	position.GET("/", s.handlerGetPositions)
+	position.GET("/:id", s.handlerGetPosition)
+	position.PATCH("/update/:id", s.handlerUpdatePosition)
+	position.DELETE("/delete/:id", s.handlerDeletePosition)
 }
