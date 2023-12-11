@@ -32,15 +32,15 @@ type (
 	}
 
 	UserCreate struct {
-		CompanyID  int       `json:"company_id" db:"company_id"`
-		PositionID int       `json:"position_id" db:"position_id"`
-		Email      string    `json:"email" db:"email"`
-		Password   string    `json:"password" db:"enc_password"`
-		IsActive   bool      `json:"active" db:"active"`
-		IsAdmin    bool      `json:"admin" db:"admin"`
-		Name       string    `json:"name" db:"name"`
-		Surname    string    `json:"surname" db:"surname"`
-		Patronymic string    `json:"patronymic" db:"patronymic"`
+		CompanyID  int    `json:"company_id" db:"company_id"`
+		PositionID int    `json:"position_id" db:"position_id"`
+		Email      string `json:"email" db:"email"`
+		Password   string `json:"password" db:"enc_password"`
+		IsActive   bool   `json:"active" db:"active"`
+		IsAdmin    bool   `json:"admin" db:"admin"`
+		Name       string `json:"name" db:"name"`
+		Surname    string `json:"surname" db:"surname"`
+		Patronymic string `json:"patronymic" db:"patronymic"`
 	}
 	EmailReset struct {
 		Email string `json:"email"`
@@ -54,7 +54,6 @@ func (u *UserCreate) Validation() error {
 		validation.Field(&u.PositionID, validation.Required),
 		validation.Field(&u.Name, validation.Required),
 		validation.Field(&u.Surname, validation.Required),
-		validation.Field(&u.Patronymic, validation.Required),
 	)
 }
 
@@ -108,15 +107,15 @@ type (
 	}
 
 	AdminCreate struct {
-		CompanyID  int       `json:"company_id" db:"company_id"`
-		PositionID int       `json:"position_id" db:"position_id"`
-		Email      string    `json:"email" db:"email"`
-		Password   string    `json:"password" db:"enc_password"`
-		IsActive   bool      `json:"active" db:"active"`
-		IsAdmin    bool      `json:"admin" db:"admin"`
-		Name       string    `json:"name" db:"name"`
-		Surname    string    `json:"surname" db:"surname"`
-		Patronymic string    `json:"patronymic" db:"patronymic"`
+		CompanyID  int    `json:"company_id" db:"company_id"`
+		PositionID int    `json:"position_id" db:"position_id"`
+		Email      string `json:"email" db:"email"`
+		Password   string `json:"password" db:"enc_password"`
+		IsActive   bool   `json:"active" db:"active"`
+		IsAdmin    bool   `json:"admin" db:"admin"`
+		Name       string `json:"name" db:"name"`
+		Surname    string `json:"surname" db:"surname"`
+		Patronymic string `json:"patronymic" db:"patronymic"`
 	}
 )
 

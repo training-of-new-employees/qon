@@ -70,7 +70,7 @@ func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin)
 
 	logger.Log.Info("cache write successful", zap.String("key", key))
 
-	if err = u.sender.SendEmail(val.Email, code); err != nil {
+	if err = u.sender.SendCode(val.Email, code); err != nil {
 		return nil, err
 	}
 
@@ -120,6 +120,14 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		return nil, fmt.Errorf("err CreateUser")
 	}
 
+	// TODO: генерирация пригласительной ссылки
+	link := fmt.Sprintf("https://sample?email=%s", val.Email)
+
+	// Отправление пригласительной ссылки сотруднику
+	if err = u.sender.InviteUser(val.Email, link); err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
+	}
+
 	return createdUser, nil
 }
 
@@ -164,6 +172,7 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	return createdAdmin, nil
 }
 
+// UpdatePasswordAndActivateUser устанавливает пароль и активирует учётную запись пользователя.
 func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -185,6 +194,7 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 	return nil
 }
 
+// ResetPassword сбрасывает пользовательский пароль и устанавливает новый.
 func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -194,12 +204,20 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 		return model.ErrUserNotFound
 	}
 
-	password, err := model.GenerateHash(model.GeneratePassword())
+	password := model.GeneratePassword()
+
+	encPassword, err := model.GenerateHash(password)
 	if err != nil {
 		return err
 	}
 
-	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.ID, password); err != nil {
+	// Обновление пароля пользователя
+	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.ID, encPassword); err != nil {
+		return err
+	}
+
+	// Отправление пароля пользователю
+	if err = u.sender.SendPassword(email, password); err != nil {
 		return err
 	}
 
