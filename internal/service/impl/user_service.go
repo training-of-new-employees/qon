@@ -95,7 +95,7 @@ func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return userResp, nil
 }
 
-func (u *uService) GenerateTokenPair(ctx context.Context, userId int,	isAdmin bool,	companyId int) (*model.Tokens, error) {
+func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyId int) (*model.Tokens, error) {
 
 	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.aTokenTime)
 	if err != nil {
@@ -172,10 +172,7 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 }
 
 // EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке
-func (u *uService) EditAdmin(
-	ctx context.Context,
-	val *model.AdminEdit,
-) (*model.AdminEdit, error) {
+func (u *uService) EditAdmin(ctx context.Context, val *model.AdminEdit) (*model.AdminEdit, error) {
 
 	err := val.Validation()
 	if err != nil {
