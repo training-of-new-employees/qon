@@ -2,24 +2,17 @@
 package rest
 
 import (
-	"log"
-	"log/slog"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	"go.uber.org/zap"
+	"net/http"
 )
 
-// DummyMiddleware - тестовый middleware, используется для проверки.
-func (r *RestServer) DummyMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		log.Println("into dummyMiddleware")
-
-		ctx.Next()
-	}
+type UserSession struct {
+	UserID  int
+	IsAdmin bool
+	OrgID   int
 }
 
 // IsAuthenticated - middleware для проверки авторизации.
@@ -27,14 +20,22 @@ func (r *RestServer) IsAuthenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := jwttoken.GetToken(c)
 
-		_, err := r.tokenVal.ValidateToken(token)
+		claims, err := r.tokenVal.ValidateToken(token)
 
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-			slog.Warn("error invalid token: %v", err)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err})
+			logger.Log.Warn("error invalid token: %v", zap.Error(err))
 
 			return
 		}
+
+		us := UserSession{
+			UserID:  claims.UserID,
+			IsAdmin: claims.IsAdmin,
+			OrgID:   claims.OrgID,
+		}
+
+		c.Set("session", &us)
 
 		c.Next()
 	}
@@ -48,7 +49,7 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 		claims, err := r.tokenVal.ValidateToken(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-			logger.Log.Warn("error invalid token: %v", zap.Error(err))
+			logger.Log.Warn("error  invalid token: %v", zap.Error(err))
 
 			return
 		}
@@ -73,4 +74,17 @@ func (r *RestServer) LoggerMiddleware() gin.HandlerFunc {
 		)
 		c.Next()
 	}
+}
+
+func (r *RestServer) getUserSession(c *gin.Context) *UserSession {
+	val, _ := c.Get("session")
+
+	us, ok := val.(*UserSession)
+	if !ok {
+		logger.Log.Warn("ctx without user session")
+
+		return &UserSession{}
+	}
+
+	return us
 }

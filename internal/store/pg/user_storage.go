@@ -34,9 +34,9 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	createdUser := model.User{}
 
 	query := `
-		INSERT INTO users(company_id, position_id, email, enc_password, active, admin, name, surname, patronymic) 
+		INSERT INTO users(company_id, position_id, email, enc_password, active, admin, name, surname, patronymic)
 		VALUES($1,$2,$3, $4, $5, $6, $7, $8, $9)
-		RETURNING id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 
+		RETURNING id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic,
 		created_at, updated_at`
 
 	err := u.db.GetContext(
@@ -59,7 +59,7 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 			return nil, model.ErrEmailAlreadyExists
 		}
 
-		return &model.User{}, err
+		return nil, fmt.Errorf("create user: %w", err)
 	}
 
 	return &createdUser, nil
