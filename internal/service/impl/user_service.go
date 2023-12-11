@@ -176,6 +176,7 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	return createdAdmin, nil
 }
 
+// EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке
 func (u *uService) EditAdmin(
 	ctx context.Context,
 	val *model.AdminEdit,

@@ -96,6 +96,7 @@ type (
 		UpdatedAt  time.Time `json:"updated_at"  db:"updated_at"`
 	}
 
+	// AdminEdit - Структура для передачи изменяемых данных администратора
 	AdminEdit struct {
 		ID         int     `json:"id,omitempty"           db:"id"`
 		Email      *string `json:"email,omitempty"        db:"email"`
