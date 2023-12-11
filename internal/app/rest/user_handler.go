@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
@@ -54,6 +55,11 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 		return
 	}
 
+	if err := userReq.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	user, err := r.services.User().CreateUser(ctx, userReq)
 	switch {
 	case errors.Is(err, model.ErrEmailAlreadyExists):
@@ -67,6 +73,47 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"user": user})
 
+}
+
+func (r *RestServer) handlerSetPassword(c *gin.Context) {
+	ctx := c.Request.Context()
+	userReq := model.UserSignIn{}
+
+	if err := c.ShouldBindJSON(&userReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := userReq.Validation(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user.IsActive {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "this is not the user's first login"})
+		return
+	}
+
+	if err := r.services.User().UpdatePasswordAndActivateUser(ctx, userReq.Email, userReq.Password); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
+
+	c.JSON(http.StatusOK, gin.H{"access token": tokens.AccessToken})
 }
 
 func (r *RestServer) handlerSignIn(c *gin.Context) {
@@ -106,19 +153,19 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 
 func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 	ctx := c.Request.Context()
-	key := model.Key{}
+	code := model.Code{}
 
-	if err := c.ShouldBindJSON(&key); err != nil {
+	if err := c.ShouldBindJSON(&code); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := key.Validate(); err != nil {
+	if err := code.Validate(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	adminFromCache, err := r.services.User().GetAdminFromCache(ctx, key.Key)
+	adminFromCache, err := r.services.User().GetAdminFromCache(ctx, code.Code)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -132,10 +179,30 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 		return
 	}
 
-	_ = r.services.User().DeleteAdminFromCache(ctx, key.Key)
+	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
 	c.JSON(http.StatusCreated, gin.H{"admin created": createdAdmin.Email})
 
+}
+
+func (r *RestServer) handlerResetPassword(c *gin.Context) {
+	ctx := c.Request.Context()
+	email := model.EmailReset{}
+	if err := c.ShouldBindJSON(&email); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
+		if errors.Is(err, model.ErrUserNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (r *RestServer) handlerAdminEditInfo(c *gin.Context) {

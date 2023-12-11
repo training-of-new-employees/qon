@@ -10,12 +10,19 @@ func (s *RestServer) InitRoutes() {
 	mvp := allRoutes.Group("/v1")
 	login := mvp.Group("/login")
 	login.POST("/", s.handlerSignIn)
+	password := mvp.Group("/password")
+	password.POST("/", s.handlerResetPassword)
 	adminGroup := mvp.Group("/admin")
 	adminGroup.POST("/register", s.handlerCreateAdminInCache)
 	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
+	adminGroup.POST("/employee", s.handlerCreateUser)
+
 	adminGroup.PATCH("/info", s.handlerAdminEditInfo)
 	userGroup := mvp.Group("/users")
-	userGroup.POST("/", s.handlerCreateUser)
+	userGroup.POST("/set-password", s.handlerSetPassword)
+
+	// userGroup.POST("/", s.handlerCreateUser)
+
 	position := mvp.Group("/position")
 	position.POST("/positions", s.handlerCreatePosition)
 	position.GET("/positions/{id}", s.handlerGetPosition)

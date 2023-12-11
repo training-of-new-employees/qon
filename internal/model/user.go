@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -31,21 +32,44 @@ type (
 	}
 
 	UserCreate struct {
-		CompanyID  int       `json:"company_id"  db:"company_id"`
-		PositionID int       `json:"position_id" db:"position_id"`
-		Email      string    `json:"email"       db:"email"`
-		Password   string    `json:"password"    db:"enc_password"`
-		IsActive   bool      `json:"active"      db:"active"`
-		IsAdmin    bool      `json:"admin"       db:"admin"`
-		Name       string    `json:"name"        db:"name"`
-		Surname    string    `json:"surname"     db:"surname"`
-		Patronymic string    `json:"patronymic"  db:"patronymic"`
-		CreatedAt  time.Time `json:"created_at"  db:"created_at"`
-		UpdatedAt  time.Time `json:"updated_at"  db:"updated_at"`
+		CompanyID  int    `json:"company_id" db:"company_id"`
+		PositionID int    `json:"position_id" db:"position_id"`
+		Email      string `json:"email" db:"email"`
+		Password   string `json:"password" db:"enc_password"`
+		IsActive   bool   `json:"active" db:"active"`
+		IsAdmin    bool   `json:"admin" db:"admin"`
+		Name       string `json:"name" db:"name"`
+		Surname    string `json:"surname" db:"surname"`
+		Patronymic string `json:"patronymic" db:"patronymic"`
+	}
+	EmailReset struct {
+		Email string `json:"email"`
 	}
 )
 
+func (u *UserCreate) Validation() error {
+	return validation.ValidateStruct(u,
+		validation.Field(&u.Email, validation.Required, is.Email),
+		validation.Field(&u.CompanyID, validation.Required),
+		validation.Field(&u.PositionID, validation.Required),
+		validation.Field(&u.Name, validation.Required),
+		validation.Field(&u.Surname, validation.Required),
+	)
+}
+
 func (u *UserCreate) SetPassword() error {
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
+	if err != nil {
+		return fmt.Errorf("error SetPassword: %v", err)
+	}
+
+	u.Password = string(hash)
+
+	return nil
+}
+
+func (u *UserCreate) SetActive() error {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 	if err != nil {
@@ -92,8 +116,6 @@ type (
 		Name       string    `json:"name"        db:"name"`
 		Surname    string    `json:"surname"     db:"surname"`
 		Patronymic string    `json:"patronymic"  db:"patronymic"`
-		CreatedAt  time.Time `json:"created_at"  db:"created_at"`
-		UpdatedAt  time.Time `json:"updated_at"  db:"updated_at"`
 	}
 
 	// AdminEdit - Структура для передачи изменяемых данных администратора
@@ -155,4 +177,22 @@ func (e *AdminEdit) Validation() error {
 		validation.Field(&e.Patronymic, validation.Length(0, 128)),
 	)
 
+}
+
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func GeneratePassword() string {
+	password := make([]byte, 6)
+	for i := 0; i < 6; i++ {
+		password[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(password)
+}
+
+func GenerateHash(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
 }

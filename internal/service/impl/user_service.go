@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
+
 	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	randomdigit "github.com/training-of-new-employees/qon/internal/pkg/random-digit"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
+	"github.com/training-of-new-employees/qon/internal/utils"
+	"strings"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -71,14 +74,16 @@ func (u *uService) WriteAdminToCache(
 		return nil, model.ErrEmailAlreadyExists
 	}
 
-	key := uuid.New().String()
+	code := randomdigit.RandomDigitNumber(4)
+	key := strings.Join([]string{"register", "admin", code}, ":")
+
 	if err := u.cache.Set(ctx, key, val); err != nil {
 		return nil, err
 	}
 
 	logger.Log.Info("cache write successful", zap.String("key", key))
 
-	if err = u.sender.SendEmail(val.Email, key); err != nil {
+	if err = u.sender.SendCode(val.Email, code); err != nil {
 		return nil, err
 	}
 
@@ -128,10 +133,19 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		return nil, fmt.Errorf("err CreateUser")
 	}
 
+	// TODO: генерирация пригласительной ссылки
+	link := fmt.Sprintf("https://sample?email=%s", val.Email)
+
+	// Отправление пригласительной ссылки сотруднику
+	if err = u.sender.InviteUser(val.Email, link); err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
+	}
+
 	return createdUser, nil
 }
 
-func (u *uService) GetAdminFromCache(ctx context.Context, key string) (*model.CreateAdmin, error) {
+func (u *uService) GetAdminFromCache(ctx context.Context, code string) (*model.CreateAdmin, error) {
+	key := strings.Join([]string{"register", "admin", code}, ":")
 
 	admin, err := u.cache.Get(ctx, key)
 	if err != nil {
@@ -169,6 +183,58 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 	}
 
 	return createdAdmin, nil
+}
+
+// UpdatePasswordAndActivateUser устанавливает пароль и активирует учётную запись пользователя.
+func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error {
+	user, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if user.Email == "" {
+		return model.ErrUserNotFound
+	}
+
+	encPassword, err := utils.EncryptPassword(password)
+	if err != nil {
+		return err
+	}
+
+	if err = u.db.UserStorage().SetPasswordAndActivateUser(ctx, user.ID, encPassword); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ResetPassword сбрасывает пользовательский пароль и устанавливает новый.
+func (u *uService) ResetPassword(ctx context.Context, email string) error {
+	user, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if user.Email == "" {
+		return model.ErrUserNotFound
+	}
+
+	password := model.GeneratePassword()
+
+	encPassword, err := model.GenerateHash(password)
+	if err != nil {
+		return err
+	}
+
+	// Обновление пароля пользователя
+	if err = u.db.UserStorage().UpdateUserPassword(ctx, user.ID, encPassword); err != nil {
+		return err
+	}
+
+	// Отправление пароля пользователю
+	if err = u.sender.SendPassword(email, password); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке

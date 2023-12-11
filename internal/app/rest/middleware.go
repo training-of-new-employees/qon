@@ -53,7 +53,7 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 			return
 		}
 
-		if claims.IsAdmin != true {
+		if !claims.IsAdmin {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			logger.Log.Warn("error permission denied: %v", zap.Error(err))
 			return
