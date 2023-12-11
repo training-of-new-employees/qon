@@ -120,7 +120,7 @@ func (u *uStorage) CreateAdmin(
 
 func (u *uStorage) EditAdmin(
 	ctx context.Context,
-	admin model.AdminEdit,
+	admin *model.AdminEdit,
 ) (*model.AdminEdit, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
@@ -148,17 +148,15 @@ func (u *uStorage) EditAdmin(
 
 	query = `UPDATE companies SET name = $1 WHERE id = $2`
 
-	if admin.Company != "" {
-		if _, err = tx.ExecContext(ctx, query, admin.Company, companyID); err != nil {
-			return nil, err
-		}
+	if _, err = tx.ExecContext(ctx, query, admin.Company, companyID); err != nil {
+		return nil, err
 	}
 
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("committing tx: %w", err)
 	}
 
-	return &admin, nil
+	return admin, nil
 
 }
 

@@ -140,7 +140,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 func (r *RestServer) handlerAdminEditInfo(c *gin.Context) {
 	ctx := c.Request.Context()
-	edit := model.AdminEdit{}
+	edit := &model.AdminEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

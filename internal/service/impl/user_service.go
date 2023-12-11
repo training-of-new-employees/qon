@@ -178,7 +178,7 @@ func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*mo
 
 func (u *uService) EditAdmin(
 	ctx context.Context,
-	val model.AdminEdit,
+	val *model.AdminEdit,
 ) (*model.AdminEdit, error) {
 
 	err := val.Validation()
@@ -186,32 +186,10 @@ func (u *uService) EditAdmin(
 		return nil, err
 	}
 
-	user, err := u.db.UserStorage().GetUserByID(ctx, val.ID)
-	if err != nil {
-		return nil, fmt.Errorf("can't edit user: %w", err)
-	}
-	val = defaultEdit(val, *user)
-
 	edited, err := u.db.UserStorage().EditAdmin(ctx, val)
 	if err != nil {
 		return nil, fmt.Errorf("can't edit user: %w", err)
 	}
 	return edited, nil
 
-}
-
-func defaultEdit(val model.AdminEdit, user model.User) model.AdminEdit {
-	if val.Email == "" {
-		val.Email = user.Email
-	}
-	if val.Name == "" {
-		val.Name = user.Name
-	}
-	if val.Surname == "" {
-		val.Surname = user.Surname
-	}
-	if val.Patronymic == "" {
-		val.Patronymic = user.Patronymic
-	}
-	return val
 }

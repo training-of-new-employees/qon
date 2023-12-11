@@ -97,12 +97,12 @@ type (
 	}
 
 	AdminEdit struct {
-		ID         int    `json:"id,omitempty"           db:"id"`
-		Email      string `json:"email,omitempty"        db:"email"`
-		Company    string `json:"company_name,omitempty" db:"company_name"`
-		Name       string `json:"name,omitempty"         db:"name"`
-		Patronymic string `json:"patronymic,omitempty"   db:"patronymic"`
-		Surname    string `json:"surname,omitempty"      db:"surname"`
+		ID         int     `json:"id,omitempty"           db:"id"`
+		Email      *string `json:"email,omitempty"        db:"email"`
+		Company    *string `json:"company_name,omitempty" db:"company_name"`
+		Name       *string `json:"name,omitempty"         db:"name"`
+		Patronymic *string `json:"patronymic,omitempty"   db:"patronymic"`
+		Surname    *string `json:"surname,omitempty"      db:"surname"`
 	}
 )
 
