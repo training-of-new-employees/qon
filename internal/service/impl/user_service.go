@@ -95,12 +95,7 @@ func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return userResp, nil
 }
 
-func (u *uService) GenerateTokenPair(
-	ctx context.Context,
-	userId int,
-	isAdmin bool,
-	companyId int,
-) (*model.Tokens, error) {
+func (u *uService) GenerateTokenPair(ctx context.Context, userId int,	isAdmin bool,	companyId int) (*model.Tokens, error) {
 
 	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.aTokenTime)
 	if err != nil {
