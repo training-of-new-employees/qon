@@ -94,7 +94,7 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val mode
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 
-			return nil, model.ErrPositionNotFound
+			return &model.Position{}, model.ErrPositionNotFound
 		}
 
 		return &model.Position{}, fmt.Errorf("update position db: %w", err)

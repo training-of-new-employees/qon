@@ -97,7 +97,7 @@ func InitConfig() *Config {
 		RedisDSN:            redisDSN,
 		RedisPassword:       redisPassword,
 		RedisDB:             0,
-		AccessTokenExpires:  time.Minute * 30,
+		AccessTokenExpires:  time.Minute * 2048,
 		RefreshTokenExpires: time.Hour * 720,
 		SenderEmail:         senderEmail,
 		SenderPassword:      senderPassword,

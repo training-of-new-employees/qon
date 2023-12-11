@@ -27,4 +27,5 @@ func (s *RestServer) InitRoutes() {
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 	position.DELETE("/delete/:id", s.handlerDeletePosition)
+
 }
