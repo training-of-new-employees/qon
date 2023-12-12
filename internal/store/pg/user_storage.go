@@ -29,8 +29,6 @@ func newUStorages(db *sqlx.DB) *uStorage {
 }
 
 func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model.User, error) {
-	var pgErr *pgconn.PgError
-
 	createdUser := model.User{}
 
 	query := `
@@ -53,13 +51,8 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		val.Surname,
 		val.Patronymic,
 	)
-
 	if err != nil {
-		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
-			return nil, model.ErrEmailAlreadyExists
-		}
-
-		return nil, fmt.Errorf("create user: %w", err)
+		return nil, handleError(err)
 	}
 
 	return &createdUser, nil

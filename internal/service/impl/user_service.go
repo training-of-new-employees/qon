@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-
 	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/logger"
@@ -130,7 +129,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 
 	createdUser, err := u.db.UserStorage().CreateUser(ctx, val)
 	if err != nil {
-		return nil, fmt.Errorf("err CreateUser")
+		return nil, err
 	}
 
 	// TODO: генерирация пригласительной ссылки
