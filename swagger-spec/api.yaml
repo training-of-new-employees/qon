@@ -26,6 +26,7 @@ paths:
                   example: "Qwert12345"
                 company_name:
                   type: string
+                  example: some&company
                   description: Название компании, с которой связан администратор
               required:
                 - email
