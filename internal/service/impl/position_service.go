@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -61,5 +62,12 @@ func (p *positionService) DeletePosition(ctx context.Context, id int, companyID 
 		return fmt.Errorf("failed DeletePositionDB: %w", err)
 	}
 
+	return nil
+}
+
+func (p *positionService) AssignCourse(ctx context.Context, positionID int, courseID int) error {
+	if err := p.db.PositionStorage().AssignCourseDB(ctx, positionID, courseID); err != nil {
+		return err
+	}
 	return nil
 }

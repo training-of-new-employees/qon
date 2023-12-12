@@ -1,0 +1,23 @@
+info:
+  title: QuickOn - OpenAPI спецификация
+  version: 1.0.11
+paths:
+  /api/v1/position_course:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Присвоение создано
+          schema:
+            type: string
+        "400":
+          description: Неверный формат запроса
+          schema: {}
+        "500":
+          description: Внутренняя ошибка сервера
+          schema: {}
+      summary: Присвоение курса к должности
+swagger: "2.0"

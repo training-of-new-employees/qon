@@ -28,4 +28,6 @@ func (s *RestServer) InitRoutes() {
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 	position.DELETE("/delete/:id", s.handlerDeletePosition)
 
+	mvp.POST("/", s.handlerAssignCourse)
+
 }

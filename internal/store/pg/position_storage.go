@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
@@ -110,5 +111,14 @@ func (p *positionStorage) DeletePositionDB(ctx context.Context, id int, companyI
 		return fmt.Errorf("delete position db: %w", err)
 	}
 
+	return nil
+}
+
+func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int) error {
+	query := `INSERT INTO position_course (position_id, course_id)
+			  VALUES ($1, $2)`
+	if _, err := p.db.ExecContext(ctx, query, positionID, courseID); err != nil {
+		return err
+	}
 	return nil
 }
