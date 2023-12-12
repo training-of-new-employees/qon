@@ -13,17 +13,33 @@ import (
 
 // constraintToAppError - соответствие ограничений CУБД ошибкам приложения
 var constraintToAppError = map[string]error{
-	"fk_position_company": errs.ErrPositionCompanyNotExist,
-	"fk_user_company":     errs.ErrUserCompanyNotExist,
-	"fk_user_position":    errs.ErrUserPositionNotExist,
+	"fk_position_company": errs.ErrPositionCompanyNotFound,
+	"fk_user_company":     errs.ErrUserCompanyNotFound,
+	"fk_user_position":    errs.ErrUserPositionNotFound,
 	"unq_user_email":      errs.ErrEmailAlreadyExists,
-	"fk_course_user":      errs.ErrCourseUserNotExist,
-	"fk_lesson_course":    errs.ErrLessonCourseNotExist,
-	"fk_lesson_user":      errs.ErrLessonUserNotExist,
+	"fk_course_user":      errs.ErrCourseUserNotFound,
+	"fk_lesson_course":    errs.ErrLessonCourseNotFound,
+	"fk_lesson_user":      errs.ErrLessonUserNotFound,
+	"fk_text_lesson":      errs.ErrTextLessonNotFound,
+	"fk_text_user":        errs.ErrTextUserNotFound,
+	"fk_picture_lesson":   errs.ErrPictureLessonNotFound,
+	"fk_picture_user":     errs.ErrPictureUserNotFound,
+
+	"fk_positioncourse_position": errs.ErrPositionNotFound,
+	"fk_positioncourse_course":   errs.ErrCourseNotFound,
+	"unq_positioncourse":         errs.ErrPositionCourseUsed,
+
+	"fk_courseassign_user":   errs.ErrUserNotFound,
+	"fk_courseassign_course": errs.ErrCourseNotFound,
+	"unq_usercourse":         errs.ErrUserCourseUsed,
+
+	"fk_lessonresult_courseassign": errs.ErrAssignNotFound,
+	"fk_lessonresult_lesson":       errs.ErrLessonNotFound,
+	"unq_assignlesson":             errs.ErrAssignLessonUsed,
 }
 
 func handleError(err error) error {
-	// Если ошибки нет, то возвращаем nil
+	// Если ошибки нет, возвращаем nil
 	if err == nil {
 		return nil
 	}

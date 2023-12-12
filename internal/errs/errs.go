@@ -7,8 +7,9 @@ var (
 	// Базовые ошибки
 	ErrCompanyNotFound  = errors.New("Company not found")
 	ErrPositionNotFound = errors.New("Position not found")
-
-	ErrCreatorNotFound = errors.New("Creator does not exist")
+	ErrCreatorNotFound  = errors.New("Creator does not exist")
+	ErrLessonNotFound   = errors.New("Lesson not found")
+	ErrCourseNotFound   = errors.New("Course not found")
 
 	// -- Общие ошибки приложения --
 
@@ -31,27 +32,49 @@ var (
 
 	// ErrUserAlreadyExists - email должен быть уникальный
 	ErrEmailAlreadyExists = errors.New("Email already exists")
-	// ErrUserPositionNotExist - пользователь должен ссылаться на существующую должность
-	ErrUserPositionNotExist = ErrPositionNotFound
-	// ErrUserCompanyNotExist - пользователь должен ссылаться на существующую компанию
-	ErrUserCompanyNotExist = ErrCompanyNotFound
+	// ErrUserPositionNotFound - пользователь должен ссылаться на существующую должность
+	ErrUserPositionNotFound = ErrPositionNotFound
+	// ErrUserCompanyNotFound - пользователь должен ссылаться на существующую компанию
+	ErrUserCompanyNotFound = ErrCompanyNotFound
 
 	// -- Ошибки должности --
 
-	// ErrCompanyNotExist - должность должна ссылаться на существующую компанию
-	ErrPositionCompanyNotExist = ErrCompanyNotFound
-	// ErrCompanyNotExist - позиции не найдены
+	// ErrPositionCompanyNotFound - должность должна ссылаться на существующую компанию
+	ErrPositionCompanyNotFound = ErrCompanyNotFound
+	// ErrPositionsNotFound - позиции не найдены
 	ErrPositionsNotFound = errors.New("Positions not found")
 
-	// -- Ошибки курса --
+	// -- Ошибки курсов --
 
-	// ErrCourseUserNotExist - создатель курса должен быть зарегистрирован в системе
-	ErrCourseUserNotExist = ErrCreatorNotFound
+	// ErrCourseUserNotFound - создатель курса должен быть зарегистрирован в системе
+	ErrCourseUserNotFound = ErrCreatorNotFound
 
-	// -- Ошибки урока --
+	// -- Ошибки уроков --
 
-	// ErrLessonCourse - урока должен ссылаться на существующий курс
-	ErrLessonCourseNotExist = errors.New("Course does not exist")
-	// ErrLessonUserNotExist - создатель урока должен быть зарегистрирован в системе
-	ErrLessonUserNotExist = ErrCreatorNotFound
+	// ErrLessonCourseNotFound - урок должен ссылаться на существующий курс
+	ErrLessonCourseNotFound = ErrCourseNotFound
+	// ErrLessonUserNotFound - создатель урока должен быть зарегистрирован в системе
+	ErrLessonUserNotFound = ErrCreatorNotFound
+
+	// ErrTextLessonNotFound - текст должен ссылаться на существующий урок
+	ErrTextLessonNotFound = ErrLessonNotFound
+	// ErrTextUserNotFound - создатель текста должен быть зарегистрирован в системе
+	ErrTextUserNotFound = ErrUserNotFound
+
+	// ErrPictureLessonNotFound - картинка должна ссылаться на существующий урок
+	ErrPictureLessonNotFound = ErrLessonNotFound
+	// ErrPictureUserNotFound - создатель картинки должен быть зарегистрирован в системе
+	ErrPictureUserNotFound = ErrUserNotFound
+
+	// -- Ошибки назначений и прогресса по учебным материалам --
+
+	// ErrPositionCourseUsed - 1 курс на 1 должность можно назначить только один раз
+	ErrPositionCourseUsed = errors.New("Course already assigned to position")
+	// ErrPositionCourseUsed - 1 курс на 1 сотрудника можно назначить только один раз
+	ErrUserCourseUsed = errors.New("Course already assigned to user")
+
+	// ErrAssignNotFound - у пользователь для прогресса по уроку должно быть назначение на соответствующий курс
+	ErrAssignNotFound = errors.New("User has no course assign")
+	// ErrAssignLessonUsed - прогрессу курса могут соответствовать только уникальные прогрессы урока
+	ErrAssignLessonUsed = errors.New("Course progress already has the same lesson progress")
 )
