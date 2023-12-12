@@ -5,6 +5,12 @@ CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
 
 ## Docker:
+docker-app-up: ## Create and run app containers
+	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate
+
+docker-app-down: ## Stop and remove app containers
+	docker compose --file docker-compose/app/docker-compose.yml down -v
+
 docker-dev-db-up: ## Create and run dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml up -d --force-recreate
 
