@@ -9,5 +9,5 @@ var (
 	ErrCompanyIDNotFound  = errors.New("company not found")
 	ErrPositionNotFound   = errors.New("position not found")
 	ErrPositionsNotFound  = errors.New("positions not found")
-	ErrNoAuthorized       = errors.New("user not ")
+	ErrNoAuthorized       = errors.New("user not authorized for this action")
 )
