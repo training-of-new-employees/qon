@@ -104,10 +104,10 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 	u, err := r.services.User().GetUserByID(ctx, id)
 	switch {
 	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, ginError(err.Error()))
 		return
 	case err != nil:
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, ginError(err.Error()))
 		return
 	}
 
