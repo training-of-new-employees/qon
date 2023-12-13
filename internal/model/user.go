@@ -42,6 +42,12 @@ type (
 		Surname    string `json:"surname" db:"surname"`
 		Patronymic string `json:"patronymic" db:"patronymic"`
 	}
+
+	UserInfo struct {
+		User
+		CompanyName  string `json:"company_name" db:"company_name"`
+		PositionName string `json:"position_name" db:"position_name"`
+	}
 	EmailReset struct {
 		Email string `json:"email"`
 	}
@@ -107,15 +113,15 @@ type (
 	}
 
 	AdminCreate struct {
-		CompanyID  int       `json:"company_id"  db:"company_id"`
-		PositionID int       `json:"position_id" db:"position_id"`
-		Email      string    `json:"email"       db:"email"`
-		Password   string    `json:"password"    db:"enc_password"`
-		IsActive   bool      `json:"active"      db:"active"`
-		IsAdmin    bool      `json:"admin"       db:"admin"`
-		Name       string    `json:"name"        db:"name"`
-		Surname    string    `json:"surname"     db:"surname"`
-		Patronymic string    `json:"patronymic"  db:"patronymic"`
+		CompanyID  int    `json:"company_id"  db:"company_id"`
+		PositionID int    `json:"position_id" db:"position_id"`
+		Email      string `json:"email"       db:"email"`
+		Password   string `json:"password"    db:"enc_password"`
+		IsActive   bool   `json:"active"      db:"active"`
+		IsAdmin    bool   `json:"admin"       db:"admin"`
+		Name       string `json:"name"        db:"name"`
+		Surname    string `json:"surname"     db:"surname"`
+		Patronymic string `json:"patronymic"  db:"patronymic"`
 	}
 
 	// AdminEdit - Структура для передачи изменяемых данных администратора

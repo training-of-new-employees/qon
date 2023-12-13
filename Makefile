@@ -6,7 +6,7 @@ RESET  := $(shell tput -Txterm sgr0)
 
 ## Docker:
 docker-app-up: ## Create and run app containers
-	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate
+	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate --build
 
 docker-app-down: ## Stop and remove app containers
 	docker compose --file docker-compose/app/docker-compose.yml down -v
@@ -16,6 +16,13 @@ docker-dev-db-up: ## Create and run dev container with db
 
 docker-dev-db-down: ## Stop and remove dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml down -v
+
+swag:
+	swag fmt
+	swag init -g ./cmd/main.go
+
+build: swag
+	go build -v -o qon ./cmd/main.go
 
 ## Test:
 test: ## Run tests
