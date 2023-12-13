@@ -17,6 +17,13 @@ docker-dev-db-up: ## Create and run dev container with db
 docker-dev-db-down: ## Stop and remove dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml down -v
 
+swag:
+	swag fmt
+	swag init -g ./cmd/main.go
+
+build: swag
+	 go build -v -o qon ./cmd/main.go
+
 ## Test:
 test: ## Run tests
 	@docker compose --file docker-compose/test/docker-compose.yml up -d

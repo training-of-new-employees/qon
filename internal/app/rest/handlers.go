@@ -7,17 +7,17 @@ import (
 	_ "github.com/training-of-new-employees/qon/docs"
 )
 
-// @title           QuickOn
-// @version         1.0
-// @description     Описание API QuickOn
+//	@title			QuickOn
+//	@version		1.0
+//	@description	Описание API QuickOn
 
-// @host      localhost:8080
-// @BasePath  /api/v1
+//	@host		localhost:8080
+//	@BasePath	/api/v1
 
-// @securityDefinitions.basic  BasicAuth
+//	@securityDefinitions.basic	BasicAuth
 
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
 
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
