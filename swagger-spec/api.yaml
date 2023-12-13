@@ -1,0 +1,337 @@
+openapi: 3.0.3
+info:
+  title: QuickOn - OpenAPI спецификация
+  version: 1.0.11
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /admin/register:
+    post:
+      tags:
+        - admin
+      summary: Регистрация администратора
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email администратора
+                password:
+                  type: string
+                  example: "Qwert12345"
+                company_name:
+                  type: string
+                  example: some&company
+                  description: Название компании, с которой связан администратор
+              required:
+                - email
+                - password
+                - company_name
+      responses:
+        '200':
+          description: Админ предварительно зарегистрирован, для успешной регистрации необходимо пройти верификацию
+        '401':
+          description: Неверный формат запроса
+        '409':
+          description: Email уже занят
+        '500':
+          description: Внутренняя ошибка сервера
+  /admin/verify:
+    post:
+      tags:
+        - admin
+      summary: Верификация емейла
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "9281"
+                  description: Код верификации (4 цифры)
+              required:
+                - code
+      responses:
+        '200':
+          description: Верификация пройдена, пользователь успешно зарегистрирован
+        '400':
+          description: Неверный формат запроса
+        '404':
+          description: Емейл не найден
+        '500':
+          description: Внутренняя ошибка сервера
+  /login:
+    post:
+      tags:
+        - login
+      summary: Аутентификация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email пользователя
+                password:
+                  type: string
+                  example: "Qwert12345"
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Сессия для пользователя успешно создана
+        '400':
+          description: Неверный формат запроса
+        '401':
+          description: Неверная пара емейл/пароль
+        '500':
+          description: Внутренняя ошибка сервера
+  /admin/employee:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Добавление сотрудника администратором
+      tags:
+        - admin
+      operationId: createEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Employee Email Address
+                company_id:
+                  type: integer
+                  example: 1
+                  description: Company ID
+                position_id:
+                  type: integer
+                  example: 2
+                  description: Position ID
+                name:
+                  type: string
+                  example: "Иван"
+                  description: Name
+                patronymic:
+                  type: string
+                  example: "Иванович"
+                  description: Name
+                surname:
+                  type: string
+                  example: "Иванов"
+                  description: Name
+              required:
+                - email
+                - company_id
+                - position_id
+      responses:
+        '201':
+          description: Новый сотрудник зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Неверный формат запроса
+        '409':
+          description: Пользователь с таким Email-ом уже есть в системе
+        '500':
+          description: Внутренняя ошибка сервера
+  /users/set-password:
+    post:
+      summary: Первый вход сотрудника
+      tags:
+        - user
+      operationId: SetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Employee Email Address
+                password:
+                  type: string
+                  example: Qwerty123
+                  description: Password
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Пароль успешно установлен и создана сессия для пользователя
+        '400':
+          description: Неверный формат запроса
+        '404':
+          description: Емейл не найден
+        '500':
+          description: Внутренняя ошибка сервера
+  /password:
+    post:
+      tags:
+        - password
+      summary: Восстановление пароля
+      description: Восстановление пароля для пользователя (админа или сотрудника)
+      operationId: ResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email address for password update
+              required:
+                - email
+      responses:
+        '200':
+          description: Запрос успешно обработан, новый пароль отправлен
+        '400':
+          description: Неверный формат запроса
+        '404':
+          description: Email не найден в системе
+        '500':
+          description: Внутренняя ошибка сервера
+  /admin/info:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Изменение данных администратора
+      tags:
+        - admin
+      operationId: editAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Новый email администратора
+                company_name:
+                  type: string
+                  example: Yandex
+                  description: Название компании
+                name:
+                  type: string
+                  example: "Иван"
+                  description: Имя администратора
+                patronymic:
+                  type: string
+                  example: "Иванович"
+                  description: Отчество
+                surname:
+                  type: string
+                  example: "Иванов"
+                  description: Фамилия
+      responses:
+        '200':
+          description: Данные администратор изменены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditAdmin'
+        '400':
+          description: Неверный формат запроса
+        '401':
+          description: Пользователь не авторизован
+        '404':
+          description: Администратор с таким id не существует
+        '500':
+          description: Внутренняя ошибка сервера
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 4
+        company_id:
+          type: integer
+          example: 1
+        position_id:
+          type: integer
+          example: 2
+        email:
+          type: string
+          format: email
+        active:
+          type: boolean
+          example: false
+        admin:
+          type: boolean
+          example: false
+        name:
+          type: string
+          example: "Иван"
+        patronymic:
+          type: string
+          example: "Иванович"
+        surname:
+          type: string
+          example: "Иванов"
+    EditAdmin:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: Идентификатор администратора
+        email:
+          type: string
+          format: email
+          description: Новый email администратора
+        company_name:
+          type: string
+          example: Yandex
+          description: Название компании
+        name:
+          type: string
+          example: "Иван"
+          description: Имя администратора
+        patronymic:
+          type: string
+          example: "Иванович"
+          description: Отчество
+        surname:
+          type: string
+          example: "Иванов"
+          description: Фамилия
+      required:
+        - id
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

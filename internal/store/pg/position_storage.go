@@ -123,11 +123,7 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 
 	err := p.db.GetContext(ctx, &position, query, positionID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrPositionNotFound
-		}
-
-		return &model.Position{}, fmt.Errorf("get position db: %w", err)
+		return &model.Position{}, handleError(err)
 	}
 
 	return &position, nil
@@ -139,7 +135,7 @@ func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int,
 	query := `INSERT INTO position_course (position_id, course_id)
 			  VALUES ($1, $2)`
 	if _, err := p.db.ExecContext(ctx, query, positionID, courseID); err != nil {
-		return err
+		return handleError(err)
 	}
 	return nil
 }

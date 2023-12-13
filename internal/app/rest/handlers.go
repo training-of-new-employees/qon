@@ -1,5 +1,24 @@
 package rest
 
+import (
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/training-of-new-employees/qon/docs"
+)
+
+//	@title			QuickOn
+//	@version		1.0
+//	@description	Описание API QuickOn
+
+//	@host		localhost:8080
+//	@BasePath	/api/v1
+
+//	@securityDefinitions.basic	BasicAuth
+
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
+
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
 
@@ -17,6 +36,7 @@ func (s *RestServer) InitRoutes() {
 
 	adminGroup.PATCH("/info", s.handlerAdminEditInfo)
 	userGroup := mvp.Group("/users")
+	userGroup.GET("/:id", s.handlerGetUser)
 	userGroup.POST("/set-password", s.handlerSetPassword)
 
 	position := mvp.Group("/positions")
@@ -28,4 +48,6 @@ func (s *RestServer) InitRoutes() {
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 	position.DELETE("/delete/:id", s.handlerDeletePosition)
+
+	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

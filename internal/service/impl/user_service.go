@@ -3,8 +3,8 @@ package impl
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
-
 
 	"go.uber.org/zap"
 
@@ -17,7 +17,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	"github.com/training-of-new-employees/qon/internal/utils"
-	"strings"
 )
 
 var _ service.ServiceUser = (*uService)(nil)
@@ -100,6 +99,28 @@ func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return userResp, nil
 }
 
+// GetUserByID получает информацию о сотруднике, а также имя компании и должность в ней
+func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, error) {
+	user, err := u.db.UserStorage().GetUserByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("can't get user by service: %w", err)
+	}
+	company, err := u.db.UserStorage().GetCompany(ctx, user.CompanyID)
+	if err != nil {
+		return nil, fmt.Errorf("can't get user by service: %w", err)
+	}
+	position, err := u.db.PositionStorage().GetPositionDB(ctx, user.CompanyID, user.PositionID)
+	if err != nil {
+		return nil, fmt.Errorf("can't get user by service: %w", err)
+	}
+	info := &model.UserInfo{
+		User:         *user,
+		CompanyName:  company.Name,
+		PositionName: position.Name,
+	}
+	return info, nil
+}
+
 func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyId int) (*model.Tokens, error) {
 
 	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.aTokenTime)
@@ -130,7 +151,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 
 	createdUser, err := u.db.UserStorage().CreateUser(ctx, val)
 	if err != nil {
-		return nil, fmt.Errorf("err CreateUser")
+		return nil, err
 	}
 
 	// TODO: генерирация пригласительной ссылки
