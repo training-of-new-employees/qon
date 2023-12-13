@@ -1,8 +1,7 @@
 info:
-  title: QuickOn - OpenAPI спецификация
-  version: 1.0.11
+  contact: {}
 paths:
-  /api/v1/position_course:
+  /api/v1/position/course:
     post:
       consumes:
       - application/json
@@ -15,6 +14,9 @@ paths:
             type: string
         "400":
           description: Неверный формат запроса
+          schema: {}
+        "401":
+          description: Пользователь не является сотрудником компании
           schema: {}
         "500":
           description: Внутренняя ошибка сервера

@@ -1,12 +1,10 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {},
-        "title": "QuickOn - OpenAPI спецификация",
-        "version": "1.0.11"
+        "contact": {}
     },
     "paths": {
-        "/api/v1/position_course": {
+        "/api/v1/position/course": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -24,6 +22,10 @@
                     },
                     "400": {
                         "description": "Неверный формат запроса",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Пользователь не является сотрудником компании",
                         "schema": {}
                     },
                     "500": {

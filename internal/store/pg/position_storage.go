@@ -114,7 +114,28 @@ func (p *positionStorage) DeletePositionDB(ctx context.Context, id int, companyI
 	return nil
 }
 
-func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int) error {
+func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `SELECT id, company_id, name, active, archived, created_at, updated_at
+              FROM positions 
+              WHERE id = $1 AND archived = false`
+
+	err := p.db.GetContext(ctx, &position, query, positionID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrPositionNotFound
+		}
+
+		return &model.Position{}, fmt.Errorf("get position db: %w", err)
+	}
+
+	return &position, nil
+}
+
+func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int,
+	courseID int, user_id int) error {
+
 	query := `INSERT INTO position_course (position_id, course_id)
 			  VALUES ($1, $2)`
 	if _, err := p.db.ExecContext(ctx, query, positionID, courseID); err != nil {

@@ -65,8 +65,23 @@ func (p *positionService) DeletePosition(ctx context.Context, id int, companyID 
 	return nil
 }
 
-func (p *positionService) AssignCourse(ctx context.Context, positionID int, courseID int) error {
-	if err := p.db.PositionStorage().AssignCourseDB(ctx, positionID, courseID); err != nil {
+func (p *positionService) AssignCourse(ctx context.Context, positionID int,
+	courseID int, user_id int) error {
+	user, err := p.db.UserStorage().GetUserByID(ctx, user_id)
+	if err != nil {
+		return err
+	}
+	position, err := p.db.PositionStorage().GetPositionByID(ctx, positionID)
+	if err != nil {
+		return err
+	}
+
+	if user.CompanyID != position.CompanyID {
+		return model.ErrNoAuthorized
+	}
+
+	if err := p.db.PositionStorage().AssignCourseDB(ctx,
+		positionID, courseID, user_id); err != nil {
 		return err
 	}
 	return nil

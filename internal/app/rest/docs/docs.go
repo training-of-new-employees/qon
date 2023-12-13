@@ -16,7 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/position_course": {
+        "/api/v1/position/course": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -34,6 +34,10 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Неверный формат запроса",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Пользователь не является сотрудником компании",
                         "schema": {}
                     },
                     "500": {
