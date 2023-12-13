@@ -105,7 +105,6 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, u)
-	return
 }
 
 func (r *RestServer) handlerSetPassword(c *gin.Context) {
