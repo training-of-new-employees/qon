@@ -22,7 +22,7 @@ swag:
 	swag init -g ./cmd/main.go
 
 build: swag
-	 go build -v -o qon ./cmd/main.go
+	go build -v -o qon ./cmd/main.go
 
 ## Test:
 test: ## Run tests
