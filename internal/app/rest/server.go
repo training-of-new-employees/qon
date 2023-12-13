@@ -2,10 +2,12 @@
 package rest
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/service"
-	"net/http"
 )
 
 // RestServer - реализация rest-сервера.
@@ -36,4 +38,13 @@ func New(secretKey string, services service.Service) *RestServer {
 // Замечание: необходимо для совместимости с net/http пакетом.
 func (s *RestServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
+}
+
+// httpErr - используется для корректного вывода возвращаемых значений в swagger
+type httpErr struct {
+	Error string `json:"error"`
+}
+
+func ginError(value string) httpErr {
+	return httpErr{value}
 }

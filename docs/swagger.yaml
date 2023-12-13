@@ -1,0 +1,85 @@
+basePath: /api/v1
+definitions:
+  model.UserInfo:
+    properties:
+      active:
+        type: boolean
+      admin:
+        type: boolean
+      company_id:
+        type: integer
+      company_name:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      patronymic:
+        type: string
+      position_id:
+        type: integer
+      position_name:
+        type: string
+      surname:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  rest.httpErr:
+    properties:
+      error:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact: {}
+  description: Описание API QuickOn
+  title: QuickOn
+  version: "1.0"
+paths:
+  /users/{id}:
+    get:
+      description: Получение по id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserInfo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+      summary: Получение данных пользователя
+      tags:
+      - user
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

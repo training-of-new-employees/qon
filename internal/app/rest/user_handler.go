@@ -78,6 +78,18 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 }
 
+// GetUser godoc
+// @Summary      Получение данных пользователя
+// @Description  Получение по id
+// @Tags         user
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}   model.UserInfo
+// @Failure      401  {object} httpErr
+// @Failure      403  {object} httpErr
+// @Failure      404  {object} httpErr
+// @Failure      500  {object} httpErr
+// @Router       /users/{id} [get]
 func (r *RestServer) handlerGetUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")

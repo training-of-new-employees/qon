@@ -6,7 +6,7 @@ RESET  := $(shell tput -Txterm sgr0)
 
 ## Docker:
 docker-app-up: ## Create and run app containers
-	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate
+	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate --build
 
 docker-app-down: ## Stop and remove app containers
 	docker compose --file docker-compose/app/docker-compose.yml down -v
