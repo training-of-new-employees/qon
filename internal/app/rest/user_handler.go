@@ -2,14 +2,17 @@ package rest
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/pkg/access"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
 
@@ -73,6 +76,36 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"user": user})
 
+}
+
+func (r *RestServer) handlerGetUser(c *gin.Context) {
+	ctx := c.Request.Context()
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		msg := fmt.Errorf("got invalid user id: %s", idParam)
+		logger.Log.Warn("error", zap.Error(msg))
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg.Error()})
+		return
+	}
+	us := r.getUserSession(c)
+	u, err := r.services.User().GetUserByID(ctx, id)
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, u.ID, u.CompanyID) {
+		c.Status(http.StatusForbidden)
+		return
+	}
+
+	c.JSON(http.StatusOK, u)
+	return
 }
 
 func (r *RestServer) handlerSetPassword(c *gin.Context) {

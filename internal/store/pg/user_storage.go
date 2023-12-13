@@ -206,6 +206,20 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return &user, nil
 }
 
+// GetCompany - получает информацию о компании по id
+func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
+	var comp *model.Company
+	err := u.tx(
+		func(tx *sqlx.Tx) error {
+			query := `SELECT * FROM companies WHERE id=$1`
+			err := tx.GetContext(ctx, comp, query)
+			return err
+		},
+	)
+
+	return comp, handleError(err)
+}
+
 // SetPasswordAndActivateUser установка пароля и активация пользователя.
 func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, encPassword string) error {
 	tx, err := u.db.Beginx()
@@ -285,4 +299,18 @@ func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) 
 		return err
 	}
 	return nil
+}
+
+// tx - обёртка для простого использования транзакций без дублирования кода
+func (u *uStorage) tx(f func(*sqlx.Tx) error) error {
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+		}
+	}()
+	return f(tx)
 }
