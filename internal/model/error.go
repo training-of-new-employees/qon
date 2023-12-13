@@ -1,12 +1,14 @@
 package model
 
-import "errors"
+import (
+	"github.com/training-of-new-employees/qon/internal/errs"
+)
 
 var (
-	ErrEmailAlreadyExists = errors.New("email already exists")
-	ErrNoRows             = errors.New("sql: no rows in result set")
-	ErrUserNotFound       = errors.New("not found")
-	ErrCompanyIDNotFound  = errors.New("company not found")
-	ErrPositionNotFound   = errors.New("position not found")
-	ErrPositionsNotFound  = errors.New("positions not found")
+	ErrEmailAlreadyExists = errs.ErrEmailAlreadyExists
+	ErrNoRows             = errs.ErrNoRows
+	ErrUserNotFound       = errs.ErrUserNotFound
+	ErrCompanyIDNotFound  = errs.ErrCompanyNotFound
+	ErrPositionNotFound   = errs.ErrPositionNotFound
+	ErrPositionsNotFound  = errs.ErrPositionsNotFound
 )
