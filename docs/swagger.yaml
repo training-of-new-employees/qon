@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   model.User:
     properties:
@@ -58,8 +59,15 @@ definitions:
       error:
         type: string
     type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
 info:
   contact: {}
+  description: Описание API QuickOn
+  title: QuickOn
+  version: "1.0"
 paths:
   /users/:
     get:
@@ -123,4 +131,7 @@ paths:
       summary: Получение данных пользователя
       tags:
       - user
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

@@ -19,7 +19,7 @@ docker-dev-db-down: ## Stop and remove dev container with db
 
 swag:
 	swag fmt
-	swag init -g ./cmd/main.go
+	swag init -g ./internal/app/rest/handlers.go
 
 build: swag
 	go build -v -o qon ./cmd/main.go
