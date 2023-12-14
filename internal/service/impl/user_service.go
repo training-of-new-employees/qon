@@ -121,6 +121,15 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	return info, nil
 }
 
+// GetUsersByCompany - получает данные о пользователях в компании
+func (u *uService) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
+	users, err := u.db.UserStorage().GetUsersByCompany(ctx, companyID)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyId int) (*model.Tokens, error) {
 
 	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.aTokenTime)
