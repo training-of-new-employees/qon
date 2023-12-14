@@ -130,7 +130,15 @@ func (u *uStorage) EditAdmin(
 	var pgErr *pgconn.PgError
 	var companyID int
 
-	query := `UPDATE users SET name = $1, surname = $2, patronymic = $3, email = $4 WHERE id = $5 RETURNING company_id`
+	query :=
+	`UPDATE users
+	 SET 
+	 	name = COALESCE($1, name),
+	 	surname = COALESCE($2, surname),
+	 	patronymic = COALESCE($3, patronymic),
+	 	email = COALESCE($4, email)
+	 WHERE id = $5
+	 RETURNING company_id`
 
 	if err = tx.GetContext(ctx, &companyID, query, admin.Name, admin.Surname, admin.Patronymic, admin.Email, admin.ID); err != nil {
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.NoDataFound {
@@ -140,7 +148,7 @@ func (u *uStorage) EditAdmin(
 
 	}
 
-	query = `UPDATE companies SET name = $1 WHERE id = $2`
+	query = `UPDATE companies SET name = COALESCE($1, name) WHERE id = $2`
 
 	if _, err = tx.ExecContext(ctx, query, admin.Company, companyID); err != nil {
 		return nil, err
