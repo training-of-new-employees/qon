@@ -45,7 +45,7 @@ type (
 
 	UserEdit struct {
 		ID         int     `json:"-" db:"id"`
-		Archived   bool    `json:"-" db:"archived"`
+		IsArchived bool    `json:"-" db:"archived"`
 		Name       *string `json:"name,omitempty" db:"name"`
 		Surname    *string `json:"surname,omitempty" db:"surname"`
 		Patronymic *string `json:"patronymic,omitempty" db:"patronymic"`
