@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
+	"github.com/training-of-new-employees/qon/internal/model"
 )
 
 // CreatePosition godoc
@@ -196,14 +197,14 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// @Summary Присвоение курса к должности
-// @Accept json
-// @Produce json
-// @Success 200 {string} string "Присвоение создано"
-// @Failure 400 {object} error "Неверный формат запроса"
-// @Failure 401 {object} error "Пользователь не является сотрудником компании"
-// @Failure 500 {object} error "Внутренняя ошибка сервера"
-// @Router /api/v1/position/course [post]
+// @Summary	Присвоение курса к должности
+// @Accept		json
+// @Produce	json
+// @Success	200	{string}	string	"Присвоение создано"
+// @Failure	400	{object}	error	"Неверный формат запроса"
+// @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
+// @Failure	500	{object}	error	"Внутренняя ошибка сервера"
+// @Router		/api/v1/position/course [post]
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
