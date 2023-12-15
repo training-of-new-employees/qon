@@ -201,7 +201,7 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 // @Accept		json
 // @Tags		position
 // @Produce	json
-// @Success	200	{string}	string	"Присвоение создано"
+// @Success	200
 // @Failure	400	{object}	error	"Неверный формат запроса"
 // @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
 // @Failure	500	{object}	error	"Внутренняя ошибка сервера"
@@ -209,7 +209,7 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
 	}
 
@@ -219,11 +219,11 @@ func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	if err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID,
 		positionCourse.CourseID, us.UserID); err != nil {
 		if errors.Is(err, model.ErrNoAuthorized) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnauthorized, s().SetError(err))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": "assigned"})
+	c.Status(http.StatusOK)
 }

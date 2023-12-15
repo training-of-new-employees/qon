@@ -443,10 +443,7 @@ const docTemplate = `{
                 "summary": "Присвоение курса к должности",
                 "responses": {
                     "200": {
-                        "description": "Присвоение создано",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Неверный формат запроса",
