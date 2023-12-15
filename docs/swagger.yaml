@@ -183,7 +183,7 @@ info:
   contact: {}
   description: Описание API QuickOn
   title: QuickOn
-  version: "1.0"
+  version: "0.1"
 paths:
   /admin/employee:
     post:
@@ -215,7 +215,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Создание пользователя
       tags:
-      - user
+      - admin
   /admin/info:
     post:
       parameters:
@@ -250,7 +250,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Изменение данных администратора
       tags:
-      - user
+      - admin
   /admin/register:
     post:
       parameters:
@@ -283,7 +283,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Создание администратора
       tags:
-      - user
+      - admin
   /admin/verify:
     post:
       parameters:
@@ -314,7 +314,30 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Верификация email'a пользователя
       tags:
-      - user
+      - admin
+  /api/v1/position/course:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Присвоение создано
+          schema:
+            type: string
+        "400":
+          description: Неверный формат запроса
+          schema: {}
+        "401":
+          description: Пользователь не является сотрудником компании
+          schema: {}
+        "500":
+          description: Внутренняя ошибка сервера
+          schema: {}
+      summary: Присвоение курса к должности
+      tags:
+      - position
   /login:
     post:
       parameters:
@@ -344,8 +367,6 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Вход пользователя
-      tags:
-      - user
   /password:
     post:
       parameters:
@@ -375,8 +396,6 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Сброс пароля пользователя
-      tags:
-      - user
   /positions:
     get:
       produces:
@@ -398,7 +417,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Получение всех должностей
       tags:
-      - user
+      - position
     post:
       parameters:
       - description: Position Create
@@ -424,7 +443,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Создание новой должности
       tags:
-      - user
+      - position
   /positions/{id}:
     get:
       parameters:
@@ -450,7 +469,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Получение всех должностей
       tags:
-      - user
+      - position
   /positions/update/{id}:
     get:
       parameters:
@@ -474,7 +493,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Обновление данных о должности
       tags:
-      - user
+      - position
   /users:
     get:
       description: Список сотрдуников в компании админа
@@ -613,6 +632,9 @@ paths:
       tags:
       - user
 securityDefinitions:
-  BasicAuth:
-    type: basic
+  Bearer:
+    description: you can get it on login page
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

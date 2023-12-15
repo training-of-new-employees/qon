@@ -21,7 +21,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Создание пользователя",
                 "parameters": [
@@ -69,7 +69,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Изменение данных администратора",
                 "parameters": [
@@ -123,7 +123,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Создание администратора",
                 "parameters": [
@@ -174,7 +174,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Верификация email'a пользователя",
                 "parameters": [
@@ -216,13 +216,44 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
+        "/api/v1/position/course": {
             "post": {
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
+                ],
+                "summary": "Присвоение курса к должности",
+                "responses": {
+                    "200": {
+                        "description": "Присвоение создано",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Пользователь не является сотрудником компании",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "produces": [
+                    "application/json"
                 ],
                 "summary": "Вход пользователя",
                 "parameters": [
@@ -268,9 +299,6 @@ const docTemplate = `{
             "post": {
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "user"
                 ],
                 "summary": "Сброс пароля пользователя",
                 "parameters": [
@@ -318,7 +346,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Получение всех должностей",
                 "responses": {
@@ -350,7 +378,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Создание новой должности",
                 "parameters": [
@@ -392,7 +420,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Обновление данных о должности",
                 "parameters": [
@@ -429,7 +457,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Получение всех должностей",
                 "parameters": [
@@ -945,8 +973,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "BasicAuth": {
-            "type": "basic"
+        "Bearer": {
+            "description": "you can get it on login page",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     },
     "externalDocs": {
@@ -957,7 +988,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "0.1",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},

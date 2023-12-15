@@ -4,7 +4,7 @@
         "description": "Описание API QuickOn",
         "title": "QuickOn",
         "contact": {},
-        "version": "1.0"
+        "version": "0.1"
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
@@ -15,7 +15,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Создание пользователя",
                 "parameters": [
@@ -63,7 +63,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Изменение данных администратора",
                 "parameters": [
@@ -117,7 +117,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Создание администратора",
                 "parameters": [
@@ -168,7 +168,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "admin"
                 ],
                 "summary": "Верификация email'a пользователя",
                 "parameters": [
@@ -210,13 +210,44 @@
                 }
             }
         },
-        "/login": {
+        "/api/v1/position/course": {
             "post": {
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
+                ],
+                "summary": "Присвоение курса к должности",
+                "responses": {
+                    "200": {
+                        "description": "Присвоение создано",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Пользователь не является сотрудником компании",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "produces": [
+                    "application/json"
                 ],
                 "summary": "Вход пользователя",
                 "parameters": [
@@ -262,9 +293,6 @@
             "post": {
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "user"
                 ],
                 "summary": "Сброс пароля пользователя",
                 "parameters": [
@@ -312,7 +340,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Получение всех должностей",
                 "responses": {
@@ -344,7 +372,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Создание новой должности",
                 "parameters": [
@@ -386,7 +414,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Обновление данных о должности",
                 "parameters": [
@@ -423,7 +451,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "position"
                 ],
                 "summary": "Получение всех должностей",
                 "parameters": [
@@ -939,8 +967,11 @@
         }
     },
     "securityDefinitions": {
-        "BasicAuth": {
-            "type": "basic"
+        "Bearer": {
+            "description": "you can get it on login page",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     },
     "externalDocs": {

@@ -8,13 +8,16 @@ import (
 )
 
 //	@title			QuickOn
-//	@version		1.0
+//	@version		0.1
 //	@description	Описание API QuickOn
 
 //	@host		localhost:8080
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.basic	BasicAuth
+//	@securityDefinitions.apikey	Bearer
+//	@in							header
+//	@name						Authorization
+//	@description				you can get it on login page
 
 //	@externalDocs.description	OpenAPI
 //	@externalDocs.url			https://swagger.io/resources/open-api/

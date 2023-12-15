@@ -19,7 +19,7 @@ import (
 // CreateAdmin godoc
 //
 //	@Summary	Создание администратора
-//	@Tags		user
+//	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.CreateAdmin	true	"Create Admin"
 //	@Success	201		{array}		model.CreateAdmin
@@ -63,7 +63,7 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 // CreateUser godoc
 //
 //	@Summary	Создание пользователя
-//	@Tags		user
+//	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.UserCreate	true	"User Create"
 //	@Success	201		{object}	model.User
@@ -279,7 +279,6 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 // SignIn godoc
 //
 //	@Summary	Вход пользователя
-//	@Tags		user
 //	@Produce	json
 //	@Param		object	body		model.UserSignIn	true	"User SignIn"
 //	@Success	200		{object}	sToken
@@ -325,7 +324,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 // EmailVerification godoc
 //
 //	@Summary	Верификация email'a пользователя
-//	@Tags		user
+//	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
 //	@Success	201		{object}	sEmail
@@ -370,7 +369,6 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 // ResetPassword godoc
 //
 //	@Summary	Сброс пароля пользователя
-//	@Tags		user
 //	@Produce	json
 //	@Param		object	body		model.EmailReset	true	"User Reset Password"
 //	@Success	200		{object}	sEmail
@@ -401,7 +399,7 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 // AdminEdit godoc
 //
 //	@Summary	Изменение данных администратора
-//	@Tags		user
+//	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.AdminEdit	true	"Admin Edit"
 //	@Success	200		{object}	model.AdminEdit

@@ -14,7 +14,7 @@ import (
 // CreatePosition godoc
 //
 //	@Summary	Создание новой должности
-//	@Tags		user
+//	@Tags		position
 //	@Produce	json
 //	@Param		object	body		model.PositionCreate	true	"Position Create"
 //	@Success	201		{object}	model.Position
@@ -57,7 +57,7 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 // GetPosition godoc
 //
 //	@Summary	Получение всех должностей
-//	@Tags		user
+//	@Tags		position
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
 //	@Success	200	{object}	model.Position
@@ -94,7 +94,7 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 // GetPositions godoc
 //
 //	@Summary	Получение всех должностей
-//	@Tags		user
+//	@Tags		position
 //	@Produce	json
 //	@Success	200	{array}		model.Position
 //	@Failure	404	{object}	sErr
@@ -121,7 +121,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 // UpdatePosition godoc
 //
 //	@Summary	Обновление данных о должности
-//	@Tags		user
+//	@Tags		position
 //	@Produce	json
 //	@Param		id		path		int						true	"Position ID"
 //	@Param		object	body		model.PositionUpdate	true	"Position info"
@@ -168,7 +168,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 // DeletePosition godoc
 //
 //	@Summary	Обновление данных о должности
-//	@Tags		user
+//	@Tags		position
 //	@Produce	json
 //	@Param		id	path	int	true	"Position ID"
 //	@Success	200
@@ -197,14 +197,15 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// @Summary	Присвоение курса к должности
-// @Accept		json
-// @Produce	json
-// @Success	200	{string}	string	"Присвоение создано"
-// @Failure	400	{object}	error	"Неверный формат запроса"
-// @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
-// @Failure	500	{object}	error	"Внутренняя ошибка сервера"
-// @Router		/api/v1/position/course [post]
+//	@Summary	Присвоение курса к должности
+//	@Accept		json
+//	@Tags		position
+//	@Produce	json
+//	@Success	200	{string}	string	"Присвоение создано"
+//	@Failure	400	{object}	error	"Неверный формат запроса"
+//	@Failure	401	{object}	error	"Пользователь не является сотрудником компании"
+//	@Failure	500	{object}	error	"Внутренняя ошибка сервера"
+//	@Router		/api/v1/position/course [post]
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
