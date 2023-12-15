@@ -129,7 +129,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Failure	400		{object}	sErr
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
-//	@Router		/positions/update/{id} [get]
+//	@Router		/positions/update/{id} [patch]
 func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 	positionReq := model.PositionUpdate{}
@@ -174,7 +174,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 //	@Success	200
 //	@Failure	400	{object}	sErr
 //	@Failure	500	{object}	sErr
-//	@Router		/positions/update/{id} [get]
+//	@Router		/positions/update/{id} [delete]
 func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -197,15 +197,15 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-//	@Summary	Присвоение курса к должности
-//	@Accept		json
-//	@Tags		position
-//	@Produce	json
-//	@Success	200	{string}	string	"Присвоение создано"
-//	@Failure	400	{object}	error	"Неверный формат запроса"
-//	@Failure	401	{object}	error	"Пользователь не является сотрудником компании"
-//	@Failure	500	{object}	error	"Внутренняя ошибка сервера"
-//	@Router		/api/v1/position/course [post]
+// @Summary	Присвоение курса к должности
+// @Accept		json
+// @Tags		position
+// @Produce	json
+// @Success	200	{string}	string	"Присвоение создано"
+// @Failure	400	{object}	error	"Неверный формат запроса"
+// @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
+// @Failure	500	{object}	error	"Внутренняя ошибка сервера"
+// @Router		/positions/course [post]
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {

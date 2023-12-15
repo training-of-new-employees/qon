@@ -216,40 +216,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/position/course": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "position"
-                ],
-                "summary": "Присвоение курса к должности",
-                "responses": {
-                    "200": {
-                        "description": "Присвоение создано",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса",
-                        "schema": {}
-                    },
-                    "401": {
-                        "description": "Пользователь не является сотрудником компании",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/archive/{id}": {
             "patch": {
                 "produces": [
@@ -463,8 +429,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/positions/course": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "position"
+                ],
+                "summary": "Присвоение курса к должности",
+                "responses": {
+                    "200": {
+                        "description": "Присвоение создано",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Пользователь не является сотрудником компании",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/positions/update/{id}": {
-            "get": {
+            "delete": {
                 "produces": [
                     "application/json"
                 ],
@@ -487,6 +487,59 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "position"
+                ],
+                "summary": "Обновление данных о должности",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Position ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Position info",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PositionUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Position"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/rest.sErr"
                         }
