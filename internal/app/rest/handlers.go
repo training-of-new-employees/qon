@@ -36,6 +36,7 @@ func (s *RestServer) InitRoutes() {
 
 	adminGroup.PATCH("/info", s.handlerAdminEditInfo)
 	userGroup := mvp.Group("/users")
+	userGroup.GET("/", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
 	userGroup.POST("/set-password", s.handlerSetPassword)
 

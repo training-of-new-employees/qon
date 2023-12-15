@@ -11,6 +11,7 @@ type RepositoryUser interface {
 	CreateUser(context.Context, model.UserCreate) (*model.User, error)
 	EditAdmin(context.Context, *model.AdminEdit) (*model.AdminEdit, error)
 	GetUserByEmail(context.Context, string) (*model.User, error)
+	GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error)
 	GetCompany(ctx context.Context, id int) (*model.Company, error)
 	SetPasswordAndActivateUser(context.Context, int, string) error
 	UpdateUserPassword(context.Context, int, string) error

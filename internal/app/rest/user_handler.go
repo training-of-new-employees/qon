@@ -78,7 +78,36 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 }
 
+// GetUsers godoc
+//
+//	@Summary		Получение данных пользователей
+//	@Description	Список сотрдуников в компании админа
+//	@Tags			user
+//	@Produce		json
+//	@Success		200	{object}	[]model.User
+//	@Failure		403	{object}	httpErr
+//	@Failure		404	{object}	httpErr
+//	@Failure		500	{object}	httpErr
+//	@Router			/users/ [get]
+func (r *RestServer) handlerGetUsers(c *gin.Context) {
+	ctx := c.Request.Context()
+	us := r.getUserSession(c)
+	if !us.IsAdmin {
+		logger.Log.Warn("Not admin user try to get info about users", zap.Int("id", us.UserID))
+		c.JSON(http.StatusForbidden, ginError("you can't get users info"))
+		return
+	}
+	users, err := r.services.User().GetUsersByCompany(ctx, us.OrgID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ginError(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, users)
+
+}
+
 // GetUser godoc
+//
 //	@Summary		Получение данных пользователя
 //	@Description	Получение по id
 //	@Tags			user

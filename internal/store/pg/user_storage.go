@@ -131,7 +131,7 @@ func (u *uStorage) EditAdmin(
 	var companyID int
 
 	query :=
-	`UPDATE users
+		`UPDATE users
 	 SET 
 	 	name = COALESCE($1, name),
 	 	surname = COALESCE($2, surname),
@@ -220,7 +220,7 @@ func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, erro
 	err := u.tx(
 		func(tx *sqlx.Tx) error {
 			query := `SELECT * FROM companies WHERE id=$1`
-			err := tx.GetContext(ctx, comp, query)
+			err := tx.GetContext(ctx, comp, query, id)
 			return err
 		},
 	)
@@ -258,6 +258,21 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 	}
 
 	return nil
+}
+
+// GetUsersByCompany - получает информацию обо всех пользователях в компании
+func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
+	var users []model.User
+
+	err := u.tx(func(tx *sqlx.Tx) error {
+		query := `SELECT * FROM users WHERE company_id = $1`
+		return tx.SelectContext(ctx, users, query, companyID)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+
 }
 
 func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password string) error {
@@ -320,5 +335,6 @@ func (u *uStorage) tx(f func(*sqlx.Tx) error) error {
 			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
 		}
 	}()
-	return f(tx)
+
+	return handleError(f(tx))
 }
