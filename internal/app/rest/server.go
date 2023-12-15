@@ -39,12 +39,3 @@ func New(secretKey string, services service.Service) *RestServer {
 func (s *RestServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
-
-// httpErr - используется для корректного вывода возвращаемых значений в swagger
-type httpErr struct {
-	Error string `json:"error"`
-}
-
-func ginError(value error) httpErr {
-	return httpErr{value.Error()}
-}

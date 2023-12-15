@@ -8,13 +8,16 @@ import (
 )
 
 //	@title			QuickOn
-//	@version		1.0
+//	@version		0.1
 //	@description	Описание API QuickOn
 
 //	@host		localhost:8080
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.basic	BasicAuth
+//	@securityDefinitions.apikey	Bearer
+//	@in							header
+//	@name						Authorization
+//	@description				you can get it on login page
 
 //	@externalDocs.description	OpenAPI
 //	@externalDocs.url			https://swagger.io/resources/open-api/
@@ -26,15 +29,15 @@ func (s *RestServer) InitRoutes() {
 	allRoutes := s.router.Group("/api")
 	mvp := allRoutes.Group("/v1")
 	login := mvp.Group("/login")
-	login.POST("/", s.handlerSignIn)
+	login.POST("", s.handlerSignIn)
 	password := mvp.Group("/password")
-	password.POST("/", s.handlerResetPassword)
+	password.POST("", s.handlerResetPassword)
 	adminGroup := mvp.Group("/admin")
 	adminGroup.POST("/register", s.handlerCreateAdminInCache)
 	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
 	adminGroup.POST("/employee", s.handlerCreateUser)
+	adminGroup.PATCH("/info", s.handlerAdminEdit)
 
-	adminGroup.PATCH("/info", s.handlerAdminEditInfo)
 	userGroup := mvp.Group("/users")
 	userGroup.GET("", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
@@ -44,9 +47,9 @@ func (s *RestServer) InitRoutes() {
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())
 	position.Use(s.IsAdmin())
+	position.POST("", s.handlerCreatePosition)
 	position.POST("/course", s.handlerAssignCourse)
-	position.POST("/", s.handlerCreatePosition)
-	position.GET("/", s.handlerGetPositions)
+	position.GET("", s.handlerGetPositions)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 	position.DELETE("/delete/:id", s.handlerDeletePosition)
