@@ -2,10 +2,11 @@ package rest
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/training-of-new-employees/qon/internal/model"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/training-of-new-employees/qon/internal/model"
 )
 
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
@@ -141,4 +142,34 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": "deleted"})
+}
+
+// @Summary Присвоение курса к должности
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Присвоение создано"
+// @Failure 400 {object} error "Неверный формат запроса"
+// @Failure 401 {object} error "Пользователь не является сотрудником компании"
+// @Failure 500 {object} error "Внутренняя ошибка сервера"
+// @Router /api/v1/position/course [post]
+func (r *RestServer) handlerAssignCourse(c *gin.Context) {
+	positionCourse := model.PositionCourse{}
+	if err := c.ShouldBindJSON(&positionCourse); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx := c.Request.Context()
+	us := r.getUserSession(c)
+
+	if err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID,
+		positionCourse.CourseID, us.UserID); err != nil {
+		if errors.Is(err, model.ErrNoAuthorized) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": "assigned"})
 }

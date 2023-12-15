@@ -11,4 +11,5 @@ var (
 	ErrCompanyIDNotFound  = errs.ErrCompanyNotFound
 	ErrPositionNotFound   = errs.ErrPositionNotFound
 	ErrPositionsNotFound  = errs.ErrPositionsNotFound
+	ErrNoAuthorized       = errs.ErrUnauthorized
 )

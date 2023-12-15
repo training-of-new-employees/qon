@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
@@ -110,5 +111,31 @@ func (p *positionStorage) DeletePositionDB(ctx context.Context, id int, companyI
 		return fmt.Errorf("delete position db: %w", err)
 	}
 
+	return nil
+}
+
+func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `SELECT id, company_id, name, active, archived, created_at, updated_at
+              FROM positions 
+              WHERE id = $1 AND archived = false`
+
+	err := p.db.GetContext(ctx, &position, query, positionID)
+	if err != nil {
+		return &model.Position{}, handleError(err)
+	}
+
+	return &position, nil
+}
+
+func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int,
+	courseID int, user_id int) error {
+
+	query := `INSERT INTO position_course (position_id, course_id)
+			  VALUES ($1, $2)`
+	if _, err := p.db.ExecContext(ctx, query, positionID, courseID); err != nil {
+		return handleError(err)
+	}
 	return nil
 }

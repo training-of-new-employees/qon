@@ -25,6 +25,10 @@ type (
 		CompanyID int    `json:"company_id" db:"company_id"`
 		Name      string `json:"name"       db:"name"`
 	}
+	PositionCourse struct {
+		CourseID   int `json:"course_id"`
+		PositionID int `json:"position_id"`
+	}
 )
 
 func (p *PositionCreate) Validation() error {

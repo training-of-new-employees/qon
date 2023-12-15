@@ -42,6 +42,7 @@ func (s *RestServer) InitRoutes() {
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())
 	position.Use(s.IsAdmin())
+	position.POST("/course", s.handlerAssignCourse)
 	position.POST("/", s.handlerCreatePosition)
 	position.GET("/", s.handlerGetPositions)
 	position.GET("/:id", s.handlerGetPosition)
