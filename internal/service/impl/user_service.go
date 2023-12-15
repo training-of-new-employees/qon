@@ -122,12 +122,29 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	return info, nil
 }
 
-func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, userCompanyID int) (*model.UserEdit, error) {
+func (u *uService) ArchiveUser(ctx context.Context, id int, editorCompanyID int) error {
+	user, err := u.db.UserStorage().GetUserByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if user.CompanyID != editorCompanyID {
+		return errs.ErrUserNotFound
+	}
+	val := &model.UserEdit{
+		ID:       id,
+		Archived: true,
+	}
+	_, err = u.db.UserStorage().EditUser(ctx, val)
+	return err
+
+}
+
+func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, editorCompanyID int) (*model.UserEdit, error) {
 	user, err := u.db.UserStorage().GetUserByID(ctx, val.ID)
 	if err != nil {
 		return nil, err
 	}
-	if user.CompanyID != userCompanyID {
+	if user.CompanyID != editorCompanyID {
 		return nil, errs.ErrUserNotFound
 	}
 	return u.db.UserStorage().EditUser(ctx, val)

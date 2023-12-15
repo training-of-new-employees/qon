@@ -221,9 +221,10 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 	 	surname = COALESCE($2, surname),
 	 	patronymic = COALESCE($3, patronymic),
 	 	email = COALESCE($4, email),
-	 	position_id = COALESCE($5, position_id)
-	 WHERE id = $6`
-		_, err := tx.ExecContext(ctx, query, &edit.Name, &edit.Surname, &edit.Patronymic, &edit.Email, &edit.PositionID, &edit.ID)
+	 	position_id = COALESCE($5, position_id),
+	 	archived = $6
+	 WHERE id = $7`
+		_, err := tx.ExecContext(ctx, query, edit.Name, edit.Surname, edit.Patronymic, edit.Email, edit.PositionID, edit.Archived, edit.ID)
 		return err
 	},
 	)
