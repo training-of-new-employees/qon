@@ -1,5 +1,70 @@
 basePath: /api/v1
 definitions:
+  model.AdminEdit:
+    properties:
+      company_name:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  model.Code:
+    properties:
+      code:
+        type: string
+    type: object
+  model.CreateAdmin:
+    properties:
+      company_name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  model.EmailReset:
+    properties:
+      email:
+        type: string
+    type: object
+  model.Position:
+    properties:
+      active:
+        type: boolean
+      archived:
+        type: boolean
+      company_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.PositionCreate:
+    properties:
+      company_id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.PositionUpdate:
+    properties:
+      company_id:
+        type: integer
+      name:
+        type: string
+    type: object
   model.User:
     properties:
       active:
@@ -25,12 +90,31 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.UserCreate:
+    properties:
+      active:
+        type: boolean
+      admin:
+        type: boolean
+      company_id:
+        type: integer
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      patronymic:
+        type: string
+      position_id:
+        type: integer
+      surname:
+        type: string
+    type: object
   model.UserEdit:
     properties:
       email:
         type: string
-      id:
-        type: integer
       name:
         type: string
       patronymic:
@@ -69,9 +153,26 @@ definitions:
       updated_at:
         type: string
     type: object
-  rest.httpErr:
+  model.UserSignIn:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  rest.sEmail:
+    properties:
+      email:
+        type: string
+    type: object
+  rest.sErr:
     properties:
       error:
+        type: string
+    type: object
+  rest.sToken:
+    properties:
+      token:
         type: string
     type: object
 externalDocs:
@@ -84,6 +185,296 @@ info:
   title: QuickOn
   version: "1.0"
 paths:
+  /admin/employee:
+    post:
+      parameters:
+      - description: User Create
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Создание пользователя
+      tags:
+      - user
+  /admin/info:
+    post:
+      parameters:
+      - description: Admin Edit
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AdminEdit'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Изменение данных администратора
+      tags:
+      - user
+  /admin/register:
+    post:
+      parameters:
+      - description: Create Admin
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAdmin'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/model.CreateAdmin'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Создание администратора
+      tags:
+      - user
+  /admin/verify:
+    post:
+      parameters:
+      - description: User Email Verification
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.Code'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.sEmail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Верификация email'a пользователя
+      tags:
+      - user
+  /login:
+    post:
+      parameters:
+      - description: User SignIn
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.sToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Вход пользователя
+      tags:
+      - user
+  /password:
+    post:
+      parameters:
+      - description: User Reset Password
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.EmailReset'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.sEmail'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Сброс пароля пользователя
+      tags:
+      - user
+  /positions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Position'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение всех должностей
+      tags:
+      - user
+    post:
+      parameters:
+      - description: Position Create
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.PositionCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Position'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Создание новой должности
+      tags:
+      - user
+  /positions/{id}:
+    get:
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Position'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение всех должностей
+      tags:
+      - user
+  /positions/update/{id}:
+    get:
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Обновление данных о должности
+      tags:
+      - user
   /users:
     get:
       description: Список сотрдуников в компании админа
@@ -99,15 +490,15 @@ paths:
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
       summary: Получение данных пользователей
       tags:
       - user
@@ -127,22 +518,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.UserInfo'
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad Request
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
       summary: Получение данных пользователя
       tags:
       - user
@@ -167,23 +558,58 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.UserEdit'
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad Request
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.httpErr'
+            $ref: '#/definitions/rest.sErr'
       summary: Изменение данных пользователя
+      tags:
+      - user
+  /users/set-password:
+    post:
+      parameters:
+      - description: User Set Password
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.sToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Активация пользователя и установка ему пароля
       tags:
       - user
 securityDefinitions:
