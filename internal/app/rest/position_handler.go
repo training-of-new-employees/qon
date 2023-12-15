@@ -16,10 +16,10 @@ import (
 //	@Summary	Создание новой должности
 //	@Tags		user
 //	@Produce	json
-//	@Param		object	body	model.PositionCreate	true	"Position Create"
-//	@Success	201 {object}  model.Position
-//	@Failure	400	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Param		object	body		model.PositionCreate	true	"Position Create"
+//	@Success	201		{object}	model.Position
+//	@Failure	400		{object}	sErr
+//	@Failure	500		{object}	sErr
 //	@Router		/positions [post]
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -59,8 +59,8 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 //	@Summary	Получение всех должностей
 //	@Tags		user
 //	@Produce	json
-//	@Param			id	path		int	true	"Position ID"
-//	@Success	200 {object}  model.Position
+//	@Param		id	path		int	true	"Position ID"
+//	@Success	200	{object}	model.Position
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
 //	@Router		/positions/{id} [get]
@@ -96,7 +96,7 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 //	@Summary	Получение всех должностей
 //	@Tags		user
 //	@Produce	json
-//	@Success	200 {array}  model.Position
+//	@Success	200	{array}		model.Position
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
 //	@Router		/positions [get]
@@ -123,12 +123,12 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Summary	Обновление данных о должности
 //	@Tags		user
 //	@Produce	json
-//	@Param			id		path		int				true	"Position ID"
-//	@Param			object	body		model.PositionUpdate	true	"Position info"
-//	@Success	200 {object}  model.Position
-//	@Failure	400	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Param		id		path		int						true	"Position ID"
+//	@Param		object	body		model.PositionUpdate	true	"Position info"
+//	@Success	200		{object}	model.Position
+//	@Failure	400		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
 //	@Router		/positions/update/{id} [get]
 func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -170,7 +170,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 //	@Summary	Обновление данных о должности
 //	@Tags		user
 //	@Produce	json
-//	@Param			id		path		int				true	"Position ID"
+//	@Param		id	path	int	true	"Position ID"
 //	@Success	200
 //	@Failure	400	{object}	sErr
 //	@Failure	500	{object}	sErr

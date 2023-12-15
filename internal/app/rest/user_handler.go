@@ -228,12 +228,12 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Summary	Активация пользователя и установка ему пароля
 //	@Tags		user
 //	@Produce	json
-//	@Param		object	body	model.UserSignIn	true	"User Set Password"
-//	@Success	200 {object}  sToken
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Param		object	body		model.UserSignIn	true	"User Set Password"
+//	@Success	200		{object}	sToken
+//	@Failure	400		{object}	sErr
+//	@Failure	401		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
 //	@Router		/users/set-password [post]
 func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -281,11 +281,11 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 //	@Summary	Вход пользователя
 //	@Tags		user
 //	@Produce	json
-//	@Param		object	body	model.UserSignIn	true	"User SignIn"
-//	@Success	200 {object}  sToken
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Param		object	body		model.UserSignIn	true	"User SignIn"
+//	@Success	200		{object}	sToken
+//	@Failure	400		{object}	sErr
+//	@Failure	401		{object}	sErr
+//	@Failure	500		{object}	sErr
 //	@Router		/login [post]
 func (r *RestServer) handlerSignIn(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -372,11 +372,11 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 //	@Summary	Сброс пароля пользователя
 //	@Tags		user
 //	@Produce	json
-//	@Param		object	body	model.EmailReset	true	"User Reset Password"
-//	@Success	200 {object}  sEmail
-//	@Failure	400	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Param		object	body		model.EmailReset	true	"User Reset Password"
+//	@Success	200		{object}	sEmail
+//	@Failure	400		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
 //	@Router		/password [post]
 func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
