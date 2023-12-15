@@ -1,7 +1,9 @@
 // Package errs - пакет содержит ошибки приложения.
 package errs
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	// Базовые ошибки
@@ -27,6 +29,8 @@ var (
 	ErrBadRequest = errors.New("Bad request")
 	// ErrNotFirstLogin - не первый вход в систему
 	ErrNotFirstLogin = errors.New("Not first login")
+	// ErrOnlyAdmin - действие доступно только администратору
+	ErrOnlyAdmin = errors.New("You aren't admin")
 
 	// -- Ошибки пользователя --
 

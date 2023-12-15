@@ -45,6 +45,6 @@ type httpErr struct {
 	Error string `json:"error"`
 }
 
-func ginError(value string) httpErr {
-	return httpErr{value}
+func ginError(value error) httpErr {
+	return httpErr{value.Error()}
 }

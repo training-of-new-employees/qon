@@ -25,6 +25,21 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.UserEdit:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      patronymic:
+        type: string
+      position_id:
+        type: integer
+      surname:
+        type: string
+    type: object
   model.UserInfo:
     properties:
       active:
@@ -69,7 +84,7 @@ info:
   title: QuickOn
   version: "1.0"
 paths:
-  /users/:
+  /users:
     get:
       description: Список сотрдуников в компании админа
       produces:
@@ -129,6 +144,46 @@ paths:
           schema:
             $ref: '#/definitions/rest.httpErr'
       summary: Получение данных пользователя
+      tags:
+      - user
+    patch:
+      description: Изменение по id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User info
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserEdit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserEdit'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.httpErr'
+      summary: Изменение данных пользователя
       tags:
       - user
 securityDefinitions:

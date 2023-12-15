@@ -214,6 +214,22 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return &user, nil
 }
 
+func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.UserEdit, error) {
+	err := u.tx(func(tx *sqlx.Tx) error {
+		query := `UPDATE users SET
+	 	name = COALESCE($1, name),
+	 	surname = COALESCE($2, surname),
+	 	patronymic = COALESCE($3, patronymic),
+	 	email = COALESCE($4, email),
+	 	position_id = COALESCE($5, position_id)
+	 WHERE id = $6`
+		_, err := tx.ExecContext(ctx, query, &edit.Name, &edit.Surname, &edit.Patronymic, &edit.Email, &edit.PositionID, &edit.ID)
+		return err
+	},
+	)
+	return edit, err
+}
+
 // GetCompany - получает информацию о компании по id
 func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
 	var comp *model.Company

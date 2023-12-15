@@ -8,6 +8,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
@@ -121,6 +122,17 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	return info, nil
 }
 
+func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, userCompanyID int) (*model.UserEdit, error) {
+	user, err := u.db.UserStorage().GetUserByID(ctx, val.ID)
+	if err != nil {
+		return nil, err
+	}
+	if user.CompanyID != userCompanyID {
+		return nil, errs.ErrUserNotFound
+	}
+	return u.db.UserStorage().EditUser(ctx, val)
+}
+
 // GetUsersByCompany - получает данные о пользователях в компании
 func (u *uService) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
 	users, err := u.db.UserStorage().GetUsersByCompany(ctx, companyID)
@@ -130,14 +142,14 @@ func (u *uService) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 	return users, nil
 }
 
-func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyId int) (*model.Tokens, error) {
+func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyID int) (*model.Tokens, error) {
 
-	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.aTokenTime)
+	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, u.aTokenTime)
 	if err != nil {
 		return nil, fmt.Errorf("error failed GenerateToken %v", err)
 	}
 
-	refreshToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyId, u.rTokenTime)
+	refreshToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, u.rTokenTime)
 	if err != nil {
 		return nil, fmt.Errorf("error failed GenerateToken %v", err)
 	}
