@@ -90,6 +90,7 @@ definitions:
       updated_at:
         type: string
     type: object
+
   model.UserCreate:
     properties:
       active:

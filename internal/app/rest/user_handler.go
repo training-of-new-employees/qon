@@ -126,6 +126,7 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 		return
 	case err != nil:
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
+
 		return
 	}
 	c.JSON(http.StatusOK, users)
@@ -159,6 +160,7 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 	u, err := r.services.User().GetUserByID(ctx, id)
 	switch {
 	case errors.Is(err, errs.ErrUserNotFound):
+
 		c.JSON(http.StatusNotFound, s().SetError(err))
 		return
 	case err != nil:
@@ -196,6 +198,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		msg := fmt.Errorf("got invalid user id: %s", idParam)
 		logger.Log.Warn("error", zap.Error(msg))
 		c.JSON(http.StatusBadRequest, s().SetError(msg))
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg.Error()})
 		return
 	}
 	edit := &model.UserEdit{}
@@ -207,6 +210,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 	us := r.getUserSession(c)
 	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, edit.ID, us.OrgID) {
 		logger.Log.Warn("User try edit info without rights", zap.Int("id", us.UserID), zap.Int("edited", edit.ID))
+
 		c.JSON(http.StatusForbidden, s().SetError(fmt.Errorf("you can't edit user")))
 		return
 	}
@@ -222,6 +226,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 	c.JSON(http.StatusOK, edited)
 
 }
+
 
 // SetPassword godoc
 //
