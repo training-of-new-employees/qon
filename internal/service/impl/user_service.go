@@ -131,8 +131,8 @@ func (u *uService) ArchiveUser(ctx context.Context, id int, editorCompanyID int)
 		return errs.ErrUserNotFound
 	}
 	val := &model.UserEdit{
-		ID:       id,
-		Archived: true,
+		ID:         id,
+		IsArchived: true,
 	}
 	_, err = u.db.UserStorage().EditUser(ctx, val)
 	return err
