@@ -43,6 +43,15 @@ type (
 		Patronymic string `json:"patronymic" db:"patronymic"`
 	}
 
+	UserEdit struct {
+		ID         int     `json:"-" db:"id"`
+		Name       *string `json:"name,omitempty" db:"name"`
+		Surname    *string `json:"surname,omitempty" db:"surname"`
+		Patronymic *string `json:"patronymic,omitempty" db:"patronymic"`
+		PositionID *int    `json:"position_id,omitempty" db:"position_id"`
+		Email      *string `json:"email,omitempty" db:"email"`
+	}
+
 	UserInfo struct {
 		User
 		CompanyName  string `json:"company_name" db:"company_name"`
