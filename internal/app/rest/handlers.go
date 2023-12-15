@@ -45,6 +45,7 @@ func (s *RestServer) InitRoutes() {
 	position.Use(s.IsAuthenticated())
 	position.Use(s.IsAdmin())
 	position.POST("", s.handlerCreatePosition)
+	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
