@@ -48,5 +48,12 @@ func (s *RestServer) InitRoutes() {
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 	position.DELETE("/delete/:id", s.handlerDeletePosition)
 
+	course := mvp.Group("/course")
+	course.Use(s.IsAuthenticated())
+	course.Use(s.IsAdmin())
+	course.POST("", s.handlerCreateCourse)
+	course.GET("/", s.handlerGetCourses)
+	course.GET("/:id", s.handlerGetCourse)
+
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

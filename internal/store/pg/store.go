@@ -19,6 +19,7 @@ type Store struct {
 	conn          *sqlx.DB
 	userStore     *uStorage
 	positionStore *positionStorage
+	courseStore   *courseStorage
 }
 
 // NewStore - конструктор для Store.
@@ -90,4 +91,15 @@ func (s *Store) PositionStorage() store.RepositoryPosition {
 	s.positionStore = newPositionStorage(s.conn)
 
 	return s.positionStore
+}
+
+func (s *Store) CourseStorage() store.RepositoryCourse {
+
+	if s.courseStore != nil {
+		return s.courseStore
+	}
+
+	s.courseStore = newCourseStorage(s.conn)
+
+	return s.courseStore
 }

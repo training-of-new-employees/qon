@@ -108,7 +108,8 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 		return
 	}
 
-	position, err := r.services.Position().UpdatePosition(ctx, id, positionReq)
+	us := r.getUserSession(c)
+	position, err := r.services.Position().UpdatePosition(ctx, id, us.OrgID, positionReq)
 	switch {
 	case errors.Is(err, model.ErrPositionNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})

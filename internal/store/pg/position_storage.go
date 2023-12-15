@@ -25,10 +25,9 @@ func newPositionStorage(db *sqlx.DB) *positionStorage {
 func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionCreate) (*model.Position, error) {
 	var createdPosition = model.Position{}
 
-	query := `
-				INSERT INTO positions (company_id, name)
-				VALUES ($1, $2)
-				RETURNING id, company_id, name, active, created_at, updated_at`
+	query := `INSERT INTO positions (company_id, name)
+			  VALUES ($1, $2)
+			  RETURNING id, company_id, name, active, created_at, updated_at`
 
 	err := p.db.GetContext(ctx, &createdPosition, query, position.CompanyID, position.Name)
 	if err != nil {
@@ -83,13 +82,13 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, id int) ([]*model.
 	return positions, nil
 }
 
-func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val model.PositionUpdate) (*model.Position, error) {
+func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, orgID int, val model.PositionUpdate) (*model.Position, error) {
 	position := model.Position{}
 
-	query := `UPDATE positions SET name = $1 WHERE id = $2 AND company_id = $3
+	query := `UPDATE positions SET name = $1 WHERE id = $2 AND company_id = $3 AND archived = false
               RETURNING id, name, company_id, active, archived, updated_at, created_at`
 
-	err := p.db.QueryRowContext(ctx, query, val.Name, id, val.CompanyID).Scan(&position.ID, &position.Name,
+	err := p.db.QueryRowContext(ctx, query, val.Name, id, orgID).Scan(&position.ID, &position.Name,
 		&position.CompanyID, &position.IsActive, &position.IsArchived, &position.UpdatedAt, &position.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

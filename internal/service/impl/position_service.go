@@ -46,8 +46,8 @@ func (p *positionService) GetPositions(ctx context.Context, id int) ([]*model.Po
 	return positions, nil
 }
 
-func (p *positionService) UpdatePosition(ctx context.Context, id int, val model.PositionUpdate) (*model.Position, error) {
-	position, err := p.db.PositionStorage().UpdatePositionDB(ctx, id, val)
+func (p *positionService) UpdatePosition(ctx context.Context, id int, orgID int, val model.PositionUpdate) (*model.Position, error) {
+	position, err := p.db.PositionStorage().UpdatePositionDB(ctx, id, orgID, val)
 	if err != nil {
 		return nil, fmt.Errorf("failed UpdatePositionDB: %w", err)
 	}

@@ -10,6 +10,8 @@ var (
 	ErrCreatorNotFound  = errors.New("Creator does not exist")
 	ErrLessonNotFound   = errors.New("Lesson not found")
 	ErrCourseNotFound   = errors.New("Course not found")
+	ErrCoursesNotFound  = errors.New("Course not found")
+	ErrAdminIDNotFound  = errors.New("Admin not found")
 
 	// -- Общие ошибки приложения --
 

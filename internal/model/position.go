@@ -22,8 +22,7 @@ type (
 	}
 
 	PositionUpdate struct {
-		CompanyID int    `json:"company_id" db:"company_id"`
-		Name      string `json:"name"       db:"name"`
+		Name string `json:"name"       db:"name"`
 	}
 )
 
@@ -36,7 +35,7 @@ func (p *PositionCreate) Validation() error {
 }
 
 func (p *PositionUpdate) Validation() error {
-	if p.CompanyID == 0 || p.Name == "" {
+	if p.Name == "" {
 		return fmt.Errorf("validation empty values")
 	}
 

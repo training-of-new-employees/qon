@@ -11,4 +11,7 @@ var (
 	ErrCompanyIDNotFound  = errs.ErrCompanyNotFound
 	ErrPositionNotFound   = errs.ErrPositionNotFound
 	ErrPositionsNotFound  = errs.ErrPositionsNotFound
+	ErrAdminIDNotFound    = errs.ErrAdminIDNotFound
+	ErrCourseNotFound     = errs.ErrCourseNotFound
+	ErrCoursesNotFound    = errs.ErrCoursesNotFound
 )
