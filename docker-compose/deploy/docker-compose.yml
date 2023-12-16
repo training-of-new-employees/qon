@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app_qon
-    build: ../..
+    build: ghcr.io/training-of-new-employees/qon:develop
     environment:
       RUN_ADDR: ":8080"
       LOG_LEVEL: DEBUG
@@ -45,7 +45,7 @@ services:
       - 16379:6379
 
   frontend:
-    image: "frontend:test"
+    image: ghcr.io/training-of-new-employees/frontend:develop
     ports:
       - "8080:8080"
     environment:

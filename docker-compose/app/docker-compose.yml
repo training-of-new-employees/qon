@@ -2,10 +2,8 @@ services:
   app:
     container_name: app_qon
     build: ../..
-    ports:
-      - "8080:8080"
     environment:
-      RUN_ADDR: 0.0.0.0:8080
+      RUN_ADDR: ":8080"
       LOG_LEVEL: DEBUG
       DATABASE_DSN: postgres://quickon:quickon@postgres:5432/qon_app
       JWT_SECRET_KEY: simtahtonim
@@ -45,6 +43,17 @@ services:
     restart: always
     ports:
       - 16379:6379
+
+  frontend:
+    container_name: frontend
+    build: ../../frontend/.
+    ports:
+      - "8080:8080"
+    environment:
+      LISTEN_PORT: 8080
+      SERVER_NAME: localhost:8080
+      BACKEND: app_qon:8080
+    restart: always
 
 volumes:
   app-db-qon:

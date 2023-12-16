@@ -3,9 +3,11 @@ YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
 CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
+FRONTEND:= "frontend"
 
 ## Docker:
 docker-app-up: ## Create and run app containers
+	git clone -b develop https://github.com/training-of-new-employees/frontend.git || true
 	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate --build
 
 docker-app-down: ## Stop and remove app containers
