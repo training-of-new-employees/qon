@@ -1,9 +1,9 @@
 package rest
 
 import (
+	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-
 	_ "github.com/training-of-new-employees/qon/docs"
 )
 
@@ -26,6 +26,10 @@ import (
 func (s *RestServer) InitRoutes() {
 
 	s.router.Use(s.LoggerMiddleware())
+	s.router.Use(
+		cors.New(cors.Config{AllowOrigins: []string{"*"}}),
+	)
+
 	allRoutes := s.router.Group("/api")
 	mvp := allRoutes.Group("/v1")
 	login := mvp.Group("/login")
