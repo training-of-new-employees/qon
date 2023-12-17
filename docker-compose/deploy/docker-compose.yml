@@ -50,7 +50,7 @@ services:
       BACKEND: app_qon:8080
     volumes:
       - ./certbot/conf/:/etc/nginx/ssl/:ro
-      - ./nginx/:/etc/nginx/template/:ro
+      - ./nginx/:/etc/nginx/templates/:ro
     restart: always
 
 
