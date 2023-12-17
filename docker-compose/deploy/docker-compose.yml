@@ -41,7 +41,7 @@ services:
     restart: always
 
   frontend:
-    image: ghcr.io/training-of-new-employees/frontend:develop
+    image: ghcr.io/training-of-new-employees/frontend:deploy
     ports:
       - 443:443
     environment:
@@ -50,7 +50,6 @@ services:
       BACKEND: app_qon:8080
     volumes:
       - ./certbot/conf/:/etc/nginx/ssl/:ro
-      - ./nginx/:/etc/nginx/templates/:ro
     restart: always
 
 
