@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app_qon
-    build: ../../
+    image: ghcr.io/training-of-new-employees/qon:develop
     environment:
       RUN_ADDR: ":8080"
       LOG_LEVEL: INFO
@@ -39,11 +39,7 @@ services:
     restart: always
 
   frontend:
-    build:
-      context: ../../frontend
-      args:
-        - REACT_APP_BASE_URL="https://${DOMAIN}"
-        - NODE_ENV=production
+    image: ghcr.io/training-of-new-employees/frontend:develop
     ports:
       - 443:443
     environment:
@@ -55,23 +51,6 @@ services:
       - ./nginx/:/etc/nginx/template/:ro
     restart: always
 
-  cert-server:
-    image: nginx:latest
-    environment:
-      - DOMAIN=${DOMAIN}
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx-certs/:/etc/nginx/template/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
-    restart: always
-
-  certbot:
-    image: certbot/certbot:latest
-    command: ["certonly","--webroot", "--webroot-path", "/var/www/certbot/", "-d","${DOMAIN}", "--non-interactive", "--agree-tos", "-m","${MAIL}"]
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   app-db-qon:
