@@ -1,15 +1,13 @@
 services:
   app:
     container_name: app_qon
-    build: ghcr.io/training-of-new-employees/qon:develop
+    build: ../../
     environment:
       RUN_ADDR: ":8080"
-      LOG_LEVEL: DEBUG
+      LOG_LEVEL: INFO
       DATABASE_DSN: postgres://quickon:quickon@postgres:5432/qon_app
-      JWT_SECRET_KEY: simtahtonim
+      JWT_SECRET_KEY: "$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64 ; echo '')"
       REDIS_DSN: redis:6379
-      SENDER_EMAIL: ivan.frontoff42@gmail.com
-      SENDER_PASSWORD: "ahlb bhnf zvsl pxya"
     restart: always
     depends_on:
       postgres:
@@ -21,8 +19,6 @@ services:
   postgres:
     container_name: app_db_qon
     image: postgres:14.3-alpine
-    ports:
-      - "15432:5432"
     environment:
       POSTGRES_DB: qon_app
       PGDATABASE: qon_app
@@ -41,18 +37,41 @@ services:
   redis:
     image: "redis:alpine"
     restart: always
-    ports:
-      - 16379:6379
 
   frontend:
-    image: ghcr.io/training-of-new-employees/frontend:develop
+    build:
+      context: ../../frontend
+      args:
+        - REACT_APP_BASE_URL="https://${DOMAIN}"
+        - NODE_ENV=production
     ports:
-      - "8080:8080"
+      - 443:443
     environment:
-      LISTEN_PORT: 8080
-      SERVER_NAME: localhost:8080
+      LISTEN_PORT: 443
+      SERVER_NAME: ${DOMAIN}
       BACKEND: app_qon:8080
+    volumes:
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - ./nginx/:/etc/nginx/template/:ro
     restart: always
+
+  cert-server:
+    image: nginx:latest
+    environment:
+      - DOMAIN=${DOMAIN}
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx-certs/:/etc/nginx/template/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    command: ["certonly","--webroot", "--webroot-path", "/var/www/certbot/", "-d","${DOMAIN}", "--non-interactive", "--agree-tos", "-m","${MAIL}"]
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   app-db-qon:
