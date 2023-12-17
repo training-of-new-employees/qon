@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app_qon
-    image: ghcr.io/training-of-new-employees/qon:develop
+    image: ghcr.io/training-of-new-employees/qon:develop 
     environment:
       RUN_ADDR: ":8080"
       LOG_LEVEL: INFO

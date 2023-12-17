@@ -7,7 +7,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./nginx-certs/:/etc/nginx/templates/:ro
+      - ./nginx-certs/:/etc/nginx/conf.d/:ro
       - ./certbot/www/:/var/www/certbot/:ro
     restart: always
 
