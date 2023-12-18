@@ -46,6 +46,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        envs: DOMAIN,SENDER_API_KEY
+        envs: DOMAIN,SENDER_API_KEY,FRONT_TAG,BACK_TAG
         script: |
           docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d --remove-orphans
