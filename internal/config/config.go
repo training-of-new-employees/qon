@@ -15,8 +15,10 @@ var (
 	redisDSN       string
 	redisPassword  string
 	redisDB        int
+	senderMode     string
 	senderEmail    string
 	senderPassword string
+	senderApiKey   string
 )
 
 // Config хранит настройки приложения.
@@ -30,8 +32,11 @@ type Config struct {
 	RedisDB             int
 	AccessTokenExpires  time.Duration
 	RefreshTokenExpires time.Duration
-	SenderEmail         string
-	SenderPassword      string
+
+	SenderMode     string
+	SenderEmail    string
+	SenderPassword string
+	SenderApiKey   string
 }
 
 // InitConfig определяет настройки приложения по флагам, переменным окружения.
@@ -47,8 +52,10 @@ func InitConfig() *Config {
 	// NOTE: здесь определяем последующие флаги
 	// ...
 
+	flag.StringVar(&senderMode, "sm", defaultSenderMode, "sender mode")
 	flag.StringVar(&senderEmail, "se", defaultSenderEmail, "sender email")
 	flag.StringVar(&senderPassword, "sp", defaultSenderPassword, "sender password")
+	flag.StringVar(&senderApiKey, "sk", defaultSenderApiKey, "sender api key")
 
 	flag.Parse()
 
@@ -77,12 +84,20 @@ func InitConfig() *Config {
 		redisPassword = envRedisPassword
 	}
 
+	if envSenderMode := os.Getenv("SENDER_MODE"); envSenderMode != "" {
+		senderMode = envSenderMode
+	}
+
 	if envSenderEmail := os.Getenv("SENDER_EMAIL"); envSenderEmail != "" {
 		senderEmail = envSenderEmail
 	}
 
 	if envSenderPassword := os.Getenv("SENDER_PASSWORD"); envSenderPassword != "" {
 		senderPassword = envSenderPassword
+	}
+
+	if envSenderApiKey := os.Getenv("SENDER_API_KEY"); envSenderApiKey != "" {
+		senderApiKey = envSenderApiKey
 	}
 
 	// NOTE: здесь определяем последующие ENV
@@ -99,8 +114,11 @@ func InitConfig() *Config {
 		RedisDB:             0,
 		AccessTokenExpires:  time.Minute * 2048,
 		RefreshTokenExpires: time.Hour * 720,
-		SenderEmail:         senderEmail,
-		SenderPassword:      senderPassword,
+
+		SenderMode:     senderMode,
+		SenderEmail:    senderEmail,
+		SenderPassword: senderPassword,
+		SenderApiKey:   senderApiKey,
 	}
 
 	return config

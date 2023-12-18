@@ -4,7 +4,9 @@ package doar
 import (
 	"fmt"
 
-	"gopkg.in/gomail.v2"
+	"github.com/training-of-new-employees/qon/internal/config"
+	apisender "github.com/training-of-new-employees/qon/internal/pkg/doar/api-sender"
+	smtpsender "github.com/training-of-new-employees/qon/internal/pkg/doar/smtp-sender"
 )
 
 // Интерфейс EmailSender.
@@ -14,19 +16,28 @@ type EmailSender interface {
 	SendPassword(email string, password string) error
 }
 
+type Mailer interface {
+	SendEmail(email string, title string, body string) error
+}
+
 // Sender описывает структуру для рассылки писем.
 type Sender struct {
-	EmailServiceAddress  string
-	EmailServicePassword string
-	ClientEmail          string
+	mailer      Mailer
+	ClientEmail string
 }
 
 // NewSender - конструктор Sender.
-func NewSender(serviceEmail string, password string) *Sender {
+func NewSender(mode string, config *config.Config) *Sender {
+	var sender Mailer
+	if mode == "smtp" {
+		sender = smtpsender.NewSmtpSender(config.SenderEmail, config.SenderPassword)
+	}
+	if mode == "api" {
+		sender = apisender.NewApiSender(config.SenderEmail, config.SenderApiKey)
+	}
+
 	return &Sender{
-		EmailServiceAddress:  serviceEmail,
-		EmailServicePassword: password,
-		ClientEmail:          "",
+		mailer: sender,
 	}
 }
 
@@ -35,7 +46,7 @@ func (s *Sender) SendCode(email string, code string) error {
 	title := "Подтверждение регистрации (QuickOn)"
 	body := fmt.Sprintf("Код верификации: %s", code)
 
-	if err := s.sendEmail(email, title, body); err != nil {
+	if err := s.mailer.SendEmail(email, title, body); err != nil {
 		return err
 	}
 
@@ -45,9 +56,9 @@ func (s *Sender) SendCode(email string, code string) error {
 // SendCode отправляет пригласительную ссылку.
 func (s *Sender) InviteUser(email string, invitationLink string) error {
 	title := "Пригласительная ссылка (QuickOn)"
-	body := fmt.Sprintf("пригласительная cсылка: %s", invitationLink)
+	body := fmt.Sprintf("Пригласительная cсылка: %s", invitationLink)
 
-	if err := s.sendEmail(email, title, body); err != nil {
+	if err := s.mailer.SendEmail(email, title, body); err != nil {
 		return err
 	}
 
@@ -59,28 +70,9 @@ func (s *Sender) SendPassword(email string, password string) error {
 	title := "Новый пароль (QuickOn)"
 	body := fmt.Sprintf("пароль: %s", password)
 
-	if err := s.sendEmail(email, title, body); err != nil {
+	if err := s.mailer.SendEmail(email, title, body); err != nil {
 		return err
 	}
-
-	return nil
-}
-
-// sendEmail - для отправки писем.
-func (s *Sender) sendEmail(email string, title string, body string) error {
-	m := gomail.NewMessage()
-	m.SetHeader("From", s.EmailServiceAddress)
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", title)
-	m.SetBody("text/html", body)
-
-	d := gomail.NewDialer("smtp.gmail.com", 587, s.EmailServiceAddress, s.EmailServicePassword)
-	err := d.DialAndSend(m)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Email Sent")
 
 	return nil
 }

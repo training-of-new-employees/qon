@@ -1,0 +1,25 @@
+
+services:
+  cert-server:
+    image: nginx:latest
+    environment:
+      - DOMAIN=${DOMAIN}
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx-certs/:/etc/nginx/conf.d/:ro
+      - /var/certbot/www/:/var/www/certbot/:ro
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    command: ["certonly","--webroot", "--webroot-path", "/var/www/certbot/", "-d","${DOMAIN}", "--non-interactive", "--agree-tos", "-m","${MAIL}"]
+    volumes:
+      - /var/certbot/www/:/var/www/certbot/:rw
+      - /var/certbot/conf/:/etc/letsencrypt/:rw
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 2
+        window: 120s
