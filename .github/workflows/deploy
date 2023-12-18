@@ -1,0 +1,38 @@
+name: CD
+
+on:
+  push:
+    branches: [ "deploy" ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Upload repo
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: "*"
+        target: "~"
+    - name: (Re)Generate certificates
+      uses: appleboy/ssh-action@v1.0.0
+      env:
+        DOMAIN: ${{ secrets.HOST }}
+        MAIL: ${{ secrets.MAIL }}
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        envs: DOMAIN,MAIL
+        script: |
+          ls -la
+          cd qon
+          docker compose --file docker-compose/deploy/gen-certs.yml up --abort-on-container-exit
+          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always
