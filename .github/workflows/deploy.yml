@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [ "deploy" ]
+    branches: [ "deploy", "develop", "main" ]
 
 jobs:
   build:
@@ -39,6 +39,8 @@ jobs:
       env:
         DOMAIN: ${{ secrets.HOST }}
         SENDER_API_KEY: ${{ secrets.SENDER_API_KEY }}
+        FRONT_TAG: ${{ vars.FRONT_TAG }}
+        BACK_TAG: ${{ vars.BACK_TAG }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
