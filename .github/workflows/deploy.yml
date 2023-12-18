@@ -38,12 +38,12 @@ jobs:
       uses: appleboy/ssh-action@v1.0.0
       env:
         DOMAIN: ${{ secrets.HOST }}
-        MAIL: ${{ secrets.MAIL }}
+        SENDER_API_KEY: ${{ secrets.SENDER_API_KEY }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        envs: DOMAIN,MAIL
+        envs: DOMAIN,SENDER_API_KEY
         script: |
-          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d
+          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d --remove-orphans
