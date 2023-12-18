@@ -1,10 +1,8 @@
 name: CD
 
 on:
-  push:
-    branches: [ "deploy", "develop", "main" ]
   workflow_run:
-    workflows: ["Publish Docker"]
+    workflows: [Publish Docker]
     branches: [ "deploy", "develop", "main" ]
     types:
       - completed
