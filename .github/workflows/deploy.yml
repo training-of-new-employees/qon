@@ -39,7 +39,7 @@ jobs:
       env:
         DOMAIN: ${{ secrets.HOST }}
         SENDER_API_KEY: ${{ secrets.SENDER_API_KEY }}
-        FRONT_TAG: ${{ vars.FRONT_TAG }}
+        FRONT_TAG: ${{ env.GITHUB_REF#refs/heads/ }}
         BACK_TAG: ${{ vars.BACK_TAG }}
       with:
         host: ${{ secrets.HOST }}
