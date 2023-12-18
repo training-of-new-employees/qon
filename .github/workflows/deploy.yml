@@ -48,4 +48,5 @@ jobs:
         port: ${{ secrets.PORT }}
         envs: DOMAIN,SENDER_API_KEY,FRONT_TAG,BACK_TAG
         script: |
+          echo "FRONT:${FRONT_TAG} BACK:${BACK_TAG}"
           docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d --remove-orphans
