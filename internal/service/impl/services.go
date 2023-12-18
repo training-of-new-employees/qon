@@ -1,12 +1,13 @@
 package impl
 
 import (
+	"time"
+
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
-	"time"
 )
 
 // Services - структура, которая содержит в себе все сервисы.
@@ -18,6 +19,7 @@ type Services struct {
 	rTokenTime      time.Duration
 	userService     *uService
 	positionService *positionService
+	lessonService   *lessonService
 	sender          doar.EmailSender
 }
 
@@ -61,4 +63,14 @@ func (s *Services) Position() service.ServicePosition {
 	s.positionService = newPositionService(s.db)
 
 	return s.positionService
+}
+
+func (s *Services) Lesson() service.ServiceLesson {
+	if s.lessonService != nil {
+		return s.lessonService
+	}
+
+	s.lessonService = newLessonService(s.db)
+
+	return s.lessonService
 }

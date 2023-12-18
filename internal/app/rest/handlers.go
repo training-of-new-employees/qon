@@ -38,6 +38,9 @@ func (s *RestServer) InitRoutes() {
 	adminGroup.POST("/employee", s.handlerCreateUser)
 	adminGroup.PATCH("/info", s.handlerAdminEdit)
 
+	adminGroup.POST("/lesson", s.handlerLessonCreate)
+	adminGroup.DELETE("/lesson", s.handlerLessonDelete)
+
 	userGroup := mvp.Group("/users")
 	userGroup.GET("", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
