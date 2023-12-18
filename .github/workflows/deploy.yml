@@ -32,7 +32,18 @@ jobs:
         port: ${{ secrets.PORT }}
         envs: DOMAIN,MAIL
         script: |
-          ls -la
-          cd qon
           docker compose --file docker-compose/deploy/gen-certs.yml up --abort-on-container-exit
-          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always
+          
+    - name: Rerun server
+      uses: appleboy/ssh-action@v1.0.0
+      env:
+        DOMAIN: ${{ secrets.HOST }}
+        MAIL: ${{ secrets.MAIL }}
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        envs: DOMAIN,MAIL
+        script: |
+          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d
