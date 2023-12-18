@@ -3,6 +3,11 @@ name: CD
 on:
   push:
     branches: [ "deploy", "develop", "main" ]
+  workflow_run:
+    workflows: ["Create and publish a Docker image"]
+    branches: [ "deploy", "develop", "main" ]
+    types:
+      - completed
 
 jobs:
   build:
