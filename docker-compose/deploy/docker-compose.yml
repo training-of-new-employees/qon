@@ -10,6 +10,7 @@ services:
       REDIS_DSN: redis:6379
       SENDER_MODE: "api"
       SENDER_API_KEY: ${SENDER_API_KEY}
+      SENDER_EMAIL: ${SENDER_EMAIL}
     restart: always
     depends_on:
       postgres:

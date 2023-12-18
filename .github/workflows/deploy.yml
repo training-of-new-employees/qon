@@ -81,12 +81,13 @@ jobs:
         SENDER_API_KEY: ${{ secrets.SENDER_API_KEY }}
         FRONT_TAG: ${{ vars.FRONT_TAG }}
         BACK_TAG: ${{ github.ref_name }}
+        SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        envs: DOMAIN,SENDER_API_KEY,FRONT_TAG,BACK_TAG
+        envs: DOMAIN,SENDER_API_KEY,FRONT_TAG,BACK_TAG,SENDER_EMAIL
         script: |
           echo "FRONT:${FRONT_TAG} BACK:${BACK_TAG}"
           docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d --remove-orphans
