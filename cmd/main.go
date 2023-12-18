@@ -66,7 +66,7 @@ func run() error {
 
 	redis := cacheredis.NewRedis(clientRedis)
 	logger.Log.Info("Redis up")
-	sender := doar.NewSender(cfg.SenderEmail, cfg.SenderPassword)
+	sender := doar.NewSender(cfg.SenderMode, cfg)
 
 	services := impl.NewServices(store, redis, cfg.SecretKey, cfg.AccessTokenExpires, cfg.RefreshTokenExpires, sender)
 	// Создаём сервер
