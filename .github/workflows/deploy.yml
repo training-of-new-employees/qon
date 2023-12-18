@@ -40,7 +40,7 @@ jobs:
         DOMAIN: ${{ secrets.HOST }}
         SENDER_API_KEY: ${{ secrets.SENDER_API_KEY }}
         FRONT_TAG: ${{ vars.FRONT_TAG }}
-        BACK_TAG: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+        BACK_TAG: ${{ github.ref_name }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
