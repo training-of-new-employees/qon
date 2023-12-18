@@ -49,7 +49,7 @@ services:
       SERVER_NAME: ${DOMAIN}
       BACKEND: app_qon:8080
     volumes:
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - /var/certbot/conf/:/etc/nginx/ssl/:ro
     restart: always
 
 
