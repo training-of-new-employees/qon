@@ -7,8 +7,8 @@ FRONTEND:= "frontend"
 
 ## Docker:
 docker-app-up: ## Create and run app containers
-	git clone -b develop https://github.com/training-of-new-employees/frontend.git || true
-	docker compose --file docker-compose/app/docker-compose.yml up  --force-recreate --build
+	git clone -b develop https://github.com/training-of-new-employees/frontend.git || true `cd frontend && git checkout develop && git pull`
+	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate --build
 
 docker-app-down: ## Stop and remove app containers
 	docker compose --file docker-compose/app/docker-compose.yml down -v
