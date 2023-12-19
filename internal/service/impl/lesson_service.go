@@ -28,8 +28,21 @@ func (l *lessonService) CreateLesson(ctx context.Context,
 	return createdLesson, nil
 }
 
-func (l *lessonService) UpdateLesson() {
+func (l *lessonService) UpdateLesson(ctx context.Context,
+	lesson model.LessonUpdate) (*model.Lesson, error) {
+	updatedLesson, err := l.db.LessonStorage().UpdateLessonDB(ctx, lesson)
+	if err != nil {
+		return nil, err
+	}
+	return updatedLesson, nil
+}
 
+func (l *lessonService) GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error) {
+	lesson, err := l.db.LessonStorage().GetLessonDB(ctx, lessonID)
+	if err != nil {
+		return nil, err
+	}
+	return lesson, nil
 }
 
 func (l *lessonService) DeleteLesson(ctx context.Context, lessonID int) error {

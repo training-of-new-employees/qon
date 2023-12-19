@@ -33,7 +33,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	lesson, err := r.services.Lesson().CreateLesson(ctx, *lessonCreate,
 		us.UserID)
 	switch {
-	case errors.Is(err, errs.ErrCourseNotFound):
+	case errors.Is(err, errs.ErrNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
 		return
 	case err != nil:
@@ -51,6 +51,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 //	 	@Param		id		int	true	"User ID"
 //		@Success	200
 //		@Failure	400		{object}	sErr
+//		@Failure	404		{object}	sErr
 //		@Failure	500		{object}	sErr
 //		@Router		/admin/lesson [delete]
 func (r *RestServer) handlerLessonDelete(c *gin.Context) {
@@ -64,6 +65,10 @@ func (r *RestServer) handlerLessonDelete(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	if err := r.services.Lesson().DeleteLesson(ctx, lessonID); err != nil {
+		if errors.Is(err, errs.ErrNotFound) {
+			c.JSON(http.StatusNotFound, s().SetError(err))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
 	}
@@ -71,5 +76,67 @@ func (r *RestServer) handlerLessonDelete(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+//		@Summary	Получение урока
+//		@Tags		lesson
+//	 	@Produce	json
+//	 	@Param		id		int	true	"Lesson ID"
+//		@Success	200
+//		@Failure	400		{object}	sErr
+//		@Failure	404		{object}	sErr
+//		@Failure	500		{object}	sErr
+//		@Router		/admin/lesson [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
+	val := c.Param("id")
+
+	lessonID, err := strconv.Atoi(val)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, s().SetError(err))
+		return
+	}
+
+	ctx := c.Request.Context()
+	lesson, err := r.services.Lesson().GetLesson(ctx, lessonID)
+	if err != nil {
+		switch {
+		case errors.Is(err, errs.ErrNotFound):
+			c.JSON(http.StatusNotFound, s().SetError(err))
+			return
+		case err != nil:
+			c.JSON(http.StatusInternalServerError, s().SetError(err))
+			return
+		}
+	}
+	c.JSON(http.StatusOK, lesson)
+}
+
+//		@Summary	Обновление урока
+//		@Tags		lesson
+//	 	@Accept		json
+//	 	@Produce	json
+//		@Success	200		{object}	model.Lesson
+//		@Failure	400		{object}	sErr
+//		@Failure	404		{object}	sErr
+//		@Failure	500		{object}	sErr
+//		@Router		/admin/lesson [patch]
+func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
+	lessonUpdate := model.LessonUpdate{}
+
+	if err := c.ShouldBindJSON(&lessonUpdate); err != nil {
+		c.JSON(http.StatusBadRequest, s().SetError(err))
+		return
+	}
+
+	ctx := c.Request.Context()
+	lesson, err := r.services.Lesson().UpdateLesson(ctx, lessonUpdate)
+	if err != nil {
+		switch {
+		case errors.Is(err, errs.ErrNotFound):
+			c.JSON(http.StatusNotFound, s().SetError(err))
+			return
+		case err != nil:
+			c.JSON(http.StatusInternalServerError, s().SetError(err))
+			return
+		}
+	}
+	c.JSON(http.StatusOK, lesson)
 }

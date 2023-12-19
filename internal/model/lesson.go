@@ -21,4 +21,11 @@ type (
 		Description string `db:"decription" json:"description"`
 		Path        string `db:"path"       json:"path"`
 	}
+	LessonUpdate struct {
+		ID          int    `db:"id"         json:"id"`
+		CourseID    int    `db:"course_id"  json:"course_id"`
+		Name        string `db:"name"       json:"name"`
+		Description string `db:"decription" json:"description"`
+		Path        string `db:"path"       json:"path"`
+	}
 )

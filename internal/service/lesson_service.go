@@ -9,7 +9,7 @@ import (
 type ServiceLesson interface {
 	CreateLesson(ctx context.Context, lesson model.LessonCreate,
 		user_id int) (*model.Lesson, error)
-	UpdateLesson()
 	DeleteLesson(ctx context.Context, lessonID int) error
 	GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error)
+	UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error)
 }
