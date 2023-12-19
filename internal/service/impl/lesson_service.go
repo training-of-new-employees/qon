@@ -51,7 +51,3 @@ func (l *lessonService) DeleteLesson(ctx context.Context, lessonID int) error {
 	}
 	return nil
 }
-
-func (l *lessonService) GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error) {
-	return nil, nil
-}
