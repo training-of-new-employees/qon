@@ -75,10 +75,7 @@ jobs:
       - name: Go Mod Verify # Prevent supply chain attacks
         run: go mod verify
 
-
-      
       - name: Check swagger comments
         run: |
           swag fmt
           swag init -g ./internal/app/rest/handlers.go 
-
