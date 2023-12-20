@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
@@ -116,49 +114,24 @@ func (u *uStorage) EditAdmin(
 	ctx context.Context,
 	admin model.AdminEdit,
 ) (*model.AdminEdit, error) {
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
-	}
-
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+	err := u.tx(func(tx *sqlx.Tx) error {
+		var companyID int
+		query :=
+			`UPDATE users	 SET 	name = COALESCE($1, name),
+		surname = COALESCE($2, surname),
+		patronymic = COALESCE($3, patronymic),
+		email = COALESCE($4, email)
+	 	WHERE id = $5 RETURNING company_id`
+		err := tx.GetContext(ctx, &companyID, query, admin.Name, admin.Surname, admin.Patronymic, admin.Email, admin.ID)
+		if err != nil {
+			return err
 		}
-	}()
+		query = `UPDATE companies SET name = COALESCE($1, name) WHERE id = $2`
+		_, err = tx.ExecContext(ctx, query, admin.Company, companyID)
+		return err
 
-	var pgErr *pgconn.PgError
-	var companyID int
-
-	query :=
-		`UPDATE users
-	 SET 
-	 	name = COALESCE($1, name),
-	 	surname = COALESCE($2, surname),
-	 	patronymic = COALESCE($3, patronymic),
-	 	email = COALESCE($4, email)
-	 WHERE id = $5
-	 RETURNING company_id`
-
-	if err = tx.GetContext(ctx, &companyID, query, admin.Name, admin.Surname, admin.Patronymic, admin.Email, admin.ID); err != nil {
-		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.NoDataFound {
-			return nil, model.ErrUserNotFound
-		}
-		return nil, err
-
-	}
-
-	query = `UPDATE companies SET name = COALESCE($1, name) WHERE id = $2`
-
-	if _, err = tx.ExecContext(ctx, query, admin.Company, companyID); err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
-	}
-
-	return &admin, nil
+	})
+	return &admin, err
 
 }
 
