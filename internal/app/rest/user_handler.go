@@ -13,7 +13,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/access"
-	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
 
 // CreateAdmin godoc
@@ -450,19 +449,13 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Router		/admin/info [post]
 func (r *RestServer) handlerAdminEdit(c *gin.Context) {
 	ctx := c.Request.Context()
-	edit := &model.AdminEdit{}
+	edit := model.AdminEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
 	}
-
-	token := jwttoken.GetToken(c)
-	claims, err := r.tokenVal.ValidateToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
-		return
-	}
-	edit.ID = claims.UserID
+	us := r.getUserSession(c)
+	edit.ID = us.UserID
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	switch {

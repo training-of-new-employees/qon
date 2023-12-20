@@ -114,7 +114,7 @@ func (u *uStorage) CreateAdmin(
 // EditAdmin - меняет данные администратора с заданным ID
 func (u *uStorage) EditAdmin(
 	ctx context.Context,
-	admin *model.AdminEdit,
+	admin model.AdminEdit,
 ) (*model.AdminEdit, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
@@ -158,7 +158,7 @@ func (u *uStorage) EditAdmin(
 		return nil, fmt.Errorf("committing tx: %w", err)
 	}
 
-	return admin, nil
+	return &admin, nil
 
 }
 

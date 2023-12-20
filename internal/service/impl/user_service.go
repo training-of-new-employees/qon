@@ -297,8 +297,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 }
 
 // EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке
-func (u *uService) EditAdmin(ctx context.Context, val *model.AdminEdit) (*model.AdminEdit, error) {
-
+func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.AdminEdit, error) {
 	err := val.Validation()
 	if err != nil {
 		return nil, err
