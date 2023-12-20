@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 

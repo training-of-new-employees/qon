@@ -2,11 +2,12 @@
 package rest
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type UserSession struct {

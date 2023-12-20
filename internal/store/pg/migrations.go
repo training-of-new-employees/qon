@@ -1,9 +1,10 @@
 package pg
 
 import (
-	"github.com/jmoiron/sqlx"
 	"log"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/integralist/go-findroot/find"
 	"github.com/pressly/goose/v3"

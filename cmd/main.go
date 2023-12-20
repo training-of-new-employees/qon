@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os/signal"
+	"syscall"
+
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/redis/go-redis/v9"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/service/impl"
 	"github.com/training-of-new-employees/qon/internal/store/cache/cacheredis"
-	"log"
-	"net/http"
-	"os/signal"
-	"syscall"
 
 	"github.com/training-of-new-employees/qon/internal/app/rest"
 	"github.com/training-of-new-employees/qon/internal/config"
