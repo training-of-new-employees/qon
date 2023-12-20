@@ -567,7 +567,7 @@ func Test_uService_CreateAdmin(t *testing.T) {
 
 func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
@@ -583,23 +583,92 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Email is not exist",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByEmail(nil, "notexist@mail.com").Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				nil,
+				"notexist@mail.com",
+				"",
+			},
+			true,
+		},
+		{
+			"User empty Email",
+			func(f *fields) {
+				u := &model.User{
+					Email: "",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, "").Return(u, nil)
+			},
+			args{
+				nil,
+				"",
+				"",
+			},
+			true,
+		},
+		{
+			"User Set Empty Password Error",
+			func(f *fields) {
+				u := &model.User{
+					ID:    1,
+					Email: "valid@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, u.Email).Return(u, nil)
+				f.userdb.EXPECT().SetPasswordAndActivateUser(nil, u.ID, gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				nil,
+				"valid@mail.com",
+				"",
+			},
+			true,
+		},
+		{
+			"User Set Password",
+			func(f *fields) {
+				u := &model.User{
+					ID:    1,
+					Email: "valid@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, u.Email).Return(u, nil)
+				f.userdb.EXPECT().SetPasswordAndActivateUser(nil, u.ID, gomock.Any()).Return(nil)
+			},
+			args{
+				nil,
+				"valid@mail.com",
+				"password",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
+		ctrl := gomock.NewController(t)
+		udb := mock_store.NewMockRepositoryUser(ctrl)
+		f := fields{
+			userdb: udb,
+		}
+		if tt.prepare != nil {
+			tt.prepare(&f)
+		}
+		storages := mockUserStorage(ctrl, udb)
 		t.Run(tt.name, func(t *testing.T) {
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			if err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password); (err != nil) != tt.wantErr {
 				t.Errorf("uService.UpdatePasswordAndActivateUser() error = %v, wantErr %v", err, tt.wantErr)
