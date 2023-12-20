@@ -26,11 +26,15 @@ mocks: $(shell find ./internal -name "*.go")
 	@rm -rf $(MOCKS_DESTINATION)
 	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file/internal/}`; done
 
+fmt:
+	gofmt -s -w .
+	goimports -w .
+
 swag:
 	swag fmt
 	swag init -g ./internal/app/rest/handlers.go
 
-build: swag
+build: swag fmt
 	go build -v -o qon ./cmd/main.go
 
 ## Test:
