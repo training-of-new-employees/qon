@@ -14,6 +14,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
+	mock_doar "github.com/training-of-new-employees/qon/mocks/pkg/doar"
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"
 )
 
@@ -609,14 +610,14 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 
 func Test_uService_ResetPassword(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
 		tokenGen   jwttoken.JWTGenerator
 		tokenVal   jwttoken.JWTValidator
-		sender     doar.EmailSender
+		sender     *mock_doar.MockEmailSender
 	}
 	type args struct {
 		ctx   context.Context
@@ -624,23 +625,107 @@ func Test_uService_ResetPassword(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Email is not exist",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByEmail(nil, "notexist@mail.com").Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				nil,
+				"notexist@mail.com",
+			},
+			true,
+		},
+		{
+			"User empty Email",
+			func(f *fields) {
+				u := &model.User{
+					Email: "",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, "").Return(u, nil)
+			},
+			args{
+				nil,
+				"",
+			},
+			true,
+		},
+		{
+			"Update User Password error",
+			func(f *fields) {
+				u := &model.User{
+					ID:    3,
+					Email: "valid@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, "valid@mail.com").Return(u, nil)
+				f.userdb.EXPECT().UpdateUserPassword(nil, 3, gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				nil,
+				"valid@mail.com",
+			},
+			true,
+		},
+		{
+			"Send User Password Error",
+			func(f *fields) {
+				u := &model.User{
+					ID:    3,
+					Email: "valid@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, "valid@mail.com").Return(u, nil)
+				f.userdb.EXPECT().UpdateUserPassword(nil, 3, gomock.Any()).Return(nil)
+				f.sender.EXPECT().SendPassword("valid@mail.com", gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				nil,
+				"valid@mail.com",
+			},
+			true,
+		},
+		{
+			"Send User Password",
+			func(f *fields) {
+				u := &model.User{
+					ID:    3,
+					Email: "valid@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, "valid@mail.com").Return(u, nil)
+				f.userdb.EXPECT().UpdateUserPassword(nil, 3, gomock.Any()).Return(nil)
+				f.sender.EXPECT().SendPassword("valid@mail.com", gomock.Any()).Return(nil)
+			},
+			args{
+				nil,
+				"valid@mail.com",
+			},
+			false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			udb := mock_store.NewMockRepositoryUser(ctrl)
+			sender := mock_doar.NewMockEmailSender(ctrl)
+			f := fields{userdb: udb, sender: sender}
+			if tt.prepare != nil {
+				tt.prepare(&f)
+			}
+			storages := mockUserStorage(ctrl, f.userdb)
+
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			if err := u.ResetPassword(tt.args.ctx, tt.args.email); (err != nil) != tt.wantErr {
 				t.Errorf("uService.ResetPassword() error = %v, wantErr %v", err, tt.wantErr)

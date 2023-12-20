@@ -273,7 +273,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 		return err
 	}
 	if user.Email == "" {
-		return model.ErrUserNotFound
+		return errs.ErrUserNotFound
 	}
 
 	password := model.GeneratePassword()

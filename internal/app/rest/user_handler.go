@@ -424,7 +424,7 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	}
 
 	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
-		if errors.Is(err, model.ErrUserNotFound) {
+		if errors.Is(err, errs.ErrUserNotFound) {
 			c.JSON(http.StatusNotFound, s().SetError(err))
 			return
 		}
