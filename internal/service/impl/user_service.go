@@ -13,7 +13,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
-	randomdigit "github.com/training-of-new-employees/qon/internal/pkg/random-digit"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
@@ -74,7 +74,7 @@ func (u *uService) WriteAdminToCache(
 		return nil, model.ErrEmailAlreadyExists
 	}
 
-	code := randomdigit.RandomDigitNumber(4)
+	code := randomseq.RandomDigitNumber(4)
 	key := strings.Join([]string{"register", "admin", code}, ":")
 
 	if err := u.cache.Set(ctx, key, val); err != nil {

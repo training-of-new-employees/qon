@@ -5,6 +5,8 @@ import (
 	"flag"
 	"os"
 	"time"
+
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
 var (
@@ -102,6 +104,10 @@ func InitConfig() *Config {
 
 	// NOTE: здесь определяем последующие ENV
 	// ...
+
+	if jwtSecretKey == "" {
+		jwtSecretKey = randomseq.RandomHexString(64)
+	}
 
 	// Определение конфига
 	config := &Config{
