@@ -54,3 +54,31 @@ jobs:
 
           # Optional: The mode to install golangci-lint. It can be 'binary' or 'goinstall'.
           # install-mode: "goinstall"
+      - name: Install dependency
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Go Format
+        run: |
+          gofmt -s -w . && git diff --exit-code
+          goimports -w .
+
+      - name: Go Vet
+        run: go vet ./...
+
+      - name: Go Tidy
+        run: go mod tidy && git diff --exit-code
+
+      - name: Go Mod
+        run: go mod download
+
+      - name: Go Mod Verify # Prevent supply chain attacks
+        run: go mod verify
+
+
+      
+      - name: Check swagger comments
+        run: |
+          swag fmt
+          swag init -g ./internal/app/rest/handlers.go 
+
