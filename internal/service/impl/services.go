@@ -1,12 +1,13 @@
 package impl
 
 import (
+	"time"
+
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
-	"time"
 )
 
 // Services - структура, которая содержит в себе все сервисы.

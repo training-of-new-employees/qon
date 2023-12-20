@@ -1,8 +1,9 @@
 package jwttoken
 
 import (
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetToken(r *gin.Context) string {

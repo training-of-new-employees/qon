@@ -61,7 +61,7 @@ jobs:
       - name: Go Format
         run: |
           gofmt -s -w . && git diff --exit-code
-          goimports -w .
+          goimports -w . && git diff --exit-code
 
       - name: Go Vet
         run: go vet ./...

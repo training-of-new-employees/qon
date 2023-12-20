@@ -280,18 +280,18 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
 }
 
-//	 ArchiveUser godoc
+//	ArchiveUser godoc
 //
-//	@Summary	Архивирование пользователя по id
-//	@Tags		user
-//	@Produce	json
-//	@Param		id	path	int	true	"User ID"
-//	@Success	200
-//	@Failure	400	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
-//	@Router		/archive/{id} [patch]
+// @Summary	Архивирование пользователя по id
+// @Tags		user
+// @Produce	json
+// @Param		id	path	int	true	"User ID"
+// @Success	200
+// @Failure	400	{object}	sErr
+// @Failure	403	{object}	sErr
+// @Failure	404	{object}	sErr
+// @Failure	500	{object}	sErr
+// @Router		/archive/{id} [patch]
 func (r *RestServer) handlerArchiveUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")
