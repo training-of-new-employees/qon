@@ -19,11 +19,15 @@ docker-dev-db-up: ## Create and run dev container with db
 docker-dev-db-down: ## Stop and remove dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml down -v
 
+fmt:
+	gofmt -s -w .
+	goimports -w .
+
 swag:
 	swag fmt
 	swag init -g ./internal/app/rest/handlers.go
 
-build: swag
+build: swag fmt
 	go build -v -o qon ./cmd/main.go
 
 ## Test:
