@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
 // RandomDigitNumber генерирует случайное n-значное число в виде строки.
 func RandomDigitNumber(n int) string {
 	rnd := mrand.New(mrand.NewSource(time.Now().UnixNano()))
