@@ -4,6 +4,8 @@ WHITE  := $(shell tput -Txterm setaf 7)
 CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
 FRONTEND:= "frontend"
+MOCKS_DESTINATION=mocks
+.PHONY: mocks
 
 ## Docker:
 docker-app-up: ## Create and run app containers
@@ -22,6 +24,11 @@ docker-dev-db-down: ## Stop and remove dev container with db
 fmt:
 	gofmt -s -w .
 	goimports -w .
+
+mocks: $(shell find ./internal -name "*.go" -not -path "*test.go")
+	@echo "Generating mocks"
+	@rm -rf $(MOCKS_DESTINATION)
+	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file/internal/}`; done
 
 swag:
 	swag fmt
