@@ -26,6 +26,9 @@ func RandomDigitNumber(n int) string {
 // RandomHexString генерирует случайную последовательность байт заданной длины и отдаёт их в качестве строки.
 func RandomHexString(n int) string {
 	b := make([]byte, n)
-	rand.Read(b)
+	n, err := rand.Read(b)
+	if err != nil {
+		return RandomDigitNumber(n)
+	}
 	return hex.EncodeToString(b)
 }
