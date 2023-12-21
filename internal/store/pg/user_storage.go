@@ -177,11 +177,7 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 
 	err := u.db.GetContext(ctx, &user, query, email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return &model.User{}, nil
-		}
-
-		return &model.User{}, err
+		return nil, handleError(err)
 	}
 
 	return &user, nil
