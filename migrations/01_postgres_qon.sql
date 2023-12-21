@@ -2,12 +2,13 @@
 
 -- +goose StatementBegin
 
+BEGIN;
 -- Компании
 CREATE TABLE IF NOT EXISTS companies (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name VARCHAR(256),
     active BOOLEAN NOT NULL DEFAULT TRUE,
     archived BOOLEAN NOT NULL DEFAULT FALSE,
+    name VARCHAR(256),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_company_name_not_empty CHECK ( NOT (name IS NULL OR name = '') )
@@ -17,9 +18,9 @@ CREATE TABLE IF NOT EXISTS companies (
 CREATE TABLE IF NOT EXISTS positions (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     company_id INTEGER,
-    name VARCHAR(256),
     active BOOLEAN NOT NULL DEFAULT TRUE,
     archived BOOLEAN NOT NULL DEFAULT FALSE,
+    name VARCHAR(256),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_position_company_not_empty CHECK ( company_id IS NOT NULL ),
@@ -32,14 +33,14 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     company_id INTEGER,
     position_id INTEGER,
-    email VARCHAR(256),
-    enc_password VARCHAR(256),
     active BOOLEAN NOT NULL DEFAULT FALSE,
     archived BOOLEAN NOT NULL DEFAULT FALSE,
     admin BOOLEAN NOT NULL DEFAULT FALSE,
+    email VARCHAR(256),
+    enc_password VARCHAR(256),
     name VARCHAR(128) NOT NULL DEFAULT '',
-    surname VARCHAR(128) NOT NULL DEFAULT '',
     patronymic VARCHAR(128) NOT NULL DEFAULT '',
+    surname VARCHAR(128) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_user_company_not_empty CHECK ( company_id IS NOT NULL ),
@@ -55,10 +56,10 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS courses (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     created_by INTEGER,
-    name VARCHAR(256),
-    description VARCHAR(512) NOT NULL DEFAULT '',
     active BOOLEAN NOT NULL DEFAULT TRUE,
     archived BOOLEAN NOT NULL DEFAULT FALSE,
+    name VARCHAR(256),
+    description VARCHAR(512) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_course_creater_not_empty CHECK ( created_by IS NOT NULL ),
@@ -71,10 +72,11 @@ CREATE TABLE IF NOT EXISTS lessons (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     course_id INTEGER,
     created_by INTEGER,
-    number INTEGER,
-    name VARCHAR(256),
     active BOOLEAN NOT NULL DEFAULT TRUE,
     archived BOOLEAN NOT NULL DEFAULT FALSE,
+    number INTEGER,
+    name VARCHAR(256),
+    description VARCHAR(512) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_lesson_course_not_empty CHECK ( course_id IS NOT NULL ),
@@ -90,7 +92,7 @@ CREATE TABLE IF NOT EXISTS texts (
     lesson_id INTEGER,
     created_by INTEGER,
     number INTEGER,
-    header VARCHAR(256) DEFAULT '',
+    header VARCHAR(512) DEFAULT '',
     content TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
@@ -107,7 +109,7 @@ CREATE TABLE IF NOT EXISTS pictures (
     lesson_id INTEGER,
     created_by INTEGER,
     number INTEGER,
-    name VARCHAR(256),
+    name VARCHAR(256) DEFAULT '',
     link VARCHAR(1024),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
@@ -132,23 +134,23 @@ CREATE TABLE IF NOT EXISTS position_course (
 
 -- Назначенные сотрудникам курсы (или прогресс сотрудников по курсам)
 CREATE TABLE IF NOT EXISTS course_assign (
-    course_id INTEGER,
     user_id INTEGER,
+    course_id INTEGER,
     pass_course BOOLEAN NOT NULL DEFAULT false,
     started_at TIMESTAMP NOT NULL DEFAULT now(),
     finished_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_courseassign_course_not_empty CHECK ( course_id IS NOT NULL ),
-    CONSTRAINT fk_courseassign_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     CONSTRAINT chck_courseassign_user_not_empty CHECK ( user_id IS NOT NULL ),
     CONSTRAINT fk_courseassign_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chck_courseassign_course_not_empty CHECK ( course_id IS NOT NULL ),
+    CONSTRAINT fk_courseassign_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     CONSTRAINT unq_assigncourse UNIQUE (course_id, user_id)
 );
 
 -- Прогресс сотрудников по урокам
 CREATE TABLE IF NOT EXISTS lesson_results (
+    user_id   INTEGER,
     course_id INTEGER,
     lesson_id INTEGER,
-    user_id   INTEGER,
     pass_lesson BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT chck_lessonresult_course_not_empty CHECK ( course_id IS NOT NULL ),
     CONSTRAINT fk_lessonresult_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
@@ -159,6 +161,11 @@ CREATE TABLE IF NOT EXISTS lesson_results (
     CONSTRAINT unq_assignlesson UNIQUE (course_id, lesson_id, user_id)  
 );
 
+CREATE INDEX IF NOT EXISTS position_course_idx ON position_course (position_id, course_id);
+CREATE INDEX IF NOT EXISTS course_assign_idx ON course_assign (user_id, course_id);
+CREATE INDEX IF NOT EXISTS lesson_result_idx ON lesson_results (user_id, course_id, lesson_id);
+
+COMMIT;
 -- +goose StatementEnd
 
 -- +goose Down
@@ -184,4 +191,9 @@ DROP TABLE IF EXISTS positions;
 
 DROP TABLE IF EXISTS companies;
 
+DROP INDEX IF EXISTS position_course_idx;
+
+DROP INDEX IF EXISTS course_assign_idx;
+
+DROP INDEX IF EXISTS lesson_result_idx;
 -- +goose StatementEnd
