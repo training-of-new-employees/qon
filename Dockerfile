@@ -1,7 +1,7 @@
 FROM golang:1.21-alpine AS builder
 WORKDIR /qon
 COPY go.mod .
-RUN go mod download
+RUN go mod download && go mod verify
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN apk add --no-cache make
 COPY . .
