@@ -253,8 +253,12 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	}
 
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
-	if err != nil {
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
 	}
 

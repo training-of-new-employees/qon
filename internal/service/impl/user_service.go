@@ -66,7 +66,7 @@ func (u *uService) WriteAdminToCache(
 	}
 
 	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil {
+	if err != errs.ErrUserNotFound {
 		return nil, err
 	}
 
@@ -226,7 +226,7 @@ func (u *uService) DeleteAdminFromCache(ctx context.Context, key string) error {
 func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error) {
 
 	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil {
+	if err != errs.ErrUserNotFound {
 		return nil, err
 	}
 
@@ -250,9 +250,6 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 	if err != nil {
 		return err
 	}
-	if user.Email == "" {
-		return model.ErrUserNotFound
-	}
 
 	encPassword, err := utils.EncryptPassword(password)
 	if err != nil {
@@ -271,9 +268,6 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
-	}
-	if user.Email == "" {
-		return errs.ErrUserNotFound
 	}
 
 	password := model.GeneratePassword()
