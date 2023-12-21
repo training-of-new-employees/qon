@@ -50,34 +50,33 @@ var constraintToAppError = map[string]error{
 	"chck_text_content_not_empty": errs.ErrTextContentNotEmpty,
 
 	// pictures
-	"chck_picture_lesson_not_empty": errs.ErrLessonIDNotEmpty,
-	"fk_picture_lesson": errs.ErrLessonReference,
+	"chck_picture_lesson_not_empty":  errs.ErrLessonIDNotEmpty,
+	"fk_picture_lesson":              errs.ErrLessonReference,
 	"chck_picture_creater_not_empty": errs.ErrCreaterNotEmpty,
-	"fk_picture_creater":   errs.ErrCreaterNotFound,
-	"chck_link_not_empty": errs.ErrPictureLinkNotEmpty,
-
+	"fk_picture_creater":             errs.ErrCreaterNotFound,
+	"chck_link_not_empty":            errs.ErrPictureLinkNotEmpty,
 
 	// position_course
 	"chck_positioncourse_position_not_empty": errs.ErrPositionIDNotEmpty,
-	"fk_positioncourse_position":   errs.ErrPositionReference,
-	"chck_positioncourse_course_not_empty": errs.ErrCourseIDNotEmpty,
-	"fk_positioncourse_course": errs.ErrCourseReference,
-	"unq_positioncourse":         errs.ErrPositionCourseUsed,
+	"fk_positioncourse_position":             errs.ErrPositionReference,
+	"chck_positioncourse_course_not_empty":   errs.ErrCourseIDNotEmpty,
+	"fk_positioncourse_course":               errs.ErrCourseReference,
+	"unq_positioncourse":                     errs.ErrPositionCourseUsed,
 
 	// course_assign
 	"chck_courseassign_course_not_empty": errs.ErrCourseIDNotEmpty,
-	"fk_courseassign_course": errs.ErrCourseReference,
-	"chck_courseassign_user_not_empty": errs.ErrUserIDNotEmpty,
-	"fk_courseassign_user":   errs.ErrUserReference,
-	"unq_usercourse":         errs.ErrUserCourseUsed,
+	"fk_courseassign_course":             errs.ErrCourseReference,
+	"chck_courseassign_user_not_empty":   errs.ErrUserIDNotEmpty,
+	"fk_courseassign_user":               errs.ErrUserReference,
+	"unq_usercourse":                     errs.ErrUserCourseUsed,
 
 	// lesson_results
 	"chck_lessonresult_course_not_empty": errs.ErrCourseIDNotEmpty,
-	"fk_lessonresult_course": errs.ErrCourseReference,
+	"fk_lessonresult_course":             errs.ErrCourseReference,
 	"chck_lessonresult_lesson_not_empty": errs.ErrLessonIDNotEmpty,
-	"fk_lessonresult_lesson": errs.ErrLessonReference,
-	"chck_lessonresult_user_not_empty": errs.ErrUserIDNotEmpty,
-	"fk_lessonresult_user": errs.ErrUserReference,
+	"fk_lessonresult_lesson":             errs.ErrLessonReference,
+	"chck_lessonresult_user_not_empty":   errs.ErrUserIDNotEmpty,
+	"fk_lessonresult_user":               errs.ErrUserReference,
 
 	"unq_assignlesson": errs.ErrAssignLessonUsed,
 }

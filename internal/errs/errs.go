@@ -47,7 +47,7 @@ var (
 	ErrCompanyReference = errors.New("company id must reference existing company")
 
 	// ErrPositionIDNotEmpty - id должности не может быть пустым
-	ErrPositionIDNotEmpty = errors.New("position id cannot be empty")	
+	ErrPositionIDNotEmpty = errors.New("position id cannot be empty")
 
 	// ErrPositionReference - id должности должен ссылаться на существующую должность
 	ErrPositionReference = errors.New("position id must reference existing position")
