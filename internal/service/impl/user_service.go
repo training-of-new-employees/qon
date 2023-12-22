@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -223,15 +224,15 @@ func (u *uService) DeleteAdminFromCache(ctx context.Context, key string) error {
 	return nil
 }
 
-func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error) {
+// CreateAdmin создаёт администратора в БД
+func (u *uService) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*model.User, error) {
 
-	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != errs.ErrUserNotFound {
+	_, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) {
 		return nil, err
 	}
-
-	if user.Email == val.Email {
-		return nil, model.ErrEmailAlreadyExists
+	if err == nil {
+		return nil, errs.ErrEmailAlreadyExists
 	}
 
 	admin := model.NewAdminCreate(val.Email, val.Password)

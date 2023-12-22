@@ -519,7 +519,7 @@ func Test_uService_DeleteAdminFromCache(t *testing.T) {
 
 func Test_uService_CreateAdmin(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
@@ -530,32 +530,124 @@ func Test_uService_CreateAdmin(t *testing.T) {
 	}
 	type args struct {
 		ctx context.Context
-		val *model.CreateAdmin
+		val model.CreateAdmin
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.User
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Error get user",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByEmail(nil, gomock.Any()).Return(nil, errs.ErrInternal)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Company:  "invalid",
+					Email:    "invalid@mail.com",
+					Password: "password",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Email is exist",
+			func(f *fields) {
+				email := "exist@mail.com"
+				u := &model.User{
+					ID:        1,
+					Email:     email,
+					CompanyID: 2,
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(u, nil)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Company:  "exist",
+					Email:    "exist@mail.com",
+					Password: "password",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Create admin fail",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByEmail(nil, gomock.Any()).Return(nil, errs.ErrUserNotFound)
+				f.userdb.EXPECT().CreateAdmin(nil, gomock.Any(), gomock.Any()).Return(nil, errs.ErrInternal)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Company:  "notexist",
+					Email:    "notexist@mail.com",
+					Password: "password",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Create admin success",
+			func(f *fields) {
+				admin := &model.User{
+					ID:    2,
+					Email: "admin@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, gomock.Any()).Return(nil, errs.ErrUserNotFound)
+				f.userdb.EXPECT().CreateAdmin(nil, gomock.Any(), gomock.Any()).Return(admin, nil)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Company:  "new company",
+					Email:    "admin@mail.com",
+					Password: "password",
+				},
+			},
+			&model.User{
+				ID:    2,
+				Email: "admin@mail.com",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			userdb := mock_store.NewMockRepositoryUser(ctrl)
+			f := &fields{
+				userdb: userdb,
+			}
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.userdb)
+
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.CreateAdmin(tt.args.ctx, tt.args.val)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.CreateAdmin() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err != nil {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
@@ -600,21 +692,6 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 			true,
 		},
 		{
-			"User empty Email",
-			func(f *fields) {
-				u := &model.User{
-					Email: "",
-				}
-				f.userdb.EXPECT().GetUserByEmail(nil, "").Return(u, nil)
-			},
-			args{
-				nil,
-				"",
-				"",
-			},
-			true,
-		},
-		{
 			"User Set Empty Password Error",
 			func(f *fields) {
 				u := &model.User{
@@ -651,6 +728,7 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
 		udb := mock_store.NewMockRepositoryUser(ctrl)
 		f := fields{
 			userdb: udb,
@@ -712,10 +790,7 @@ func Test_uService_ResetPassword(t *testing.T) {
 		{
 			"User empty Email",
 			func(f *fields) {
-				u := &model.User{
-					Email: "",
-				}
-				f.userdb.EXPECT().GetUserByEmail(nil, "").Return(u, nil)
+				f.userdb.EXPECT().GetUserByEmail(nil, "").Return(nil, errs.ErrUserNotFound)
 			},
 			args{
 				nil,
@@ -778,6 +853,7 @@ func Test_uService_ResetPassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 			udb := mock_store.NewMockRepositoryUser(ctrl)
 			sender := mock_doar.NewMockEmailSender(ctrl)
 			f := fields{userdb: udb, sender: sender}
@@ -897,6 +973,7 @@ func Test_uService_EditAdmin(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 			f := &fields{}
 			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
 			if tt.prepare != nil {

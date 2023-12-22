@@ -397,7 +397,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	logger.Log.Info("admin from cache: %v", zap.String("email", adminFromCache.Email))
 
-	createdAdmin, err := r.services.User().CreateAdmin(ctx, adminFromCache)
+	createdAdmin, err := r.services.User().CreateAdmin(ctx, *adminFromCache)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
