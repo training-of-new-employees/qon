@@ -34,7 +34,7 @@ swag:
 	swag fmt
 	swag init -g ./internal/app/rest/handlers.go
 
-build: swag fmt
+build: swag
 	go build -v -o qon ./cmd/main.go
 
 ## Test:
