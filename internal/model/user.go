@@ -122,17 +122,7 @@ type (
 		Company  string `json:"company_name" db:"name"`
 	}
 
-	AdminCreate struct {
-		CompanyID  int    `json:"company_id"  db:"company_id"`
-		PositionID int    `json:"position_id" db:"position_id"`
-		Email      string `json:"email"       db:"email"`
-		Password   string `json:"password"    db:"enc_password"`
-		IsActive   bool   `json:"active"      db:"active"`
-		IsAdmin    bool   `json:"admin"       db:"admin"`
-		Name       string `json:"name"        db:"name"`
-		Surname    string `json:"surname"     db:"surname"`
-		Patronymic string `json:"patronymic"  db:"patronymic"`
-	}
+
 
 	// AdminEdit - Структура для передачи изменяемых данных администратора
 	AdminEdit struct {
@@ -145,9 +135,8 @@ type (
 	}
 )
 
-func NewAdminCreate(email string, password string) AdminCreate {
-
-	return AdminCreate{
+func NewAdminCreate(email string, password string) UserCreate {
+	return UserCreate{
 		CompanyID:  0,
 		PositionID: 0,
 		Email:      email,

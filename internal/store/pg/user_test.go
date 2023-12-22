@@ -9,7 +9,7 @@ import (
 func (suite *storeTestSuite) TestCreateAdmin() {
 	suite.NotNil(suite.store)
 
-	admin := model.AdminCreate{
+	admin := model.UserCreate{
 		Email:      "some@example.org",
 		Password:   "Qwerty12345",
 		Name:       "Admin",

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/training-of-new-employees/qon/internal/config"
+	"github.com/training-of-new-employees/qon/internal/logger"
 	apisender "github.com/training-of-new-employees/qon/internal/pkg/doar/api-sender"
 	smtpsender "github.com/training-of-new-employees/qon/internal/pkg/doar/smtp-sender"
 )
@@ -30,6 +31,7 @@ type Sender struct {
 func NewSender(mode string, config *config.Config) *Sender {
 	var sender Mailer
 	if mode == "smtp" {
+		logger.Log.Debug(config.SenderEmail + ": " + config.SenderPassword)
 		sender = smtpsender.NewSmtpSender(config.SenderEmail, config.SenderPassword)
 	}
 	if mode == "api" {
