@@ -21,6 +21,12 @@ docker-dev-db-up: ## Create and run dev container with db
 docker-dev-db-down: ## Stop and remove dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml down -v
 
+docker-test-db-up: ## Create and run test container with db
+	docker compose --file docker-compose/test/docker-compose.yml up -d --force-recreate
+
+docker-test-db-down: ## Stop and remove test container with db
+	docker compose --file docker-compose/test/docker-compose.yml down -v
+
 mocks: $(shell find ./internal -name "*.go")
 	@echo "Generating mocks"
 	@rm -rf $(MOCKS_DESTINATION)
@@ -39,7 +45,7 @@ build: swag
 
 ## Test:
 test: ## Run tests
-	@docker compose --file docker-compose/test/docker-compose.yml up -d
+	@docker compose --file docker-compose/test/docker-compose.yml up -d --force-recreate
 	@go test -count=1 -v ./...
 	@docker compose --file docker-compose/test/docker-compose.yml down -v
 

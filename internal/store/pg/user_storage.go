@@ -58,11 +58,7 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	return &createdUser, nil
 }
 
-func (u *uStorage) CreateAdmin(
-	ctx context.Context,
-	admin model.AdminCreate,
-	companyName string,
-) (*model.User, error) {
+func (u *uStorage) CreateAdmin(ctx context.Context, admin model.AdminCreate, companyName string) (*model.User, error) {
 	tx, err := u.db.Beginx()
 	if err != nil {
 		return &model.User{}, fmt.Errorf("beginning tx: %w", err)
@@ -204,11 +200,7 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 
 	err := u.db.GetContext(ctx, &user, query, email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return &model.User{}, nil
-		}
-
-		return &model.User{}, err
+		return nil, handleError(err)
 	}
 
 	return &user, nil
