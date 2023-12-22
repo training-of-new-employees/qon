@@ -54,7 +54,7 @@ func (mr *MockServiceUserMockRecorder) ArchiveUser(ctx, id, editorCompanyID any)
 }
 
 // CreateAdmin mocks base method.
-func (m *MockServiceUser) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error) {
+func (m *MockServiceUser) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAdmin", ctx, val)
 	ret0, _ := ret[0].(*model.User)
