@@ -321,6 +321,9 @@ func (u *uStorage) tx(f func(*sqlx.Tx) error) error {
 			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
 		}
 	}()
-
-	return handleError(f(tx))
+	err = handleError(f(tx))
+	if err != nil {
+		return fmt.Errorf("err during tx: %v", err)
+	}
+	return tx.Commit()
 }
