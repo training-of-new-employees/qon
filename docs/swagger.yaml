@@ -51,14 +51,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  model.PositionCreate:
-    properties:
-      company_id:
-        type: integer
-      name:
-        type: string
-    type: object
-  model.PositionUpdate:
+  model.PositionEdit:
     properties:
       company_id:
         type: integer
@@ -434,7 +427,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.PositionCreate'
+          $ref: '#/definitions/model.PositionEdit'
       produces:
       - application/json
       responses:
@@ -536,7 +529,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.PositionUpdate'
+          $ref: '#/definitions/model.PositionEdit'
       produces:
       - application/json
       responses:

@@ -16,7 +16,7 @@ import (
 //	@Summary	Создание новой должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		object	body		model.PositionCreate	true	"Position Create"
+//	@Param		object	body		model.PositionEdit	true	"Position Create"
 //	@Success	201		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -123,8 +123,8 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Summary	Обновление данных о должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		id		path		int						true	"Position ID"
-//	@Param		object	body		model.PositionUpdate	true	"Position info"
+//	@Param		id		path		int					true	"Position ID"
+//	@Param		object	body		model.PositionEdit	true	"Position info"
 //	@Success	200		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	404		{object}	sErr
@@ -197,15 +197,15 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// @Summary	Присвоение курса к должности
-// @Accept		json
-// @Tags		position
-// @Produce	json
-// @Success	200
-// @Failure	400	{object}	error	"Неверный формат запроса"
-// @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
-// @Failure	500	{object}	error	"Внутренняя ошибка сервера"
-// @Router		/positions/course [post]
+//	@Summary	Присвоение курса к должности
+//	@Accept		json
+//	@Tags		position
+//	@Produce	json
+//	@Success	200
+//	@Failure	400	{object}	error	"Неверный формат запроса"
+//	@Failure	401	{object}	error	"Пользователь не является сотрудником компании"
+//	@Failure	500	{object}	error	"Внутренняя ошибка сервера"
+//	@Router		/positions/course [post]
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
