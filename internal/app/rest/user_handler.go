@@ -370,7 +370,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
-//	@Success	201		{object}	sEmail
+//	@Success	201		{object}	model.User
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -405,7 +405,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
-	c.JSON(http.StatusCreated, s().SetEmail(createdAdmin.Email))
+	c.JSON(http.StatusCreated, createdAdmin)
 
 }
 
