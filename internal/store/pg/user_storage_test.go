@@ -35,7 +35,3 @@ func (suite *storeTestSuite) TestGetUserByEmail() {
 
 	suite.Error(err)
 }
-
-func createCompanyPosition() {
-
-}

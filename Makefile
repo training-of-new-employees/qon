@@ -49,6 +49,17 @@ test: ## Run tests
 	@go test -count=1 -v ./...
 	@docker compose --file docker-compose/test/docker-compose.yml down -v
 
+test-coverage: ## run test and show coverage
+	@docker compose --file docker-compose/test/docker-compose.yml up -d
+	@echo "Package test coverage:"
+	@go test -count=1 -coverpkg=./internal/... -coverprofile=coverage.out ./...
+	@echo "\n\n"
+	@echo "Separate files test coverage:"
+	@go tool cover -func coverage.out
+	@docker compose --file docker-compose/test/docker-compose.yml down
+	@timeout 5 echo
+	@rm coverage.out
+
 ## Info:
 info: ## Show help information
 	@echo 'Usage:'

@@ -20,7 +20,7 @@ func (suite *storeTestSuite) TestCreateCompany() {
 			err:         nil,
 		},
 		{
-			name:        "fail",
+			name:        "empty name",
 			companyName: "",
 			err:         errs.ErrCompanyNameNotEmpty,
 		},
