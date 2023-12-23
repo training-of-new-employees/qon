@@ -2,6 +2,8 @@ package model
 
 import (
 	"testing"
+
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
 func TestPositionEdit_Validation(t *testing.T) {
@@ -33,7 +35,23 @@ func TestPositionEdit_Validation(t *testing.T) {
 			"Long position",
 			fields{
 				CompanyID: 1,
-				Name:      "kjaskdfjajuydiuywreiqpoeripwqoeiqwumdreupoidwqueirdupweqouiruqwpmoeiurdoiquwepmraisodifpuop2iuriuoiufosudofiauodufoasufouasdoifupoisuafajdkfjaslkjdfkjaskfjdsalkjfkalsdjflajsdfkasjofapsudfaopsiufdaisjfqkjwkejlkjfasdkljfoqwpeasdfjalskdjflsajdlfkjasdklfjlaksjfdlkasjdfkasjdfhajskhfu",
+				Name:      randomseq.RandomString(257),
+			},
+			true,
+		},
+		{
+			"Long position",
+			fields{
+				CompanyID: 1,
+				Name:      randomseq.RandomString(256),
+			},
+			false,
+		},
+		{
+			"Bad symbols position",
+			fields{
+				CompanyID: 1,
+				Name:      "*position",
 			},
 			true,
 		},
@@ -80,12 +98,12 @@ func TestPositionEdit_Validation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &PositionEdit{
+			p := &PositionSet{
 				CompanyID: tt.fields.CompanyID,
 				Name:      tt.fields.Name,
 			}
 			if err := p.Validation(); (err != nil) != tt.wantErr {
-				t.Errorf("PositionEdit.Validation() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("PositionEdit.Validation() error = %v, wantErr %v, name = %v", err, tt.wantErr, tt.fields.Name)
 			}
 		})
 	}

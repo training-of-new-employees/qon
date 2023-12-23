@@ -23,7 +23,7 @@ import (
 //	@Router		/positions [post]
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
-	positionReq := model.PositionEdit{}
+	positionReq := model.PositionSet{}
 
 	if err := c.ShouldBindJSON(&positionReq); err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
@@ -132,7 +132,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Router		/positions/update/{id} [patch]
 func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
-	positionReq := model.PositionEdit{}
+	positionReq := model.PositionSet{}
 
 	val := c.Param("id")
 

@@ -18,7 +18,7 @@ type (
 		UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
 	}
 
-	PositionEdit struct {
+	PositionSet struct {
 		CompanyID int    `json:"company_id" db:"company_id"`
 		Name      string `json:"name"       db:"name"`
 	}
@@ -29,7 +29,7 @@ type (
 	}
 )
 
-func (p *PositionEdit) Validation() error {
+func (p *PositionSet) Validation() error {
 	return validation.ValidateStruct(
 		p,
 		validation.Field(&p.Name, validation.Required, validation.Length(2, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})),
