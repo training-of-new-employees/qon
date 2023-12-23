@@ -145,7 +145,8 @@ func Test_uService_GetUserByEmail(t *testing.T) {
 
 func Test_uService_GetUserByID(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
+		posdb      *mock_store.MockRepositoryPosition
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
@@ -160,24 +161,104 @@ func Test_uService_GetUserByID(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.UserInfo
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"User Not Found",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(nil, errs.ErrUserNotFound)
+			},
+			args{nil, 1},
+			nil,
+			true,
+		},
+		{
+			"Company Not Found",
+			func(f *fields) {
+				u := &model.User{
+					Email:     "email@mail.com",
+					CompanyID: 1,
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().GetCompany(nil, 1).Return(nil, errs.ErrCompanyNotFound)
+			},
+			args{nil, 1},
+			nil,
+			true,
+		},
+		{
+			"Position Not Found",
+			func(f *fields) {
+				u := &model.User{
+					Email:      "email@mail.com",
+					CompanyID:  1,
+					PositionID: 1,
+				}
+				company := &model.Company{
+					Name: "company",
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().GetCompany(nil, 1).Return(company, nil)
+				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(nil, errs.ErrPositionNotFound)
+			},
+			args{nil, 1},
+			nil,
+			true,
+		},
+		{
+			"Get user success",
+			func(f *fields) {
+				u := &model.User{
+					Email:      "email@mail.com",
+					CompanyID:  1,
+					PositionID: 1,
+				}
+				company := &model.Company{
+					Name: "company",
+				}
+				pos := &model.Position{
+					Name: "position",
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().GetCompany(nil, 1).Return(company, nil)
+				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(pos, nil)
+			},
+			args{nil, 1},
+			&model.UserInfo{
+				User: model.User{
+					Email:      "email@mail.com",
+					CompanyID:  1,
+					PositionID: 1,
+				},
+				CompanyName:  "company",
+				PositionName: "position",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			f.posdb = mock_store.NewMockRepositoryPosition(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockPUStorage(ctrl, f.userdb, f.posdb)
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.GetUserByID(tt.args.ctx, tt.args.id)
 			if (err != nil) != tt.wantErr {
@@ -1391,9 +1472,17 @@ func Test_uService_EditAdmin(t *testing.T) {
 }
 
 func mockUserStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUser) *mock_store.MockStorages {
-	posStore := mock_store.NewMockRepositoryUser(ctrl)
+	posStore := mock_store.NewMockRepositoryPosition(ctrl)
 	storages := mock_store.NewMockStorages(ctrl)
 	storages.EXPECT().UserStorage().Return(uStore).AnyTimes()
-	storages.EXPECT().UserStorage().Return(posStore).AnyTimes()
+	storages.EXPECT().PositionStorage().Return(posStore).AnyTimes()
 	return storages
+}
+
+func mockPUStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUser, pStore *mock_store.MockRepositoryPosition) *mock_store.MockStorages {
+	storages := mock_store.NewMockStorages(ctrl)
+	storages.EXPECT().UserStorage().Return(uStore).AnyTimes()
+	storages.EXPECT().PositionStorage().Return(pStore).AnyTimes()
+	return storages
+
 }
