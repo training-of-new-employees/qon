@@ -31,7 +31,8 @@ type (
 
 func (p *PositionEdit) Validation() error {
 	return validation.ValidateStruct(
-		validation.Field(&p.Name, validation.Empty, validation.Length(2, 256), is.ASCII, validation.NotIn([]rune{'*', '#'})),
-		validation.Field(&p.CompanyID, validation.Empty),
+		p,
+		validation.Field(&p.Name, validation.Required, validation.Length(2, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})),
+		validation.Field(&p.CompanyID, validation.Required),
 	)
 }
