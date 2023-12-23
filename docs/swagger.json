@@ -397,7 +397,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionEdit"
+                            "$ref": "#/definitions/model.PositionSet"
                         }
                     }
                 ],
@@ -512,7 +512,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionEdit"
+                            "$ref": "#/definitions/model.PositionSet"
                         }
                     }
                 ],
@@ -873,7 +873,7 @@
                 }
             }
         },
-        "model.PositionEdit": {
+        "model.PositionSet": {
             "type": "object",
             "properties": {
                 "company_id": {

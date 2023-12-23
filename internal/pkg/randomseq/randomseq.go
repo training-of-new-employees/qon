@@ -8,9 +8,15 @@ import (
 	"time"
 )
 
+var rnd *mrand.Rand
+var alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func init() {
+	rnd = mrand.New(mrand.NewSource(time.Now().UnixNano()))
+}
+
 // RandomDigitNumber генерирует случайное n-значное число в виде строки.
 func RandomDigitNumber(n int) string {
-	rnd := mrand.New(mrand.NewSource(time.Now().UnixNano()))
 
 	// генерация случайного n-значного числа
 	number := ""
@@ -29,4 +35,14 @@ func RandomHexString(n int) string {
 		return RandomDigitNumber(n)
 	}
 	return hex.EncodeToString(b)
+}
+
+func RandomString(n int) string {
+	seq := make([]byte, 0, n)
+	for len(seq) < n {
+		symb := alphabet[rnd.Intn(len(alphabet))]
+		seq = append(seq, byte(symb))
+
+	}
+	return string(seq)
 }
