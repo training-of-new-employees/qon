@@ -193,7 +193,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 
 func Test_uService_ArchiveUser(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
@@ -209,24 +209,106 @@ func Test_uService_ArchiveUser(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
+		want    *model.UserEdit
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"User not found",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				nil,
+				1,
+				2,
+			},
+			nil,
+			true,
+		},
+		{
+			"Editor company id is missing",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+			},
+			args{
+				nil,
+				1,
+				2,
+			},
+			nil,
+			true,
+		},
+		{
+			"Can't edit user",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().EditUser(nil, gomock.Any()).Return(nil, errs.ErrInternal)
+			},
+			args{
+				nil,
+				1,
+				1,
+			},
+			nil,
+			true,
+		},
+		{
+			"Can edit user",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+				edit := &model.UserEdit{
+					ID: 1,
+				}
+
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().EditUser(nil, gomock.Any()).Return(edit, nil)
+			},
+			args{
+				nil,
+				1,
+				1,
+			},
+			&model.UserEdit{
+				ID: 1,
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
 			}
+			storages := mockUserStorage(ctrl, f.userdb)
+			u := &uService{
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
+			}
+
 			if err := u.ArchiveUser(tt.args.ctx, tt.args.id, tt.args.editorCompanyID); (err != nil) != tt.wantErr {
 				t.Errorf("uService.ArchiveUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -236,7 +318,7 @@ func Test_uService_ArchiveUser(t *testing.T) {
 
 func Test_uService_EditUser(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
@@ -252,24 +334,91 @@ func Test_uService_EditUser(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.UserEdit
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"User not found",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				nil,
+				&model.UserEdit{
+					ID: 1,
+				},
+				2,
+			},
+			nil,
+			true,
+		},
+		{
+			"Editor company id is missing",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+			},
+			args{
+				nil,
+				&model.UserEdit{
+					ID: 1,
+				},
+				2,
+			},
+			nil,
+			true,
+		},
+		{
+			"Can edit user",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+				edit := &model.UserEdit{
+					ID: 1,
+				}
+
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().EditUser(nil, gomock.Any()).Return(edit, nil)
+			},
+			args{
+				nil,
+				&model.UserEdit{
+					ID: 1,
+				},
+				1,
+			},
+			&model.UserEdit{
+				ID: 1,
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.userdb)
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.EditUser(tt.args.ctx, tt.args.val, tt.args.editorCompanyID)
 			if (err != nil) != tt.wantErr {
