@@ -382,14 +382,14 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 
 func Test_uService_CreateUser(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
 		tokenGen   jwttoken.JWTGenerator
 		tokenVal   jwttoken.JWTValidator
-		sender     doar.EmailSender
+		sender     *mock_doar.MockEmailSender
 	}
 	type args struct {
 		ctx context.Context
@@ -397,24 +397,93 @@ func Test_uService_CreateUser(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.User
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"DB Create User Error",
+			func(f *fields) {
+				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(nil, errs.ErrEmailAlreadyExists)
+			},
+			args{
+				nil,
+				model.UserCreate{
+					Email:    "user@mail.com",
+					Password: "password",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Sender Invite User Error",
+			func(f *fields) {
+				u := &model.User{
+					ID:    1,
+					Email: "user@mail.com",
+				}
+				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
+				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				nil,
+				model.UserCreate{
+					Email:    "user@mail.com",
+					Password: "password",
+				},
+			},
+			&model.User{
+				ID:    1,
+				Email: "user@mail.com",
+			},
+			false,
+		},
+		{
+			"Sender Invite User success",
+			func(f *fields) {
+				u := &model.User{
+					ID:    1,
+					Email: "user@mail.com",
+				}
+				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
+				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(nil)
+			},
+			args{
+				nil,
+				model.UserCreate{
+					Email:    "user@mail.com",
+					Password: "password",
+				},
+			},
+			&model.User{
+				ID:    1,
+				Email: "user@mail.com",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			f.sender = mock_doar.NewMockEmailSender(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.userdb)
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.CreateUser(tt.args.ctx, tt.args.val)
 			if (err != nil) != tt.wantErr {
