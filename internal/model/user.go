@@ -122,8 +122,6 @@ type (
 		Company  string `json:"company_name" db:"name"`
 	}
 
-
-
 	// AdminEdit - Структура для передачи изменяемых данных администратора
 	AdminEdit struct {
 		ID         int     `json:"id,omitempty"           db:"id"`

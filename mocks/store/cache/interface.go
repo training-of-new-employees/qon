@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "go.uber.org/mock/gomock"
 	model "github.com/training-of-new-employees/qon/internal/model"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockCache is a mock of Cache interface.

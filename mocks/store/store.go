@@ -7,8 +7,8 @@ package mock_store
 import (
 	reflect "reflect"
 
-	gomock "go.uber.org/mock/gomock"
 	store "github.com/training-of-new-employees/qon/internal/store"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockStorages is a mock of Storages interface.

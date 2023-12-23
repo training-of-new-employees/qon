@@ -8,8 +8,8 @@ import (
 	reflect "reflect"
 	time "time"
 
-	gomock "go.uber.org/mock/gomock"
 	jwttoken "github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockJWTGenerator is a mock of JWTGenerator interface.
