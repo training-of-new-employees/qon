@@ -16,7 +16,7 @@ import (
 //	@Summary	Создание новой должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		object	body		model.PositionEdit	true	"Position Create"
+//	@Param		object	body		model.PositionSet	true	"Position Create"
 //	@Success	201		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -124,7 +124,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Tags		position
 //	@Produce	json
 //	@Param		id		path		int					true	"Position ID"
-//	@Param		object	body		model.PositionEdit	true	"Position info"
+//	@Param		object	body		model.PositionSet	true	"Position info"
 //	@Success	200		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	404		{object}	sErr
