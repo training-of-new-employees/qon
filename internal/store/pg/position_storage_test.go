@@ -138,6 +138,8 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 
 	// создание компании
 	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
+	suite.NoError(err)
+	suite.NotEmpty(company)
 
 	// добавление новых должностей к созданной компании (кол-во должностей, которое необходимо добавить, генерируется случайно)
 	countPositions := rnd.Intn(32)
@@ -228,6 +230,8 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
+	suite.NoError(err)
+	suite.NotEmpty(position)
 
 	testCases := []struct {
 		name    string
@@ -252,7 +256,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 			name: "company not found",
 			payload: func() (int, model.PositionSet) {
 				companyID := rnd.Intn(32)
-				return position.ID, model.PositionSet{CompanyID: companyID, Name: ""}
+				return position.ID, model.PositionSet{CompanyID: companyID, Name: "new-position-name"}
 			},
 			err: errs.ErrNotFound,
 		},
@@ -260,7 +264,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 			name: "position not found",
 			payload: func() (int, model.PositionSet) {
 				positionID := rnd.Intn(32)
-				return positionID, model.PositionSet{CompanyID: company.ID, Name: ""}
+				return positionID, model.PositionSet{CompanyID: company.ID, Name: "new-position-name"}
 			},
 			err: errs.ErrNotFound,
 		},
@@ -294,6 +298,8 @@ func (suite *storeTestSuite) TestArchivePositionDB() {
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
+	suite.NoError(err)
+	suite.NotEmpty(position)
 
 	testCases := []struct {
 		name    string
