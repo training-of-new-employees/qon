@@ -13,7 +13,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/access"
-	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
 
 // CreateAdmin godoc
@@ -254,8 +253,12 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	}
 
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
-	if err != nil {
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
 	}
 
@@ -394,7 +397,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	logger.Log.Info("admin from cache: %v", zap.String("email", adminFromCache.Email))
 
-	createdAdmin, err := r.services.User().CreateAdmin(ctx, adminFromCache)
+	createdAdmin, err := r.services.User().CreateAdmin(ctx, *adminFromCache)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
@@ -425,7 +428,7 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	}
 
 	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
-		if errors.Is(err, model.ErrUserNotFound) {
+		if errors.Is(err, errs.ErrUserNotFound) {
 			c.JSON(http.StatusNotFound, s().SetError(err))
 			return
 		}
@@ -450,19 +453,13 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Router		/admin/info [post]
 func (r *RestServer) handlerAdminEdit(c *gin.Context) {
 	ctx := c.Request.Context()
-	edit := &model.AdminEdit{}
+	edit := model.AdminEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
 	}
-
-	token := jwttoken.GetToken(c)
-	claims, err := r.tokenVal.ValidateToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
-		return
-	}
-	edit.ID = claims.UserID
+	us := r.getUserSession(c)
+	edit.ID = us.UserID
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	switch {

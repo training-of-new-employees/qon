@@ -13,29 +13,72 @@ import (
 
 // constraintToAppError - соответствие ограничений CУБД ошибкам приложения
 var constraintToAppError = map[string]error{
-	"fk_position_company": errs.ErrPositionCompanyNotFound,
-	"fk_user_company":     errs.ErrUserCompanyNotFound,
-	"fk_user_position":    errs.ErrUserPositionNotFound,
-	"unq_user_email":      errs.ErrEmailAlreadyExists,
-	"fk_course_user":      errs.ErrCourseUserNotFound,
-	"fk_lesson_course":    errs.ErrLessonCourseNotFound,
-	"fk_lesson_user":      errs.ErrLessonUserNotFound,
-	"fk_text_lesson":      errs.ErrTextLessonNotFound,
-	"fk_text_user":        errs.ErrTextUserNotFound,
-	"fk_picture_lesson":   errs.ErrPictureLessonNotFound,
-	"fk_picture_user":     errs.ErrPictureUserNotFound,
+	// companies
+	"chck_company_name_not_empty": errs.ErrCompanyNameNotEmpty,
 
-	"fk_positioncourse_position": errs.ErrPositionNotFound,
-	"fk_positioncourse_course":   errs.ErrCourseNotFound,
-	"unq_positioncourse":         errs.ErrPositionCourseUsed,
+	// positions
+	"chck_position_company_not_empty": errs.ErrCompanyIDNotEmpty,
+	"fk_position_company":             errs.ErrCompanyReference,
+	"chck_position_name_not_empty":    errs.ErrPositionNameNotEmpty,
 
-	"fk_courseassign_user":   errs.ErrUserNotFound,
-	"fk_courseassign_course": errs.ErrCourseNotFound,
-	"unq_usercourse":         errs.ErrUserCourseUsed,
+	// users
+	"chck_user_company_not_empty":     errs.ErrCompanyIDNotEmpty,
+	"fk_user_company":                 errs.ErrCompanyReference,
+	"chck_user_position_not_empty":    errs.ErrPositionIDNotEmpty,
+	"fk_user_position":                errs.ErrPositionReference,
+	"chck_user_email_not_empty":       errs.ErrEmailNotEmpty,
+	"unq_user_email":                  errs.ErrEmailAlreadyExists,
+	"chck_user_encpassword_not_empty": errs.ErrPasswordNotEmpty,
 
-	"fk_lessonresult_courseassign": errs.ErrAssignNotFound,
-	"fk_lessonresult_lesson":       errs.ErrLessonNotFound,
-	"unq_assignlesson":             errs.ErrAssignLessonUsed,
+	// courses
+	"chck_course_creater_not_empty": errs.ErrCreaterNotEmpty,
+	"fk_course_creater":             errs.ErrCreaterNotFound,
+	"chck_course_name_not_empty":    errs.ErrCourseNameNotEmpty,
+
+	// lessons
+	"chck_lesson_course_not_empty":  errs.ErrCourseIDNotEmpty,
+	"fk_lesson_course":              errs.ErrCourseReference,
+	"chck_lesson_creater_not_empty": errs.ErrCreaterNotEmpty,
+	"fk_lesson_creater":             errs.ErrCreaterNotFound,
+	"chck_lesson_name_not_empty":    errs.ErrLessonNameNotEmpty,
+
+	// texts
+	"chck_text_lesson_not_empty":  errs.ErrLessonIDNotEmpty,
+	"fk_text_lesson":              errs.ErrLessonReference,
+	"chck_text_creater_not_empty": errs.ErrCreaterNotEmpty,
+	"fk_text_creater":             errs.ErrCreaterNotFound,
+	"chck_text_content_not_empty": errs.ErrTextContentNotEmpty,
+
+	// pictures
+	"chck_picture_lesson_not_empty":  errs.ErrLessonIDNotEmpty,
+	"fk_picture_lesson":              errs.ErrLessonReference,
+	"chck_picture_creater_not_empty": errs.ErrCreaterNotEmpty,
+	"fk_picture_creater":             errs.ErrCreaterNotFound,
+	"chck_link_not_empty":            errs.ErrPictureLinkNotEmpty,
+
+	// position_course
+	"chck_positioncourse_position_not_empty": errs.ErrPositionIDNotEmpty,
+	"fk_positioncourse_position":             errs.ErrPositionReference,
+	"chck_positioncourse_course_not_empty":   errs.ErrCourseIDNotEmpty,
+	"fk_positioncourse_course":               errs.ErrCourseReference,
+	"unq_positioncourse":                     errs.ErrPositionCourseUsed,
+
+	// course_assign
+	"chck_courseassign_course_not_empty": errs.ErrCourseIDNotEmpty,
+	"fk_courseassign_course":             errs.ErrCourseReference,
+	"chck_courseassign_user_not_empty":   errs.ErrUserIDNotEmpty,
+	"fk_courseassign_user":               errs.ErrUserReference,
+	"unq_usercourse":                     errs.ErrUserCourseUsed,
+
+	// lesson_results
+	"chck_lessonresult_course_not_empty": errs.ErrCourseIDNotEmpty,
+	"fk_lessonresult_course":             errs.ErrCourseReference,
+	"chck_lessonresult_lesson_not_empty": errs.ErrLessonIDNotEmpty,
+	"fk_lessonresult_lesson":             errs.ErrLessonReference,
+	"chck_lessonresult_user_not_empty":   errs.ErrUserIDNotEmpty,
+	"fk_lessonresult_user":               errs.ErrUserReference,
+
+	"unq_assignlesson": errs.ErrAssignLessonUsed,
 }
 
 func handleError(err error) error {

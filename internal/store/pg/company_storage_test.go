@@ -2,6 +2,8 @@ package pg
 
 import (
 	"context"
+
+	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 func (suite *storeTestSuite) TestCreateCompany() {
@@ -20,7 +22,7 @@ func (suite *storeTestSuite) TestCreateCompany() {
 		{
 			name:        "fail",
 			companyName: "",
-			err:         nil,
+			err:         errs.ErrCompanyNameNotEmpty,
 		},
 	}
 

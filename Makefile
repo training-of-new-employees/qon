@@ -27,14 +27,14 @@ docker-test-db-up: ## Create and run test container with db
 docker-test-db-down: ## Stop and remove test container with db
 	docker compose --file docker-compose/test/docker-compose.yml down -v
 
-mocks: $(shell find ./internal -name "*.go")
-	@echo "Generating mocks"
-	@rm -rf $(MOCKS_DESTINATION)
-	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file/internal/}`; done
-
 fmt:
 	gofmt -s -w .
 	goimports -w .
+
+mocks: $(shell find ./internal -name "*.go" -not -path "*test.go")
+	@echo "Generating mocks"
+	@rm -rf $(MOCKS_DESTINATION)
+	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file#*internal/}`; done
 
 swag:
 	swag fmt

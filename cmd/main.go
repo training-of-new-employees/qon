@@ -10,15 +10,15 @@ import (
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/redis/go-redis/v9"
-	"github.com/training-of-new-employees/qon/internal/pkg/doar"
-	"github.com/training-of-new-employees/qon/internal/service/impl"
-	"github.com/training-of-new-employees/qon/internal/store/cache/cacheredis"
+	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/app/rest"
 	"github.com/training-of-new-employees/qon/internal/config"
 	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/pkg/doar"
+	"github.com/training-of-new-employees/qon/internal/service/impl"
+	"github.com/training-of-new-employees/qon/internal/store/cache/cacheredis"
 	"github.com/training-of-new-employees/qon/internal/store/pg"
-	"go.uber.org/zap"
 )
 
 func main() {
@@ -39,6 +39,8 @@ func run() error {
 	if err := logger.InitLogger(cfg.LogLevel); err != nil {
 		return err
 	}
+
+	logger.Log.Debug("Config Initialized", zap.Any("config", cfg))
 
 	// Создаём хранилище
 	store, err := pg.NewStore(cfg.DatabaseDSN)
