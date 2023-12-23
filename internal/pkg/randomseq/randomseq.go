@@ -37,6 +37,7 @@ func RandomHexString(n int) string {
 	return hex.EncodeToString(b)
 }
 
+// RandomString генерирует случайную строку заданной длины
 func RandomString(n int) string {
 	seq := make([]byte, 0, n)
 	for len(seq) < n {
