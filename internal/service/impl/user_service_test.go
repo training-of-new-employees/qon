@@ -15,6 +15,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	mock_doar "github.com/training-of-new-employees/qon/mocks/pkg/doar"
+	mock_jwttoken "github.com/training-of-new-employees/qon/mocks/pkg/jwttoken"
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"
 	mock_cache "github.com/training-of-new-employees/qon/mocks/store/cache"
 )
@@ -337,7 +338,7 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
-		tokenGen   jwttoken.JWTGenerator
+		tokenGen   *mock_jwttoken.MockJWTGenerator
 		tokenVal   jwttoken.JWTValidator
 		sender     doar.EmailSender
 	}
@@ -349,24 +350,76 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.Tokens
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Error Generate access token",
+			func(f *fields) {
+				f.aTokenTime = 12 * time.Hour
+				f.rTokenTime = 120 * time.Hour
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.aTokenTime).Return("", errs.ErrInternal)
+			},
+			args{
+				nil,
+				1, true, 1},
+			nil,
+			true,
+		},
+		{
+			"Error Generate refresh token",
+			func(f *fields) {
+				f.aTokenTime = 12 * time.Hour
+				f.rTokenTime = 120 * time.Hour
+				t := "access"
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.aTokenTime).Return(t, nil)
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.rTokenTime).Return("", errs.ErrInternal)
+			},
+			args{
+				nil,
+				1, true, 1},
+			nil,
+			true,
+		},
+		{
+			"Success Generate token",
+			func(f *fields) {
+				f.aTokenTime = 12 * time.Hour
+				f.rTokenTime = 120 * time.Hour
+				a := "access"
+				r := "refresh"
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.aTokenTime).Return(a, nil)
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.rTokenTime).Return(r, nil)
+			},
+			args{
+				nil,
+				1, true, 1},
+			&model.Tokens{
+				AccessToken:  "access",
+				RefreshToken: "refresh",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			f := &fields{}
+			f.tokenGen = mock_jwttoken.NewMockJWTGenerator(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         f.db,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.GenerateTokenPair(tt.args.ctx, tt.args.userId, tt.args.isAdmin, tt.args.companyID)
 			if (err != nil) != tt.wantErr {
