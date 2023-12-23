@@ -6,79 +6,125 @@ import (
 )
 
 var (
-	// Базовые ошибки
-	ErrCompanyNotFound  = errors.New("Company not found")
-	ErrPositionNotFound = errors.New("Position not found")
-	ErrCreatorNotFound  = errors.New("Creator does not exist")
-	ErrLessonNotFound   = errors.New("Lesson not found")
-	ErrCourseNotFound   = errors.New("Course not found")
-
-	// -- Общие ошибки приложения --
+	// -- Базовые ошибки приложения --
 
 	// ErrInternal - внутренняя ошибка сервера
-	ErrInternal = errors.New("Internal error")
+	ErrInternal = errors.New("internal error")
 	// ErrNotFound - не найдено
-	ErrNotFound = errors.New("Record Not found")
+	ErrNotFound = errors.New("record not found")
 	// ErrNotFound - пользователь не найден
-	ErrUserNotFound = errors.New("User not found")
+	ErrUserNotFound = errors.New("user not found")
 	// ErrNoRows - в результате нет записей
-	ErrNoRows = errors.New("Sql: no rows in result set")
+	ErrNoRows = errors.New("no rows in result set")
 	// ErrUnauthorized - пользователь не авторизован
-	ErrUnauthorized = errors.New("Unauthorized")
+	ErrUnauthorized = errors.New("unauthorized")
 	// ErrBadRequest - неверный запрос
-	ErrBadRequest = errors.New("Bad request")
+	ErrBadRequest = errors.New("bad request")
 	// ErrNotFirstLogin - не первый вход в систему
-	ErrNotFirstLogin = errors.New("Not first login")
+	ErrNotFirstLogin = errors.New("not first login")
 	// ErrOnlyAdmin - действие доступно только администратору
-	ErrOnlyAdmin = errors.New("You aren't admin")
+	ErrOnlyAdmin = errors.New("you aren't admin")
+)
+
+var (
+	// -- бщие ошибки объектов --
+
+	// ErrCompanyNotFound - компания не найдена
+	ErrCompanyNotFound = errors.New("company not found")
+	// ErrPositionNotFound - должность не найдена
+	ErrPositionNotFound = errors.New("position not found")
+
+	// ErrLessonNotFound - урок не найден
+	ErrLessonNotFound = errors.New("lesson not found")
+
+	// ErrCourseNotFound - курс не найден
+	ErrCourseNotFound = errors.New("course not found")
+
+	// ErrCompanyIDNotEmpty - id компании не может быть пустым
+	ErrCompanyIDNotEmpty = errors.New("company id cannot be empty")
+
+	// ErrCompanyReference - id компании должен ссылаться на существующую компанию
+	ErrCompanyReference = errors.New("company id must reference existing company")
+
+	// ErrPositionIDNotEmpty - id должности не может быть пустым
+	ErrPositionIDNotEmpty = errors.New("position id cannot be empty")
+
+	// ErrPositionReference - id должности должен ссылаться на существующую должность
+	ErrPositionReference = errors.New("position id must reference existing position")
+
+	// ErrCreaterNotFound - создатель (пользователь) не должен быть пустым
+	ErrCreaterNotEmpty = errors.New("creator (user id) cannot be empty")
+
+	// ErrCreaterNotFound - создатель (пользователь) не зарегистрирован в системе
+	ErrCreaterNotFound = errors.New("creator (user id) does not exist in system")
+
+	// ErrCourseIDNotEmpty - id курса не должен быть пустым
+	ErrCourseIDNotEmpty = errors.New("course id cannot be empty")
+
+	// ErrCourseIDNotEmpty - id курс должен ссылаться на существующий курс
+	ErrCourseReference = errors.New("course id must reference existing course")
+
+	// ErrLessonIDNotEmpty - id урока не должен быть пустым
+	ErrLessonIDNotEmpty = errors.New("lesson id cannot be empty")
+
+	// ErrLessonReference - id урока должен ссылаться на существующий урок
+	ErrLessonReference = errors.New("lesson id must reference existing lesson")
+
+	// ErrUserNotEmpty - сотрудник (user id) не должен быть пустым
+	ErrUserIDNotEmpty = errors.New("user (user id) cannot be empty")
+
+	// ErrUserReference - сотрудник (user id) не зарегистрирован в системе
+	ErrUserReference = errors.New("user (user id) does not exist in system")
+)
+
+var (
+	// -- Ошибки компании --
+
+	// ErrCompanyNameNotEmpty - название компании не может быть пустым
+	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
+
+	// -- Ошибки должности --
+
+	// ErrPositionNameNotEmpty - название должности не может быть пустым
+	ErrPositionNameNotEmpty = errors.New("position name cannot be empty")
 
 	// -- Ошибки пользователя --
 
 	// ErrUserAlreadyExists - email должен быть уникальный
-	ErrEmailAlreadyExists = errors.New("Email already exists")
-	// ErrUserPositionNotFound - пользователь должен ссылаться на существующую должность
-	ErrUserPositionNotFound = ErrPositionNotFound
-	// ErrUserCompanyNotFound - пользователь должен ссылаться на существующую компанию
-	ErrUserCompanyNotFound = ErrCompanyNotFound
+	ErrEmailAlreadyExists = errors.New("email already exists")
 
-	// -- Ошибки должности --
+	// ErrEmailNotEmpty - email не может быть пустым
+	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
-	// ErrPositionCompanyNotFound - должность должна ссылаться на существующую компанию
-	ErrPositionCompanyNotFound = ErrCompanyNotFound
-	// ErrPositionsNotFound - позиции не найдены
-	ErrPositionsNotFound = errors.New("Positions not found")
+	// ErrPasswordNotEmpty - password не может быть пустым
+	ErrPasswordNotEmpty = errors.New("password cannot be empty")
 
 	// -- Ошибки курсов --
 
-	// ErrCourseUserNotFound - создатель курса должен быть зарегистрирован в системе
-	ErrCourseUserNotFound = ErrCreatorNotFound
+	// ErrCourseUserNotFound - имя курса не должно быть пустым
+	ErrCourseNameNotEmpty = errors.New("course name cannot be empty")
 
 	// -- Ошибки уроков --
 
-	// ErrLessonCourseNotFound - урок должен ссылаться на существующий курс
-	ErrLessonCourseNotFound = ErrCourseNotFound
-	// ErrLessonUserNotFound - создатель урока должен быть зарегистрирован в системе
-	ErrLessonUserNotFound = ErrCreatorNotFound
+	// ErrLessonNameNotEmpty - название урока не может быть пустым
+	ErrLessonNameNotEmpty = errors.New("lesson name cannot be empty")
 
-	// ErrTextLessonNotFound - текст должен ссылаться на существующий урок
-	ErrTextLessonNotFound = ErrLessonNotFound
-	// ErrTextUserNotFound - создатель текста должен быть зарегистрирован в системе
-	ErrTextUserNotFound = ErrUserNotFound
+	// -- Ошибки текстов --
 
-	// ErrPictureLessonNotFound - картинка должна ссылаться на существующий урок
-	ErrPictureLessonNotFound = ErrLessonNotFound
-	// ErrPictureUserNotFound - создатель картинки должен быть зарегистрирован в системе
-	ErrPictureUserNotFound = ErrUserNotFound
+	ErrTextContentNotEmpty = errors.New("text (content) cannot be empty")
+
+	// -- Ошибки картинок --
+
+	ErrPictureLinkNotEmpty = errors.New("picture (link) cannot be empty")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 
-	// ErrPositionCourseUsed - 1 курс на 1 должность можно назначить только один раз
-	ErrPositionCourseUsed = errors.New("Course already assigned to position")
-	// ErrPositionCourseUsed - 1 курс на 1 сотрудника можно назначить только один раз
-	ErrUserCourseUsed = errors.New("Course already assigned to user")
+	// ErrPositionCourseUsed - курс на должность можно назначить только один раз
+	ErrPositionCourseUsed = errors.New("course already assigned to position")
 
-	// ErrAssignNotFound - у пользователь для прогресса по уроку должно быть назначение на соответствующий курс
-	ErrAssignNotFound = errors.New("User has no course assign")
-	// ErrAssignLessonUsed - прогрессу курса могут соответствовать только уникальные прогрессы урока
+	// ErrPositionCourseUsed - курс на сотрудника можно назначить только один раз
+	ErrUserCourseUsed = errors.New("course already assigned to user")
+
+	// ErrAssignLessonUsed - прогресс пользователя по уроку должен быть уникальным
 	ErrAssignLessonUsed = errors.New("Course progress already has the same lesson progress")
 )

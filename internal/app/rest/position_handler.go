@@ -37,7 +37,7 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 
 	us := r.getUserSession(c)
 	if us.OrgID != positionReq.CompanyID {
-		c.JSON(http.StatusBadRequest, s().SetError(errs.ErrUserCompanyNotFound))
+		c.JSON(http.StatusBadRequest, s().SetError(errs.ErrCompanyNotFound))
 		return
 	}
 
