@@ -294,7 +294,7 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 // @Failure	403	{object}	sErr
 // @Failure	404	{object}	sErr
 // @Failure	500	{object}	sErr
-// @Router		/archive/{id} [patch]
+// @Router		/users/archive/{id} [patch]
 func (r *RestServer) handlerArchiveUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")
