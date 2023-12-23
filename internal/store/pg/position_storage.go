@@ -6,44 +6,55 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
+	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
+	"go.uber.org/zap"
 )
 
 var _ store.RepositoryPosition = (*positionStorage)(nil)
 
 type positionStorage struct {
-	db *sqlx.DB
+	db    *sqlx.DB
+	store *Store
 }
 
-func newPositionStorage(db *sqlx.DB) *positionStorage {
-	return &positionStorage{db: db}
+func newPositionStorage(db *sqlx.DB, s *Store) *positionStorage {
+	return &positionStorage{db: db, store: s}
 }
 
+// CreatePositionDB создание должности в рамках компании.
 func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionCreate) (*model.Position, error) {
-	var createdPosition = model.Position{}
-
-	query := `
-				INSERT INTO positions (company_id, name)
-				VALUES ($1, $2)
-				RETURNING id, company_id, name, active, created_at, updated_at`
-
-	err := p.db.GetContext(ctx, &createdPosition, query, position.CompanyID, position.Name)
+	// открываем транзакцию
+	tx, err := p.db.Beginx()
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.ForeignKeyViolation {
-			return nil, model.ErrCompanyIDNotFound
+		return nil, fmt.Errorf("beginning tx: %w", err)
+	}
+	// отмена транзакции
+	defer func() {
+		if err != nil {
+			if err := tx.Rollback(); err != nil {
+				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+			}
 		}
+	}()
 
-		return nil, fmt.Errorf("create position: %w", err)
+	// создание должности
+	createdPosition, err := p.createPositionTx(ctx, tx, position.CompanyID, position.Name)
+	if err != nil {
+		return nil, handleError(err)
 	}
 
-	return &createdPosition, nil
+	// фиксация транзакции
+	if err = tx.Commit(); err != nil {
+		return nil, fmt.Errorf("committing tx: %w", err)
+	}
+
+	return createdPosition, nil
 }
 
+// GetPositionDB - получить данные должности, привязанной к компании.
 func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position := model.Position{}
 
@@ -64,7 +75,8 @@ func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, posi
 	return &position, nil
 }
 
-func (p *positionStorage) GetPositionsDB(ctx context.Context, id int) ([]*model.Position, error) {
+// GetPositionsDB - получить список должностей компании.
+func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]*model.Position, error) {
 	positions := make([]*model.Position, 0)
 
 	query := `SELECT p.id, p.company_id, p.name, p.active, p.archived, p.created_at, p.updated_at
@@ -72,7 +84,7 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, id int) ([]*model.
 			  JOIN companies c ON p.company_id = c.id
 			  WHERE p.company_id = $1 AND c.active = true AND p.archived = false`
 
-	err := p.db.SelectContext(ctx, &positions, query, id)
+	err := p.db.SelectContext(ctx, &positions, query, companyID)
 	if err != nil {
 		return []*model.Position{}, fmt.Errorf("get positions db: %w", err)
 	}
@@ -84,13 +96,14 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, id int) ([]*model.
 	return positions, nil
 }
 
-func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val model.PositionUpdate) (*model.Position, error) {
+// UpdatePositionDB - обновить компанию.
+func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, val model.PositionUpdate) (*model.Position, error) {
 	position := model.Position{}
 
 	query := `UPDATE positions SET name = $1 WHERE id = $2 AND company_id = $3
               RETURNING id, name, company_id, active, archived, updated_at, created_at`
 
-	err := p.db.QueryRowContext(ctx, query, val.Name, id, val.CompanyID).Scan(&position.ID, &position.Name,
+	err := p.db.QueryRowContext(ctx, query, val.Name, positionID, val.CompanyID).Scan(&position.ID, &position.Name,
 		&position.CompanyID, &position.IsActive, &position.IsArchived, &position.UpdatedAt, &position.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -114,6 +127,7 @@ func (p *positionStorage) DeletePositionDB(ctx context.Context, id int, companyI
 	return nil
 }
 
+// GetPositionByID - получить данные должности по идентификатору.
 func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
 	position := model.Position{}
 
@@ -129,6 +143,7 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 	return &position, nil
 }
 
+// AssignCourseDB - назначить курс на должность.
 func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int,
 	courseID int, user_id int) error {
 
@@ -138,4 +153,20 @@ func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int,
 		return handleError(err)
 	}
 	return nil
+}
+
+// createPositionTx - создание должности в рамках компании.
+// ВAЖНО: использовать только внутри транзакции.
+func (p *positionStorage) createPositionTx(ctx context.Context, tx *sqlx.Tx, companyID int, positionName string) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `INSERT INTO
+				positions (company_id, name) VALUES ($1, $2)
+			  RETURNING id, company_id, active, name, created_at, updated_at`
+
+	if err := tx.GetContext(ctx, &position, query, companyID, positionName); err != nil {
+		return nil, err
+	}
+
+	return &position, nil
 }

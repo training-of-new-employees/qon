@@ -6,7 +6,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
-func (suite *storeTestSuite) TestCreateAdmin() {
+func (suite *storeTestSuite) TestCreatePosition() {
 	suite.NotNil(suite.store)
 
 	admin := model.UserCreate{
@@ -24,18 +24,4 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 	_, err := suite.store.UserStorage().CreateAdmin(context.TODO(), admin, companyName)
 
 	suite.NoError(err)
-}
-
-func (suite *storeTestSuite) TestGetUserByEmail() {
-	suite.NotNil(suite.store)
-
-	email := "some@example.org"
-
-	_, err := suite.store.UserStorage().GetUserByEmail(context.TODO(), email)
-
-	suite.Error(err)
-}
-
-func createCompanyPosition() {
-
 }

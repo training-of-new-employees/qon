@@ -19,12 +19,14 @@ import (
 var _ store.RepositoryUser = (*uStorage)(nil)
 
 type uStorage struct {
-	db *sqlx.DB
+	db    *sqlx.DB
+	store *Store
 }
 
-func newUStorages(db *sqlx.DB) *uStorage {
+func newUStorages(db *sqlx.DB, s *Store) *uStorage {
 	return &uStorage{
-		db: db,
+		db:    db,
+		store: s,
 	}
 }
 
@@ -76,13 +78,13 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 	}()
 
 	// создание компании
-	company, err := u.createCompanyTx(ctx, tx, companyName)
+	company, err := u.store.companyStore.createCompanyTx(ctx, tx, companyName)
 	if err != nil {
 		return nil, handleError(err)
 	}
 
 	// создание должности-заглушки для администратора
-	position, err := u.createPositionTx(ctx, tx, company.ID, "admin")
+	position, err := u.store.positionStore.createPositionTx(ctx, tx, company.ID, "admin")
 	if err != nil {
 		return nil, handleError(err)
 	}
@@ -100,7 +102,7 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("committing tx: %w", err)
 	}
-	
+
 	return createdAdmin, nil
 }
 
@@ -266,7 +268,7 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 	return nil
 }
 
-// GetUsersByCompany - получает информацию обо всех пользователях в компании
+// GetUsersByCompany - получает информацию обо всех пользователях в компании.
 func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
 	var users []model.User
 
@@ -343,33 +345,6 @@ func (u *uStorage) createUserTx(ctx context.Context, tx *sqlx.Tx, user model.Use
 	}
 
 	return &createdUser, nil
-}
-
-// createCompanyTx - создание компании.
-// ВAЖНО: использовать только внутри транзакции.
-func (u *uStorage) createCompanyTx(ctx context.Context, tx *sqlx.Tx, companyName string) (*model.Company, error) {
-	company := model.Company{}
-
-	query := `INSERT INTO companies(name) VALUES ($1) RETURNING id, name`
-
-	if err := tx.GetContext(ctx, &company, query, companyName); err != nil {
-		return nil, err
-	}
-
-	return &company, nil
-}
-
-// createPositionTx - создание должности в рамках компании.
-// ВAЖНО: использовать только внутри транзакции.
-func (u *uStorage) createPositionTx(ctx context.Context, tx *sqlx.Tx, companyID int, positionName string) (*model.Position, error) {
-	position := model.Position{}
-	query := `INSERT INTO positions(company_id, name) VALUES ($1, $2) RETURNING id, name`
-
-	if err := tx.GetContext(ctx, &position, query, companyID, positionName); err != nil {
-		return nil, err
-	}
-
-	return &position, nil
 }
 
 // updatePasswordTx обновляет пароль пользователя.

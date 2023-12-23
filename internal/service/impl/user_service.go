@@ -66,6 +66,9 @@ func (u *uService) WriteAdminToCache(
 	}
 
 	user, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && err != errs.ErrNotFound {
+		return nil, err
+	}
 	if user != nil {
 		return nil, errs.ErrEmailAlreadyExists
 	}
@@ -221,6 +224,9 @@ func (u *uService) DeleteAdminFromCache(ctx context.Context, key string) error {
 
 func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error) {
 	user, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && err != errs.ErrNotFound {
+		return nil, err
+	}
 	if user != nil {
 		return nil, errs.ErrEmailAlreadyExists
 	}
