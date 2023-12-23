@@ -36,7 +36,11 @@ func Test_newUserService(t *testing.T) {
 		args args
 		want *uService
 	}{
-		// TODO: Add test cases.
+		{
+			"Stub creation",
+			args{},
+			&uService{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -49,14 +53,14 @@ func Test_newUserService(t *testing.T) {
 
 func Test_uService_WriteAdminToCache(t *testing.T) {
 	type fields struct {
-		db         store.Storages
-		cache      cache.Cache
+		userdb     *mock_store.MockRepositoryUser
+		cache      *mock_cache.MockCache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
 		tokenGen   jwttoken.JWTGenerator
 		tokenVal   jwttoken.JWTValidator
-		sender     doar.EmailSender
+		sender     *mock_doar.MockEmailSender
 	}
 	type args struct {
 		ctx context.Context
@@ -64,31 +68,112 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.CreateAdmin
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"User exist",
+			func(f *fields) {
+				u := &model.User{
+					Email: "email@mail.com",
+				}
+				f.userdb.EXPECT().GetUserByEmail(nil, u.Email).Return(u, nil)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Email: "email@mail.com",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Can't set cache",
+			func(f *fields) {
+				email := "email@mail.com"
+				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(nil, errs.ErrUserNotFound)
+				f.cache.EXPECT().Set(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Email: "email@mail.com",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Can't send code",
+			func(f *fields) {
+				email := "email@mail.com"
+				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(nil, errs.ErrUserNotFound)
+				f.cache.EXPECT().Set(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.sender.EXPECT().SendCode(email, gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Email: "email@mail.com",
+				},
+			},
+			nil,
+			true,
+		},
+		{
+			"Success write cache",
+			func(f *fields) {
+				email := "email@mail.com"
+				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(nil, errs.ErrUserNotFound)
+				f.cache.EXPECT().Set(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.sender.EXPECT().SendCode(email, gomock.Any()).Return(nil)
+			},
+			args{
+				nil,
+				model.CreateAdmin{
+					Email: "email@mail.com",
+				},
+			},
+			&model.CreateAdmin{
+				Email: "email@mail.com",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := fields{}
+			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			f.cache = mock_cache.NewMockCache(ctrl)
+			f.sender = mock_doar.NewMockEmailSender(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(&f)
+			}
+			storages := mockUserStorage(ctrl, f.userdb)
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.WriteAdminToCache(tt.args.ctx, tt.args.val)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.WriteAdminToCache() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if err != nil {
+				return
+			}
+			if got.Email != tt.want.Email {
 				t.Errorf("uService.WriteAdminToCache() = %v, want %v", got, tt.want)
 			}
 		})
