@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -65,13 +66,12 @@ func (u *uService) WriteAdminToCache(
 		return nil, fmt.Errorf("error SetPassword: %v", err)
 	}
 
-	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil {
+	_, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) {
 		return nil, err
 	}
-
-	if user.Email == val.Email {
-		return nil, model.ErrEmailAlreadyExists
+	if err == nil {
+		return nil, errs.ErrEmailAlreadyExists
 	}
 
 	code := randomseq.RandomDigitNumber(4)
@@ -223,15 +223,15 @@ func (u *uService) DeleteAdminFromCache(ctx context.Context, key string) error {
 	return nil
 }
 
-func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error) {
+// CreateAdmin создаёт администратора в БД
+func (u *uService) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*model.User, error) {
 
-	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil {
+	_, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) {
 		return nil, err
 	}
-
-	if user.Email == val.Email {
-		return nil, model.ErrEmailAlreadyExists
+	if err == nil {
+		return nil, errs.ErrEmailAlreadyExists
 	}
 
 	admin := model.NewAdminCreate(val.Email, val.Password)
@@ -249,9 +249,6 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
-	}
-	if user.Email == "" {
-		return model.ErrUserNotFound
 	}
 
 	encPassword, err := utils.EncryptPassword(password)
@@ -271,9 +268,6 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
-	}
-	if user.Email == "" {
-		return model.ErrUserNotFound
 	}
 
 	password := model.GeneratePassword()
@@ -297,8 +291,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 }
 
 // EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке
-func (u *uService) EditAdmin(ctx context.Context, val *model.AdminEdit) (*model.AdminEdit, error) {
-
+func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.AdminEdit, error) {
 	err := val.Validation()
 	if err != nil {
 		return nil, err
