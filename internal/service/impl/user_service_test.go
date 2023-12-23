@@ -16,6 +16,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 	mock_doar "github.com/training-of-new-employees/qon/mocks/pkg/doar"
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"
+	mock_cache "github.com/training-of-new-employees/qon/mocks/store/cache"
 )
 
 func Test_newUserService(t *testing.T) {
@@ -430,7 +431,7 @@ func Test_uService_CreateUser(t *testing.T) {
 func Test_uService_GetAdminFromCache(t *testing.T) {
 	type fields struct {
 		db         store.Storages
-		cache      cache.Cache
+		cache      *mock_cache.MockCache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
@@ -444,24 +445,63 @@ func Test_uService_GetAdminFromCache(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    *model.CreateAdmin
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Admin not found",
+			func(f *fields) {
+				f.cache.EXPECT().Get(nil, "register:admin:1234").Return(nil, errs.ErrNotFound)
+			},
+			args{
+				nil,
+				"1234",
+			},
+			nil,
+			true,
+		},
+		{
+			"Admin found",
+			func(f *fields) {
+				a := &model.CreateAdmin{
+					Email:    "admin@mail.com",
+					Password: "password",
+					Company:  "admin",
+				}
+				f.cache.EXPECT().Get(nil, "register:admin:1234").Return(a, nil)
+			},
+			args{
+				nil,
+				"1234",
+			},
+			&model.CreateAdmin{
+				Email:    "admin@mail.com",
+				Password: "password",
+				Company:  "admin",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := fields{}
+			f.cache = mock_cache.NewMockCache(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(&f)
+			}
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         f.db,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.GetAdminFromCache(tt.args.ctx, tt.args.code)
 			if (err != nil) != tt.wantErr {
@@ -478,7 +518,7 @@ func Test_uService_GetAdminFromCache(t *testing.T) {
 func Test_uService_DeleteAdminFromCache(t *testing.T) {
 	type fields struct {
 		db         store.Storages
-		cache      cache.Cache
+		cache      *mock_cache.MockCache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
@@ -492,23 +532,52 @@ func Test_uService_DeleteAdminFromCache(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Delete not exist admin",
+			func(f *fields) {
+				f.cache.EXPECT().Delete(nil, "key").Return(errs.ErrNotFound)
+			},
+			args{
+				nil,
+				"key",
+			},
+			true,
+		},
+		{
+			"Delete exist admin",
+			func(f *fields) {
+				f.cache.EXPECT().Delete(nil, "key").Return(nil)
+			},
+			args{
+				nil,
+				"key",
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.cache = mock_cache.NewMockCache(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         f.db,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			if err := u.DeleteAdminFromCache(tt.args.ctx, tt.args.key); (err != nil) != tt.wantErr {
 				t.Errorf("uService.DeleteAdminFromCache() error = %v, wantErr %v", err, tt.wantErr)
