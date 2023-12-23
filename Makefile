@@ -21,11 +21,6 @@ docker-dev-db-up: ## Create and run dev container with db
 docker-dev-db-down: ## Stop and remove dev container with db
 	docker compose --file docker-compose/dev/docker-compose.yml down -v
 
-mocks: $(shell find ./internal -name "*.go")
-	@echo "Generating mocks"
-	@rm -rf $(MOCKS_DESTINATION)
-	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file/internal/}`; done
-
 fmt:
 	gofmt -s -w .
 	goimports -w .

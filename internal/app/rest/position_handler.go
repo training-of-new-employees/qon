@@ -16,14 +16,14 @@ import (
 //	@Summary	Создание новой должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		object	body		model.PositionCreate	true	"Position Create"
+//	@Param		object	body		model.PositionSet	true	"Position Create"
 //	@Success	201		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	500		{object}	sErr
 //	@Router		/positions [post]
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
-	positionReq := model.PositionCreate{}
+	positionReq := model.PositionSet{}
 
 	if err := c.ShouldBindJSON(&positionReq); err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
@@ -123,8 +123,8 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Summary	Обновление данных о должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		id		path		int						true	"Position ID"
-//	@Param		object	body		model.PositionUpdate	true	"Position info"
+//	@Param		id		path		int					true	"Position ID"
+//	@Param		object	body		model.PositionSet	true	"Position info"
 //	@Success	200		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	404		{object}	sErr
@@ -132,7 +132,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Router		/positions/update/{id} [patch]
 func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
-	positionReq := model.PositionUpdate{}
+	positionReq := model.PositionSet{}
 
 	val := c.Param("id")
 

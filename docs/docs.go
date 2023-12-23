@@ -354,7 +354,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionCreate"
+                            "$ref": "#/definitions/model.PositionSet"
                         }
                     }
                 ],
@@ -469,7 +469,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionUpdate"
+                            "$ref": "#/definitions/model.PositionSet"
                         }
                     }
                 ],
@@ -879,18 +879,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.PositionCreate": {
-            "type": "object",
-            "properties": {
-                "company_id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.PositionUpdate": {
+        "model.PositionSet": {
             "type": "object",
             "properties": {
                 "company_id": {

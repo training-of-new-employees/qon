@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
 )
@@ -23,7 +24,7 @@ func newPositionStorage(db *sqlx.DB) *positionStorage {
 	return &positionStorage{db: db}
 }
 
-func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionCreate) (*model.Position, error) {
+func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	var createdPosition = model.Position{}
 
 	query := `
@@ -84,7 +85,7 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, id int) ([]*model.
 	return positions, nil
 }
 
-func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val model.PositionUpdate) (*model.Position, error) {
+func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val model.PositionSet) (*model.Position, error) {
 	position := model.Position{}
 
 	query := `UPDATE positions SET name = $1 WHERE id = $2 AND company_id = $3
