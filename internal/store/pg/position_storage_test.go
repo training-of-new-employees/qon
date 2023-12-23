@@ -19,13 +19,13 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 
 	testCases := []struct {
 		name     string
-		position func() model.PositionCreate
+		position func() model.PositionSet
 		err      error
 	}{
 		{
 			name: "success",
-			position: func() model.PositionCreate {
-				position := model.PositionCreate{
+			position: func() model.PositionSet {
+				position := model.PositionSet{
 					CompanyID: company.ID,
 					Name:      "test-position",
 				}
@@ -36,8 +36,8 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 		},
 		{
 			name: "empty company id",
-			position: func() model.PositionCreate {
-				position := model.PositionCreate{
+			position: func() model.PositionSet {
+				position := model.PositionSet{
 					Name: "test-position",
 				}
 
@@ -47,8 +47,8 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 		},
 		{
 			name: "empty position name",
-			position: func() model.PositionCreate {
-				position := model.PositionCreate{
+			position: func() model.PositionSet {
+				position := model.PositionSet{
 					CompanyID: company.ID,
 					Name:      "",
 				}
@@ -80,7 +80,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
-		model.PositionCreate{CompanyID: company.ID, Name: "test-position"},
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
 	suite.NoError(err)
 	suite.NotEmpty(position)
@@ -146,7 +146,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	for i := 0; i < countPositions; i++ {
 		position, err := suite.store.PositionStorage().CreatePositionDB(
 			context.TODO(),
-			model.PositionCreate{CompanyID: company.ID, Name: fmt.Sprintf("test%d-position", i)},
+			model.PositionSet{CompanyID: company.ID, Name: fmt.Sprintf("test%d-position", i)},
 		)
 		suite.NoError(err)
 
@@ -179,7 +179,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
-		model.PositionCreate{CompanyID: company.ID, Name: "test-position"},
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
 	suite.NoError(err)
 	suite.NotEmpty(position)
@@ -226,41 +226,41 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
-		model.PositionCreate{CompanyID: company.ID, Name: "test-position"},
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
 
 	testCases := []struct {
 		name    string
-		payload func() (int, model.PositionUpdate)
+		payload func() (int, model.PositionSet)
 		err     error
 	}{
 		{
 			name: "success",
-			payload: func() (int, model.PositionUpdate) {
-				return position.ID, model.PositionUpdate{CompanyID: company.ID, Name: "new-position-name"}
+			payload: func() (int, model.PositionSet) {
+				return position.ID, model.PositionSet{CompanyID: company.ID, Name: "new-position-name"}
 			},
 			err: nil,
 		},
 		{
 			name: "empty company name",
-			payload: func() (int, model.PositionUpdate) {
-				return position.ID, model.PositionUpdate{CompanyID: company.ID, Name: ""}
+			payload: func() (int, model.PositionSet) {
+				return position.ID, model.PositionSet{CompanyID: company.ID, Name: ""}
 			},
 			err: errs.ErrPositionNameNotEmpty,
 		},
 		{
 			name: "company not found",
-			payload: func() (int, model.PositionUpdate) {
+			payload: func() (int, model.PositionSet) {
 				companyID := rnd.Intn(32)
-				return position.ID, model.PositionUpdate{CompanyID: companyID, Name: ""}
+				return position.ID, model.PositionSet{CompanyID: companyID, Name: ""}
 			},
 			err: errs.ErrNotFound,
 		},
 		{
 			name: "position not found",
-			payload: func() (int, model.PositionUpdate) {
+			payload: func() (int, model.PositionSet) {
 				positionID := rnd.Intn(32)
-				return positionID, model.PositionUpdate{CompanyID: company.ID, Name: ""}
+				return positionID, model.PositionSet{CompanyID: company.ID, Name: ""}
 			},
 			err: errs.ErrNotFound,
 		},
@@ -292,7 +292,7 @@ func (suite *storeTestSuite) TestArchivePositionDB() {
 
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
-		model.PositionCreate{CompanyID: company.ID, Name: "test-position"},
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
 
 	testCases := []struct {

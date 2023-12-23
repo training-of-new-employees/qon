@@ -50,7 +50,7 @@ func (mr *MockServicePositionMockRecorder) AssignCourse(ctx, positionID, courseI
 }
 
 // CreatePosition mocks base method.
-func (m *MockServicePosition) CreatePosition(ctx context.Context, position model.PositionCreate) (*model.Position, error) {
+func (m *MockServicePosition) CreatePosition(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePosition", ctx, position)
 	ret0, _ := ret[0].(*model.Position)
@@ -109,7 +109,7 @@ func (mr *MockServicePositionMockRecorder) GetPositions(ctx, id interface{}) *go
 }
 
 // UpdatePosition mocks base method.
-func (m *MockServicePosition) UpdatePosition(ctx context.Context, id int, position model.PositionUpdate) (*model.Position, error) {
+func (m *MockServicePosition) UpdatePosition(ctx context.Context, id int, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePosition", ctx, id, position)
 	ret0, _ := ret[0].(*model.Position)

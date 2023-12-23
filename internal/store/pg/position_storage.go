@@ -26,7 +26,7 @@ func newPositionStorage(db *sqlx.DB, s *Store) *positionStorage {
 }
 
 // CreatePositionDB создание должности в рамках компании.
-func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionCreate) (*model.Position, error) {
+func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	// открываем транзакцию
 	tx, err := p.db.Beginx()
 	if err != nil {
@@ -118,7 +118,7 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 }
 
 // UpdatePositionDB - обновить должность.
-func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, val model.PositionUpdate) (*model.Position, error) {
+func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, val model.PositionSet) (*model.Position, error) {
 	position := model.Position{}
 
 	query := `

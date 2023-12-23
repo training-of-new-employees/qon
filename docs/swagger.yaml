@@ -51,14 +51,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  model.PositionCreate:
-    properties:
-      company_id:
-        type: integer
-      name:
-        type: string
-    type: object
-  model.PositionUpdate:
+  model.PositionSet:
     properties:
       company_id:
         type: integer
@@ -315,38 +308,6 @@ paths:
       summary: Верификация email'a пользователя
       tags:
       - admin
-  /archive/{id}:
-    patch:
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Архивирование пользователя по id
-      tags:
-      - user
   /login:
     post:
       parameters:
@@ -434,7 +395,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.PositionCreate'
+          $ref: '#/definitions/model.PositionSet'
       produces:
       - application/json
       responses:
@@ -536,7 +497,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.PositionUpdate'
+          $ref: '#/definitions/model.PositionSet'
       produces:
       - application/json
       responses:
@@ -659,6 +620,38 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Изменение данных пользователя
+      tags:
+      - user
+  /users/archive/{id}:
+    patch:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Архивирование пользователя по id
       tags:
       - user
   /users/set-password:

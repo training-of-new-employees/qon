@@ -216,55 +216,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/archive/{id}": {
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Архивирование пользователя по id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
-            }
-        },
         "/login": {
             "post": {
                 "produces": [
@@ -403,7 +354,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionCreate"
+                            "$ref": "#/definitions/model.PositionSet"
                         }
                     }
                 ],
@@ -518,7 +469,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionUpdate"
+                            "$ref": "#/definitions/model.PositionSet"
                         }
                     }
                 ],
@@ -608,6 +559,55 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/model.User"
                             }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/archive/{id}": {
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Архивирование пользователя по id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
                         }
                     },
                     "403": {
@@ -879,18 +879,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.PositionCreate": {
-            "type": "object",
-            "properties": {
-                "company_id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.PositionUpdate": {
+        "model.PositionSet": {
             "type": "object",
             "properties": {
                 "company_id": {

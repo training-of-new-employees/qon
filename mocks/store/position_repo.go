@@ -50,7 +50,7 @@ func (mr *MockRepositoryPositionMockRecorder) AssignCourseDB(ctx, positionID, co
 }
 
 // CreatePositionDB mocks base method.
-func (m *MockRepositoryPosition) CreatePositionDB(ctx context.Context, position model.PositionCreate) (*model.Position, error) {
+func (m *MockRepositoryPosition) CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePositionDB", ctx, position)
 	ret0, _ := ret[0].(*model.Position)
@@ -124,7 +124,7 @@ func (mr *MockRepositoryPositionMockRecorder) GetPositionsDB(ctx, id interface{}
 }
 
 // UpdatePositionDB mocks base method.
-func (m *MockRepositoryPosition) UpdatePositionDB(ctx context.Context, id int, position model.PositionUpdate) (*model.Position, error) {
+func (m *MockRepositoryPosition) UpdatePositionDB(ctx context.Context, id int, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePositionDB", ctx, id, position)
 	ret0, _ := ret[0].(*model.Position)

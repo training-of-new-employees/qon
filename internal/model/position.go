@@ -1,8 +1,10 @@
 package model
 
 import (
-	"fmt"
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type (
@@ -16,33 +18,21 @@ type (
 		UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
 	}
 
-	PositionCreate struct {
+	PositionSet struct {
 		CompanyID int    `json:"company_id" db:"company_id"`
 		Name      string `json:"name"       db:"name"`
 	}
 
-	PositionUpdate struct {
-		CompanyID int    `json:"company_id" db:"company_id"`
-		Name      string `json:"name"       db:"name"`
-	}
 	PositionCourse struct {
 		CourseID   int `json:"course_id"`
 		PositionID int `json:"position_id"`
 	}
 )
 
-func (p *PositionCreate) Validation() error {
-	if p.CompanyID == 0 || p.Name == "" {
-		return fmt.Errorf("validation empty values")
-	}
-
-	return nil
-}
-
-func (p *PositionUpdate) Validation() error {
-	if p.CompanyID == 0 || p.Name == "" {
-		return fmt.Errorf("validation empty values")
-	}
-
-	return nil
+func (p *PositionSet) Validation() error {
+	return validation.ValidateStruct(
+		p,
+		validation.Field(&p.Name, validation.Required, validation.Length(2, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})),
+		validation.Field(&p.CompanyID, validation.Required),
+	)
 }
