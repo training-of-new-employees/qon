@@ -285,7 +285,7 @@ func Test_uService_EditUser(t *testing.T) {
 
 func Test_uService_GetUsersByCompany(t *testing.T) {
 	type fields struct {
-		db         store.Storages
+		userdb     *mock_store.MockRepositoryUser
 		cache      cache.Cache
 		secretKey  string
 		aTokenTime time.Duration
@@ -300,24 +300,68 @@ func Test_uService_GetUsersByCompany(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		prepare func(*fields)
 		args    args
 		want    []model.User
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Users not found",
+			func(f *fields) {
+				f.userdb.EXPECT().GetUsersByCompany(nil, 1).Return(nil, errs.ErrNotFound)
+			},
+			args{nil, 1},
+			nil,
+			true,
+		},
+		{
+			"Users found",
+			func(f *fields) {
+				us := []model.User{
+					{
+						Email:     "u1@mail.com",
+						CompanyID: 1,
+					},
+					{
+						Email:     "u2@mail.com",
+						CompanyID: 1,
+					},
+				}
+				f.userdb.EXPECT().GetUsersByCompany(nil, 1).Return(us, nil)
+			},
+			args{nil, 1},
+			[]model.User{
+				{
+					Email:     "u1@mail.com",
+					CompanyID: 1,
+				},
+				{
+					Email:     "u2@mail.com",
+					CompanyID: 1,
+				},
+			},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.userdb)
 			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
 			}
 			got, err := u.GetUsersByCompany(tt.args.ctx, tt.args.companyID)
 			if (err != nil) != tt.wantErr {
