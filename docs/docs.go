@@ -504,41 +504,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "position"
-                ],
-                "summary": "Архивация должности",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Position ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
             }
         },
         "/users": {
@@ -882,6 +847,9 @@ const docTemplate = `{
         "model.PositionSet": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
                 "company_id": {
                     "type": "integer"
                 },

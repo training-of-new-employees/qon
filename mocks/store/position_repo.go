@@ -39,20 +39,6 @@ func (m *MockRepositoryPosition) EXPECT() *MockRepositoryPositionMockRecorder {
 	return m.recorder
 }
 
-// ArchivePosition mocks base method.
-func (m *MockRepositoryPosition) ArchivePosition(ctx context.Context, id, companyID int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ArchivePosition", ctx, id, companyID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ArchivePosition indicates an expected call of ArchivePosition.
-func (mr *MockRepositoryPositionMockRecorder) ArchivePosition(ctx, id, companyID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArchivePosition", reflect.TypeOf((*MockRepositoryPosition)(nil).ArchivePosition), ctx, id, companyID)
-}
-
 // AssignCourseDB mocks base method.
 func (m *MockRepositoryPosition) AssignCourseDB(ctx context.Context, positionID, courseID, user_id int) error {
 	m.ctrl.T.Helper()
