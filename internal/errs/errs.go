@@ -29,7 +29,7 @@ var (
 )
 
 var (
-	// -- бщие ошибки объектов --
+	// -- Общие ошибки объектов --
 
 	// ErrCompanyNotFound - компания не найдена
 	ErrCompanyNotFound = errors.New("company not found")
@@ -85,6 +85,9 @@ var (
 	// ErrCompanyNameNotEmpty - название компании не может быть пустым
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
+	// ErrIncorrectCompanyName - некорректное имя компании
+	ErrIncorrectCompanyName = errors.New("incorrect company name")
+
 	// -- Ошибки должности --
 
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
@@ -92,14 +95,20 @@ var (
 
 	// -- Ошибки пользователя --
 
-	// ErrUserAlreadyExists - email должен быть уникальный
+	// ErrEmailAlreadyExists - email должен быть уникальный
 	ErrEmailAlreadyExists = errors.New("email already exists")
 
 	// ErrEmailNotEmpty - email не может быть пустым
 	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
+	// ErrInvalidEmail - некорректный email
+	ErrInvalidEmail = errors.New("invalid email")
+
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
+
+	// ErrInvalidPassword - невалидный пароль
+	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")
 
 	// -- Ошибки курсов --
 

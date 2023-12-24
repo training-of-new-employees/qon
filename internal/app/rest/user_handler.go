@@ -40,11 +40,6 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 		return
 	}
 
-	if err := createAdmin.ValidatePassword(); err != nil {
-		r.handleError(c, err)
-		return
-	}
-
 	admin, err := r.services.User().WriteAdminToCache(ctx, createAdmin)
 	if err != nil {
 		r.handleError(c, err)

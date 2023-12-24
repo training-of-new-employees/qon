@@ -15,8 +15,11 @@ var errorToCode = map[string]int{
 	errs.ErrNotFound.Error():     http.StatusNotFound,
 	errs.ErrUserNotFound.Error(): http.StatusNotFound,
 
-	errs.ErrBadRequest.Error():     http.StatusBadRequest,
-	errs.ErrInvalidRequest.Error(): http.StatusBadRequest,
+	errs.ErrBadRequest.Error():           http.StatusBadRequest,
+	errs.ErrInvalidRequest.Error():       http.StatusBadRequest,
+	errs.ErrInvalidEmail.Error():         http.StatusBadRequest,
+	errs.ErrInvalidPassword.Error():      http.StatusBadRequest,
+	errs.ErrIncorrectCompanyName.Error(): http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
 
@@ -43,6 +46,4 @@ func (r RestServer) handleError(c *gin.Context, err error) {
 	}
 
 	c.JSON(httpCode, errResponse{Code: httpCode, Message: err.Error()})
-
-	return
 }

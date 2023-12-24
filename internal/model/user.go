@@ -3,10 +3,13 @@ package model
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
+	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -161,14 +164,61 @@ func NewAdminCreate(email string, password string) AdminCreate {
 }
 
 func (u *CreateAdmin) Validation() error {
-	return validation.ValidateStruct(u,
-		validation.Field(&u.Email, validation.Required, is.Email, validation.Length(5, 50)),
-		validation.Field(&u.Company, validation.Required, validation.Length(3, 30)))
+	if err := validation.Validate(&u.Email, validation.Required); err != nil {
+		return errs.ErrEmailNotEmpty
+	}
+
+	if err := validation.Validate(&u.Email, is.Email); err != nil {
+		return errs.ErrInvalidEmail
+	}
+
+	if err := validation.Validate(&u.Company, validation.Required); err != nil {
+		return errs.ErrCompanyNameNotEmpty
+	}
+
+	if err := validation.Validate(&u.Company, validation.Length(1, 256)); err != nil {
+		return errs.ErrIncorrectCompanyName
+	}
+
+	if err := validation.Validate(&u.Company, is.UTFLetterNumeric); err != nil {
+		return errs.ErrIncorrectCompanyName
+	}
+
+	if err := validation.Validate(&u.Company, validation.NotIn([]rune{'*', '#'})); err != nil {
+		return errs.ErrIncorrectCompanyName
+	}
+
+	if err := validation.Validate(&u.Password, validation.Required); err != nil {
+		return errs.ErrPasswordNotEmpty
+	}
+
+	if err := validation.Validate(&u.Password, validation.Length(6, 30)); err != nil {
+		return errs.ErrInvalidPassword
+	}
+
+	if err := validation.Validate(&u.Password, validation.By(validatePassword(u.Password))); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (u *CreateAdmin) ValidatePassword() error {
-	return validation.ValidateStruct(u,
-		validation.Field(&u.Password, validation.Required, validation.Length(6, 30)))
+func validatePassword(password string) validation.RuleFunc {
+	return func(value interface{}) error {
+		if ok := regexp.MustCompile(`\d`).MatchString(password); !ok {
+			return errs.ErrInvalidPassword
+		}
+		if ok := regexp.MustCompile(`[a-z]`).MatchString(password); !ok {
+			return errs.ErrInvalidPassword
+		}
+		if ok := regexp.MustCompile(`[A-Z]`).MatchString(password); !ok {
+			return errs.ErrInvalidPassword
+		}
+		if ok := strings.ContainsAny(password, "!@#$%^&*()_+"); !ok {
+			return errs.ErrInvalidPassword
+		}
+		return nil
+	}
 }
 
 func (u *CreateAdmin) SetPassword() error {
@@ -192,7 +242,6 @@ func (e *AdminEdit) Validation() error {
 		validation.Field(&e.Surname, validation.Length(0, 128)),
 		validation.Field(&e.Patronymic, validation.Length(0, 128)),
 	)
-
 }
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
