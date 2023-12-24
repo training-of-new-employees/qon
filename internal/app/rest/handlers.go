@@ -34,10 +34,10 @@ func (s *RestServer) InitRoutes() {
 	password.POST("", s.handlerResetPassword)
 	adminGroup := mvp.Group("/admin")
 	adminGroup.POST("/register", s.handlerCreateAdminInCache)
+	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
 	restrictedAdmin := adminGroup.Group("")
 	restrictedAdmin.Use(s.IsAuthenticated())
 	restrictedAdmin.Use(s.IsAdmin())
-	restrictedAdmin.POST("/verify", s.handlerAdminEmailVerification)
 	restrictedAdmin.POST("/employee", s.handlerCreateUser)
 	restrictedAdmin.PATCH("/info", s.handlerAdminEdit)
 
