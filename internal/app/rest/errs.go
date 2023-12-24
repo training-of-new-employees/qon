@@ -17,8 +17,11 @@ var errorToCode = map[string]int{
 
 	errs.ErrBadRequest.Error():           http.StatusBadRequest,
 	errs.ErrInvalidRequest.Error():       http.StatusBadRequest,
+	errs.ErrEmailNotEmpty.Error():        http.StatusBadRequest,
 	errs.ErrInvalidEmail.Error():         http.StatusBadRequest,
+	errs.ErrPasswordNotEmpty.Error():     http.StatusBadRequest,
 	errs.ErrInvalidPassword.Error():      http.StatusBadRequest,
+	errs.ErrCompanyNameNotEmpty.Error():  http.StatusBadRequest,
 	errs.ErrIncorrectCompanyName.Error(): http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
@@ -27,7 +30,8 @@ var errorToCode = map[string]int{
 	errs.ErrNotFirstLogin.Error(): http.StatusMethodNotAllowed,
 	errs.ErrOnlyAdmin.Error():     http.StatusMethodNotAllowed,
 
-	errs.ErrInternal.Error(): http.StatusInternalServerError,
+	errs.ErrNotSendEmail.Error(): http.StatusInternalServerError,
+	errs.ErrInternal.Error():     http.StatusInternalServerError,
 }
 
 // errResponse - тело для ответа.
@@ -38,7 +42,7 @@ type errResponse struct {
 
 // handleError - преобразование ошибки приложения в http-ответ.
 func (r RestServer) handleError(c *gin.Context, err error) {
-	logger.Log.Warn("error", zap.Error(err))
+	logger.Log.Error("handler error", zap.Error(err))
 
 	httpCode, exists := errorToCode[err.Error()]
 	if !exists {

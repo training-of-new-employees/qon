@@ -163,60 +163,57 @@ func NewAdminCreate(email string, password string) AdminCreate {
 	}
 }
 
+// Validation - валидация входящих данных при регистрации администратора.
 func (u *CreateAdmin) Validation() error {
+	// Проверка на пустоту поля емейл
 	if err := validation.Validate(&u.Email, validation.Required); err != nil {
 		return errs.ErrEmailNotEmpty
 	}
-
+	// Проверка емейла на коррестность
 	if err := validation.Validate(&u.Email, is.Email); err != nil {
 		return errs.ErrInvalidEmail
 	}
-
-	if err := validation.Validate(&u.Company, validation.Required); err != nil {
-		return errs.ErrCompanyNameNotEmpty
-	}
-
-	if err := validation.Validate(&u.Company, validation.Length(1, 256)); err != nil {
-		return errs.ErrIncorrectCompanyName
-	}
-
-	if err := validation.Validate(&u.Company, is.UTFLetterNumeric); err != nil {
-		return errs.ErrIncorrectCompanyName
-	}
-
-	if err := validation.Validate(&u.Company, validation.NotIn([]rune{'*', '#'})); err != nil {
-		return errs.ErrIncorrectCompanyName
-	}
-
+	// Проверка на пустоту пароля
 	if err := validation.Validate(&u.Password, validation.Required); err != nil {
 		return errs.ErrPasswordNotEmpty
 	}
-
+	// Проверка на длину пароля
 	if err := validation.Validate(&u.Password, validation.Length(6, 30)); err != nil {
 		return errs.ErrInvalidPassword
 	}
-
+	// Проверка состава пароля
 	if err := validation.Validate(&u.Password, validation.By(validatePassword(u.Password))); err != nil {
-		return err
+		return errs.ErrInvalidPassword
+	}
+	// Проверка на пустоту имени компании
+	if err := validation.Validate(&u.Company, validation.Required); err != nil {
+		return errs.ErrCompanyNameNotEmpty
+	}
+	// Проверка длины имени компании
+	if err := validation.Validate(&u.Company, validation.Length(1, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})); err != nil {
+		return errs.ErrIncorrectCompanyName
 	}
 
 	return nil
 }
 
+// validatePassword - проверка пароля на состав.
+// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
 func validatePassword(password string) validation.RuleFunc {
 	return func(value interface{}) error {
-		if ok := regexp.MustCompile(`\d`).MatchString(password); !ok {
+		// Минимум 1 цифра
+		numeric := regexp.MustCompile(`\d`).MatchString(password)
+		// Минимум 1 буква в нижнем регистре
+		lowercase := regexp.MustCompile(`[a-z]`).MatchString(password)
+		// Минимум 1 буква в верхнем регистре
+		uppercase := regexp.MustCompile(`[A-Z]`).MatchString(password)
+		// Минимум 1 специальный символ
+		special := strings.ContainsAny(password, "!@#$%^&*()_+")
+
+		if !(numeric && lowercase && uppercase && special) {
 			return errs.ErrInvalidPassword
 		}
-		if ok := regexp.MustCompile(`[a-z]`).MatchString(password); !ok {
-			return errs.ErrInvalidPassword
-		}
-		if ok := regexp.MustCompile(`[A-Z]`).MatchString(password); !ok {
-			return errs.ErrInvalidPassword
-		}
-		if ok := strings.ContainsAny(password, "!@#$%^&*()_+"); !ok {
-			return errs.ErrInvalidPassword
-		}
+
 		return nil
 	}
 }

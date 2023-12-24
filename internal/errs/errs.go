@@ -10,6 +10,9 @@ var (
 
 	// ErrInternal - внутренняя ошибка сервера
 	ErrInternal = errors.New("internal error")
+
+	// ErrNotSendEmail - ошибка при отправки емейла пользователю
+	ErrNotSendEmail = errors.New("can't send email to user")
 	// ErrNotFound - не найдено
 	ErrNotFound = errors.New("record not found")
 	// ErrNotFound - пользователь не найден
