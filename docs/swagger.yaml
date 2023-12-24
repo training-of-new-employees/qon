@@ -415,6 +415,29 @@ paths:
       tags:
       - position
   /positions/{id}:
+    delete:
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Архивация должности
+      tags:
+      - position
     get:
       parameters:
       - description: Position ID
@@ -462,29 +485,6 @@ paths:
       tags:
       - position
   /positions/update/{id}:
-    delete:
-      parameters:
-      - description: Position ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Обновление данных о должности
-      tags:
-      - position
     patch:
       parameters:
       - description: Position ID

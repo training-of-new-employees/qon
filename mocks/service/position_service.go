@@ -39,6 +39,20 @@ func (m *MockServicePosition) EXPECT() *MockServicePositionMockRecorder {
 	return m.recorder
 }
 
+// ArchivePosition mocks base method.
+func (m *MockServicePosition) ArchivePosition(ctx context.Context, id, companyID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ArchivePosition", ctx, id, companyID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ArchivePosition indicates an expected call of ArchivePosition.
+func (mr *MockServicePositionMockRecorder) ArchivePosition(ctx, id, companyID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArchivePosition", reflect.TypeOf((*MockServicePosition)(nil).ArchivePosition), ctx, id, companyID)
+}
+
 // AssignCourse mocks base method.
 func (m *MockServicePosition) AssignCourse(ctx context.Context, positionID, courseID, user_id int) error {
 	m.ctrl.T.Helper()
@@ -66,20 +80,6 @@ func (m *MockServicePosition) CreatePosition(ctx context.Context, position model
 func (mr *MockServicePositionMockRecorder) CreatePosition(ctx, position any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePosition", reflect.TypeOf((*MockServicePosition)(nil).CreatePosition), ctx, position)
-}
-
-// DeletePosition mocks base method.
-func (m *MockServicePosition) DeletePosition(ctx context.Context, id, companyID int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePosition", ctx, id, companyID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeletePosition indicates an expected call of DeletePosition.
-func (mr *MockServicePositionMockRecorder) DeletePosition(ctx, id, companyID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePosition", reflect.TypeOf((*MockServicePosition)(nil).DeletePosition), ctx, id, companyID)
 }
 
 // GetPosition mocks base method.
