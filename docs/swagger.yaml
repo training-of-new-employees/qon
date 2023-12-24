@@ -260,7 +260,7 @@ paths:
           description: Created
           schema:
             items:
-              $ref: '#/definitions/model.CreateAdmin'
+              $ref: '#/definitions/rest.sEmail'
             type: array
         "400":
           description: Bad Request
@@ -292,7 +292,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/rest.sEmail'
+            $ref: '#/definitions/model.User'
         "400":
           description: Bad Request
           schema:
