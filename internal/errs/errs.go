@@ -20,6 +20,8 @@ var (
 	ErrUnauthorized = errors.New("unauthorized")
 	// ErrBadRequest - неверный запрос
 	ErrBadRequest = errors.New("bad request")
+	// ErrInvalidRequest - невалидное тело запроса
+	ErrInvalidRequest = errors.New("invalid request body")
 	// ErrNotFirstLogin - не первый вход в систему
 	ErrNotFirstLogin = errors.New("not first login")
 	// ErrOnlyAdmin - действие доступно только администратору
