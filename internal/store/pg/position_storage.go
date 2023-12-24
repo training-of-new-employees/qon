@@ -107,12 +107,12 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val mode
 
 func (p *positionStorage) DeletePositionDB(ctx context.Context, id int, companyID int) error {
 	query := `UPDATE positions SET archived = true WHERE id = $1 AND company_id = $2`
-
-	if _, err := p.db.ExecContext(ctx, query, id, companyID); err != nil {
-		return fmt.Errorf("delete position db: %w", err)
+	var err error
+	if _, err = p.db.ExecContext(ctx, query, id, companyID); err != nil {
+		err = fmt.Errorf("delete position db: %w", err)
 	}
 
-	return nil
+	return handleError(err)
 }
 
 func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
