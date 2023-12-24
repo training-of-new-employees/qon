@@ -88,31 +88,15 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, id int) ([]*model.
 func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val model.PositionSet) (*model.Position, error) {
 	position := model.Position{}
 
-	query := `UPDATE positions SET name = $1 WHERE id = $2 AND company_id = $3
+	query := `UPDATE positions SET name = $1, archived =$2 WHERE id = $3 AND company_id = $4
               RETURNING id, name, company_id, active, archived, updated_at, created_at`
 
-	err := p.db.QueryRowContext(ctx, query, val.Name, id, val.CompanyID).Scan(&position.ID, &position.Name,
+	err := p.db.QueryRowContext(ctx, query, val.Name, val.IsArchived, id, val.CompanyID).Scan(&position.ID, &position.Name,
 		&position.CompanyID, &position.IsActive, &position.IsArchived, &position.UpdatedAt, &position.CreatedAt)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-
-			return &model.Position{}, model.ErrPositionNotFound
-		}
-
-		return &model.Position{}, fmt.Errorf("update position db: %w", err)
+		return nil, fmt.Errorf("update position db: %w", handleError(err))
 	}
-
 	return &position, nil
-}
-
-func (p *positionStorage) ArchivePosition(ctx context.Context, id int, companyID int) error {
-	query := `UPDATE positions SET archived = true WHERE id = $1 AND company_id = $2`
-	var err error
-	if _, err = p.db.ExecContext(ctx, query, id, companyID); err != nil {
-		err = fmt.Errorf("delete position db: %w", err)
-	}
-
-	return handleError(err)
 }
 
 func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
