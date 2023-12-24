@@ -105,7 +105,7 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, id int, val mode
 	return &position, nil
 }
 
-func (p *positionStorage) DeletePositionDB(ctx context.Context, id int, companyID int) error {
+func (p *positionStorage) ArchivePosition(ctx context.Context, id int, companyID int) error {
 	query := `UPDATE positions SET archived = true WHERE id = $1 AND company_id = $2`
 	var err error
 	if _, err = p.db.ExecContext(ctx, query, id, companyID); err != nil {
@@ -124,7 +124,7 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 
 	err := p.db.GetContext(ctx, &position, query, positionID)
 	if err != nil {
-		return &model.Position{}, handleError(err)
+		return nil, handleError(err)
 	}
 
 	return &position, nil

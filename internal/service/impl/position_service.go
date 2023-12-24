@@ -56,8 +56,8 @@ func (p *positionService) UpdatePosition(ctx context.Context, id int, val model.
 	return position, nil
 }
 
-func (p *positionService) DeletePosition(ctx context.Context, id int, companyID int) error {
-	err := p.db.PositionStorage().DeletePositionDB(ctx, id, companyID)
+func (p *positionService) ArchivePosition(ctx context.Context, id int, companyID int) error {
+	err := p.db.PositionStorage().ArchivePosition(ctx, id, companyID)
 	if err != nil {
 		return fmt.Errorf("failed DeletePositionDB: %w", err)
 	}

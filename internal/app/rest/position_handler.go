@@ -167,15 +167,15 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 
 // DeletePosition godoc
 //
-//	@Summary	Обновление данных о должности
+//	@Summary	Архивация должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id	path	int	true	"Position ID"
 //	@Success	200
 //	@Failure	400	{object}	sErr
 //	@Failure	500	{object}	sErr
-//	@Router		/positions/update/{id} [delete]
-func (r *RestServer) handlerDeletePosition(c *gin.Context) {
+//	@Router		/positions/{id} [delete]
+func (r *RestServer) handlerArchivePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	val := c.Param("id")
@@ -188,7 +188,7 @@ func (r *RestServer) handlerDeletePosition(c *gin.Context) {
 
 	us := r.getUserSession(c)
 
-	err = r.services.Position().DeletePosition(ctx, id, us.OrgID)
+	err = r.services.Position().ArchivePosition(ctx, id, us.OrgID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
