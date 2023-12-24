@@ -21,7 +21,7 @@ import (
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.CreateAdmin	true	"Create Admin"
-//	@Success	201		{array}		model.CreateAdmin
+//	@Success	201		{array}		sEmail
 //	@Failure	400		{object}	sErr
 //	@Failure	409		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -56,7 +56,7 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, admin)
+	c.JSON(http.StatusCreated, s().SetEmail(admin.Email))
 }
 
 // CreateUser godoc
