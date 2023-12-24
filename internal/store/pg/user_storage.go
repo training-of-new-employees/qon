@@ -75,7 +75,7 @@ func (u *uStorage) CreateAdmin(
 	}()
 
 	createdAdmin := model.User{}
-	u.tx(func(tx *sqlx.Tx) error {
+	err = u.tx(func(tx *sqlx.Tx) error {
 		query := `INSERT INTO companies(name) VALUES ($1) RETURNING id, name`
 		company := model.Company{}
 
