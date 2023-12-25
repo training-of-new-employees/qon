@@ -137,7 +137,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.CreateAdmin"
+                                "$ref": "#/definitions/rest.sEmail"
                             }
                         }
                     },
@@ -186,7 +186,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/rest.sEmail"
+                            "$ref": "#/definitions/model.User"
                         }
                     },
                     "400": {
@@ -406,41 +406,6 @@
             }
         },
         "/positions/update/{id}": {
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "position"
-                ],
-                "summary": "Обновление данных о должности",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Position ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "produces": [
                     "application/json"
@@ -876,6 +841,9 @@
         "model.PositionSet": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
                 "company_id": {
                     "type": "integer"
                 },

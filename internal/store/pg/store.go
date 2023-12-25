@@ -19,6 +19,7 @@ type Store struct {
 	conn          *sqlx.DB
 	userStore     *uStorage
 	positionStore *positionStorage
+	companyStore  *companyStorage
 }
 
 // NewStore - конструктор для Store.
@@ -71,23 +72,34 @@ func newPostgresDB(dsn string) (*sqlx.DB, error) {
 	return db, nil
 }
 
-// UserStorage - возвращает хранилище пользователей.
+// UserStorage - хранилище пользователей.
 func (s *Store) UserStorage() store.RepositoryUser {
 	if s.userStore != nil {
 		return s.userStore
 	}
 
-	s.userStore = newUStorages(s.conn)
+	s.userStore = newUStorages(s.conn, s)
 	return s.userStore
 }
 
+// PositionStorage - хранилище должностей.
 func (s *Store) PositionStorage() store.RepositoryPosition {
-
 	if s.positionStore != nil {
 		return s.positionStore
 	}
 
-	s.positionStore = newPositionStorage(s.conn)
+	s.positionStore = newPositionStorage(s.conn, s)
 
 	return s.positionStore
+}
+
+// CompanyStorage - хранилище компаний.
+func (s *Store) CompanyStorage() store.RepositoryCompany {
+	if s.companyStore != nil {
+		return s.companyStore
+	}
+
+	s.companyStore = newCompanyStorage(s.conn, s)
+
+	return s.companyStore
 }
