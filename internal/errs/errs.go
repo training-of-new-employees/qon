@@ -27,7 +27,7 @@ var (
 )
 
 var (
-	// -- бщие ошибки объектов --
+	// -- Общие ошибки объектов --
 
 	// ErrCompanyNotFound - компания не найдена
 	ErrCompanyNotFound = errors.New("company not found")
@@ -78,6 +78,8 @@ var (
 )
 
 var (
+	// -- Частные ошибки объектов --
+
 	// -- Ошибки компании --
 
 	// ErrCompanyNameNotEmpty - название компании не может быть пустым

@@ -7,9 +7,9 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
+	github.com/golang/mock v1.6.0
 	github.com/integralist/go-findroot v0.0.0-20160518114804-ac90681525dc
 	github.com/jackc/pgconn v1.14.0
-	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pressly/goose/v3 v3.16.0
@@ -18,7 +18,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.2
-	go.uber.org/mock v0.3.0
+	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.16.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
