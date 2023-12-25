@@ -27,29 +27,22 @@ func newPositionStorage(db *sqlx.DB, s *Store) *positionStorage {
 
 // CreatePositionDB создание должности в рамках компании.
 func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error) {
-	// открываем транзакцию
-	tx, err := p.db.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
-		}
-	}()
+	var createdPosition *model.Position
 
-	// создание должности
-	createdPosition, err := p.createPositionTx(ctx, tx, position.CompanyID, position.Name)
+	// открываем транзакцию
+	err := p.tx(func(tx *sqlx.Tx) error {
+		var err error
+
+		// создание должности
+		createdPosition, err = p.createPositionTx(ctx, tx, position.CompanyID, position.Name)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return nil, handleError(err)
-	}
-
-	// фиксация транзакции
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
 	}
 
 	return createdPosition, nil
@@ -188,4 +181,26 @@ func (p *positionStorage) createPositionTx(ctx context.Context, tx *sqlx.Tx, com
 	}
 
 	return &position, nil
+}
+
+// tx - обёртка для простого использования транзакций без дублирования кода.
+func (p *positionStorage) tx(f func(*sqlx.Tx) error) error {
+	// открываем транзакцию
+	tx, err := p.db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+	// отмена транзакции
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+		}
+	}()
+
+	if err = f(tx); err != nil {
+		return err
+	}
+
+	// фиксация транзакции
+	return tx.Commit()
 }

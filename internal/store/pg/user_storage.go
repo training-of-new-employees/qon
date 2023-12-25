@@ -343,17 +343,24 @@ func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) 
 	return nil
 }
 
-// tx - обёртка для простого использования транзакций без дублирования кода
+// tx - обёртка для простого использования транзакций без дублирования кода.
 func (u *uStorage) tx(f func(*sqlx.Tx) error) error {
+	// открываем транзакцию
 	tx, err := u.db.Beginx()
 	if err != nil {
 		return fmt.Errorf("beginning tx: %w", err)
 	}
+	// отмена транзакции
 	defer func() {
 		if err := tx.Rollback(); err != nil {
 			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
 		}
 	}()
 
-	return handleError(f(tx))
+	if err = f(tx); err != nil {
+		return err
+	}
+
+	// фиксация транзакции
+	return tx.Commit()
 }

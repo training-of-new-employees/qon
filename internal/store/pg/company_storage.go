@@ -24,32 +24,26 @@ func newCompanyStorage(db *sqlx.DB, s *Store) *companyStorage {
 
 // createCompanyDB - создание компании.
 func (c *companyStorage) CreateCompanyDB(ctx context.Context, companyName string) (*model.Company, error) {
-	// открываем транзакцию
-	tx, err := c.db.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
-		}
-	}()
+	var createdCompany *model.Company
 
-	// создание компании
-	createdCompany, err := c.createCompanyTx(ctx, tx, companyName)
+	// открываем транзакцию
+	err := c.tx(func(tx *sqlx.Tx) error {
+		var err error
+
+		// создание должности
+		createdCompany, err = c.createCompanyTx(ctx, tx, companyName)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return nil, handleError(err)
 	}
 
-	// фиксация транзакции
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
-	}
-
 	return createdCompany, nil
+
 }
 
 // createCompanyTx - создание компании в транзакции.
@@ -64,4 +58,26 @@ func (c *companyStorage) createCompanyTx(ctx context.Context, tx *sqlx.Tx, compa
 	}
 
 	return &company, nil
+}
+
+// tx - обёртка для простого использования транзакций без дублирования кода.
+func (c *companyStorage) tx(f func(*sqlx.Tx) error) error {
+	// открываем транзакцию
+	tx, err := c.db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+	// отмена транзакции
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+		}
+	}()
+
+	if err = f(tx); err != nil {
+		return err
+	}
+
+	// фиксация транзакции
+	return tx.Commit()
 }
