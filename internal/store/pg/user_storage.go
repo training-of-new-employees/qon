@@ -2,8 +2,6 @@ package pg
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -116,36 +114,42 @@ func (u *uStorage) EditAdmin(
 }
 
 func (u *uStorage) GetUserByID(ctx context.Context, id int) (*model.User, error) {
-	var user model.User
-	tx, err := u.db.Beginx()
+	user := &model.User{}
+
+	query := `SELECT id, company_id, position_id, email, 
+    			archived, 
+    			active, 
+    			admin, 
+    			name, 
+    			surname, 
+    			patronymic,
+    			created_at, 
+    			updated_at
+			  FROM users WHERE id = $1 AND active = true AND archived=false 
+			  LIMIT 1`
+
+	row := u.db.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&user.ID,
+		&user.CompanyID,
+		&user.PositionID,
+		&user.Email,
+		&user.IsArchived,
+		&user.IsActive,
+		&user.IsAdmin,
+		&user.Name,
+		&user.Surname,
+		&user.Patronymic,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
 	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
+		return nil, handleError(err)
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	query := `SELECT id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 
-       		  created_at, updated_at
-			  FROM users WHERE id = $1 AND active = true`
-
-	err = u.db.GetContext(ctx, &user, query, id)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrUserNotFound
-		}
-
-		return nil, err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
-	}
-
-	return &user, nil
+	return user, nil
 }
 
 func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
@@ -182,16 +186,31 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 
 // GetCompany - получает информацию о компании по id
 func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
-	var comp *model.Company
-	err := u.tx(
-		func(tx *sqlx.Tx) error {
-			query := `SELECT * FROM companies WHERE id=$1`
-			err := tx.GetContext(ctx, comp, query, id)
-			return err
-		},
+	comp := &model.Company{}
+
+	query := `SELECT 
+    			id, 
+    			name, 
+    			active,
+    			created_at, 
+    			updated_at
+			  FROM companies WHERE id = $1 LIMIT 1`
+
+	row := u.db.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&comp.ID,
+		&comp.Name,
+		&comp.IsActive,
+		&comp.CreatedAt,
+		&comp.UpdatedAt,
 	)
 
-	return comp, handleError(err)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return comp, nil
 }
 
 // SetPasswordAndActivateUser установка пароля и активация пользователя.

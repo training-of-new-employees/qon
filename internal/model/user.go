@@ -22,6 +22,7 @@ type (
 		Password   string    `db:"enc_password" json:"-"`
 		IsActive   bool      `db:"active"       json:"active"`
 		IsAdmin    bool      `db:"admin"        json:"admin"`
+		IsArchived bool      `db:"archived"     json:"archived"`
 		Name       string    `db:"name"         json:"name"`
 		Surname    string    `db:"surname"      json:"surname"`
 		Patronymic string    `db:"patronymic"   json:"patronymic"`
