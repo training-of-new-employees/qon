@@ -31,28 +31,18 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 	createAdmin := model.CreateAdmin{}
 
 	if err := c.ShouldBindJSON(&createAdmin); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := createAdmin.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
-		return
-	}
-
-	if err := createAdmin.ValidatePassword(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	admin, err := r.services.User().WriteAdminToCache(ctx, createAdmin)
-	switch {
-	case errors.Is(err, model.ErrEmailAlreadyExists):
-		c.JSON(http.StatusConflict, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		logger.Log.Warn("error: %v", zap.Error(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 

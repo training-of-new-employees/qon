@@ -10,6 +10,9 @@ var (
 
 	// ErrInternal - внутренняя ошибка сервера
 	ErrInternal = errors.New("internal error")
+
+	// ErrNotSendEmail - ошибка при отправки емейла пользователю
+	ErrNotSendEmail = errors.New("can't send email to user")
 	// ErrNotFound - не найдено
 	ErrNotFound = errors.New("record not found")
 	// ErrNotFound - пользователь не найден
@@ -20,6 +23,8 @@ var (
 	ErrUnauthorized = errors.New("unauthorized")
 	// ErrBadRequest - неверный запрос
 	ErrBadRequest = errors.New("bad request")
+	// ErrInvalidRequest - невалидное тело запроса
+	ErrInvalidRequest = errors.New("invalid request body")
 	// ErrNotFirstLogin - не первый вход в систему
 	ErrNotFirstLogin = errors.New("not first login")
 	// ErrOnlyAdmin - действие доступно только администратору
@@ -85,6 +90,9 @@ var (
 	// ErrCompanyNameNotEmpty - название компании не может быть пустым
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
+	// ErrIncorrectCompanyName - некорректное имя компании
+	ErrIncorrectCompanyName = errors.New("incorrect company name")
+
 	// -- Ошибки должности --
 
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
@@ -92,14 +100,20 @@ var (
 
 	// -- Ошибки пользователя --
 
-	// ErrUserAlreadyExists - email должен быть уникальный
+	// ErrEmailAlreadyExists - email должен быть уникальный
 	ErrEmailAlreadyExists = errors.New("email already exists")
 
 	// ErrEmailNotEmpty - email не может быть пустым
 	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
+	// ErrInvalidEmail - некорректный email
+	ErrInvalidEmail = errors.New("invalid email")
+
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
+
+	// ErrInvalidPassword - невалидный пароль
+	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")
 
 	// -- Ошибки курсов --
 

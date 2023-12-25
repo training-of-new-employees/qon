@@ -61,13 +61,12 @@ func (u *uService) WriteAdminToCache(
 	ctx context.Context,
 	val model.CreateAdmin,
 ) (*model.CreateAdmin, error) {
-
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
 	}
 
 	_, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil && !errors.Is(err, errs.ErrUserNotFound) {
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) && !errors.Is(err, errs.ErrNotFound) {
 		return nil, err
 	}
 	if err == nil {
@@ -84,17 +83,17 @@ func (u *uService) WriteAdminToCache(
 	logger.Log.Info("cache write successful", zap.String("key", key))
 
 	if err = u.sender.SendCode(val.Email, code); err != nil {
-		return nil, err
+		logger.Log.Error("service error", zap.Error(err))
+		return nil, errs.ErrNotSendEmail
 	}
 
 	return &val, nil
 }
 
 func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-
 	userResp, err := u.db.UserStorage().GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("error failed GetUserByEmail %w", err)
+		return nil, err
 	}
 
 	return userResp, nil
