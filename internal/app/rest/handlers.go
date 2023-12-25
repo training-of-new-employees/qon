@@ -57,7 +57,6 @@ func (s *RestServer) InitRoutes() {
 	position.GET("", s.handlerGetPositions)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
-	position.DELETE("/delete/:id", s.handlerDeletePosition)
 
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

@@ -68,20 +68,6 @@ func (mr *MockRepositoryPositionMockRecorder) CreatePositionDB(ctx, position any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePositionDB", reflect.TypeOf((*MockRepositoryPosition)(nil).CreatePositionDB), ctx, position)
 }
 
-// DeletePositionDB mocks base method.
-func (m *MockRepositoryPosition) DeletePositionDB(ctx context.Context, id, companyID int) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePositionDB", ctx, id, companyID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeletePositionDB indicates an expected call of DeletePositionDB.
-func (mr *MockRepositoryPositionMockRecorder) DeletePositionDB(ctx, id, companyID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePositionDB", reflect.TypeOf((*MockRepositoryPosition)(nil).DeletePositionDB), ctx, id, companyID)
-}
-
 // GetPositionByID mocks base method.
 func (m *MockRepositoryPosition) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
 	m.ctrl.T.Helper()
