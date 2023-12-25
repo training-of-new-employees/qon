@@ -30,75 +30,60 @@ func newUStorages(db *sqlx.DB, s *Store) *uStorage {
 
 // CreateUser - создание пользователя (сотрудника).
 func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model.User, error) {
+	var createdUser *model.User
+
 	// открываем транзакцию
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
-	}
+	err := u.tx(func(tx *sqlx.Tx) error {
+		var err error
 
-	// отмена транзакции
-	defer func() {
+		// создание пользователя
+		createdUser, err = u.createUserTx(ctx, tx, val)
 		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
+			return err
 		}
-	}()
 
-	createdUser, err := u.createUserTx(ctx, tx, val)
+		return nil
+	})
 	if err != nil {
 		return nil, handleError(err)
 	}
 
-	// фиксация транзакции
-	if err = tx.Commit(); err != nil {
-		return &model.User{}, fmt.Errorf("committing tx: %w", err)
-	}
-
-	return createdUser, err
+	return createdUser, nil
 }
 
 // CreateAdmin - создание пользователя (админа).
 func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, companyName string) (*model.User, error) {
+	var createdAdmin *model.User
+
 	// открываем транзакцию
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
-	}
+	err := u.tx(func(tx *sqlx.Tx) error {
+		var err error
 
-	// отмена транзакции
-	defer func() {
+		// создание компании
+		company, err := u.store.companyStore.createCompanyTx(ctx, tx, companyName)
 		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
+			return err
 		}
-	}()
 
-	// создание компании
-	company, err := u.store.companyStore.createCompanyTx(ctx, tx, companyName)
+		// создание должности-заглушки для администратора
+		position, err := u.store.positionStore.createPositionTx(ctx, tx, company.ID, "admin")
+		if err != nil {
+			return err
+		}
+
+		admin.CompanyID = company.ID
+		admin.PositionID = position.ID
+
+		// создание админа
+		createdAdmin, err = u.createUserTx(ctx, tx, admin)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return nil, handleError(err)
-	}
-
-	// создание должности-заглушки для администратора
-	position, err := u.store.positionStore.createPositionTx(ctx, tx, company.ID, "admin")
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	admin.CompanyID = company.ID
-	admin.PositionID = position.ID
-
-	// создание админа
-	createdAdmin, err := u.createUserTx(ctx, tx, admin)
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	// фиксация транзакции
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
 	}
 
 	return createdAdmin, nil
