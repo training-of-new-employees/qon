@@ -103,7 +103,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 				companyID := rnd.Intn(32) + 1
 				return companyID, position.ID
 			},
-			err: errs.ErrNotFound,
+			err: errs.ErrPositionNotFound,
 		},
 		{
 			name: "random position",
@@ -111,7 +111,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 				positionID := rnd.Intn(32)
 				return company.ID, positionID
 			},
-			err: errs.ErrNotFound,
+			err: errs.ErrPositionNotFound,
 		},
 	}
 
@@ -204,7 +204,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 				positionID := rnd.Intn(32)
 				return positionID
 			},
-			err: errs.ErrNotFound,
+			err: errs.ErrPositionNotFound,
 		},
 	}
 
@@ -258,7 +258,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 				companyID := rnd.Intn(32)
 				return position.ID, model.PositionSet{CompanyID: companyID, Name: "new-position-name"}
 			},
-			err: errs.ErrNotFound,
+			err: errs.ErrPositionNotFound,
 		},
 		{
 			name: "position not found",
@@ -266,7 +266,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 				positionID := rnd.Intn(32)
 				return positionID, model.PositionSet{CompanyID: company.ID, Name: "new-position-name"}
 			},
-			err: errs.ErrNotFound,
+			err: errs.ErrPositionNotFound,
 		},
 	}
 
@@ -278,67 +278,6 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 				context.TODO(),
 				positionID,
 				positionUpdate,
-			)
-
-			suite.Equal(tc.err, err)
-		})
-	}
-}
-
-func (suite *storeTestSuite) TestArchivePositionDB() {
-	suite.NotNil(suite.store)
-
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
-	suite.NoError(err)
-	suite.NotEmpty(company)
-
-	position, err := suite.store.PositionStorage().CreatePositionDB(
-		context.TODO(),
-		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
-	)
-	suite.NoError(err)
-	suite.NotEmpty(position)
-
-	testCases := []struct {
-		name    string
-		payload func() (int, int)
-		err     error
-	}{
-		{
-			name: "success",
-			payload: func() (int, int) {
-				return position.ID, company.ID
-			},
-			err: nil,
-		},
-		{
-			name: "random company",
-			payload: func() (int, int) {
-				companyID := rnd.Intn(32) + 1
-				return position.ID, companyID
-			},
-			err: errs.ErrNotFound,
-		},
-		{
-			name: "random position",
-			payload: func() (int, int) {
-				positionID := rnd.Intn(32)
-				return positionID, company.ID
-			},
-			err: errs.ErrNotFound,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			positionID, companyID := tc.payload()
-
-			err := suite.store.PositionStorage().DeletePositionDB(
-				context.TODO(),
-				positionID,
-				companyID,
 			)
 
 			suite.Equal(tc.err, err)

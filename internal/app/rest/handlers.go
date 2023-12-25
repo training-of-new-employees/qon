@@ -35,10 +35,14 @@ func (s *RestServer) InitRoutes() {
 	adminGroup := mvp.Group("/admin")
 	adminGroup.POST("/register", s.handlerCreateAdminInCache)
 	adminGroup.POST("/verify", s.handlerAdminEmailVerification)
-	adminGroup.POST("/employee", s.handlerCreateUser)
-	adminGroup.PATCH("/info", s.handlerAdminEdit)
+	restrictedAdmin := adminGroup.Group("")
+	restrictedAdmin.Use(s.IsAuthenticated())
+	restrictedAdmin.Use(s.IsAdmin())
+	restrictedAdmin.POST("/employee", s.handlerCreateUser)
+	restrictedAdmin.PATCH("/info", s.handlerAdminEdit)
 
 	userGroup := mvp.Group("/users")
+	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
 	userGroup.PATCH("/:id", s.handlerEditUser)
@@ -53,7 +57,6 @@ func (s *RestServer) InitRoutes() {
 	position.GET("", s.handlerGetPositions)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
-	position.DELETE("/delete/:id", s.handlerDeletePosition)
 
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

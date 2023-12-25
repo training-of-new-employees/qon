@@ -19,8 +19,9 @@ type (
 	}
 
 	PositionSet struct {
-		CompanyID int    `json:"company_id" db:"company_id"`
-		Name      string `json:"name"       db:"name"`
+		CompanyID  int    `json:"company_id" db:"company_id"`
+		Name       string `json:"name"       db:"name"`
+		IsArchived bool   `json:"archived" db:"archived"`
 	}
 
 	PositionCourse struct {

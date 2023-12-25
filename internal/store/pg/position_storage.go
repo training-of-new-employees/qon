@@ -2,6 +2,8 @@ package pg
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -61,6 +63,9 @@ func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, posi
 
 	err := p.db.GetContext(ctx, &position, query, companyID, positionID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrPositionNotFound
+		}
 		return nil, handleError(err)
 	}
 
@@ -104,7 +109,10 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 
 	err := p.db.GetContext(ctx, &position, query, positionID)
 	if err != nil {
-		return &model.Position{}, handleError(err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrPositionNotFound
+		}
+		return nil, handleError(err)
 	}
 
 	return &position, nil
@@ -116,40 +124,24 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, 
 
 	query := `
 		UPDATE positions
-		SET name = COALESCE($1, name)
-		WHERE id = $2 AND company_id = $3
+		SET name = COALESCE($1, name), archived = COALESCE($2, archived)
+		WHERE id = $3 AND company_id = $4
         RETURNING id, name, company_id, active, archived, updated_at, created_at
 	`
 
-	err := p.db.QueryRowContext(ctx, query, val.Name, positionID, val.CompanyID).Scan(
+	err := p.db.QueryRowContext(ctx, query, val.Name, val.IsArchived, positionID, val.CompanyID).Scan(
 		&position.ID, &position.Name, &position.CompanyID,
 		&position.IsActive, &position.IsArchived,
 		&position.UpdatedAt, &position.CreatedAt,
 	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrPositionNotFound
+		}
 		return nil, handleError(err)
 	}
 
 	return &position, nil
-}
-
-// DeletePositionDB - архив должности.
-// TODO: следует изменить название метода (название должно соответствовать действию).
-func (p *positionStorage) DeletePositionDB(ctx context.Context, positionID int, companyID int) error {
-	dummy := new(int)
-
-	query := `
-		UPDATE positions
-		SET archived = true
-		WHERE id = $1 AND company_id = $2
-		RETURNING id
-	`
-
-	if err := p.db.QueryRowContext(ctx, query, positionID, companyID).Scan(dummy); err != nil {
-		return handleError(err)
-	}
-
-	return nil
 }
 
 // AssignCourseDB - назначить курс на должность.
