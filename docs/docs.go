@@ -143,7 +143,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.CreateAdmin"
+                                "$ref": "#/definitions/rest.sEmail"
                             }
                         }
                     },
@@ -192,7 +192,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/rest.sEmail"
+                            "$ref": "#/definitions/model.User"
                         }
                     },
                     "400": {

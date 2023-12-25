@@ -74,36 +74,36 @@ func (u *uStorage) CreateAdmin(
 		}
 	}()
 
-	company := model.Company{}
-
-	query := `INSERT INTO companies(name) VALUES ($1) RETURNING id, name`
-
-	if err = tx.GetContext(ctx, &company, query, companyName); err != nil {
-		return &model.User{}, err
-	}
-
-	position := model.Position{}
-	query = `INSERT INTO positions(name, company_id) VALUES ($1, $2) RETURNING id, name`
-
-	if err = tx.GetContext(ctx, &position, query, "admin", company.ID); err != nil {
-		return &model.User{}, err
-	}
-
 	createdAdmin := model.User{}
+	err = u.tx(func(tx *sqlx.Tx) error {
+		query := `INSERT INTO companies(name) VALUES ($1) RETURNING id, name`
+		company := model.Company{}
 
-	query = `INSERT INTO users (company_id, position_id, email, enc_password, active, admin, name, surname, patronymic)
+		if err = tx.GetContext(ctx, &company, query, companyName); err != nil {
+			return err
+		}
+
+		position := model.Position{}
+		query = `INSERT INTO positions(name, company_id) VALUES ($1, $2) RETURNING id, name`
+
+		if err = tx.GetContext(ctx, &position, query, "admin", company.ID); err != nil {
+			return err
+		}
+
+		query = `INSERT INTO users (company_id, position_id, email, enc_password, active, admin, name, surname, patronymic)
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 			  RETURNING id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic,
 			  created_at, updated_at`
 
-	if err = tx.GetContext(ctx, &createdAdmin, query, company.ID, position.ID, admin.Email, admin.Password,
-		admin.IsActive, admin.IsAdmin, admin.Name, admin.Surname, admin.Patronymic); err != nil {
+		if err = tx.GetContext(ctx, &createdAdmin, query, company.ID, position.ID, admin.Email, admin.Password,
+			admin.IsActive, admin.IsAdmin, admin.Name, admin.Surname, admin.Patronymic); err != nil {
 
-		return &model.User{}, err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return &model.User{}, fmt.Errorf("committing tx: %w", err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return &createdAdmin, nil
