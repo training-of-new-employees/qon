@@ -4,27 +4,27 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/training-of-new-employees/qon/internal/errs"
-	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
-	"go.uber.org/zap"
 )
 
 var _ store.RepositoryPosition = (*positionStorage)(nil)
 
 // positionStorage - репозиторий "Должностей".
 type positionStorage struct {
-	db    *sqlx.DB
-	store *Store
+	db *sqlx.DB
+	transaction
 }
 
 // newPositionStorage - конструктор репозитория "Должностей".
-func newPositionStorage(db *sqlx.DB, s *Store) *positionStorage {
-	return &positionStorage{db: db, store: s}
+func newPositionStorage(db *sqlx.DB) *positionStorage {
+	return &positionStorage{
+		db:          db,
+		transaction: transaction{db: db},
+	}
 }
 
 // CreatePositionDB создание должности в рамках компании.
@@ -155,44 +155,4 @@ func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, co
 	}
 
 	return nil
-}
-
-// createPositionTx - создание должности в рамках компании.
-// ВAЖНО: использовать только внутри транзакции.
-func (p *positionStorage) createPositionTx(ctx context.Context, tx *sqlx.Tx, companyID int, positionName string) (*model.Position, error) {
-	position := model.Position{}
-
-	query := `
-		INSERT INTO
-		positions (company_id, name) VALUES ($1, $2)
-		RETURNING id, company_id, active, name, created_at, updated_at
-	`
-
-	if err := tx.GetContext(ctx, &position, query, companyID, positionName); err != nil {
-		return nil, err
-	}
-
-	return &position, nil
-}
-
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func (p *positionStorage) tx(f func(*sqlx.Tx) error) error {
-	// открываем транзакцию
-	tx, err := p.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
-		return err
-	}
-
-	// фиксация транзакции
-	return tx.Commit()
 }

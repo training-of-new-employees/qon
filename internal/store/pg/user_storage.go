@@ -17,14 +17,14 @@ import (
 var _ store.RepositoryUser = (*uStorage)(nil)
 
 type uStorage struct {
-	db    *sqlx.DB
-	store *Store
+	db *sqlx.DB
+	transaction
 }
 
-func newUStorages(db *sqlx.DB, s *Store) *uStorage {
+func newUStorages(db *sqlx.DB) *uStorage {
 	return &uStorage{
-		db:    db,
-		store: s,
+		db:          db,
+		transaction: transaction{db: db},
 	}
 }
 
@@ -60,13 +60,13 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 		var err error
 
 		// создание компании
-		company, err := u.store.companyStore.createCompanyTx(ctx, tx, companyName)
+		company, err := u.createCompanyTx(ctx, tx, companyName)
 		if err != nil {
 			return err
 		}
 
 		// создание должности-заглушки для администратора
-		position, err := u.store.positionStore.createPositionTx(ctx, tx, company.ID, "admin")
+		position, err := u.createPositionTx(ctx, tx, company.ID, "admin")
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 	return edit, err
 }
 
-// GetCompany - получает информацию о компании по id
+// GetCompany - получает информацию о компании по id.
 func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
 	var comp *model.Company
 	err := u.tx(
@@ -238,7 +238,6 @@ func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 		return nil, err
 	}
 	return users, nil
-
 }
 
 func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password string) error {
@@ -265,87 +264,4 @@ func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password 
 	}
 
 	return nil
-}
-
-// createUserTx - создание пользователя.
-// ВAЖНО: использовать только внутри транзакции.
-func (u *uStorage) createUserTx(ctx context.Context, tx *sqlx.Tx, user model.UserCreate) (*model.User, error) {
-	createdUser := model.User{}
-
-	query :=
-		`INSERT INTO users (
-			company_id, position_id, active, admin,
-			email, enc_password,
-			name, patronymic, surname)
-		VALUES($1,$2,$3, $4, $5, $6, $7, $8, $9)
-		RETURNING
-			id, company_id, position_id,
-			active, admin, 
-			email, enc_password, name, patronymic, surname,
-			created_at, updated_at`
-
-	err := tx.GetContext(
-		ctx,
-		&createdUser,
-		query,
-		user.CompanyID,
-		user.PositionID,
-		user.IsActive,
-		user.IsAdmin,
-		user.Email,
-		user.Password,
-		user.Name,
-		user.Patronymic,
-		user.Surname,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &createdUser, nil
-}
-
-// updatePasswordTx обновляет пароль пользователя.
-// ВAЖНО: использовать только только внутри транзакции.
-func (u *uStorage) updatePasswordTx(ctx context.Context, tx *sqlx.Tx, userID int, encPassword string) error {
-	query := `UPDATE users SET enc_password = $1 WHERE id = $2`
-	_, err := tx.ExecContext(ctx, query, encPassword, userID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// activateUserTx активирует пользователя.
-// ВAЖНО: использовать только внутри транзакции.
-func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) error {
-	query := `UPDATE users SET active = true WHERE id = $1`
-	_, err := tx.ExecContext(ctx, query, userID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func (u *uStorage) tx(f func(*sqlx.Tx) error) error {
-	// открываем транзакцию
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
-		return err
-	}
-
-	// фиксация транзакции
-	return tx.Commit()
 }
