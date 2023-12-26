@@ -10,9 +10,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// transaction - структура для встраивания.
-// Самостоятельно не используется, встраивается в репозитории (companyStorage, positionStorage, uStorage,...).
-// Cодержит методы, используемые только в транзакциях.
+// transaction - структура для встраивания в репозитории (companyStorage, positionStorage, uStorage,...).
+// ВАЖНО: Самостоятельно не используется. Cодержит методы, используемые только в транзакциях.
 type transaction struct {
 	db *sqlx.DB
 }

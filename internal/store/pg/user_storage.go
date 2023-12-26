@@ -89,7 +89,7 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 	return createdAdmin, nil
 }
 
-// EditAdmin - меняет данные администратора с заданным ID
+// EditAdmin - меняет данные администратора с заданным ID.
 func (u *uStorage) EditAdmin(
 	ctx context.Context,
 	admin model.AdminEdit,
