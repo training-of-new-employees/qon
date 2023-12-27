@@ -95,21 +95,6 @@ func (mr *MockRepositoryUserMockRecorder) EditUser(ctx, edit interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditUser", reflect.TypeOf((*MockRepositoryUser)(nil).EditUser), ctx, edit)
 }
 
-// GetCompany mocks base method.
-func (m *MockRepositoryUser) GetCompany(ctx context.Context, id int) (*model.Company, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCompany", ctx, id)
-	ret0, _ := ret[0].(*model.Company)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetCompany indicates an expected call of GetCompany.
-func (mr *MockRepositoryUserMockRecorder) GetCompany(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompany", reflect.TypeOf((*MockRepositoryUser)(nil).GetCompany), ctx, id)
-}
-
 // GetUserByEmail mocks base method.
 func (m *MockRepositoryUser) GetUserByEmail(arg0 context.Context, arg1 string) (*model.User, error) {
 	m.ctrl.T.Helper()

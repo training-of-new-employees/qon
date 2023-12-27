@@ -2,8 +2,11 @@ package pg
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
 )
@@ -22,8 +25,8 @@ func newCompanyStorage(db *sqlx.DB) *companyStorage {
 	}
 }
 
-// createCompanyDB - создание компании.
-func (c *companyStorage) CreateCompanyDB(ctx context.Context, companyName string) (*model.Company, error) {
+// createCompany - создание компании.
+func (c *companyStorage) CreateCompany(ctx context.Context, companyName string) (*model.Company, error) {
 	var createdCompany *model.Company
 
 	// открываем транзакцию
@@ -43,5 +46,23 @@ func (c *companyStorage) CreateCompanyDB(ctx context.Context, companyName string
 	}
 
 	return createdCompany, nil
+}
 
+// GetCompany - получает информацию о компании по id.
+func (c *companyStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
+	var comp *model.Company
+	err := c.tx(func(tx *sqlx.Tx) error {
+		var err error
+		comp, err = c.getCompanyTx(ctx, tx, id)
+		return err
+	})
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrCompanyNotFound
+		}
+		return nil, handleError(err)
+	}
+
+	return comp, nil
 }

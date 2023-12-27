@@ -128,6 +128,47 @@ func (tn *transaction) createCompanyTx(ctx context.Context, tx *sqlx.Tx, company
 	return &company, nil
 }
 
+// createCompanyTx - создание компании в транзакции.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) updateCompanyTx(ctx context.Context, tx *sqlx.Tx, edit model.CompanyEdit) (*model.Company, error) {
+	company := model.Company{}
+
+	query := `
+		UPDATE
+			companies
+		SET
+			active = COALESCE($1, active),
+			archived = COALESCE($2, archived),
+			name = COALESCE($3, name)
+		WHERE id = $4
+		RETURNING id, active, archived, name
+	`
+
+	err := tx.GetContext(
+		ctx, &company, query,
+		edit.IsActive, edit.IsArchived, edit.Name,
+		edit.ID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &company, nil
+}
+
+// getCompanyTx - получение компании в транзакции.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) getCompanyTx(ctx context.Context, tx *sqlx.Tx, id int) (*model.Company, error) {
+	company := &model.Company{}
+
+	query := `SELECT * FROM companies WHERE id=$1`
+	err := tx.GetContext(ctx, company, query, id)
+	if err != nil {
+		return nil, err
+	}
+	return company, err
+}
+
 // createPositionTx - создание должности в рамках компании.
 // ВAЖНО: использовать только внутри транзакции.
 func (tn *transaction) createPositionTx(ctx context.Context, tx *sqlx.Tx, companyID int, positionName string) (*model.Position, error) {

@@ -10,7 +10,7 @@ import (
 func (suite *storeTestSuite) TestCreateUser() {
 	suite.NotNil(suite.store)
 
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test-company")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
@@ -182,7 +182,7 @@ func (suite *storeTestSuite) TestEditUser() {
 	suite.NotNil(suite.store)
 
 	// Cоздаём компанию
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test-company")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
@@ -300,6 +300,108 @@ func (suite *storeTestSuite) TestEditUser() {
 
 			suite.NotEqual(*before, *after)
 			suite.Equal(*after, *expected)
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestEditAdmin() {
+	suite.NotNil(suite.store)
+
+	user, err := suite.store.UserStorage().CreateAdmin(context.TODO(), model.NewTestUserCreate(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	company, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
+
+	testCases := []struct {
+		name string
+		data func() (model.AdminEdit, *model.User, *model.Company)
+		err  error
+	}{
+		{
+			name: "edit only email",
+			data: func() (model.AdminEdit, *model.User, *model.Company) {
+				editField := model.AdminEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedEmail := "new@newemail.org"
+				editField.Email = &editedEmail
+
+				// Ожидаемые данные после редактирования
+				expected := user
+				expected.Email = editedEmail
+
+				return editField, expected, nil
+			},
+			err: nil,
+		},
+		{
+			name: "edit only name patronymic surname",
+			data: func() (model.AdminEdit, *model.User, *model.Company) {
+				editField := model.AdminEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedName := "Edited"
+				editedPatronymic := "Edited"
+				editedSurname := "Edited"
+
+				editField.Name = &editedName
+				editField.Patronymic = &editedPatronymic
+				editField.Surname = &editedSurname
+
+				// Ожидаемые данные после редактирования
+				expected := user
+				expected.Name = editedName
+				expected.Patronymic = editedName
+				expected.Surname = editedName
+
+				return editField, expected, nil
+			},
+			err: nil,
+		},
+		{
+			name: "edit only company name",
+			data: func() (model.AdminEdit, *model.User, *model.Company) {
+				editField := model.AdminEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedCompanyName := "new-company-name"
+				editField.Company = &editedCompanyName
+
+				// Ожидаемые данные после редактирования
+				expected := company
+				expected.Name = editedCompanyName
+
+				return editField, nil, expected
+			},
+			err: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			editUser, expectedUser, expectedCompany := tc.data()
+
+			// Редактирование записи пользователя
+			_, err = suite.store.UserStorage().EditAdmin(context.TODO(), editUser)
+
+			// Данные пользователя после редактирования
+			afterUser, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)
+			suite.NoError(err)
+			suite.NotEmpty(afterUser)
+
+			afterCompany, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
+			suite.NoError(err)
+			suite.NotEmpty(afterCompany)
+
+			if expectedUser != nil {
+				// suite.NotEqual(*beforeCompany, *afterCompany)
+				suite.Equal(*afterUser, *expectedUser)
+			}
+
+			if expectedCompany != nil {
+				suite.Equal(*afterCompany, *expectedCompany)
+			}
 		})
 	}
 }

@@ -13,7 +13,7 @@ import (
 func (suite *storeTestSuite) TestCreatePositionDB() {
 	suite.NotNil(suite.store)
 
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
@@ -74,7 +74,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 
 	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
@@ -137,7 +137,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	suite.Empty(positions)
 
 	// создание компании
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
@@ -175,7 +175,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 
 	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
@@ -220,7 +220,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 func (suite *storeTestSuite) TestUpdatePositionDB() {
 	suite.NotNil(suite.store)
 
-	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test&Co")
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 

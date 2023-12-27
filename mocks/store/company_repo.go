@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	model "github.com/training-of-new-employees/qon/internal/model"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockRepositoryCompany is a mock of RepositoryCompany interface.
@@ -35,17 +35,32 @@ func (m *MockRepositoryCompany) EXPECT() *MockRepositoryCompanyMockRecorder {
 	return m.recorder
 }
 
-// CreateCompanyDB mocks base method.
-func (m *MockRepositoryCompany) CreateCompanyDB(ctx context.Context, companyName string) (*model.Company, error) {
+// CreateCompany mocks base method.
+func (m *MockRepositoryCompany) CreateCompany(ctx context.Context, companyName string) (*model.Company, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateCompanyDB", ctx, companyName)
+	ret := m.ctrl.Call(m, "CreateCompany", ctx, companyName)
 	ret0, _ := ret[0].(*model.Company)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateCompanyDB indicates an expected call of CreateCompanyDB.
-func (mr *MockRepositoryCompanyMockRecorder) CreateCompanyDB(ctx, companyName interface{}) *gomock.Call {
+// CreateCompany indicates an expected call of CreateCompany.
+func (mr *MockRepositoryCompanyMockRecorder) CreateCompany(ctx, companyName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCompanyDB", reflect.TypeOf((*MockRepositoryCompany)(nil).CreateCompanyDB), ctx, companyName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCompany", reflect.TypeOf((*MockRepositoryCompany)(nil).CreateCompany), ctx, companyName)
+}
+
+// GetCompany mocks base method.
+func (m *MockRepositoryCompany) GetCompany(ctx context.Context, id int) (*model.Company, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompany", ctx, id)
+	ret0, _ := ret[0].(*model.Company)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompany indicates an expected call of GetCompany.
+func (mr *MockRepositoryCompanyMockRecorder) GetCompany(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompany", reflect.TypeOf((*MockRepositoryCompany)(nil).GetCompany), ctx, id)
 }

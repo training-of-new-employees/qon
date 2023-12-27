@@ -105,7 +105,7 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
-	company, err := u.db.UserStorage().GetCompany(ctx, user.CompanyID)
+	company, err := u.db.CompanyStorage().GetCompany(ctx, user.CompanyID)
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}

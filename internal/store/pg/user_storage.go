@@ -92,30 +92,45 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 
 // EditAdmin - меняет данные администратора с заданным ID.
 func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model.AdminEdit, error) {
+	var user *model.User
+	var company *model.Company
+
 	err := u.tx(func(tx *sqlx.Tx) error {
-		var companyID int
-		query := `
-			UPDATE
-				users
-			SET
-				name = COALESCE($1, name),
-				surname = COALESCE($2, surname),
-				patronymic = COALESCE($3, patronymic),
-				email = COALESCE($4, email)
-	 		WHERE id = $5
-			RETURNING company_id
-		`
-		err := tx.GetContext(ctx, &companyID, query, admin.Name, admin.Surname, admin.Patronymic, admin.Email, admin.ID)
+		var err error
+
+		// Изменение данных админа
+		user, err = u.updateUserTx(
+			ctx, tx,
+			model.UserEdit{
+				ID: admin.ID, Email: admin.Email,
+				Name: admin.Name, Patronymic: admin.Patronymic, Surname: admin.Surname,
+			},
+		)
 		if err != nil {
 			return err
 		}
-		query = `UPDATE companies SET name = COALESCE($1, name) WHERE id = $2`
-		_, err = tx.ExecContext(ctx, query, admin.Company, companyID)
+
+		// Изменение имени компании
+		company, err = u.updateCompanyTx(
+			ctx, tx,
+			model.CompanyEdit{ID: user.CompanyID, Name: admin.Company},
+		)
+		if err != nil {
+			return err
+		}
+
 		return err
-
 	})
-	return &admin, err
 
+	// TODO: позже нужно исправить; пока используем такое преобразование для совместимости с верхним уровнем.
+	admin.ID = user.ID
+	admin.Email = &user.Email
+	admin.Name = &user.Name
+	admin.Patronymic = &user.Patronymic
+	admin.Surname = &user.Surname
+	admin.Company = &company.Name
+
+	return &admin, err
 }
 
 // GetUserByID - получить данные пользователя по ID.
@@ -180,7 +195,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 		return nil
 	})
 
-	// TODO: позже нужно исправить; пока используем такое преобразование, для совместимости с верхним уровнем.
+	// TODO: позже нужно исправить; пока используем такое преобразование для совместимости с верхним уровнем.
 	edit.ID = user.ID
 	edit.CompanyID = &user.CompanyID
 	edit.PositionID = &user.PositionID
@@ -192,20 +207,6 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 	edit.Surname = &user.Surname
 
 	return edit, err
-}
-
-// GetCompany - получает информацию о компании по id.
-func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
-	var comp *model.Company
-	err := u.tx(
-		func(tx *sqlx.Tx) error {
-			query := `SELECT * FROM companies WHERE id=$1`
-			err := tx.GetContext(ctx, comp, query, id)
-			return err
-		},
-	)
-
-	return comp, handleError(err)
 }
 
 // SetPasswordAndActivateUser установка пароля и активация пользователя.
