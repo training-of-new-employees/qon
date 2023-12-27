@@ -178,12 +178,128 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 	}
 }
 
-func (suite *storeTestSuite) TestGetUserByEmail() {
+func (suite *storeTestSuite) TestEditUser() {
 	suite.NotNil(suite.store)
 
-	email := "some@example.org"
+	// Cоздаём компанию
+	company, err := suite.store.CompanyStorage().CreateCompanyDB(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
 
-	_, err := suite.store.UserStorage().GetUserByEmail(context.TODO(), email)
+	// Cоздаём должность
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
 
-	suite.Error(err)
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+	// Cоздаём пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+
+	testCases := []struct {
+		name string
+		data func() (model.UserEdit, *model.User)
+		err  error
+	}{
+		{
+			name: "edit only email",
+			data: func() (model.UserEdit, *model.User) {
+				editField := model.UserEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedEmail := "new@newemail.org"
+				editField.Email = &editedEmail
+
+				// Ожидаемые данные после редактирования
+				expected := user
+				expected.Email = editedEmail
+
+				return editField, expected
+			},
+			err: nil,
+		},
+		{
+			name: "edit only name patronymic surname",
+			data: func() (model.UserEdit, *model.User) {
+				editField := model.UserEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedName := "Edited"
+				editedPatronymic := "Edited"
+				editedSurname := "Edited"
+
+				editField.Name = &editedName
+				editField.Patronymic = &editedPatronymic
+				editField.Surname = &editedSurname
+
+				// Ожидаемые данные после редактирования
+				expected := user
+				expected.Name = editedName
+				expected.Patronymic = editedName
+				expected.Surname = editedName
+
+				return editField, expected
+			},
+			err: nil,
+		},
+		{
+			name: "edit only archived",
+			data: func() (model.UserEdit, *model.User) {
+				editField := model.UserEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedArchived := true
+				editField.IsArchived = &editedArchived
+
+				// Ожидаемые данные после редактирования
+				expected := user
+				expected.IsArchived = editedArchived
+
+				return editField, expected
+			},
+			err: nil,
+		},
+		{
+			name: "edit only active",
+			data: func() (model.UserEdit, *model.User) {
+				editField := model.UserEdit{ID: user.ID}
+
+				// Данные для редактирования
+				editedActive := false
+				editField.IsActive = &editedActive
+
+				// Ожидаемые данные после редактирования
+				expected := user
+				expected.IsActive = editedActive
+
+				return editField, expected
+			},
+
+			err: nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			// Данные пользователя до редактирования
+			before, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)
+			suite.NoError(err)
+			suite.NotEmpty(before)
+
+			editUser, expected := tc.data()
+			// editUser, _ := tc.data()
+
+			// Редактирование записи пользователя
+			_, err = suite.store.UserStorage().EditUser(context.TODO(), &editUser)
+
+			// Данные пользователя после редактирования
+			after, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)
+			suite.NoError(err)
+			suite.NotEmpty(after)
+
+			suite.NotEqual(*before, *after)
+			suite.Equal(*after, *expected)
+		})
+	}
 }

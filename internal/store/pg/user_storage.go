@@ -73,6 +73,7 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 
 		admin.CompanyID = company.ID
 		admin.PositionID = position.ID
+		admin.IsAdmin = true
 
 		// создание админа
 		createdAdmin, err = u.createUserTx(ctx, tx, admin)
@@ -90,18 +91,20 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 }
 
 // EditAdmin - меняет данные администратора с заданным ID.
-func (u *uStorage) EditAdmin(
-	ctx context.Context,
-	admin model.AdminEdit,
-) (*model.AdminEdit, error) {
+func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model.AdminEdit, error) {
 	err := u.tx(func(tx *sqlx.Tx) error {
 		var companyID int
-		query :=
-			`UPDATE users	 SET 	name = COALESCE($1, name),
-		surname = COALESCE($2, surname),
-		patronymic = COALESCE($3, patronymic),
-		email = COALESCE($4, email)
-	 	WHERE id = $5 RETURNING company_id`
+		query := `
+			UPDATE
+				users
+			SET
+				name = COALESCE($1, name),
+				surname = COALESCE($2, surname),
+				patronymic = COALESCE($3, patronymic),
+				email = COALESCE($4, email)
+	 		WHERE id = $5
+			RETURNING company_id
+		`
 		err := tx.GetContext(ctx, &companyID, query, admin.Name, admin.Surname, admin.Patronymic, admin.Email, admin.ID)
 		if err != nil {
 			return err
@@ -115,24 +118,21 @@ func (u *uStorage) EditAdmin(
 
 }
 
+// GetUserByID - получить данные пользователя по ID.
 func (u *uStorage) GetUserByID(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
-	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
+	query := `
+		SELECT
+			id, company_id, position_id,
+			active, archived, admin,
+			email, enc_password, name, patronymic, surname,
+			created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`
 
-	query := `SELECT id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 
-       		  created_at, updated_at
-			  FROM users WHERE id = $1 AND active = true`
-
-	err = u.db.GetContext(ctx, &user, query, id)
+	err := u.db.GetContext(ctx, &user, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, model.ErrUserNotFound
@@ -141,19 +141,22 @@ func (u *uStorage) GetUserByID(ctx context.Context, id int) (*model.User, error)
 		return nil, err
 	}
 
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
-	}
-
 	return &user, nil
 }
 
+// GetUserByEmail - получить данные пользователя по емейл.
 func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
 
-	query := `SELECT id, company_id, position_id, email, enc_password, active, admin, name, surname, patronymic, 
-       		  created_at, updated_at
-			  FROM users WHERE email = $1`
+	query := `
+		SELECT
+			id, company_id, position_id,
+			active, archived, admin,
+			email, enc_password, name, patronymic, surname,
+			created_at, updated_at
+		FROM users
+		WHERE email = $1
+	`
 
 	err := u.db.GetContext(ctx, &user, query, email)
 	if err != nil {
@@ -163,20 +166,31 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return &user, nil
 }
 
+// EditUser - редактировать данные пользователя.
 func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.UserEdit, error) {
+	var user *model.User
+
 	err := u.tx(func(tx *sqlx.Tx) error {
-		query := `UPDATE users SET
-	 	name = COALESCE($1, name),
-	 	surname = COALESCE($2, surname),
-	 	patronymic = COALESCE($3, patronymic),
-	 	email = COALESCE($4, email),
-	 	position_id = COALESCE($5, position_id),
-	 	archived = $6
-	 WHERE id = $7`
-		_, err := tx.ExecContext(ctx, query, edit.Name, edit.Surname, edit.Patronymic, edit.Email, edit.PositionID, edit.IsArchived, edit.ID)
-		return err
-	},
-	)
+		var err error
+		user, err = u.updateUserTx(ctx, tx, *edit)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	// TODO: позже нужно исправить; пока используем такое преобразование, для совместимости с верхним уровнем.
+	edit.ID = user.ID
+	edit.CompanyID = &user.CompanyID
+	edit.PositionID = &user.PositionID
+	edit.IsActive = &user.IsActive
+	edit.IsArchived = &user.IsArchived
+	edit.Email = &user.Email
+	edit.Name = &user.Name
+	edit.Patronymic = &user.Patronymic
+	edit.Surname = &user.Surname
+
 	return edit, err
 }
 

@@ -76,6 +76,44 @@ func (tn *transaction) createUserTx(ctx context.Context, tx *sqlx.Tx, user model
 	return &createdUser, nil
 }
 
+// updateUserTx - обновление данных пользователя.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) updateUserTx(ctx context.Context, tx *sqlx.Tx, edit model.UserEdit) (*model.User, error) {
+	user := model.User{}
+
+	query := `
+		UPDATE
+			users
+		SET
+			company_id  = COALESCE($1, company_id),
+			position_id = COALESCE($2, position_id),
+			active 	    = COALESCE($3, active),
+			archived 	= COALESCE($4, archived),
+			email       = COALESCE($5, email),
+			name        = COALESCE($6, name),
+			patronymic  = COALESCE($7, patronymic),
+			surname     = COALESCE($8, surname)
+		WHERE id = $9
+		RETURNING
+			id, company_id, position_id,
+			active, archived, admin, 
+			email, enc_password, name, patronymic, surname,
+			created_at, updated_at
+	`
+
+	err := tx.GetContext(
+		ctx, &user, query,
+		edit.CompanyID, edit.PositionID,
+		edit.IsActive, edit.IsArchived,
+		edit.Email, edit.Name, edit.Patronymic, edit.Surname, edit.ID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 // createCompanyTx - создание компании в транзакции.
 // ВAЖНО: использовать только внутри транзакции.
 func (tn *transaction) createCompanyTx(ctx context.Context, tx *sqlx.Tx, companyName string) (*model.Company, error) {
