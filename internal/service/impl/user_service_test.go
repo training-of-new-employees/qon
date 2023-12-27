@@ -1568,14 +1568,6 @@ func mockUserStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryU
 	return storages
 }
 
-func mockPUStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUser, pStore *mock_store.MockRepositoryPosition) *mock_store.MockStorages {
-	storages := mock_store.NewMockStorages(ctrl)
-	storages.EXPECT().UserStorage().Return(uStore).AnyTimes()
-	storages.EXPECT().PositionStorage().Return(pStore).AnyTimes()
-	return storages
-
-}
-
 func mockUCPStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUser, cStore *mock_store.MockRepositoryCompany, pStore *mock_store.MockRepositoryPosition) *mock_store.MockStorages {
 	storages := mock_store.NewMockStorages(ctrl)
 	storages.EXPECT().UserStorage().Return(uStore).AnyTimes()
