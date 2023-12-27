@@ -65,26 +65,34 @@ func (l *lessonStorage) GetLessonDB(ctx context.Context,
 
 func (l *lessonStorage) UpdateLessonDB(ctx context.Context,
 	lesson model.LessonUpdate) (*model.Lesson, error) {
-	var updatedLesson model.Lesson
+	var updatedLesson *model.Lesson
 	var err error
 
-	tx, err := l.db.Beginx()
+	err = l.tx(func(tx *sqlx.Tx) error {
+		updatedLesson, err = l.updateLessonTx(ctx, tx, lesson)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("beginning tx: %w", err)
+		return nil, handleError(err)
 	}
 
-	defer func() {
-		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
-		}
-	}()
+	return updatedLesson, nil
+}
+
+// updateLessonTx - обновление урока.
+// ВAЖНО: использовать только внутри транзакции.
+func (l *lessonStorage) updateLessonTx(ctx context.Context,
+	tx *sqlx.Tx, lesson model.LessonUpdate) (*model.Lesson, error) {
+
+	updatedLesson := model.Lesson{}
 
 	query := `SELECT id
 				FROM lessons
 				WHERE id = $1 AND course_id = $2 AND archived = false`
-	_, err = tx.ExecContext(ctx, query, lesson.ID, lesson.CourseID)
+	_, err := tx.ExecContext(ctx, query, lesson.ID, lesson.CourseID)
 	if err != nil {
 		return nil, handleError(err)
 	}
@@ -124,9 +132,27 @@ func (l *lessonStorage) UpdateLessonDB(ctx context.Context,
 	if err != nil {
 		return nil, handleError(err)
 	}
-
-	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("committing tx: %w", err)
-	}
 	return &updatedLesson, nil
+}
+
+// tx - обёртка для простого использования транзакций без дублирования кода.
+func (l *lessonStorage) tx(f func(*sqlx.Tx) error) error {
+	// открываем транзакцию
+	tx, err := l.db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+	// отмена транзакции
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+		}
+	}()
+
+	if err = f(tx); err != nil {
+		return err
+	}
+
+	// фиксация транзакции
+	return tx.Commit()
 }

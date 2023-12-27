@@ -12,8 +12,8 @@ import (
 
 //		@Summary	Создание урока
 //		@Tags		lesson
-//	 	@Accept		json
 //		@Produce	json
+//	    @Param		object	body		model.LessonCreate	true	"Lesson Create"
 //		@Success	201		{object}	model.Lesson
 //		@Failure	400		{object}	sErr
 //		@Failure	404		{object}	sErr
@@ -111,8 +111,8 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 
 //		@Summary	Обновление урока
 //		@Tags		lesson
-//	 	@Accept		json
 //	 	@Produce	json
+//	    @Param		object	body		model.LessonUpdate	true	"Lesson Update"
 //		@Success	200		{object}	model.Lesson
 //		@Failure	400		{object}	sErr
 //		@Failure	404		{object}	sErr
