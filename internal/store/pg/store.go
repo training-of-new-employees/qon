@@ -19,6 +19,7 @@ type Store struct {
 	conn          *sqlx.DB
 	userStore     *uStorage
 	positionStore *positionStorage
+	companyStore  *companyStorage
 	lessonStore   *lessonStorage
 }
 
