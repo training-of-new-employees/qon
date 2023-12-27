@@ -93,6 +93,17 @@ func (s *Store) PositionStorage() store.RepositoryPosition {
 	return s.positionStore
 }
 
+// CompanyStorage - хранилище компаний.
+func (s *Store) CompanyStorage() store.RepositoryCompany {
+	if s.companyStore != nil {
+		return s.companyStore
+	}
+
+	s.companyStore = newCompanyStorage(s.conn, s)
+
+	return s.companyStore
+}
+
 func (s *Store) LessonStorage() store.RepositoryLesson {
 
 	if s.lessonStore != nil {
