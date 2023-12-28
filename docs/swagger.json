@@ -861,6 +861,9 @@
                 "admin": {
                     "type": "boolean"
                 },
+                "archived": {
+                    "type": "boolean"
+                },
                 "company_id": {
                     "type": "integer"
                 },
@@ -899,6 +902,9 @@
                 "admin": {
                     "type": "boolean"
                 },
+                "archived": {
+                    "type": "boolean"
+                },
                 "company_id": {
                     "type": "integer"
                 },
@@ -925,6 +931,15 @@
         "model.UserEdit": {
             "type": "object",
             "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "archived": {
+                    "type": "boolean"
+                },
+                "company_id": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -949,6 +964,9 @@
                     "type": "boolean"
                 },
                 "admin": {
+                    "type": "boolean"
+                },
+                "archived": {
                     "type": "boolean"
                 },
                 "company_id": {

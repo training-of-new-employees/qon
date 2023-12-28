@@ -79,7 +79,8 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]
 	positions := make([]*model.Position, 0)
 
 	query := `
-		SELECT p.id, p.company_id, p.name, p.active, p.archived, p.created_at, p.updated_at
+		SELECT
+			p.id, p.company_id, p.name, p.active, p.archived, p.created_at, p.updated_at
 		FROM positions p
 		JOIN companies c ON p.company_id = c.id
 		WHERE p.company_id = $1 AND c.active = true AND p.archived = false

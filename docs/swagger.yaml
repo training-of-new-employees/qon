@@ -66,6 +66,8 @@ definitions:
         type: boolean
       admin:
         type: boolean
+      archived:
+        type: boolean
       company_id:
         type: integer
       created_at:
@@ -91,6 +93,8 @@ definitions:
         type: boolean
       admin:
         type: boolean
+      archived:
+        type: boolean
       company_id:
         type: integer
       email:
@@ -108,6 +112,12 @@ definitions:
     type: object
   model.UserEdit:
     properties:
+      active:
+        type: boolean
+      archived:
+        type: boolean
+      company_id:
+        type: integer
       email:
         type: string
       name:
@@ -124,6 +134,8 @@ definitions:
       active:
         type: boolean
       admin:
+        type: boolean
+      archived:
         type: boolean
       company_id:
         type: integer

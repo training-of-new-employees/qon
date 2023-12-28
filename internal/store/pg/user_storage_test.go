@@ -196,6 +196,8 @@ func (suite *storeTestSuite) TestEditUser() {
 	u.PositionID = position.ID
 	// Cоздаём пользователя
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
 
 	testCases := []struct {
 		name string
@@ -288,10 +290,10 @@ func (suite *storeTestSuite) TestEditUser() {
 			suite.NotEmpty(before)
 
 			editUser, expected := tc.data()
-			// editUser, _ := tc.data()
 
 			// Редактирование записи пользователя
 			_, err = suite.store.UserStorage().EditUser(context.TODO(), &editUser)
+			suite.Equal(err, tc.err)
 
 			// Данные пользователя после редактирования
 			after, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)

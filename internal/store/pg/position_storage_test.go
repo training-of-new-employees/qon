@@ -100,7 +100,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 		{
 			name: "random company",
 			payload: func() (int, int) {
-				companyID := rnd.Intn(32) + 1
+				companyID := rnd.Intn(32) + 100
 				return companyID, position.ID
 			},
 			err: errs.ErrPositionNotFound,
@@ -108,7 +108,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 		{
 			name: "random position",
 			payload: func() (int, int) {
-				positionID := rnd.Intn(32)
+				positionID := rnd.Intn(32) + 100
 				return company.ID, positionID
 			},
 			err: errs.ErrPositionNotFound,
@@ -142,7 +142,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	suite.NotEmpty(company)
 
 	// добавление новых должностей к созданной компании (кол-во должностей, которое необходимо добавить, генерируется случайно)
-	countPositions := rnd.Intn(32)
+	countPositions := rnd.Intn(32) + 2
 
 	expectedIDs := []int{}
 	for i := 0; i < countPositions; i++ {
