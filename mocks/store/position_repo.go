@@ -95,18 +95,18 @@ func (mr *MockRepositoryPositionMockRecorder) GetPositionDB(ctx, companyID, posi
 }
 
 // GetPositionsDB mocks base method.
-func (m *MockRepositoryPosition) GetPositionsDB(ctx context.Context, id int) ([]*model.Position, error) {
+func (m *MockRepositoryPosition) GetPositionsDB(ctx context.Context, companyID int) ([]*model.Position, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPositionsDB", ctx, id)
+	ret := m.ctrl.Call(m, "GetPositionsDB", ctx, companyID)
 	ret0, _ := ret[0].([]*model.Position)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPositionsDB indicates an expected call of GetPositionsDB.
-func (mr *MockRepositoryPositionMockRecorder) GetPositionsDB(ctx, id interface{}) *gomock.Call {
+func (mr *MockRepositoryPositionMockRecorder) GetPositionsDB(ctx, companyID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPositionsDB", reflect.TypeOf((*MockRepositoryPosition)(nil).GetPositionsDB), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPositionsDB", reflect.TypeOf((*MockRepositoryPosition)(nil).GetPositionsDB), ctx, companyID)
 }
 
 // UpdatePositionDB mocks base method.

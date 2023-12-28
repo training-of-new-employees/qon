@@ -7,10 +7,8 @@ import (
 )
 
 type RepositoryLesson interface {
-	CreateLessonDB(ctx context.Context, lesson model.LessonCreate,
-		user_id int) (*model.Lesson, error)
+	CreateLessonDB(ctx context.Context, lesson model.LessonCreate, user_id int) (*model.Lesson, error)
 	DeleteLessonDB(ctx context.Context, lessonID int) error
 	GetLessonDB(ctx context.Context, lessonID int) (*model.Lesson, error)
-	UpdateLessonDB(ctx context.Context,
-		lesson model.LessonUpdate) (*model.Lesson, error)
+	UpdateLessonDB(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error)
 }

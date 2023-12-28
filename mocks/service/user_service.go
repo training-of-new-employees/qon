@@ -8,8 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	model "github.com/training-of-new-employees/qon/internal/model"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockServiceUser is a mock of ServiceUser interface.
