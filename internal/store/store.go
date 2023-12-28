@@ -5,4 +5,5 @@ type Storages interface {
 	UserStorage() RepositoryUser
 	PositionStorage() RepositoryPosition
 	CompanyStorage() RepositoryCompany
+	LessonStorage() RepositoryLesson
 }

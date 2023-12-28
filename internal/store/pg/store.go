@@ -20,6 +20,7 @@ type Store struct {
 	userStore     *uStorage
 	positionStore *positionStorage
 	companyStore  *companyStorage
+	lessonStore   *lessonStorage
 }
 
 // NewStore - конструктор для Store.
@@ -102,4 +103,15 @@ func (s *Store) CompanyStorage() store.RepositoryCompany {
 	s.companyStore = newCompanyStorage(s.conn)
 
 	return s.companyStore
+}
+
+// CompanyStorage - хранилище компаний.
+func (s *Store) LessonStorage() store.RepositoryLesson {
+	if s.companyStore != nil {
+		return s.lessonStore
+	}
+
+	s.companyStore = newCompanyStorage(s.conn)
+
+	return s.lessonStore
 }
