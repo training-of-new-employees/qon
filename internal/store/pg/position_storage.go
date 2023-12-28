@@ -52,16 +52,26 @@ func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.P
 
 // GetPositionDB - получить данные должности, привязанной к компании.
 func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
-	position := model.Position{}
+	position := &model.Position{}
 
 	query := `
-		SELECT p.id, p.company_id, p.name, p.active, p.archived, p.created_at, p.updated_at
-        FROM positions p 
-        JOIN companies c ON p.company_id = c.id
-        WHERE p.company_id = $1 AND p.id = $2 AND p.archived = false
+		SELECT id, company_id, name, active, archived, created_at, updated_at
+        FROM positions
+        WHERE company_id = $1 AND id = $2 AND archived = false
 	`
 
-	err := p.db.GetContext(ctx, &position, query, companyID, positionID)
+	row := p.db.QueryRowContext(ctx, query, companyID, positionID)
+
+	err := row.Scan(
+		&position.ID,
+		&position.CompanyID,
+		&position.Name,
+		&position.IsActive,
+		&position.IsArchived,
+		&position.CreatedAt,
+		&position.UpdatedAt,
+	)
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errs.ErrPositionNotFound
@@ -69,7 +79,7 @@ func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, posi
 		return nil, handleError(err)
 	}
 
-	return &position, nil
+	return position, nil
 }
 
 // GetPositionsDB - получить список должностей компании.
