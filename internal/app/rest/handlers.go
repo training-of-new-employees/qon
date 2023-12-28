@@ -48,6 +48,8 @@ func (s *RestServer) InitRoutes() {
 	userGroup.PATCH("/:id", s.handlerEditUser)
 	userGroup.POST("/set-password", s.handlerSetPassword)
 	userGroup.PATCH("/archive/:id", s.handlerArchiveUser)
+	userGroup.Use(s.IsAuthenticated())
+	userGroup.GET("/info", s.handlerUserInfo)
 
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())
