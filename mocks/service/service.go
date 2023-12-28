@@ -7,8 +7,8 @@ package mock_service
 import (
 	reflect "reflect"
 
-	gomock "github.com/golang/mock/gomock"
 	service "github.com/training-of-new-employees/qon/internal/service"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockService is a mock of Service interface.
@@ -32,6 +32,20 @@ func NewMockService(ctrl *gomock.Controller) *MockService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
+}
+
+// Lesson mocks base method.
+func (m *MockService) Lesson() service.ServiceLesson {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Lesson")
+	ret0, _ := ret[0].(service.ServiceLesson)
+	return ret0
+}
+
+// Lesson indicates an expected call of Lesson.
+func (mr *MockServiceMockRecorder) Lesson() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Lesson", reflect.TypeOf((*MockService)(nil).Lesson))
 }
 
 // Position mocks base method.

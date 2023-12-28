@@ -5,4 +5,5 @@ package service
 type Service interface {
 	User() ServiceUser
 	Position() ServicePosition
+	Lesson() ServiceLesson
 }

@@ -19,6 +19,7 @@ type Services struct {
 	rTokenTime      time.Duration
 	userService     *uService
 	positionService *positionService
+	lessonService   *lessonService
 	sender          doar.EmailSender
 }
 
@@ -62,4 +63,14 @@ func (s *Services) Position() service.ServicePosition {
 	s.positionService = newPositionService(s.db)
 
 	return s.positionService
+}
+
+func (s *Services) Lesson() service.ServiceLesson {
+	if s.lessonService != nil {
+		return s.lessonService
+	}
+
+	s.lessonService = newLessonService(s.db)
+
+	return s.lessonService
 }

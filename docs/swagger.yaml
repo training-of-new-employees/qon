@@ -34,6 +34,53 @@ definitions:
       email:
         type: string
     type: object
+  model.Lesson:
+    properties:
+      active:
+        type: boolean
+      archived:
+        type: boolean
+      course_id:
+        type: integer
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      number:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.LessonCreate:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+    type: object
+  model.LessonUpdate:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+    type: object
   model.Position:
     properties:
       active:
@@ -322,6 +369,121 @@ paths:
       summary: Верификация email'a пользователя
       tags:
       - admin
+  /lesson:
+    delete:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Удаление урока
+      tags:
+      - lesson
+    get:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение урока
+      tags:
+      - lesson
+    patch:
+      parameters:
+      - description: Lesson Update
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.LessonUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Обновление урока
+      tags:
+      - lesson
+    post:
+      parameters:
+      - description: Lesson Create
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.LessonCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Создание урока
+      tags:
+      - lesson
   /login:
     post:
       parameters:
@@ -452,27 +614,6 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Получение всех должностей
-      tags:
-      - position
-  /positions/course:
-    post:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Неверный формат запроса
-          schema: {}
-        "401":
-          description: Пользователь не является сотрудником компании
-          schema: {}
-        "500":
-          description: Внутренняя ошибка сервера
-          schema: {}
-      summary: Присвоение курса к должности
       tags:
       - position
   /positions/update/{id}:

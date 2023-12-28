@@ -174,6 +174,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 // @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
 // @Failure	500	{object}	error	"Внутренняя ошибка сервера"
 // @Router		/positions/course [post]
+
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
