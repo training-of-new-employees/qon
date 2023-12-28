@@ -33,7 +33,7 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	var createdUser *model.User
 
 	// открываем транзакцию
-	err := u.tx(func(tx *sqlx.Tx) error {
+	err := tx(u.db, func(tx *sqlx.Tx) error {
 		var err error
 
 		// создание пользователя
@@ -56,7 +56,7 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 	var createdAdmin *model.User
 
 	// открываем транзакцию
-	err := u.tx(func(tx *sqlx.Tx) error {
+	err := tx(u.db, func(tx *sqlx.Tx) error {
 		var err error
 
 		// создание компании
@@ -94,7 +94,7 @@ func (u *uStorage) EditAdmin(
 	ctx context.Context,
 	admin model.AdminEdit,
 ) (*model.AdminEdit, error) {
-	err := u.tx(func(tx *sqlx.Tx) error {
+	err := tx(u.db, func(tx *sqlx.Tx) error {
 		var companyID int
 		query :=
 			`UPDATE users	 SET 	name = COALESCE($1, name),
@@ -164,7 +164,7 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 }
 
 func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.UserEdit, error) {
-	err := u.tx(func(tx *sqlx.Tx) error {
+	err := tx(u.db, func(tx *sqlx.Tx) error {
 		query := `UPDATE users SET
 	 	name = COALESCE($1, name),
 	 	surname = COALESCE($2, surname),
@@ -183,7 +183,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 // GetCompany - получает информацию о компании по id
 func (u *uStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
 	var comp *model.Company
-	err := u.tx(
+	err := tx(u.db,
 		func(tx *sqlx.Tx) error {
 			query := `SELECT * FROM companies WHERE id=$1`
 			err := tx.GetContext(ctx, comp, query, id)
@@ -230,7 +230,7 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
 	var users []model.User
 
-	err := u.tx(func(tx *sqlx.Tx) error {
+	err := tx(u.db, func(tx *sqlx.Tx) error {
 		query := `SELECT * FROM users WHERE company_id = $1`
 		return tx.SelectContext(ctx, users, query, companyID)
 	})
@@ -326,26 +326,4 @@ func (u *uStorage) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) 
 		return err
 	}
 	return nil
-}
-
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func (u *uStorage) tx(f func(*sqlx.Tx) error) error {
-	// открываем транзакцию
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
-		return err
-	}
-
-	// фиксация транзакции
-	return tx.Commit()
 }

@@ -113,3 +113,25 @@ func (s *Store) CourseStorage() store.RepositoryCourse {
 	s.courseStorage = newCourseStorage(s.conn, s)
 	return s.courseStorage
 }
+
+// tx - обёртка для простого использования транзакций без дублирования кода.
+func tx(db *sqlx.DB, f func(*sqlx.Tx) error) error {
+	// открываем транзакцию
+	tx, err := db.Beginx()
+	if err != nil {
+		return fmt.Errorf("beginning tx: %w", err)
+	}
+	// отмена транзакции
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
+		}
+	}()
+
+	if err = f(tx); err != nil {
+		return err
+	}
+
+	// фиксация транзакции
+	return tx.Commit()
+}
