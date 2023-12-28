@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
-	"go.uber.org/zap"
 )
 
 var _ store.RepositoryCompany = (*companyStorage)(nil)
