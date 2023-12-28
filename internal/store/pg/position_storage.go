@@ -64,7 +64,7 @@ func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, posi
 	err := p.db.GetContext(ctx, &position, query, companyID, positionID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrPositionNotFound
+			return nil, errs.ErrPositionNotFound
 		}
 		return nil, handleError(err)
 	}
@@ -111,7 +111,7 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 	err := p.db.GetContext(ctx, &position, query, positionID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrPositionNotFound
+			return nil, errs.ErrPositionNotFound
 		}
 		return nil, handleError(err)
 	}
@@ -137,7 +137,7 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, 
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrPositionNotFound
+			return nil, errs.ErrPositionNotFound
 		}
 		return nil, handleError(err)
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -107,6 +108,9 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 			},
 		)
 		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return errs.ErrUserNotFound
+			}
 			return err
 		}
 
@@ -116,11 +120,18 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 			model.CompanyEdit{ID: user.CompanyID, Name: admin.Company},
 		)
 		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return errs.ErrCompanyNotFound
+			}
 			return err
 		}
 
-		return err
+		return nil
 	})
+
+	if err != nil {
+		return nil, handleError(err)
+	}
 
 	// TODO: позже нужно исправить; пока используем такое преобразование для совместимости с верхним уровнем.
 	admin.ID = user.ID
@@ -130,7 +141,7 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 	admin.Surname = &user.Surname
 	admin.Company = &company.Name
 
-	return &admin, err
+	return &admin, nil
 }
 
 // GetUserByID - получить данные пользователя по ID.
@@ -150,10 +161,10 @@ func (u *uStorage) GetUserByID(ctx context.Context, id int) (*model.User, error)
 	err := u.db.GetContext(ctx, &user, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrUserNotFound
+			return nil, errs.ErrUserNotFound
 		}
 
-		return nil, err
+		return nil, handleError(err)
 	}
 
 	return &user, nil
@@ -175,6 +186,10 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 
 	err := u.db.GetContext(ctx, &user, query, email)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrUserNotFound
+		}
+
 		return nil, handleError(err)
 	}
 
@@ -189,11 +204,18 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 		var err error
 		user, err = u.updateUserTx(ctx, tx, *edit)
 		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return errs.ErrUserNotFound
+			}
 			return err
 		}
 
 		return nil
 	})
+
+	if err != nil {
+		return nil, handleError(err)
+	}
 
 	// TODO: позже нужно исправить; пока используем такое преобразование для совместимости с верхним уровнем.
 	edit.ID = user.ID
@@ -206,7 +228,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 	edit.Patronymic = &user.Patronymic
 	edit.Surname = &user.Surname
 
-	return edit, err
+	return edit, nil
 }
 
 // SetPasswordAndActivateUser установка пароля и активация пользователя.

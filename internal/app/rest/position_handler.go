@@ -43,7 +43,7 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 
 	position, err := r.services.Position().CreatePosition(ctx, positionReq)
 	switch {
-	case errors.Is(err, model.ErrCompanyIDNotFound):
+	case errors.Is(err, errs.ErrCompanyIDNotEmpty):
 		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
 	case err != nil:
@@ -79,7 +79,7 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 
 	position, err := r.services.Position().GetPosition(ctx, us.OrgID, id)
 	switch {
-	case errors.Is(err, model.ErrPositionNotFound):
+	case errors.Is(err, errs.ErrPositionNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
 		return
 	case err != nil:
@@ -107,7 +107,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 	positions, err := r.services.Position().GetPositions(ctx, us.OrgID)
 
 	switch {
-	case errors.Is(err, model.ErrPositionsNotFound):
+	case errors.Is(err, errs.ErrPositionNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
 		return
 	case err != nil:
@@ -154,7 +154,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 
 	position, err := r.services.Position().UpdatePosition(ctx, id, positionReq)
 	switch {
-	case errors.Is(err, model.ErrPositionNotFound):
+	case errors.Is(err, errs.ErrPositionNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
 		return
 	case err != nil:
@@ -186,7 +186,7 @@ func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 
 	if err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID,
 		positionCourse.CourseID, us.UserID); err != nil {
-		if errors.Is(err, model.ErrNoAuthorized) {
+		if errors.Is(err, errs.ErrUnauthorized) {
 			c.JSON(http.StatusUnauthorized, s().SetError(err))
 			return
 		}

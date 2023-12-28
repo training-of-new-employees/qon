@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -68,7 +69,7 @@ func (p *positionService) AssignCourse(ctx context.Context, positionID int,
 	}
 
 	if user.CompanyID != position.CompanyID {
-		return model.ErrNoAuthorized
+		return errs.ErrUnauthorized
 	}
 
 	if err := p.db.PositionStorage().AssignCourseDB(ctx,
