@@ -958,6 +958,9 @@ const docTemplate = `{
                 "admin": {
                     "type": "boolean"
                 },
+                "archived": {
+                    "type": "boolean"
+                },
                 "company_id": {
                     "type": "integer"
                 },
@@ -984,6 +987,15 @@ const docTemplate = `{
         "model.UserEdit": {
             "type": "object",
             "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "archived": {
+                    "type": "boolean"
+                },
+                "company_id": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },

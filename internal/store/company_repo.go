@@ -7,5 +7,6 @@ import (
 )
 
 type RepositoryCompany interface {
-	CreateCompanyDB(ctx context.Context, companyName string) (*model.Company, error)
+	CreateCompany(ctx context.Context, companyName string) (*model.Company, error)
+	GetCompany(ctx context.Context, id int) (*model.Company, error)
 }

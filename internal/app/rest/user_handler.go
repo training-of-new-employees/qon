@@ -76,7 +76,7 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 	user, err := r.services.User().CreateUser(ctx, userReq)
 	switch {
-	case errors.Is(err, model.ErrEmailAlreadyExists):
+	case errors.Is(err, errs.ErrEmailAlreadyExists):
 		c.JSON(http.StatusConflict, s().SetError(err))
 		return
 	case err != nil:
@@ -453,7 +453,7 @@ func (r *RestServer) handlerAdminEdit(c *gin.Context) {
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	switch {
-	case errors.Is(err, model.ErrUserNotFound):
+	case errors.Is(err, errs.ErrUserNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
 	case err != nil:
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
