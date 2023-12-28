@@ -97,35 +97,18 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 		return nil, handleError(err)
 	}
 
-	if lesson.Name != "" {
-		query := `UPDATE lessons
-			  	  SET name = $1 WHERE id = $2 AND course_id = $3 `
-		_, err := tx.ExecContext(ctx, query, lesson.Name, lesson.ID, lesson.CourseID)
-		if err != nil {
-			return nil, handleError(err)
-		}
-	}
-
-	if lesson.Description != "" {
-		query := `UPDATE lessons
-			  	  SET description = $1 WHERE id = $2 AND course_id = $3 `
-		_, err := tx.ExecContext(ctx, query, lesson.Description, lesson.ID, lesson.CourseID)
-		if err != nil {
-			return nil, handleError(err)
-		}
-	}
-
-	if lesson.Path != "" {
-		query := `UPDATE lessons
-			  	  SET path = $1 WHERE id = $2 AND course_id = $3 `
-		_, err := tx.ExecContext(ctx, query, lesson.Path, lesson.ID, lesson.CourseID)
-		if err != nil {
-			return nil, handleError(err)
-		}
+	query = `UPDATE lessons
+			  	SET name = COALESCE($1, name), description = COALESCE($2, description),
+				path = COALESCE($3, path)
+				WHERE id = $4 AND course_id = $4 `
+	_, err = tx.ExecContext(ctx, query, lesson.Name, lesson.Description,
+		lesson.Path, lesson.ID, lesson.CourseID)
+	if err != nil {
+		return nil, handleError(err)
 	}
 
 	query = `SELECT id, course_id, created_by, number, name, 
-			         description, created_at, updated_at
+			        description, created_at, updated_at
 			  FROM lessons
 		      WHERE id = $1 AND course_id = $2`
 	err = tx.GetContext(ctx, &updatedLesson, query, lesson.ID, lesson.CourseID)
