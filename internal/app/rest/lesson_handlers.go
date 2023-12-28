@@ -10,15 +10,15 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
-//		@Summary	Создание урока
-//		@Tags		lesson
-//		@Produce	json
-//	    @Param		object	body		model.LessonCreate	true	"Lesson Create"
-//		@Success	201		{object}	model.Lesson
-//		@Failure	400		{object}	sErr
-//		@Failure	404		{object}	sErr
-//		@Failure	500		{object}	sErr
-//		@Router		/admin/lesson [post]
+//	@Summary	Создание урока
+//	@Tags		lesson
+//	@Produce	json
+//	@Param		object	body		model.LessonCreate	true	"Lesson Create"
+//	@Success	201		{object}	model.Lesson
+//	@Failure	400		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
+//	@Router		/admin/lesson [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	lessonCreate := &model.LessonCreate{}
 
@@ -45,15 +45,15 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	c.JSON(http.StatusCreated, lesson)
 }
 
-//		@Summary	Удаление урока
-//		@Tags		lesson
-//	 	@Produce	json
-//	 	@Param		id		int	true	"User ID"
-//		@Success	200
-//		@Failure	400		{object}	sErr
-//		@Failure	404		{object}	sErr
-//		@Failure	500		{object}	sErr
-//		@Router		/admin/lesson [delete]
+//	@Summary	Удаление урока
+//	@Tags		lesson
+//	@Produce	json
+//	@Param		id	int	true	"User ID"
+//	@Success	200
+//	@Failure	400	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/admin/lesson [delete]
 func (r *RestServer) handlerLessonDelete(c *gin.Context) {
 	val := c.Param("id")
 
@@ -76,15 +76,15 @@ func (r *RestServer) handlerLessonDelete(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-//		@Summary	Получение урока
-//		@Tags		lesson
-//	 	@Produce	json
-//	 	@Param		id		int	true	"Lesson ID"
-//		@Success	200
-//		@Failure	400		{object}	sErr
-//		@Failure	404		{object}	sErr
-//		@Failure	500		{object}	sErr
-//		@Router		/admin/lesson [get]
+//	@Summary	Получение урока
+//	@Tags		lesson
+//	@Produce	json
+//	@Param		id	int	true	"Lesson ID"
+//	@Success	200
+//	@Failure	400	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/admin/lesson [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	val := c.Param("id")
 
@@ -109,15 +109,15 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	c.JSON(http.StatusOK, lesson)
 }
 
-//		@Summary	Обновление урока
-//		@Tags		lesson
-//	 	@Produce	json
-//	    @Param		object	body		model.LessonUpdate	true	"Lesson Update"
-//		@Success	200		{object}	model.Lesson
-//		@Failure	400		{object}	sErr
-//		@Failure	404		{object}	sErr
-//		@Failure	500		{object}	sErr
-//		@Router		/admin/lesson [patch]
+//	@Summary	Обновление урока
+//	@Tags		lesson
+//	@Produce	json
+//	@Param		object	body		model.LessonUpdate	true	"Lesson Update"
+//	@Success	200		{object}	model.Lesson
+//	@Failure	400		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
+//	@Router		/admin/lesson [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	lessonUpdate := model.LessonUpdate{}
 

@@ -7,7 +7,6 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
-	github.com/golang/mock v1.6.0
 	github.com/integralist/go-findroot v0.0.0-20160518114804-ac90681525dc
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgx/v4 v4.18.1
