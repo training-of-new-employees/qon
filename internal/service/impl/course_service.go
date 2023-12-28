@@ -21,5 +21,8 @@ func newCourseService(db store.Storages) *courseService {
 }
 
 func (cs *courseService) GetCourses(ctx context.Context, u model.User) ([]model.Course, error) {
-	return nil, nil
+	if !u.IsAdmin {
+		return cs.db.CourseStorage().PositionCourses(ctx, u.ID)
+	}
+	return cs.db.CourseStorage().CompanyCourses(ctx, u.CompanyID)
 }
