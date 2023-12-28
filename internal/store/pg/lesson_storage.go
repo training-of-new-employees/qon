@@ -15,10 +15,14 @@ var _ store.RepositoryLesson = (*lessonStorage)(nil)
 
 type lessonStorage struct {
 	db *sqlx.DB
+	transaction
 }
 
 func newLessonStorage(db *sqlx.DB) *lessonStorage {
-	return &lessonStorage{db: db}
+	return &lessonStorage{
+		db:          db,
+		transaction: transaction{db: db},
+	}
 }
 
 func (l *lessonStorage) CreateLessonDB(ctx context.Context,

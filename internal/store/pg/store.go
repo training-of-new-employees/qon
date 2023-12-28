@@ -111,7 +111,7 @@ func (s *Store) LessonStorage() store.RepositoryLesson {
 		return s.lessonStore
 	}
 
-	s.companyStore = newCompanyStorage(s.conn)
+	s.lessonStore = newLessonStorage(s.conn)
 
 	return s.lessonStore
 }
