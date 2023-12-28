@@ -76,7 +76,7 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 	user, err := r.services.User().CreateUser(ctx, userReq)
 	switch {
-	case errors.Is(err, model.ErrEmailAlreadyExists):
+	case errors.Is(err, errs.ErrEmailAlreadyExists):
 		c.JSON(http.StatusConflict, s().SetError(err))
 		return
 	case err != nil:
@@ -453,11 +453,52 @@ func (r *RestServer) handlerAdminEdit(c *gin.Context) {
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	switch {
-	case errors.Is(err, model.ErrUserNotFound):
+	case errors.Is(err, errs.ErrUserNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
 	case err != nil:
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
 	}
 	c.JSON(http.StatusOK, edited)
+}
+
+// GetUser godoc
+//
+//	@Summary		Получение данные авторизованного пользователя
+//	@Description	Получение по сесии авторизованного пользователя
+//	@Tags			user
+//	@Produce		json
+//	@Success		200	{object}	model.UserInfo
+//	@Failure		400	{object}	sErr
+//	@Failure		401	{object}	sErr
+//	@Failure		403	{object}	sErr
+//	@Failure		404	{object}	sErr
+//	@Failure		500	{object}	sErr
+//	@Router			/users/info [get]
+func (r *RestServer) handlerUserInfo(c *gin.Context) {
+	ctx := c.Request.Context()
+	us := r.getUserSession(c)
+	if us.UserID == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	u, err := r.services.User().GetUserByID(ctx, us.UserID)
+
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
+
+		c.JSON(http.StatusNotFound, s().SetError(err))
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		return
+	}
+
+	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, u.ID, u.CompanyID) {
+		c.Status(http.StatusForbidden)
+		return
+	}
+
+	c.JSON(http.StatusOK, u)
 }

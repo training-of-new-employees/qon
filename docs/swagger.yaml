@@ -113,6 +113,8 @@ definitions:
         type: boolean
       admin:
         type: boolean
+      archived:
+        type: boolean
       company_id:
         type: integer
       created_at:
@@ -138,6 +140,8 @@ definitions:
         type: boolean
       admin:
         type: boolean
+      archived:
+        type: boolean
       company_id:
         type: integer
       email:
@@ -155,6 +159,12 @@ definitions:
     type: object
   model.UserEdit:
     properties:
+      active:
+        type: boolean
+      archived:
+        type: boolean
+      company_id:
+        type: integer
       email:
         type: string
       name:
@@ -171,6 +181,8 @@ definitions:
       active:
         type: boolean
       admin:
+        type: boolean
+      archived:
         type: boolean
       company_id:
         type: integer
@@ -772,6 +784,39 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Архивирование пользователя по id
+      tags:
+      - user
+  /users/info:
+    get:
+      description: Получение по сесии авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение данные авторизованного пользователя
       tags:
       - user
   /users/set-password:
