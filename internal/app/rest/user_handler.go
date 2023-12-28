@@ -13,7 +13,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/access"
-	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
 
 // CreateAdmin godoc
@@ -22,7 +21,7 @@ import (
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.CreateAdmin	true	"Create Admin"
-//	@Success	201		{array}		model.CreateAdmin
+//	@Success	201		{array}		sEmail
 //	@Failure	400		{object}	sErr
 //	@Failure	409		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -32,32 +31,22 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 	createAdmin := model.CreateAdmin{}
 
 	if err := c.ShouldBindJSON(&createAdmin); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := createAdmin.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
-		return
-	}
-
-	if err := createAdmin.ValidatePassword(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	admin, err := r.services.User().WriteAdminToCache(ctx, createAdmin)
-	switch {
-	case errors.Is(err, model.ErrEmailAlreadyExists):
-		c.JSON(http.StatusConflict, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		logger.Log.Warn("error: %v", zap.Error(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, admin)
+	c.JSON(http.StatusCreated, s().SetEmail(admin.Email))
 }
 
 // CreateUser godoc
@@ -254,8 +243,12 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	}
 
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
-	if err != nil {
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
 		c.JSON(http.StatusNotFound, s().SetError(err))
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
 	}
 
@@ -280,18 +273,18 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
 }
 
-//	 ArchiveUser godoc
+//	ArchiveUser godoc
 //
-//	@Summary	Архивирование пользователя по id
-//	@Tags		user
-//	@Produce	json
-//	@Param		id	path	int	true	"User ID"
-//	@Success	200
-//	@Failure	400	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
-//	@Router		/archive/{id} [patch]
+// @Summary	Архивирование пользователя по id
+// @Tags		user
+// @Produce	json
+// @Param		id	path	int	true	"User ID"
+// @Success	200
+// @Failure	400	{object}	sErr
+// @Failure	403	{object}	sErr
+// @Failure	404	{object}	sErr
+// @Failure	500	{object}	sErr
+// @Router		/users/archive/{id} [patch]
 func (r *RestServer) handlerArchiveUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")
@@ -367,7 +360,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
-//	@Success	201		{object}	sEmail
+//	@Success	201		{object}	model.User
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -394,7 +387,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	logger.Log.Info("admin from cache: %v", zap.String("email", adminFromCache.Email))
 
-	createdAdmin, err := r.services.User().CreateAdmin(ctx, adminFromCache)
+	createdAdmin, err := r.services.User().CreateAdmin(ctx, *adminFromCache)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, s().SetError(err))
 		return
@@ -402,7 +395,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
-	c.JSON(http.StatusCreated, s().SetEmail(createdAdmin.Email))
+	c.JSON(http.StatusCreated, createdAdmin)
 
 }
 
@@ -425,7 +418,7 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	}
 
 	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
-		if errors.Is(err, model.ErrUserNotFound) {
+		if errors.Is(err, errs.ErrUserNotFound) {
 			c.JSON(http.StatusNotFound, s().SetError(err))
 			return
 		}
@@ -450,19 +443,13 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Router		/admin/info [post]
 func (r *RestServer) handlerAdminEdit(c *gin.Context) {
 	ctx := c.Request.Context()
-	edit := &model.AdminEdit{}
+	edit := model.AdminEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
 	}
-
-	token := jwttoken.GetToken(c)
-	claims, err := r.tokenVal.ValidateToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
-		return
-	}
-	edit.ID = claims.UserID
+	us := r.getUserSession(c)
+	edit.ID = us.UserID
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	switch {

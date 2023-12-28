@@ -3,10 +3,13 @@ package model
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
+	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -122,18 +125,6 @@ type (
 		Company  string `json:"company_name" db:"name"`
 	}
 
-	AdminCreate struct {
-		CompanyID  int    `json:"company_id"  db:"company_id"`
-		PositionID int    `json:"position_id" db:"position_id"`
-		Email      string `json:"email"       db:"email"`
-		Password   string `json:"password"    db:"enc_password"`
-		IsActive   bool   `json:"active"      db:"active"`
-		IsAdmin    bool   `json:"admin"       db:"admin"`
-		Name       string `json:"name"        db:"name"`
-		Surname    string `json:"surname"     db:"surname"`
-		Patronymic string `json:"patronymic"  db:"patronymic"`
-	}
-
 	// AdminEdit - Структура для передачи изменяемых данных администратора
 	AdminEdit struct {
 		ID         int     `json:"id,omitempty"           db:"id"`
@@ -145,9 +136,8 @@ type (
 	}
 )
 
-func NewAdminCreate(email string, password string) AdminCreate {
-
-	return AdminCreate{
+func NewAdminCreate(email string, password string) UserCreate {
+	return UserCreate{
 		CompanyID:  0,
 		PositionID: 0,
 		Email:      email,
@@ -160,15 +150,59 @@ func NewAdminCreate(email string, password string) AdminCreate {
 	}
 }
 
+// Validation - валидация входящих данных при регистрации администратора.
 func (u *CreateAdmin) Validation() error {
-	return validation.ValidateStruct(u,
-		validation.Field(&u.Email, validation.Required, is.Email, validation.Length(5, 50)),
-		validation.Field(&u.Company, validation.Required, validation.Length(3, 30)))
+	// Проверка на пустоту поля емейл
+	if err := validation.Validate(&u.Email, validation.Required); err != nil {
+		return errs.ErrEmailNotEmpty
+	}
+	// Проверка емейла на коррестность
+	if err := validation.Validate(&u.Email, is.Email); err != nil {
+		return errs.ErrInvalidEmail
+	}
+	// Проверка на пустоту пароля
+	if err := validation.Validate(&u.Password, validation.Required); err != nil {
+		return errs.ErrPasswordNotEmpty
+	}
+	// Проверка на длину пароля
+	if err := validation.Validate(&u.Password, validation.Length(6, 30)); err != nil {
+		return errs.ErrInvalidPassword
+	}
+	// Проверка состава пароля
+	if err := validation.Validate(&u.Password, validation.By(validatePassword(u.Password))); err != nil {
+		return errs.ErrInvalidPassword
+	}
+	// Проверка на пустоту имени компании
+	if err := validation.Validate(&u.Company, validation.Required); err != nil {
+		return errs.ErrCompanyNameNotEmpty
+	}
+	// Проверка длины имени компании
+	if err := validation.Validate(&u.Company, validation.Length(1, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})); err != nil {
+		return errs.ErrIncorrectCompanyName
+	}
+
+	return nil
 }
 
-func (u *CreateAdmin) ValidatePassword() error {
-	return validation.ValidateStruct(u,
-		validation.Field(&u.Password, validation.Required, validation.Length(6, 30)))
+// validatePassword - проверка пароля на состав.
+// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
+func validatePassword(password string) validation.RuleFunc {
+	return func(value interface{}) error {
+		// Минимум 1 цифра
+		numeric := regexp.MustCompile(`\d`).MatchString(password)
+		// Минимум 1 буква в нижнем регистре
+		lowercase := regexp.MustCompile(`[a-z]`).MatchString(password)
+		// Минимум 1 буква в верхнем регистре
+		uppercase := regexp.MustCompile(`[A-Z]`).MatchString(password)
+		// Минимум 1 специальный символ
+		special := strings.ContainsAny(password, "!@#$%^&*()_+")
+
+		if !(numeric && lowercase && uppercase && special) {
+			return errs.ErrInvalidPassword
+		}
+
+		return nil
+	}
 }
 
 func (u *CreateAdmin) SetPassword() error {
@@ -192,7 +226,6 @@ func (e *AdminEdit) Validation() error {
 		validation.Field(&e.Surname, validation.Length(0, 128)),
 		validation.Field(&e.Patronymic, validation.Length(0, 128)),
 	)
-
 }
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

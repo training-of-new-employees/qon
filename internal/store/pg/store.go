@@ -73,23 +73,23 @@ func newPostgresDB(dsn string) (*sqlx.DB, error) {
 	return db, nil
 }
 
-// UserStorage - возвращает хранилище пользователей.
+// UserStorage - хранилище пользователей.
 func (s *Store) UserStorage() store.RepositoryUser {
 	if s.userStore != nil {
 		return s.userStore
 	}
 
-	s.userStore = newUStorages(s.conn)
+	s.userStore = newUStorages(s.conn, s)
 	return s.userStore
 }
 
+// PositionStorage - хранилище должностей.
 func (s *Store) PositionStorage() store.RepositoryPosition {
-
 	if s.positionStore != nil {
 		return s.positionStore
 	}
 
-	s.positionStore = newPositionStorage(s.conn)
+	s.positionStore = newPositionStorage(s.conn, s)
 
 	return s.positionStore
 }

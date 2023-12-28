@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/doar"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
-	randomdigit "github.com/training-of-new-employees/qon/internal/pkg/random-digit"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
@@ -60,21 +61,19 @@ func (u *uService) WriteAdminToCache(
 	ctx context.Context,
 	val model.CreateAdmin,
 ) (*model.CreateAdmin, error) {
-
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
 	}
 
-	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil {
+	_, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) && !errors.Is(err, errs.ErrNotFound) {
 		return nil, err
 	}
-
-	if user.Email == val.Email {
-		return nil, model.ErrEmailAlreadyExists
+	if err == nil {
+		return nil, errs.ErrEmailAlreadyExists
 	}
 
-	code := randomdigit.RandomDigitNumber(4)
+	code := randomseq.RandomDigitNumber(4)
 	key := strings.Join([]string{"register", "admin", code}, ":")
 
 	if err := u.cache.Set(ctx, key, val); err != nil {
@@ -84,17 +83,17 @@ func (u *uService) WriteAdminToCache(
 	logger.Log.Info("cache write successful", zap.String("key", key))
 
 	if err = u.sender.SendCode(val.Email, code); err != nil {
-		return nil, err
+		logger.Log.Error("service error", zap.Error(err))
+		return nil, errs.ErrNotSendEmail
 	}
 
 	return &val, nil
 }
 
 func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-
 	userResp, err := u.db.UserStorage().GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("error failed GetUserByEmail %w", err)
+		return nil, err
 	}
 
 	return userResp, nil
@@ -223,15 +222,15 @@ func (u *uService) DeleteAdminFromCache(ctx context.Context, key string) error {
 	return nil
 }
 
-func (u *uService) CreateAdmin(ctx context.Context, val *model.CreateAdmin) (*model.User, error) {
+// CreateAdmin создаёт администратора в БД
+func (u *uService) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*model.User, error) {
 
-	user, err := u.GetUserByEmail(ctx, val.Email)
-	if err != nil {
+	_, err := u.GetUserByEmail(ctx, val.Email)
+	if err != nil && !errors.Is(err, errs.ErrUserNotFound) {
 		return nil, err
 	}
-
-	if user.Email == val.Email {
-		return nil, model.ErrEmailAlreadyExists
+	if err == nil {
+		return nil, errs.ErrEmailAlreadyExists
 	}
 
 	admin := model.NewAdminCreate(val.Email, val.Password)
@@ -249,9 +248,6 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
-	}
-	if user.Email == "" {
-		return model.ErrUserNotFound
 	}
 
 	encPassword, err := utils.EncryptPassword(password)
@@ -271,9 +267,6 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
 		return err
-	}
-	if user.Email == "" {
-		return model.ErrUserNotFound
 	}
 
 	password := model.GeneratePassword()
@@ -297,8 +290,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 }
 
 // EditAdmin - Валидирует полученные данные и меняет их в БД, если всё впорядке
-func (u *uService) EditAdmin(ctx context.Context, val *model.AdminEdit) (*model.AdminEdit, error) {
-
+func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.AdminEdit, error) {
 	err := val.Validation()
 	if err != nil {
 		return nil, err
