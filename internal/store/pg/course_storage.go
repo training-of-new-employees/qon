@@ -22,34 +22,13 @@ func newCourseStorage(db *sqlx.DB, s *Store) *courseStorage {
 
 func (c *courseStorage) PositionCourses(ctx context.Context, userID int) ([]model.Course, error) {
 	var courses []model.Course
-	qPos := `SELECT position_id FROM users WHERE id = $1`
-	qCoursesID := `SELECT course_id FROM position_course WHERE position_id = $1`
-	qCourses, err := c.db.PreparexContext(ctx, `SELECT id, created_by, active, archived, name, description, created_at, updated_at FROM courses WHERE id = $1`)
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	err = tx(c.db, func(tx *sqlx.Tx) error {
-		var posID int
-		err := tx.GetContext(ctx, &posID, qPos, userID)
-		if err != nil {
-			return err
-		}
-		var coursesID []int
-		err = tx.SelectContext(ctx, &coursesID, qCoursesID, posID)
-		if err != nil {
-			return err
-		}
-		courses = make([]model.Course, len(coursesID))
-		qCourses := tx.Stmtx(qCourses)
-		for i, id := range coursesID {
-			err := qCourses.Get(&courses[i], id)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-
+	qJoin := `SELECT c.id, c.created_by, c.active, c.archived, c.name, c.description, c.created_at, c.updated_at 
+	FROM users u
+	JOIN position_course pc ON u.position_id = pc.position_id
+	JOIN courses c ON pc.course_id = c.id
+	WHERE u.id = $1`
+	err := tx(c.db, func(tx *sqlx.Tx) error {
+		return tx.SelectContext(ctx, courses, qJoin, userID)
 	})
 	return courses, err
 
