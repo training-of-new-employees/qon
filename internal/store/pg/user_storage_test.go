@@ -497,3 +497,55 @@ func (suite *storeTestSuite) TestGetUserByEmail() {
 		})
 	}
 }
+
+func (suite *storeTestSuite) TestGetUsersByCompany() {
+	suite.NotNil(suite.store)
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	// Поиск пользователей в пустой базе по id несуществующей компании
+	users, err := suite.store.UserStorage().GetUsersByCompany(context.TODO(), rnd.Intn(32)+100)
+	suite.Error(err)
+	suite.Empty(users)
+
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	countUsers := rnd.Intn(32) + 2
+	expectedIDs := []int{}
+
+	// Добавление случайного кол-ва пользователей
+	for i := 0; i < countUsers; i++ {
+
+		u := model.NewTestUserCreate()
+		u.CompanyID = company.ID
+		u.PositionID = position.ID
+
+		user, err := suite.store.UserStorage().CreateUser(
+			context.TODO(),
+			u,
+		)
+		suite.NoError(err)
+
+		// Добавление в массив идентификаторов добавленных пользователей
+		expectedIDs = append(expectedIDs, user.ID)
+	}
+
+	// Получение добавленных пользователей
+	users, err = suite.store.UserStorage().GetUsersByCompany(context.TODO(), company.ID)
+	suite.NotEmpty(users)
+	suite.NoError(err)
+
+	// Добавление в массив идентификаторов полученных пользователей
+	actualIDs := []int{}
+	for _, u := range users {
+		actualIDs = append(actualIDs, u.ID)
+	}
+
+	suite.EqualValues(expectedIDs, actualIDs)
+}

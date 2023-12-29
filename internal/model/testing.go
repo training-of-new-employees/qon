@@ -10,9 +10,9 @@ func NewTestUserCreate() UserCreate {
 	return UserCreate{
 		Email:      fmt.Sprintf("%s@example.org", randomseq.RandomHexString(16)),
 		Password:   randomseq.RandomHexString(64),
-		Name:       "Test",
-		Patronymic: "Test",
-		Surname:    "Test",
+		Name:       fmt.Sprintf("Test%s", randomseq.RandomHexString(10)),
+		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomHexString(10)),
+		Surname:    fmt.Sprintf("Test%s", randomseq.RandomHexString(10)),
 		IsAdmin:    false,
 		IsActive:   true,
 	}

@@ -252,18 +252,22 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 	return nil
 }
 
-// GetUsersByCompany - получение информации обо всех пользователях в компании.
+// GetUsersByCompany - получение данных для каждого пользователя в компании.
 func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
-	var users []model.User
+	users := make([]model.User, 0)
 
 	// открываем транзакцию
 	err := u.tx(func(tx *sqlx.Tx) error {
 		query := `SELECT * FROM users WHERE company_id = $1`
-		return tx.SelectContext(ctx, users, query, companyID)
+		return tx.SelectContext(ctx, &users, query, companyID)
 	})
 	if err != nil {
-		return nil, err
+		return nil, handleError(err)
 	}
+	if len(users) == 0 {
+		return nil, errs.ErrUserNotFound
+	}
+
 	return users, nil
 }
 
