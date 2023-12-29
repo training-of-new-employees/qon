@@ -4,24 +4,23 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
-	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
 )
 
 var _ store.RepositoryUser = (*uStorage)(nil)
 
+// uStorage - репозиторий для пользователя (админ, сотрудник).
 type uStorage struct {
 	db *sqlx.DB
 	transaction
 }
 
+// newUStorages - конструктор репозитория пользователя.
 func newUStorages(db *sqlx.DB) *uStorage {
 	return &uStorage{
 		db:          db,
@@ -39,11 +38,8 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 
 		// создание пользователя
 		createdUser, err = u.createUserTx(ctx, tx, val)
-		if err != nil {
-			return err
-		}
 
-		return nil
+		return err
 	})
 	if err != nil {
 		return nil, handleError(err)
@@ -52,7 +48,7 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	return createdUser, nil
 }
 
-// CreateAdmin - создание пользователя (админа).
+// CreateAdmin - создание администратора.
 func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, companyName string) (*model.User, error) {
 	var createdAdmin *model.User
 
@@ -91,7 +87,7 @@ func (u *uStorage) CreateAdmin(ctx context.Context, admin model.UserCreate, comp
 	return createdAdmin, nil
 }
 
-// EditAdmin - меняет данные администратора с заданным ID.
+// EditAdmin - изменение данных администратора.
 func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model.AdminEdit, error) {
 	var user *model.User
 	var company *model.Company
@@ -132,7 +128,7 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 		return nil, handleError(err)
 	}
 
-	// TODO: позже нужно исправить; пока используем такое преобразование для совместимости с верхним уровнем.
+	// TODO: позже нужно исправить, пока используем такое преобразование для совместимости с верхним уровнем
 	admin.ID = user.ID
 	admin.Email = &user.Email
 	admin.Name = &user.Name
@@ -143,7 +139,7 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 	return &admin, nil
 }
 
-// GetUserByID - получить данные пользователя по ID.
+// GetUserByID - получение данных пользователя по ID.
 func (u *uStorage) GetUserByID(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 
@@ -169,7 +165,7 @@ func (u *uStorage) GetUserByID(ctx context.Context, id int) (*model.User, error)
 	return &user, nil
 }
 
-// GetUserByEmail - получить данные пользователя по емейл.
+// GetUserByEmail - получение данных пользователя по емейлу.
 func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
 
@@ -195,7 +191,7 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 	return &user, nil
 }
 
-// EditUser - редактировать данные пользователя.
+// EditUser - редактирование данных пользователя.
 func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.UserEdit, error) {
 	var user *model.User
 
@@ -215,7 +211,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 		return nil, handleError(err)
 	}
 
-	// TODO: позже нужно исправить, пока используем такое преобразование для совместимости с верхним уровнем.
+	// TODO: позже нужно исправить, пока используем такое преобразование для совместимости с верхним уровнем
 	edit.ID = user.ID
 	edit.CompanyID = &user.CompanyID
 	edit.PositionID = &user.PositionID
@@ -229,42 +225,38 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 	return edit, nil
 }
 
-// SetPasswordAndActivateUser установка пароля и активация пользователя.
+// SetPasswordAndActivateUser - установка пароля и активация пользователя.
 func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, encPassword string) error {
-	tx, err := u.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-
-	defer func() {
-		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
+	// открываем транзакцию
+	err := u.tx(func(tx *sqlx.Tx) error {
+		// Установка нового пароля
+		if err := u.updatePasswordTx(ctx, tx, userID, encPassword); err != nil {
+			return err
 		}
-	}()
 
-	// Установка нового пароля
-	if err := u.updatePasswordTx(ctx, tx, userID, encPassword); err != nil {
-		return err
-	}
+		// Активация пользователя
+		if err := u.activateUserTx(ctx, tx, userID); err != nil {
+			return err
+		}
 
-	// Активация пользователя
-	if err := u.activateUserTx(ctx, tx, userID); err != nil {
-		return err
-	}
+		return nil
+	})
 
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("committing tx: %w", err)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errs.ErrUserNotFound
+		}
+		return handleError(err)
 	}
 
 	return nil
 }
 
-// GetUsersByCompany - получает информацию обо всех пользователях в компании.
+// GetUsersByCompany - получение информации обо всех пользователях в компании.
 func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
 	var users []model.User
 
+	// открываем транзакцию
 	err := u.tx(func(tx *sqlx.Tx) error {
 		query := `SELECT * FROM users WHERE company_id = $1`
 		return tx.SelectContext(ctx, users, query, companyID)
@@ -275,27 +267,18 @@ func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 	return users, nil
 }
 
+// UpdateUserPassword - обновление пароля пользователя.
 func (u *uStorage) UpdateUserPassword(ctx context.Context, userID int, password string) error {
-	tx, err := u.db.Beginx()
+	err := u.tx(func(tx *sqlx.Tx) error {
+		// Установка нового пароля
+		return u.updatePasswordTx(ctx, tx, userID, password)
+	})
+
 	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-
-	defer func() {
-		if err != nil {
-			if err := tx.Rollback(); err != nil {
-				logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-			}
+		if errors.Is(err, sql.ErrNoRows) {
+			return errs.ErrUserNotFound
 		}
-	}()
-
-	// Установка нового пароля
-	if err := u.updatePasswordTx(ctx, tx, userID, password); err != nil {
-		return err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("committing tx: %w", err)
+		return handleError(err)
 	}
 
 	return nil
