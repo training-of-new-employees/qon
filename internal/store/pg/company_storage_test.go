@@ -57,7 +57,7 @@ func (suite *storeTestSuite) TestGetCompany() {
 		},
 		{
 			name:      "not found",
-			companyID: rnd.Intn(32) + 2,
+			companyID: rnd.Intn(32) + 100,
 			err:       errs.ErrCompanyNotFound,
 		},
 	}

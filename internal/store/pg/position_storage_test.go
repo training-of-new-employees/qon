@@ -201,8 +201,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 		{
 			name: "random position",
 			payload: func() int {
-				positionID := position.ID + rnd.Intn(32)
-				return positionID
+				return rnd.Intn(32) + 100
 			},
 			err: errs.ErrPositionNotFound,
 		},

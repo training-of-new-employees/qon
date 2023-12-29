@@ -2,6 +2,8 @@ package pg
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -404,6 +406,106 @@ func (suite *storeTestSuite) TestEditAdmin() {
 			if expectedCompany != nil {
 				suite.Equal(*afterCompany, *expectedCompany)
 			}
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestGetUserByID() {
+	suite.NotNil(suite.store)
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	testCases := []struct {
+		name   string
+		userID func() int
+		err    error
+	}{
+		{
+			name: "success",
+			userID: func() int {
+				return user.ID
+			},
+			err: nil,
+		},
+		{
+			name: "random user id",
+			userID: func() int {
+				return rnd.Intn(32) + 100
+			},
+			err: errs.ErrUserNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			userID := tc.userID()
+			_, err := suite.store.UserStorage().GetUserByID(context.TODO(), userID)
+			suite.Equal(tc.err, err)
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestGetUserByEmail() {
+	suite.NotNil(suite.store)
+
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	testCases := []struct {
+		name      string
+		userEmail func() string
+		err       error
+	}{
+		{
+			name: "success",
+			userEmail: func() string {
+				return user.Email
+			},
+			err: nil,
+		},
+		{
+			name: "random user email",
+			userEmail: func() string {
+				return model.NewTestUserCreate().Email
+			},
+			err: errs.ErrUserNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			email := tc.userEmail()
+			_, err := suite.store.UserStorage().GetUserByEmail(context.TODO(), email)
+			suite.Equal(tc.err, err)
 		})
 	}
 }
