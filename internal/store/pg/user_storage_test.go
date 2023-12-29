@@ -7,6 +7,7 @@ import (
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
 func (suite *storeTestSuite) TestCreateUser() {
@@ -183,6 +184,8 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 func (suite *storeTestSuite) TestEditUser() {
 	suite.NotNil(suite.store)
 
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
 	// Cоздаём компанию
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
@@ -203,107 +206,88 @@ func (suite *storeTestSuite) TestEditUser() {
 
 	testCases := []struct {
 		name string
-		data func() (model.UserEdit, *model.User)
+		data func() (model.UserEdit, *model.User) // получаем данные для редактирования и ожидаемый результат
 		err  error
 	}{
 		{
-			name: "edit only email",
+			name: "not found",
 			data: func() (model.UserEdit, *model.User) {
-				editField := model.UserEdit{ID: user.ID}
-
-				// Данные для редактирования
-				editedEmail := "new@newemail.org"
-				editField.Email = &editedEmail
-
-				// Ожидаемые данные после редактирования
-				expected := user
-				expected.Email = editedEmail
-
-				return editField, expected
+				return model.UserEdit{ID: rnd.Intn(32) + 100}, nil
 			},
-			err: nil,
+			err: errs.ErrUserNotFound,
 		},
 		{
-			name: "edit only name patronymic surname",
+			name: "success",
 			data: func() (model.UserEdit, *model.User) {
 				editField := model.UserEdit{ID: user.ID}
 
-				// Данные для редактирования
-				editedName := "Edited"
-				editedPatronymic := "Edited"
-				editedSurname := "Edited"
+				// ожидаемые данные пользователя
+				expected := *user
 
-				editField.Name = &editedName
-				editField.Patronymic = &editedPatronymic
-				editField.Surname = &editedSurname
+				// Определяем случайным образом значения для редактирования данных пользователя:
+				// Изменение емейла
+				if randomseq.RandomBool() {
+					email := "new@newemail.org"
 
-				// Ожидаемые данные после редактирования
-				expected := user
-				expected.Name = editedName
-				expected.Patronymic = editedName
-				expected.Surname = editedName
+					editField.Email = &email
+					expected.Email = email
 
-				return editField, expected
+				}
+				// Изменение имени
+				if randomseq.RandomBool() {
+					name := "somename"
+
+					editField.Name = &name
+					expected.Name = name
+				}
+				// Изменение отчества
+				if randomseq.RandomBool() {
+					patronymic := "somepatronymic"
+
+					editField.Patronymic = &patronymic
+					expected.Patronymic = patronymic
+				}
+				// Изменение фамилии
+				if randomseq.RandomBool() {
+					surname := "somesurname"
+
+					editField.Surname = &surname
+					expected.Surname = surname
+				}
+				// Изменение статуса архив
+				if randomseq.RandomBool() {
+					archived := randomseq.RandomBool()
+
+					editField.IsArchived = &archived
+					expected.IsArchived = archived
+				}
+				// Изменение статуса активности
+				if randomseq.RandomBool() {
+					active := randomseq.RandomBool()
+
+					editField.IsActive = &active
+					expected.IsActive = active
+				}
+
+				return editField, &expected
 			},
-			err: nil,
-		},
-		{
-			name: "edit only archived",
-			data: func() (model.UserEdit, *model.User) {
-				editField := model.UserEdit{ID: user.ID}
-
-				// Данные для редактирования
-				editedArchived := true
-				editField.IsArchived = &editedArchived
-
-				// Ожидаемые данные после редактирования
-				expected := user
-				expected.IsArchived = editedArchived
-
-				return editField, expected
-			},
-			err: nil,
-		},
-		{
-			name: "edit only active",
-			data: func() (model.UserEdit, *model.User) {
-				editField := model.UserEdit{ID: user.ID}
-
-				// Данные для редактирования
-				editedActive := false
-				editField.IsActive = &editedActive
-
-				// Ожидаемые данные после редактирования
-				expected := user
-				expected.IsActive = editedActive
-
-				return editField, expected
-			},
-
 			err: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			// Данные пользователя до редактирования
-			before, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)
-			suite.NoError(err)
-			suite.NotEmpty(before)
-
-			editUser, expected := tc.data()
+			editUser, expectedResult := tc.data()
 
 			// Редактирование записи пользователя
-			_, err = suite.store.UserStorage().EditUser(context.TODO(), &editUser)
+			_, err := suite.store.UserStorage().EditUser(context.TODO(), &editUser)
 			suite.Equal(err, tc.err)
 
-			// Данные пользователя после редактирования
-			after, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)
-			suite.NoError(err)
-			suite.NotEmpty(after)
-
-			suite.NotEqual(*before, *after)
-			suite.Equal(*after, *expected)
+			// Проверка данных пользователя после редактирования
+			after, _ := suite.store.UserStorage().GetUserByID(context.TODO(), editUser.ID)
+			if after != nil {
+				suite.Equal(expectedResult, after)
+			}
 		})
 	}
 }
@@ -311,72 +295,81 @@ func (suite *storeTestSuite) TestEditUser() {
 func (suite *storeTestSuite) TestEditAdmin() {
 	suite.NotNil(suite.store)
 
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	// Cоздаём администратора
 	user, err := suite.store.UserStorage().CreateAdmin(context.TODO(), model.NewTestUserCreate(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(user)
 
+	// Получаем данные компании
 	company, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
+	suite.NoError(err)
+	suite.NotEmpty(company)
 
 	testCases := []struct {
 		name string
-		data func() (model.AdminEdit, *model.User, *model.Company)
+		data func() (model.AdminEdit, *model.User, *model.Company) // получаем данные для редактирования и ожидаемый результат
 		err  error
 	}{
 		{
-			name: "edit only email",
+			name: "not found",
 			data: func() (model.AdminEdit, *model.User, *model.Company) {
-				editField := model.AdminEdit{ID: user.ID}
+				expectedCompany := *company
 
-				// Данные для редактирования
-				editedEmail := "new@newemail.org"
-				editField.Email = &editedEmail
+				adminEdit := model.AdminEdit{ID: rnd.Intn(32) + 100}
 
-				// Ожидаемые данные после редактирования
-				expected := user
-				expected.Email = editedEmail
-
-				return editField, expected, nil
+				return adminEdit, nil, &expectedCompany
 			},
-			err: nil,
+			err: errs.ErrUserNotFound,
 		},
 		{
-			name: "edit only name patronymic surname",
+			name: "success",
 			data: func() (model.AdminEdit, *model.User, *model.Company) {
-				editField := model.AdminEdit{ID: user.ID}
+				expectedCompany := *company
+				expectedUser := *user
 
-				// Данные для редактирования
-				editedName := "Edited"
-				editedPatronymic := "Edited"
-				editedSurname := "Edited"
+				adminEdit := model.AdminEdit{ID: user.ID}
 
-				editField.Name = &editedName
-				editField.Patronymic = &editedPatronymic
-				editField.Surname = &editedSurname
+				// Определяем случайным образом значения для редактирования данных администратора:
+				// Изменение емейла
+				if randomseq.RandomBool() {
+					email := "new@newemail.org"
 
-				// Ожидаемые данные после редактирования
-				expected := user
-				expected.Name = editedName
-				expected.Patronymic = editedName
-				expected.Surname = editedName
+					adminEdit.Email = &email
+					expectedUser.Email = email
 
-				return editField, expected, nil
-			},
-			err: nil,
-		},
-		{
-			name: "edit only company name",
-			data: func() (model.AdminEdit, *model.User, *model.Company) {
-				editField := model.AdminEdit{ID: user.ID}
+				}
+				// Изменение имени
+				if randomseq.RandomBool() {
+					name := "somename"
 
-				// Данные для редактирования
-				editedCompanyName := "new-company-name"
-				editField.Company = &editedCompanyName
+					adminEdit.Name = &name
+					expectedUser.Name = name
+				}
+				// Изменение отчества
+				if randomseq.RandomBool() {
+					patronymic := "somepatronymic"
 
-				// Ожидаемые данные после редактирования
-				expected := company
-				expected.Name = editedCompanyName
+					adminEdit.Patronymic = &patronymic
+					expectedUser.Patronymic = patronymic
+				}
+				// Изменение фамилии
+				if randomseq.RandomBool() {
+					surname := "somesurname"
 
-				return editField, nil, expected
+					adminEdit.Surname = &surname
+					expectedUser.Surname = surname
+				}
+				// Изменение имени компании
+				if randomseq.RandomBool() {
+					companyName := randomseq.RandomString(10)
+
+					adminEdit.Company = &companyName
+					expectedCompany.Name = companyName
+				}
+
+				return adminEdit, &expectedUser, &expectedCompany
 			},
 			err: nil,
 		},
@@ -384,28 +377,23 @@ func (suite *storeTestSuite) TestEditAdmin() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			editUser, expectedUser, expectedCompany := tc.data()
+			adminEdit, expectedUser, expectedCompany := tc.data()
 
 			// Редактирование записи пользователя
-			_, err = suite.store.UserStorage().EditAdmin(context.TODO(), editUser)
+			_, err = suite.store.UserStorage().EditAdmin(context.TODO(), adminEdit)
+			suite.Equal(tc.err, err)
 
 			// Данные пользователя после редактирования
-			afterUser, err := suite.store.UserStorage().GetUserByID(context.TODO(), user.ID)
-			suite.NoError(err)
-			suite.NotEmpty(afterUser)
-
-			afterCompany, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
-			suite.NoError(err)
-			suite.NotEmpty(afterCompany)
-
-			if expectedUser != nil {
-				// suite.NotEqual(*beforeCompany, *afterCompany)
-				suite.Equal(*afterUser, *expectedUser)
+			userAfter, _ := suite.store.UserStorage().GetUserByID(context.TODO(), adminEdit.ID)
+			if userAfter != nil {
+				suite.Equal(expectedUser, userAfter)
 			}
 
-			if expectedCompany != nil {
-				suite.Equal(*afterCompany, *expectedCompany)
-			}
+			// Название компании после редактирования
+			companyAfter, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
+			suite.NoError(err)
+			suite.Equal(expectedCompany.Name, companyAfter.Name)
+
 		})
 	}
 }

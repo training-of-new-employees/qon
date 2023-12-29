@@ -96,6 +96,7 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 	var user *model.User
 	var company *model.Company
 
+	// открываем транзакцию
 	err := u.tx(func(tx *sqlx.Tx) error {
 		var err error
 
@@ -108,21 +109,15 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 			},
 		)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return errs.ErrUserNotFound
-			}
 			return err
 		}
 
-		// Изменение имени компании
+		// Изменение названия компании
 		company, err = u.updateCompanyTx(
 			ctx, tx,
 			model.CompanyEdit{ID: user.CompanyID, Name: admin.Company},
 		)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return errs.ErrCompanyNotFound
-			}
 			return err
 		}
 
@@ -130,6 +125,10 @@ func (u *uStorage) EditAdmin(ctx context.Context, admin model.AdminEdit) (*model
 	})
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrUserNotFound
+		}
+
 		return nil, handleError(err)
 	}
 
@@ -200,24 +199,23 @@ func (u *uStorage) GetUserByEmail(ctx context.Context, email string) (*model.Use
 func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.UserEdit, error) {
 	var user *model.User
 
+	// открываем транзакцию
 	err := u.tx(func(tx *sqlx.Tx) error {
 		var err error
-		user, err = u.updateUserTx(ctx, tx, *edit)
-		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return errs.ErrUserNotFound
-			}
-			return err
-		}
 
-		return nil
+		user, err = u.updateUserTx(ctx, tx, *edit)
+
+		return err
 	})
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrUserNotFound
+		}
 		return nil, handleError(err)
 	}
 
-	// TODO: позже нужно исправить; пока используем такое преобразование для совместимости с верхним уровнем.
+	// TODO: позже нужно исправить, пока используем такое преобразование для совместимости с верхним уровнем.
 	edit.ID = user.ID
 	edit.CompanyID = &user.CompanyID
 	edit.PositionID = &user.PositionID
