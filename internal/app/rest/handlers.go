@@ -64,7 +64,7 @@ func (s *RestServer) InitRoutes() {
 	adminCourses := courses.Group("")
 	adminCourses.Use(s.IsAdmin())
 	adminCourses.POST("", s.handlerCreateCourse)
-	adminCourses.PUT("/:id", s.handlerPutCourse)
+	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
