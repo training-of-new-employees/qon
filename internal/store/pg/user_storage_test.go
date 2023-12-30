@@ -549,3 +549,133 @@ func (suite *storeTestSuite) TestGetUsersByCompany() {
 
 	suite.EqualValues(expectedIDs, actualIDs)
 }
+
+func (suite *storeTestSuite) TestSetPassword() {
+	suite.NotNil(suite.store)
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	// Cоздаём компанию
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// Cоздаём должность
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	// Cоздаём пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	testCases := []struct {
+		name     string
+		userID   int
+		password string
+		err      error
+	}{
+		{
+			name:     "success",
+			userID:   user.ID,
+			password: randomseq.RandomString(20),
+			err:      nil,
+		},
+		{
+			name:     "not found",
+			userID:   rnd.Intn(32) + 100,
+			password: randomseq.RandomString(20),
+			err:      errs.ErrUserNotFound,
+		},
+		{
+			name:     "empty password",
+			userID:   user.ID,
+			password: "",
+			err:      errs.ErrPasswordNotEmpty,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			err := suite.store.UserStorage().UpdateUserPassword(context.TODO(), tc.userID, tc.password)
+			suite.Equal(tc.err, err)
+
+			userAfter, _ := suite.store.UserStorage().GetUserByID(context.TODO(), tc.userID)
+			// используется только в успешном кейсе
+			if err == nil && userAfter != nil {
+				suite.Equal(tc.password, userAfter.Password)
+			}
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestSetPasswordAndActivateUser() {
+	suite.NotNil(suite.store)
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	// Cоздаём компанию
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// Cоздаём должность
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+	u.IsActive = false
+
+	// Cоздаём пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	testCases := []struct {
+		name     string
+		userID   int
+		password string
+		err      error
+	}{
+		{
+			name:     "success",
+			userID:   user.ID,
+			password: randomseq.RandomString(20),
+			err:      nil,
+		},
+		{
+			name:     "not found",
+			userID:   rnd.Intn(32) + 100,
+			password: randomseq.RandomString(20),
+			err:      errs.ErrUserNotFound,
+		},
+		{
+			name:     "empty password",
+			userID:   user.ID,
+			password: "",
+			err:      errs.ErrPasswordNotEmpty,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			err := suite.store.UserStorage().SetPasswordAndActivateUser(context.TODO(), tc.userID, tc.password)
+			suite.Equal(tc.err, err)
+
+			userAfter, _ := suite.store.UserStorage().GetUserByID(context.TODO(), tc.userID)
+			// используется только в успешном кейсе
+			if err == nil && userAfter != nil {
+				suite.Equal(tc.password, userAfter.Password)
+				suite.Equal(true, userAfter.IsActive)
+			}
+		})
+	}
+}
