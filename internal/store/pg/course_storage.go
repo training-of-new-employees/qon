@@ -46,11 +46,27 @@ func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]mo
 	return courses, err
 }
 
-func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet, creatorID int) (*model.Course, error) {
-	res := &model.Course{}
-	qCreate := `INSERT INTO courses (name, description, created_by) VALUES ($1, $2, $3) RETURNING id, created_by, active, archived, name, description, created_at, updated_at`
+func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet) (*model.Course, error) {
+	var res *model.Course
+	qCreate := `INSERT INTO courses (name, description, created_by)
+	VALUES ($1, $2, $3)
+	RETURNING id, created_by, active, archived, name, description, created_at, updated_at`
 	err := tx(c.db, func(tx *sqlx.Tx) error {
-		return tx.GetContext(ctx, res, qCreate, course.Name, course.Description, creatorID)
+		return tx.GetContext(ctx, res, qCreate, course.Name, course.Description, course.CreatedBy)
 	})
 	return res, err
+}
+
+func (c *courseStorage) EditCourse(ctx context.Context, course model.CourseSet) (*model.Course, error) {
+	var res *model.Course
+	// TODO: не позволять вносить изменения админу из другой компании
+	qEdit := `UPDATE courses 
+	SET name=COALESCE($1,name), description=COALESCE($2,description), archived=$3
+	WHERE id=$4 
+	RETURNING id, created_by, active, archived, name, description, created_at, updated_at`
+	err := tx(c.db, func(tx *sqlx.Tx) error {
+		return tx.GetContext(ctx, res, qEdit, course.Name, course.Description, course.IsArchived, course.ID)
+	})
+	return res, err
+
 }
