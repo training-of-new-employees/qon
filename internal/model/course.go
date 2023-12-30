@@ -21,6 +21,8 @@ type Course struct {
 }
 
 type CourseSet struct {
+	ID          int    `db:"id" json:"-"`
+	CreatedBy   int    `db:"created_by" json:"-"`
 	Name        string `db:"name" json:"name"`
 	Description string `db:"description" json:"description,omitempty"`
 	IsArchived  bool   `db:"archived" json:"archived,omitempty"`
@@ -48,4 +50,10 @@ func (cs *CourseSet) Validation() error {
 		Description: cs.Description,
 	}
 	return c.Validation()
+}
+func NewCourseSet(id int, creator int) CourseSet {
+	return CourseSet{
+		ID:        id,
+		CreatedBy: creator,
+	}
 }
