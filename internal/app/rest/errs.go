@@ -4,9 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
-	"go.uber.org/zap"
 )
 
 // errorToCode - мапа соответствия ошибки http-коду.
@@ -15,14 +16,17 @@ var errorToCode = map[string]int{
 	errs.ErrNotFound.Error():     http.StatusNotFound,
 	errs.ErrUserNotFound.Error(): http.StatusNotFound,
 
-	errs.ErrBadRequest.Error():           http.StatusBadRequest,
-	errs.ErrInvalidRequest.Error():       http.StatusBadRequest,
-	errs.ErrEmailNotEmpty.Error():        http.StatusBadRequest,
-	errs.ErrInvalidEmail.Error():         http.StatusBadRequest,
-	errs.ErrPasswordNotEmpty.Error():     http.StatusBadRequest,
-	errs.ErrInvalidPassword.Error():      http.StatusBadRequest,
-	errs.ErrCompanyNameNotEmpty.Error():  http.StatusBadRequest,
-	errs.ErrIncorrectCompanyName.Error(): http.StatusBadRequest,
+	errs.ErrBadRequest.Error():               http.StatusBadRequest,
+	errs.ErrInvalidRequest.Error():           http.StatusBadRequest,
+	errs.ErrEmailNotEmpty.Error():            http.StatusBadRequest,
+	errs.ErrInvalidEmail.Error():             http.StatusBadRequest,
+	errs.ErrPasswordNotEmpty.Error():         http.StatusBadRequest,
+	errs.ErrInvalidPassword.Error():          http.StatusBadRequest,
+	errs.ErrCompanyNameNotEmpty.Error():      http.StatusBadRequest,
+	errs.ErrIncorrectCompanyName.Error():     http.StatusBadRequest,
+	errs.ErrCourseDescriptionInvalid.Error(): http.StatusBadRequest,
+	errs.ErrCourseNameInvalid.Error():        http.StatusBadRequest,
+	errs.ErrCourseNameNotEmpty.Error():       http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
 

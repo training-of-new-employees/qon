@@ -25,6 +25,21 @@ func (r *RestServer) handlerGetCourses(c *gin.Context) {
 
 }
 func (r *RestServer) handlerCreateCourse(c *gin.Context) {
+	ctx := c.Request.Context()
+	course := model.CourseSet{}
+	err := c.BindJSON(&course)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+	us := r.getUserSession(c)
+	created, err := r.services.Course().CreateCourse(ctx, course, us.UserID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, created)
+
 }
 func (r *RestServer) handlerPutCourse(c *gin.Context) {
 }
