@@ -26,3 +26,11 @@ func (cs *courseService) GetCourses(ctx context.Context, u model.User) ([]model.
 	}
 	return cs.db.CourseStorage().CompanyCourses(ctx, u.CompanyID)
 }
+
+func (cs *courseService) CreateCourse(ctx context.Context, c model.CourseSet, creatorID int) (*model.Course, error) {
+	err := c.Validation()
+	if err != nil {
+		return nil, err
+	}
+	return cs.db.CourseStorage().CreateCourse(ctx, c, creatorID)
+}
