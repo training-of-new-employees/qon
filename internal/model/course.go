@@ -2,6 +2,11 @@ package model
 
 import (
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+
+	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 type Course struct {
@@ -13,4 +18,34 @@ type Course struct {
 	Description string    `db:"description" json:"description"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type CourseSet struct {
+	Name        string `db:"name" json:"name"`
+	Description string `db:"description" json:"description,omitempty"`
+	IsArchived  bool   `db:"archived" json:"archived,omitempty"`
+}
+
+func (c *Course) Validation() error {
+	err := validation.Validate(&c.Name, validation.Required)
+	if err != nil {
+		return errs.ErrCourseNameNotEmpty
+	}
+	err = validation.Validate(&c.Name, validation.Length(5, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	if err != nil {
+		return errs.ErrCourseNameInvalid
+	}
+	validation.Validate(&c.Description, validation.Length(10, 512), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	if err != nil {
+		return errs.ErrCourseDescriptionInvalid
+	}
+	return nil
+}
+
+func (cs *CourseSet) Validation() error {
+	c := Course{
+		Name:        cs.Name,
+		Description: cs.Description,
+	}
+	return c.Validation()
 }
