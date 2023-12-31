@@ -13,11 +13,13 @@ import (
 
 var _ store.RepositoryCompany = (*companyStorage)(nil)
 
+// companyStorage - репозиторий для компании/организации.
 type companyStorage struct {
 	db *sqlx.DB
 	transaction
 }
 
+// newCompanyStorage - конструктор репозитория компании/организации.
 func newCompanyStorage(db *sqlx.DB) *companyStorage {
 	return &companyStorage{
 		db:          db,
@@ -25,7 +27,7 @@ func newCompanyStorage(db *sqlx.DB) *companyStorage {
 	}
 }
 
-// createCompany - создание компании.
+// createCompany - создание компании/организации.
 func (c *companyStorage) CreateCompany(ctx context.Context, companyName string) (*model.Company, error) {
 	var createdCompany *model.Company
 
@@ -48,9 +50,11 @@ func (c *companyStorage) CreateCompany(ctx context.Context, companyName string) 
 	return createdCompany, nil
 }
 
-// GetCompany - получает информацию о компании по id.
+// GetCompany - получение информации о компании/организации по id.
 func (c *companyStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
 	var comp *model.Company
+
+	// открываем транзакцию
 	err := c.tx(func(tx *sqlx.Tx) error {
 		var err error
 		comp, err = c.getCompanyTx(ctx, tx, id)
