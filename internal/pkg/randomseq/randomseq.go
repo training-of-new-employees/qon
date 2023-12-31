@@ -53,3 +53,8 @@ func RandomString(n int) string {
 func RandomBool() bool {
 	return rnd.Intn(2) == 1
 }
+
+// RandomTestInt - генерирует случайное число от 100 до 356.
+func RandomTestInt() int {
+	return 100 + rnd.Intn(256)
+}

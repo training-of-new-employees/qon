@@ -2,8 +2,7 @@ package pg
 
 import (
 	"context"
-	"math/rand"
-	"time"
+	"fmt"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -13,15 +12,18 @@ import (
 func (suite *storeTestSuite) TestCreateUser() {
 	suite.NotNil(suite.store)
 
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
-	uniqueEmail := "some@example.org"
+	// емейл для проверки уникальности поля 'email'
+	uniqueEmail := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
 
 	testCases := []struct {
 		name string
@@ -46,6 +48,9 @@ func (suite *storeTestSuite) TestCreateUser() {
 				u := model.NewTestUserCreate()
 				u.CompanyID = company.ID
 				u.PositionID = position.ID
+
+				// 2-ой раз используем емейл из предыдущего кейса (кейс "success")
+				// для проверки уникальности поля 'email'
 				u.Email = uniqueEmail
 
 				return u
@@ -56,7 +61,7 @@ func (suite *storeTestSuite) TestCreateUser() {
 			name: "not reference company id",
 			data: func() model.UserCreate {
 				u := model.NewTestUserCreate()
-				u.CompanyID = 0
+				u.CompanyID = randomseq.RandomTestInt()
 
 				return u
 			},
@@ -67,7 +72,7 @@ func (suite *storeTestSuite) TestCreateUser() {
 			data: func() model.UserCreate {
 				u := model.NewTestUserCreate()
 				u.CompanyID = company.ID
-				u.PositionID = 0
+				u.PositionID = randomseq.RandomTestInt()
 
 				return u
 			},
@@ -85,7 +90,6 @@ func (suite *storeTestSuite) TestCreateUser() {
 			},
 			err: errs.ErrEmailNotEmpty,
 		},
-
 		{
 			name: "empty password",
 			data: func() model.UserCreate {
@@ -113,11 +117,12 @@ func (suite *storeTestSuite) TestCreateUser() {
 func (suite *storeTestSuite) TestCreateAdmin() {
 	suite.NotNil(suite.store)
 
-	uniqueEmail := "some@example.org"
+	// емейл для проверки уникальности поля 'email'
+	uniqueEmail := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
 
 	testCases := []struct {
 		name string
-		data func() (string, model.UserCreate)
+		data func() (string, model.UserCreate) // возвращает название компании и данные администратора для создания
 		err  error
 	}{
 		{
@@ -126,17 +131,17 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 				u := model.NewTestUserCreate()
 				u.Email = uniqueEmail
 
-				return "test-company", u
+				return "test-company-1", u
 			},
 			err: nil,
 		},
 		{
-			name: "success",
+			name: "unique email",
 			data: func() (string, model.UserCreate) {
 				u := model.NewTestUserCreate()
 				u.Email = uniqueEmail
 
-				return "test-company", u
+				return "test-company-2", u
 			},
 			err: errs.ErrEmailAlreadyExists,
 		},
@@ -155,7 +160,7 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 				u := model.NewTestUserCreate()
 				u.Email = ""
 
-				return "test-company", u
+				return "test-company-3", u
 			},
 			err: errs.ErrEmailNotEmpty,
 		},
@@ -165,7 +170,7 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 				u := model.NewTestUserCreate()
 				u.Password = ""
 
-				return "test-company", u
+				return "test-company-4", u
 			},
 			err: errs.ErrPasswordNotEmpty,
 		},
@@ -184,14 +189,12 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 func (suite *storeTestSuite) TestEditUser() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	// Cоздаём компанию
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
-	// Cоздаём должность
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
@@ -199,20 +202,20 @@ func (suite *storeTestSuite) TestEditUser() {
 	u := model.NewTestUserCreate()
 	u.CompanyID = company.ID
 	u.PositionID = position.ID
-	// Cоздаём пользователя
+	// добавление пользователя
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
 	suite.NoError(err)
 	suite.NotEmpty(user)
 
 	testCases := []struct {
 		name string
-		data func() (model.UserEdit, *model.User) // получаем данные для редактирования и ожидаемый результат
+		data func() (model.UserEdit, *model.User) // возвращает данные для редактирования и ожидаемый результат для проверки тест-кейса
 		err  error
 	}{
 		{
 			name: "not found",
 			data: func() (model.UserEdit, *model.User) {
-				return model.UserEdit{ID: rnd.Intn(32) + 100}, nil
+				return model.UserEdit{ID: randomseq.RandomTestInt()}, nil
 			},
 			err: errs.ErrUserNotFound,
 		},
@@ -224,44 +227,45 @@ func (suite *storeTestSuite) TestEditUser() {
 				// ожидаемые данные пользователя
 				expected := *user
 
-				// Определяем случайным образом значения для редактирования данных пользователя:
-				// Изменение емейла
+				// определение случайным образом полей для редактирования:
+				//
+				// изменение емейла
 				if randomseq.RandomBool() {
-					email := "new@newemail.org"
+					email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
 
 					editField.Email = &email
 					expected.Email = email
 
 				}
-				// Изменение имени
+				// изменение имени
 				if randomseq.RandomBool() {
-					name := "somename"
+					name := randomseq.RandomString(8)
 
 					editField.Name = &name
 					expected.Name = name
 				}
-				// Изменение отчества
+				// изменение отчества
 				if randomseq.RandomBool() {
-					patronymic := "somepatronymic"
+					patronymic := randomseq.RandomString(8)
 
 					editField.Patronymic = &patronymic
 					expected.Patronymic = patronymic
 				}
-				// Изменение фамилии
+				// изменение фамилии
 				if randomseq.RandomBool() {
-					surname := "somesurname"
+					surname := randomseq.RandomString(8)
 
 					editField.Surname = &surname
 					expected.Surname = surname
 				}
-				// Изменение статуса архив
+				// изменение статуса архив
 				if randomseq.RandomBool() {
 					archived := randomseq.RandomBool()
 
 					editField.IsArchived = &archived
 					expected.IsArchived = archived
 				}
-				// Изменение статуса активности
+				// изменение статуса активности
 				if randomseq.RandomBool() {
 					active := randomseq.RandomBool()
 
@@ -285,7 +289,9 @@ func (suite *storeTestSuite) TestEditUser() {
 
 			// Проверка данных пользователя после редактирования
 			after, _ := suite.store.UserStorage().GetUserByID(context.TODO(), editUser.ID)
-			if after != nil {
+
+			// используется только при успешном кейсе
+			if err == nil && after != nil {
 				suite.Equal(expectedResult, after)
 			}
 		})
@@ -295,21 +301,19 @@ func (suite *storeTestSuite) TestEditUser() {
 func (suite *storeTestSuite) TestEditAdmin() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	// Cоздаём администратора
+	// добавление администратора
 	user, err := suite.store.UserStorage().CreateAdmin(context.TODO(), model.NewTestUserCreate(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(user)
 
-	// Получаем данные компании
+	// получение данных компании
 	company, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
 	testCases := []struct {
 		name string
-		data func() (model.AdminEdit, *model.User, *model.Company) // получаем данные для редактирования и ожидаемый результат
+		data func() (model.AdminEdit, *model.User, *model.Company) // получаем данные для редактирования и ожидаемый результат для проверки тест-кейса
 		err  error
 	}{
 		{
@@ -317,7 +321,7 @@ func (suite *storeTestSuite) TestEditAdmin() {
 			data: func() (model.AdminEdit, *model.User, *model.Company) {
 				expectedCompany := *company
 
-				adminEdit := model.AdminEdit{ID: rnd.Intn(32) + 100}
+				adminEdit := model.AdminEdit{ID: randomseq.RandomTestInt()}
 
 				return adminEdit, nil, &expectedCompany
 			},
@@ -331,39 +335,40 @@ func (suite *storeTestSuite) TestEditAdmin() {
 
 				adminEdit := model.AdminEdit{ID: user.ID}
 
-				// Определяем случайным образом значения для редактирования данных администратора:
-				// Изменение емейла
+				// определение случайным образом полей для редактирования:
+				//
+				// изменение емейла
 				if randomseq.RandomBool() {
-					email := "new@newemail.org"
+					email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
 
 					adminEdit.Email = &email
 					expectedUser.Email = email
 
 				}
-				// Изменение имени
+				// изменение имени
 				if randomseq.RandomBool() {
-					name := "somename"
+					name := randomseq.RandomString(8)
 
 					adminEdit.Name = &name
 					expectedUser.Name = name
 				}
-				// Изменение отчества
+				// изменение отчества
 				if randomseq.RandomBool() {
-					patronymic := "somepatronymic"
+					patronymic := randomseq.RandomString(8)
 
 					adminEdit.Patronymic = &patronymic
 					expectedUser.Patronymic = patronymic
 				}
-				// Изменение фамилии
+				// изменение фамилии
 				if randomseq.RandomBool() {
-					surname := "somesurname"
+					surname := randomseq.RandomString(8)
 
 					adminEdit.Surname = &surname
 					expectedUser.Surname = surname
 				}
-				// Изменение имени компании
+				// изменение названия компании
 				if randomseq.RandomBool() {
-					companyName := randomseq.RandomString(10)
+					companyName := randomseq.RandomString(8)
 
 					adminEdit.Company = &companyName
 					expectedCompany.Name = companyName
@@ -379,17 +384,17 @@ func (suite *storeTestSuite) TestEditAdmin() {
 		suite.Run(tc.name, func() {
 			adminEdit, expectedUser, expectedCompany := tc.data()
 
-			// Редактирование записи пользователя
+			// редактирование записи пользователя
 			_, err = suite.store.UserStorage().EditAdmin(context.TODO(), adminEdit)
 			suite.Equal(tc.err, err)
 
-			// Данные пользователя после редактирования
+			// данные пользователя после редактирования
 			userAfter, _ := suite.store.UserStorage().GetUserByID(context.TODO(), adminEdit.ID)
 			if userAfter != nil {
 				suite.Equal(expectedUser, userAfter)
 			}
 
-			// Название компании после редактирования
+			// название компании после редактирования
 			companyAfter, err := suite.store.CompanyStorage().GetCompany(context.TODO(), user.CompanyID)
 			suite.NoError(err)
 			suite.Equal(expectedCompany.Name, companyAfter.Name)
@@ -401,49 +406,46 @@ func (suite *storeTestSuite) TestEditAdmin() {
 func (suite *storeTestSuite) TestGetUserByID() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
+	// подготовка данных пользователя для добавления
 	u := model.NewTestUserCreate()
 	u.CompanyID = company.ID
 	u.PositionID = position.ID
 
+	// добавление пользователя
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
 	suite.NoError(err)
 	suite.NotEmpty(user)
 
 	testCases := []struct {
 		name   string
-		userID func() int
+		userID int
 		err    error
 	}{
 		{
-			name: "success",
-			userID: func() int {
-				return user.ID
-			},
-			err: nil,
+			name:   "success",
+			userID: user.ID,
+			err:    nil,
 		},
 		{
-			name: "random user id",
-			userID: func() int {
-				return rnd.Intn(32) + 100
-			},
-			err: errs.ErrUserNotFound,
+			name:   "random user id",
+			userID: randomseq.RandomTestInt(),
+			err:    errs.ErrUserNotFound,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			userID := tc.userID()
-			_, err := suite.store.UserStorage().GetUserByID(context.TODO(), userID)
+			_, err := suite.store.UserStorage().GetUserByID(context.TODO(), tc.userID)
 			suite.Equal(tc.err, err)
 		})
 	}
@@ -452,18 +454,22 @@ func (suite *storeTestSuite) TestGetUserByID() {
 func (suite *storeTestSuite) TestGetUserByEmail() {
 	suite.NotNil(suite.store)
 
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
+	// подготовка данных пользователя для добавления
 	u := model.NewTestUserCreate()
 	u.CompanyID = company.ID
 	u.PositionID = position.ID
 
+	// добавление пользователя
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
 	suite.NoError(err)
 	suite.NotEmpty(user)
@@ -501,25 +507,28 @@ func (suite *storeTestSuite) TestGetUserByEmail() {
 func (suite *storeTestSuite) TestGetUsersByCompany() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	// Поиск пользователей в пустой базе по id несуществующей компании
-	users, err := suite.store.UserStorage().GetUsersByCompany(context.TODO(), rnd.Intn(32)+100)
+	// поиск пользователей в пустой базе по id несуществующей компании
+	users, err := suite.store.UserStorage().GetUsersByCompany(context.TODO(), randomseq.RandomTestInt())
 	suite.Error(err)
 	suite.Empty(users)
 
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
-	countUsers := rnd.Intn(32) + 2
+	// генерация кол-ва пользователей
+	countUsers := randomseq.RandomTestInt()
+
+	// массив с ожидаемыми идентификаторами пользователей
 	expectedIDs := []int{}
 
-	// Добавление случайного кол-ва пользователей
+	// добавление случайного кол-ва пользователей (от 100 до 356)
 	for i := 0; i < countUsers; i++ {
 
 		u := model.NewTestUserCreate()
@@ -532,16 +541,16 @@ func (suite *storeTestSuite) TestGetUsersByCompany() {
 		)
 		suite.NoError(err)
 
-		// Добавление в массив идентификаторов добавленных пользователей
+		// добавление в массив идентификаторов добавленных пользователей
 		expectedIDs = append(expectedIDs, user.ID)
 	}
 
-	// Получение добавленных пользователей
+	// получение добавленных пользователей
 	users, err = suite.store.UserStorage().GetUsersByCompany(context.TODO(), company.ID)
 	suite.NotEmpty(users)
 	suite.NoError(err)
 
-	// Добавление в массив идентификаторов полученных пользователей
+	// добавление в массив идентификаторов полученных пользователей
 	actualIDs := []int{}
 	for _, u := range users {
 		actualIDs = append(actualIDs, u.ID)
@@ -553,23 +562,22 @@ func (suite *storeTestSuite) TestGetUsersByCompany() {
 func (suite *storeTestSuite) TestSetPassword() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	// Cоздаём компанию
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
-	// Cоздаём должность
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
+	// подготовка данных пользователя для добавления
 	u := model.NewTestUserCreate()
 	u.CompanyID = company.ID
 	u.PositionID = position.ID
 
-	// Cоздаём пользователя
+	// создание пользователя
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
 	suite.NoError(err)
 	suite.NotEmpty(user)
@@ -588,7 +596,7 @@ func (suite *storeTestSuite) TestSetPassword() {
 		},
 		{
 			name:     "not found",
-			userID:   rnd.Intn(32) + 100,
+			userID:   randomseq.RandomTestInt(),
 			password: randomseq.RandomString(20),
 			err:      errs.ErrUserNotFound,
 		},
@@ -617,24 +625,23 @@ func (suite *storeTestSuite) TestSetPassword() {
 func (suite *storeTestSuite) TestSetPasswordAndActivateUser() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	// Cоздаём компанию
+	// создаём компанию
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
-	// Cоздаём должность
+	// создаём должность
 	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
+	// подготовка данных пользователя для добавления
 	u := model.NewTestUserCreate()
 	u.CompanyID = company.ID
 	u.PositionID = position.ID
 	u.IsActive = false
 
-	// Cоздаём пользователя
+	// создаём пользователя
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
 	suite.NoError(err)
 	suite.NotEmpty(user)
@@ -653,7 +660,7 @@ func (suite *storeTestSuite) TestSetPasswordAndActivateUser() {
 		},
 		{
 			name:     "not found",
-			userID:   rnd.Intn(32) + 100,
+			userID:   randomseq.RandomTestInt(),
 			password: randomseq.RandomString(20),
 			err:      errs.ErrUserNotFound,
 		},
@@ -671,7 +678,7 @@ func (suite *storeTestSuite) TestSetPasswordAndActivateUser() {
 			suite.Equal(tc.err, err)
 
 			userAfter, _ := suite.store.UserStorage().GetUserByID(context.TODO(), tc.userID)
-			// используется только в успешном кейсе
+			// используется только при успешном кейсе
 			if err == nil && userAfter != nil {
 				suite.Equal(tc.password, userAfter.Password)
 				suite.Equal(true, userAfter.IsActive)
