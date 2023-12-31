@@ -10,6 +10,17 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
+// GetCourses godoc
+//
+//	@Summary	Получение данных о курсах пользователем и администратором
+//	@Tags		course
+//	@Produce	json
+//	@Success	200	{array}		model.Course
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
+//	@Router		/courses [get]
 func (r *RestServer) handlerGetCourses(c *gin.Context) {
 	ctx := c.Request.Context()
 	us := r.getUserSession(c)
@@ -26,6 +37,18 @@ func (r *RestServer) handlerGetCourses(c *gin.Context) {
 	c.JSON(http.StatusOK, courses)
 
 }
+
+// CreateCourse godoc
+//
+//	@Summary	Создание нового курса
+//	@Tags		course
+//	@Produce	json
+//	@Param		object	body		model.CourseSet	true	"Course Create"
+//	@Success	201		{object}	model.Course
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//	@Router		/courses [post]
 func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 	ctx := c.Request.Context()
 	course := model.NewCourseSet(0, r.getUserSession(c).UserID)
@@ -42,6 +65,20 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 	c.JSON(http.StatusCreated, created)
 
 }
+
+// EditCourse godoc
+//
+//	@Summary	Изменение данных курса
+//	@Tags		course
+//	@Produce	json
+//	@Param		id		path	int				true	"Course ID"
+//	@Param		object	body	model.CourseSet	true	"Course Edit"
+//	@Success	200
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
+//	@Router		/courses/{id} [patch]
 func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	ctx := c.Request.Context()
 	sID := c.Param("id")
