@@ -3,16 +3,16 @@ package pg
 import (
 	"context"
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
 func (suite *storeTestSuite) TestCreatePositionDB() {
 	suite.NotNil(suite.store)
 
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
@@ -72,12 +72,12 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 func (suite *storeTestSuite) TestGetPositionDB() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
@@ -87,7 +87,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 
 	testCases := []struct {
 		name    string
-		payload func() (int, int)
+		payload func() (int, int) // получение ИД компании и ИД должности
 		err     error
 	}{
 		{
@@ -100,7 +100,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 		{
 			name: "random company",
 			payload: func() (int, int) {
-				companyID := rnd.Intn(32) + 100
+				companyID := randomseq.RandomTestInt()
 				return companyID, position.ID
 			},
 			err: errs.ErrPositionNotFound,
@@ -108,7 +108,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 		{
 			name: "random position",
 			payload: func() (int, int) {
-				positionID := rnd.Intn(32) + 100
+				positionID := randomseq.RandomTestInt()
 				return company.ID, positionID
 			},
 			err: errs.ErrPositionNotFound,
@@ -127,12 +127,8 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 func (suite *storeTestSuite) TestGetPositionsDB() {
 	suite.NotNil(suite.store)
 
-	// генерация случайного id
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-	companyID := rnd.Intn(32)
-
 	// поиск в пустой базе должностей по id несуществующей компании
-	positions, err := suite.store.PositionStorage().GetPositionsDB(context.TODO(), companyID)
+	positions, err := suite.store.PositionStorage().GetPositionsDB(context.TODO(), randomseq.RandomTestInt())
 	suite.Error(err)
 	suite.Empty(positions)
 
@@ -141,27 +137,30 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
-	// добавление новых должностей к созданной компании (кол-во должностей, которое необходимо добавить, генерируется случайно)
-	countPositions := rnd.Intn(32) + 2
+	// генерация случайного кол-ва должностей (от 100 до 356)
+	countPositions := randomseq.RandomTestInt()
 
+	// массив с ожидаемыми идентификаторами должностей
 	expectedIDs := []int{}
+
+	// добавление случайного кол-ва должностей
 	for i := 0; i < countPositions; i++ {
 		position, err := suite.store.PositionStorage().CreatePositionDB(
 			context.TODO(),
-			model.PositionSet{CompanyID: company.ID, Name: fmt.Sprintf("test%d-position", i)},
+			model.PositionSet{CompanyID: company.ID, Name: fmt.Sprintf("test-position-%d", i)},
 		)
 		suite.NoError(err)
 
-		// добавляем в массив идентификаторы добавленных должностей
+		// добавление в массив идентификаторов добавленных должностей
 		expectedIDs = append(expectedIDs, position.ID)
 	}
 
-	// Получаем добавленные должности
+	// получение добавленных должностей
 	positions, err = suite.store.PositionStorage().GetPositionsDB(context.TODO(), company.ID)
 	suite.NotEmpty(positions)
 	suite.NoError(err)
 
-	// добавляем в массив идентификаторы полученных должностей
+	// добавление идентификаторов должностей в массив
 	actualIDs := []int{}
 	for _, p := range positions {
 		actualIDs = append(actualIDs, p.ID)
@@ -173,12 +172,12 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 func (suite *storeTestSuite) TestGetPositionByID() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
@@ -187,30 +186,25 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 	suite.NotEmpty(position)
 
 	testCases := []struct {
-		name    string
-		payload func() int
-		err     error
+		name       string
+		positionID int
+		err        error
 	}{
 		{
-			name: "success",
-			payload: func() int {
-				return position.ID
-			},
-			err: nil,
+			name:       "success",
+			positionID: position.ID,
+			err:        nil,
 		},
 		{
-			name: "random position",
-			payload: func() int {
-				return rnd.Intn(32) + 100
-			},
-			err: errs.ErrPositionNotFound,
+			name:       "random position",
+			positionID: randomseq.RandomTestInt(),
+			err:        errs.ErrPositionNotFound,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			positionID := tc.payload()
-			_, err := suite.store.PositionStorage().GetPositionByID(context.TODO(), positionID)
+			_, err := suite.store.PositionStorage().GetPositionByID(context.TODO(), tc.positionID)
 			suite.Equal(tc.err, err)
 		})
 	}
@@ -219,10 +213,12 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 func (suite *storeTestSuite) TestUpdatePositionDB() {
 	suite.NotNil(suite.store)
 
+	// добавление компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
 	suite.NoError(err)
 	suite.NotEmpty(company)
 
+	// добавление должности
 	position, err := suite.store.PositionStorage().CreatePositionDB(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
@@ -232,7 +228,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 
 	testCases := []struct {
 		name    string
-		payload func() (int, model.PositionSet)
+		payload func() (int, model.PositionSet) // возвращает ИД должности и данные позиции для обновления
 		err     error
 	}{
 		{
@@ -252,14 +248,14 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 		{
 			name: "company not found",
 			payload: func() (int, model.PositionSet) {
-				return position.ID, model.PositionSet{CompanyID: company.ID + 1, Name: "new-position-name"}
+				return position.ID, model.PositionSet{CompanyID: randomseq.RandomTestInt(), Name: "new-position-name"}
 			},
 			err: errs.ErrPositionNotFound,
 		},
 		{
 			name: "position not found",
 			payload: func() (int, model.PositionSet) {
-				return (position.ID + 1), model.PositionSet{CompanyID: company.ID, Name: "new-position-name"}
+				return randomseq.RandomTestInt(), model.PositionSet{CompanyID: company.ID, Name: "new-position-name"}
 			},
 			err: errs.ErrPositionNotFound,
 		},
