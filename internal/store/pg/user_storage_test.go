@@ -234,7 +234,7 @@ func (suite *storeTestSuite) TestEditUser() {
 
 				return editField, &expected
 			},
-			err: nil,
+			err: errs.ErrEmailNotEmpty,
 		},
 		{
 			name: "success",
