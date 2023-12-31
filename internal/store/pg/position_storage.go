@@ -13,7 +13,7 @@ import (
 
 var _ store.RepositoryPosition = (*positionStorage)(nil)
 
-// positionStorage - репозиторий для должностей.
+// positionStorage - репозиторий должности.
 type positionStorage struct {
 	db *sqlx.DB
 	transaction
@@ -51,6 +51,7 @@ func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.P
 }
 
 // GetPositionDB - получение данных должности, привязанной к компании.
+// TODO: возможно этот метод стоит убрать, вместо можно использовать GetPositionByID
 func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position := &model.Position{}
 
