@@ -1,0 +1,57 @@
+services:
+  app:
+    container_name: app_qon
+    image: ghcr.io/training-of-new-employees/qon:${BACK_TAG}
+    environment:
+      RUN_ADDR: ":8080"
+      LOG_LEVEL: INFO
+      DATABASE_DSN: postgres://quickon:quickon@postgres:5432/qon_app
+      REDIS_DSN: redis:6379
+      SENDER_MODE: "api"
+      SENDER_API_KEY: ${SENDER_API_KEY}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    links:
+      - postgres
+      - redis
+
+  postgres:
+    container_name: app_db_qon
+    image: postgres:14.3-alpine
+    environment:
+      POSTGRES_DB: qon_app
+      PGDATABASE: qon_app
+      POSTGRES_USER: quickon
+      PGUSER: quickon
+      POSTGRES_PASSWORD: quickon
+    volumes:
+      - app-db-qon:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: "redis:alpine"
+    restart: always
+
+  frontend:
+    image: ghcr.io/training-of-new-employees/frontend:${FRONT_TAG}
+    ports:
+      - 443:443
+    environment:
+      LISTEN_PORT: 443
+      SERVER_NAME: ${DOMAIN}
+      BACKEND: app_qon:8080
+    volumes:
+      - /var/certbot/conf/:/etc/nginx/ssl/:ro
+    restart: always
+
+
+volumes:
+  app-db-qon:

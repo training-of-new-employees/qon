@@ -1,0 +1,63 @@
+services:
+  app:
+    container_name: app_qon
+    build: ../..
+    environment:
+      RUN_ADDR: ":8081"
+      LOG_LEVEL: DEBUG
+      DATABASE_DSN: postgres://quickon:quickon@postgres:5432/qon_app
+      JWT_SECRET_KEY: simtahtonim
+      REDIS_DSN: redis:6379
+      SENDER_EMAIL: ivan.frontoff42@gmail.com
+      SENDER_PASSWORD: "ahlb bhnf zvsl pxya"
+    ports:
+      - "8081:8081"
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    links:
+      - postgres
+      - redis
+
+  postgres:
+    container_name: app_db_qon
+    image: postgres:14.3-alpine
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_DB: qon_app
+      PGDATABASE: qon_app
+      POSTGRES_USER: quickon
+      PGUSER: quickon
+      POSTGRES_PASSWORD: quickon
+    volumes:
+      - app-db-qon:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: "redis:alpine"
+    restart: always
+    ports:
+      - 16379:6379
+
+  frontend:
+    container_name: frontend
+    build: ../../frontend/.
+    ports:
+      - "8080:8080"
+    environment:
+      LISTEN_PORT: 8080
+      SERVER_NAME: localhost:8080
+      BACKEND: app_qon:8081
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/:ro
+    restart: always
+
+volumes:
+  app-db-qon:

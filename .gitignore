@@ -1,0 +1,8 @@
+# ignore all logs
+*.http
+.AppleDouble
+.LSOverride
+.DS_Store
+.idea/
+frontend
+testss/
