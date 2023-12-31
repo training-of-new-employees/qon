@@ -220,6 +220,23 @@ func (suite *storeTestSuite) TestEditUser() {
 			err: errs.ErrUserNotFound,
 		},
 		{
+			name: "empty email",
+			data: func() (model.UserEdit, *model.User) {
+				editField := model.UserEdit{ID: user.ID}
+
+				// ожидаемые данные пользователя
+				expected := *user
+
+				email := ""
+
+				editField.Email = &email
+				expected.Email = email
+
+				return editField, &expected
+			},
+			err: nil,
+		},
+		{
 			name: "success",
 			data: func() (model.UserEdit, *model.User) {
 				editField := model.UserEdit{ID: user.ID}
