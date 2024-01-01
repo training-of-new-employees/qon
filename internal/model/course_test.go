@@ -158,7 +158,13 @@ func TestCourseSet_Validation(t *testing.T) {
 		fields  fields
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Проверка вызова валидации курса",
+			fields{
+				Name: randomseq.RandomString(4),
+			},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -186,7 +192,14 @@ func TestNewCourseSet(t *testing.T) {
 		args args
 		want CourseSet
 	}{
-		// TODO: Add test cases.
+		{
+			"Создание курса",
+			args{0, 10},
+			CourseSet{
+				ID:        0,
+				CreatedBy: 10,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
