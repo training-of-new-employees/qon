@@ -37,7 +37,7 @@ func (c *Course) Validation() error {
 	if err != nil {
 		return errs.ErrCourseNameInvalid
 	}
-	validation.Validate(&c.Description, validation.Length(10, 512), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	err = validation.Validate(&c.Description, validation.Length(10, 512), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
 	if err != nil {
 		return errs.ErrCourseDescriptionInvalid
 	}
