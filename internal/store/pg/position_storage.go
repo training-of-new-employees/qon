@@ -157,12 +157,14 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, 
 }
 
 // AssignCourseDB - назначение курса на должность.
-// TODO: непонятно зачем здесь аргумент user_id int - нужно убрать.
-func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int, user_id int) error {
+func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int) error {
+	// открываем транзакцию
+	err := p.tx(func(tx *sqlx.Tx) error {
+		// назначение курса на должность
+		return p.assignCourseTx(ctx, tx, positionID, courseID)
+	})
 
-	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2)`
-
-	if _, err := p.db.ExecContext(ctx, query, positionID, courseID); err != nil {
+	if err != nil {
 		return handleError(err)
 	}
 

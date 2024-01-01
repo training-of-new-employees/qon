@@ -275,3 +275,22 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 		})
 	}
 }
+
+func (suite *storeTestSuite) TestAssignCourseDB() {
+	suite.NotNil(suite.store)
+
+	// добавление компании
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// добавление должности
+	position, err := suite.store.PositionStorage().CreatePositionDB(
+		context.TODO(),
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
+	)
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	// TODO: после добавления репозитория курсов, нужно дописать тест
+}

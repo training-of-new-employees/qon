@@ -209,3 +209,15 @@ func (tn *transaction) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID i
 	}
 	return nil
 }
+
+// createCompanyTx - назначение курса на должность.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) assignCourseTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseID int) error {
+	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2) RETURNING id`
+
+	if err := tx.QueryRowxContext(ctx, query, positionID, courseID).Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
