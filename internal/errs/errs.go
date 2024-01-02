@@ -89,7 +89,7 @@ var (
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
 	// ErrIncorrectCompanyName - некорректное имя компании
-	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, space, ")
+	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, '-', '&'")
 
 	// -- Ошибки должности --
 

@@ -56,7 +56,7 @@ func validateCompanyName(str string) validation.RuleFunc {
 		}
 
 		for _, c := range str {
-			if !unicode.IsLetter(c) && c != '-' && c != '&' && c != ' ' {
+			if !unicode.IsLetter(c) && !unicode.IsDigit(c) && c != '-' && c != '&' && c != ' ' {
 				return errors.New("string may only contain unicode characters, '-', '&', space")
 			}
 		}

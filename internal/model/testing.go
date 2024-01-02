@@ -17,3 +17,11 @@ func NewTestUserCreate() UserCreate {
 		IsActive:   true,
 	}
 }
+
+func NewTestCreateAdmin() CreateAdmin {
+	return CreateAdmin{
+		Email:    fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+		Password: "abcdA1*",
+		Company:  fmt.Sprintf("test-%s", randomseq.RandomString(2)),
+	}
+}
