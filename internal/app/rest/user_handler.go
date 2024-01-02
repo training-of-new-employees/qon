@@ -65,23 +65,18 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	userReq := model.UserCreate{}
 
 	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := userReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	user, err := r.services.User().CreateUser(ctx, userReq)
-	switch {
-	case errors.Is(err, errs.ErrEmailAlreadyExists):
-		c.JSON(http.StatusConflict, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		logger.Log.Warn("error", zap.Error(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 

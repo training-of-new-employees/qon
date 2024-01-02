@@ -47,13 +47,11 @@ var (
 
 	// ErrCompanyIDNotEmpty - id компании не может быть пустым
 	ErrCompanyIDNotEmpty = errors.New("company id cannot be empty")
-
 	// ErrCompanyReference - id компании должен ссылаться на существующую компанию
 	ErrCompanyReference = errors.New("company id must reference existing company")
 
 	// ErrPositionIDNotEmpty - id должности не может быть пустым
 	ErrPositionIDNotEmpty = errors.New("position id cannot be empty")
-
 	// ErrPositionReference - id должности должен ссылаться на существующую должность
 	ErrPositionReference = errors.New("position id must reference existing position")
 
@@ -91,7 +89,7 @@ var (
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
 	// ErrIncorrectCompanyName - некорректное имя компании
-	ErrIncorrectCompanyName = errors.New("incorrect company name")
+	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, space, ")
 
 	// -- Ошибки должности --
 
@@ -114,6 +112,21 @@ var (
 
 	// ErrInvalidPassword - невалидный пароль
 	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")
+
+	// ErrUserNameNotEmpty - имя сотрудника не должно быть пустым
+	ErrUserNameNotEmpty = errors.New("user name cannot be empty")
+
+	// ErrIncorrectUserName - некорректное имя пользователя
+	ErrInvalidUserName = errors.New("invalid user name: name must have length of 2-128 and can contain characters of any alphabets, dash")
+
+	// ErrUserSurnameNotEmpty - фамилия сотрудника не должна быть пустой
+	ErrUserSurnameNotEmpty = errors.New("user surname cannot be empty")
+
+	// ErrInvalidUserSurname - некорректная фамилия пользователя
+	ErrInvalidUserSurname = errors.New("invalid user surname: surname must have length of 2-128 and can contain characters of any alphabets, dash")
+
+	// ErrInvalidUserPatronymic - некорректное отчество пользователя
+	ErrInvalidUserPatronymic = errors.New("invalid user patronymic: patronymic must have length of 2-128 and can contain characters of any alphabets, dash")
 
 	// -- Ошибки курсов --
 
