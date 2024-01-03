@@ -96,6 +96,8 @@ var (
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
 	ErrPositionNameNotEmpty = errors.New("position name cannot be empty")
 
+	ErrInvalidPositionName = errors.New("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, '-', '&'")
+
 	// -- Ошибки пользователя --
 
 	// ErrEmailAlreadyExists - email должен быть уникальный

@@ -44,9 +44,9 @@ func validateUserName(str string) validation.RuleFunc {
 	}
 }
 
-// validateCompanyName - проверка имени компании на состав.
+// validateCompanyPositionName - проверка имени компании и должности на состав.
 // ВАЖНО: используется при валидации с методами пакета ozzo-validation.
-func validateCompanyName(str string) validation.RuleFunc {
+func validateCompanyPositionName(str string) validation.RuleFunc {
 	return func(value interface{}) error {
 
 		// случай когда строка состоит только из пробелов

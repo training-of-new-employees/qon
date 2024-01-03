@@ -26,28 +26,25 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	positionReq := model.PositionSet{}
 
 	if err := c.ShouldBindJSON(&positionReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := positionReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	us := r.getUserSession(c)
 	if us.OrgID != positionReq.CompanyID {
-		c.JSON(http.StatusBadRequest, s().SetError(errs.ErrCompanyNotFound))
+		r.handleError(c, errs.ErrCompanyNotFound)
 		return
 	}
 
 	position, err := r.services.Position().CreatePosition(ctx, positionReq)
-	switch {
-	case errors.Is(err, errs.ErrCompanyIDNotEmpty):
-		c.JSON(http.StatusBadRequest, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 

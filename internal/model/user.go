@@ -215,7 +215,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrCompanyNameNotEmpty
 	}
 	// Проверка имени компании на состав
-	if err := validation.Validate(&u.Company, validation.Length(1, 256), validation.By(validateCompanyName(u.Company))); err != nil {
+	if err := validation.Validate(&u.Company, validation.Length(1, 256), validation.By(validateCompanyPositionName(u.Company))); err != nil {
 		return errs.ErrInvalidCompanyName
 	}
 

@@ -12,8 +12,9 @@ import (
 // errorToCode - мапа соответствия ошибки http-коду.
 var errorToCode = map[string]int{
 
-	errs.ErrNotFound.Error():     http.StatusNotFound,
-	errs.ErrUserNotFound.Error(): http.StatusNotFound,
+	errs.ErrNotFound.Error():        http.StatusNotFound,
+	errs.ErrUserNotFound.Error():    http.StatusNotFound,
+	errs.ErrCompanyNotFound.Error(): http.StatusNotFound,
 
 	errs.ErrBadRequest.Error():            http.StatusBadRequest,
 	errs.ErrInvalidRequest.Error():        http.StatusBadRequest,
@@ -24,6 +25,8 @@ var errorToCode = map[string]int{
 	errs.ErrCompanyNameNotEmpty.Error():   http.StatusBadRequest,
 	errs.ErrInvalidCompanyName.Error():    http.StatusBadRequest,
 	errs.ErrCompanyIDNotEmpty.Error():     http.StatusBadRequest,
+	errs.ErrPositionNameNotEmpty.Error():  http.StatusBadRequest,
+	errs.ErrInvalidPositionName.Error():   http.StatusBadRequest,
 	errs.ErrPositionIDNotEmpty.Error():    http.StatusBadRequest,
 	errs.ErrUserNameNotEmpty.Error():      http.StatusBadRequest,
 	errs.ErrInvalidUserName.Error():       http.StatusBadRequest,
