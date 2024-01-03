@@ -107,12 +107,6 @@ func TestPositionEdit_Validation(t *testing.T) {
 
 			err := p.Validation()
 			assert.Equal(t, tt.wantErr, err)
-
-			/*
-				if err := p.Validation(); (err != nil) != tt.wantErr {
-					t.Errorf("PositionEdit.Validation() error = %v, wantErr %v, name = %v", err, tt.wantErr, tt.fields.Name)
-				}
-			*/
 		})
 	}
 }
