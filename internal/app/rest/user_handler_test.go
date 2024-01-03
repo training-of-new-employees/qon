@@ -8,6 +8,7 @@ import (
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 
 	"go.uber.org/mock/gomock"
 )
@@ -85,6 +86,130 @@ func (suite *handlerTestSuite) TestCreateAdminInCache() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodPost, "/api/v1/admin/register", bytes.NewBuffer(body))
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestCreateUser() {
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() []byte
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusCreated,
+			prepare: func() []byte {
+				u := model.NewTestUserCreate()
+
+				u.CompanyID = 1
+				u.PositionID = 2
+
+				user := &model.User{
+					ID:         2,
+					Email:      u.Email,
+					CompanyID:  u.CompanyID,
+					PositionID: u.PositionID,
+					Name:       u.Name,
+					Patronymic: u.Patronymic,
+					Surname:    u.Surname,
+				}
+				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(user, nil)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid email",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() []byte {
+				u := model.NewTestUserCreate()
+
+				u.Email = "invalid"
+				u.CompanyID = 1
+				u.PositionID = 2
+
+				// TODO: если валидация входящих данных будет перенесена в сервис, раскомментировать
+				//
+				// user := &model.User{
+				//	ID: 2,
+				//	Email: u.Email,
+				//	CompanyID: u.CompanyID,
+				//	PositionID: u.PositionID,
+				//	Name: u.Name,
+				//	Patronymic: u.Patronymic,
+				//	Surname: u.Surname,
+				// }
+				// suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(user, nil)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid request body",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() []byte {
+				body, _ := json.Marshal("invalid")
+
+				return body
+			},
+		},
+		{
+			name:         "already exist email",
+			expectedCode: http.StatusConflict,
+			prepare: func() []byte {
+				// подготовка моков для выполнения тест-кейса
+				u := model.NewTestUserCreate()
+
+				u.CompanyID = 1
+				u.PositionID = 2
+
+				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(nil, errs.ErrEmailAlreadyExists)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() []byte {
+				// подготовка моков для выполнения тест-кейса
+				u := model.NewTestUserCreate()
+
+				u.CompanyID = 1
+				u.PositionID = 2
+
+				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(nil, errs.ErrInternal)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, 1, true)
+	suite.NoError(err)
+
+	// проверка тест-кейсов
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPost, "/api/v1/admin/employee", bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)
 			suite.Equal(tc.expectedCode, w.Code)
