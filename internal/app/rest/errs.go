@@ -12,9 +12,10 @@ import (
 // errorToCode - мапа соответствия ошибки http-коду.
 var errorToCode = map[string]int{
 
-	errs.ErrNotFound.Error():        http.StatusNotFound,
-	errs.ErrUserNotFound.Error():    http.StatusNotFound,
-	errs.ErrCompanyNotFound.Error(): http.StatusNotFound,
+	errs.ErrNotFound.Error():         http.StatusNotFound,
+	errs.ErrUserNotFound.Error():     http.StatusNotFound,
+	errs.ErrCompanyNotFound.Error():  http.StatusNotFound,
+	errs.ErrPositionNotFound.Error(): http.StatusNotFound,
 
 	errs.ErrBadRequest.Error():            http.StatusBadRequest,
 	errs.ErrInvalidRequest.Error():        http.StatusBadRequest,

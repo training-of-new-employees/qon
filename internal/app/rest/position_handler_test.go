@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -102,6 +103,80 @@ func (suite *handlerTestSuite) TestCreatePosition() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodPost, "/api/v1/positions", bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestGetPosition() {
+	companyID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() int
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() int {
+				positionSet := model.NewTestPositionSet()
+				positionSet.CompanyID = companyID
+
+				positionID := 2
+
+				suite.positionService.EXPECT().GetPosition(gomock.Any(), companyID, positionID).
+					Return(&model.Position{ID: 2, CompanyID: companyID, Name: "Test", IsActive: true, IsArchived: false}, nil)
+
+				return positionID
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() int {
+				positionSet := model.NewTestPositionSet()
+				positionSet.CompanyID = companyID
+
+				positionID := 2
+
+				suite.positionService.EXPECT().GetPosition(gomock.Any(), companyID, positionID).
+					Return(nil, errs.ErrPositionNotFound)
+
+				return positionID
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() int {
+				positionSet := model.NewTestPositionSet()
+				positionSet.CompanyID = companyID
+
+				positionID := 2
+
+				suite.positionService.EXPECT().GetPosition(gomock.Any(), companyID, positionID).
+					Return(nil, errs.ErrInternal)
+
+				return positionID
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			positionID := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/positions/%d", positionID), nil)
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)

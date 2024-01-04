@@ -64,24 +64,15 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 func (r *RestServer) handlerGetPosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	val := c.Param("id")
-
-	id, err := strconv.Atoi(val)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
-	us := r.getUserSession(c)
-
-	position, err := r.services.Position().GetPosition(ctx, us.OrgID, id)
-	switch {
-	case errors.Is(err, errs.ErrPositionNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-
+	position, err := r.services.Position().GetPosition(ctx, r.getUserSession(c).OrgID, id)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
