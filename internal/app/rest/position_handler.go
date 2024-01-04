@@ -90,16 +90,10 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 //	@Router		/positions [get]
 func (r *RestServer) handlerGetPositions(c *gin.Context) {
 	ctx := c.Request.Context()
-	us := r.getUserSession(c)
 
-	positions, err := r.services.Position().GetPositions(ctx, us.OrgID)
-
-	switch {
-	case errors.Is(err, errs.ErrPositionNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	positions, err := r.services.Position().GetPositions(ctx, r.getUserSession(c).OrgID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 

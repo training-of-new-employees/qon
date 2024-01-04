@@ -47,3 +47,8 @@ func RandomString(n int) string {
 	}
 	return string(seq)
 }
+
+// RandomTestInt - генерирует случайное число от 100 до 356.
+func RandomTestInt() int {
+	return 100 + rnd.Intn(256)
+}

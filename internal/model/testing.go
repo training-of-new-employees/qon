@@ -31,3 +31,14 @@ func NewTestPositionSet() PositionSet {
 		Name: fmt.Sprintf("test-%s", randomseq.RandomString(10)),
 	}
 }
+
+func NewTestPositions(companyID int) []*Position {
+	number := randomseq.RandomTestInt()
+	positions := make([]*Position, number)
+
+	for i := 0; i < number; i++ {
+		positions[i] = &Position{ID: i + 1, CompanyID: companyID, IsActive: true, IsArchived: false, Name: fmt.Sprintf("test-%s", randomseq.RandomString(10))}
+	}
+
+	return positions
+}
