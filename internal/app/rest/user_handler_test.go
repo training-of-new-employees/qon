@@ -216,3 +216,55 @@ func (suite *handlerTestSuite) TestCreateUser() {
 		})
 	}
 }
+
+func (suite *handlerTestSuite) TestGetUsers() {
+	companyID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func()
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() {
+				suite.userService.EXPECT().GetUsersByCompany(gomock.Any(), companyID).Return(model.NewTestUsers(companyID), nil)
+
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() {
+				suite.userService.EXPECT().GetUsersByCompany(gomock.Any(), companyID).Return(nil, errs.ErrUserNotFound)
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() {
+				suite.userService.EXPECT().GetUsersByCompany(gomock.Any(), companyID).Return(nil, errs.ErrInternal)
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	// проверка тест-кейсов
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/users", nil)
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}

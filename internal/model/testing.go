@@ -42,3 +42,21 @@ func NewTestPositions(companyID int) []*Position {
 
 	return positions
 }
+
+func NewTestUsers(companyID int) []User {
+	number := randomseq.RandomTestInt()
+	users := make([]User, number)
+
+	for i := 0; i < number; i++ {
+		users[i] = User{
+			ID: i + 1, IsActive: true, IsArchived: false,
+			CompanyID: companyID, PositionID: randomseq.RandomTestInt() - 99,
+			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+			Name:       fmt.Sprintf("%s", randomseq.RandomString(10)),
+			Surname:    fmt.Sprintf("%s", randomseq.RandomString(10)),
+			Patronymic: fmt.Sprintf("%s", randomseq.RandomString(10)),
+		}
+	}
+
+	return users
+}

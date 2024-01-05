@@ -97,24 +97,14 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 //	@Router			/users [get]
 func (r *RestServer) handlerGetUsers(c *gin.Context) {
 	ctx := c.Request.Context()
-	us := r.getUserSession(c)
-	if !us.IsAdmin {
-		logger.Log.Warn("Not admin user try to get info about users", zap.Int("id", us.UserID))
-		c.JSON(http.StatusForbidden, s().SetError(fmt.Errorf("you can't get users info: %w", errs.ErrOnlyAdmin)))
-		return
-	}
-	users, err := r.services.User().GetUsersByCompany(ctx, us.OrgID)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
 
+	users, err := r.services.User().GetUsersByCompany(ctx, r.getUserSession(c).OrgID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, users)
-
 }
 
 // GetUser godoc
