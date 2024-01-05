@@ -66,7 +66,7 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		r.handleError(c, err)
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
@@ -116,31 +116,25 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 	positionReq := model.PositionSet{}
 
-	val := c.Param("id")
-
-	id, err := strconv.Atoi(val)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
 	if err := c.ShouldBindJSON(&positionReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err = positionReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	position, err := r.services.Position().UpdatePosition(ctx, id, positionReq)
-	switch {
-	case errors.Is(err, errs.ErrPositionNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
