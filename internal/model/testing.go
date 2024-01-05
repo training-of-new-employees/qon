@@ -43,7 +43,7 @@ func NewTestPositions(companyID int) []*Position {
 	return positions
 }
 
-func NewTestUsers(companyID int) []User {
+func NewTestListUsers(companyID int) []User {
 	number := randomseq.RandomTestInt()
 	users := make([]User, number)
 
@@ -52,11 +52,28 @@ func NewTestUsers(companyID int) []User {
 			ID: i + 1, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: randomseq.RandomTestInt() - 99,
 			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
-			Name:       fmt.Sprintf("%s", randomseq.RandomString(10)),
-			Surname:    fmt.Sprintf("%s", randomseq.RandomString(10)),
-			Patronymic: fmt.Sprintf("%s", randomseq.RandomString(10)),
+			Name:       randomseq.RandomString(10),
+			Surname:    randomseq.RandomString(10),
+			Patronymic: randomseq.RandomString(10),
 		}
 	}
 
 	return users
+}
+
+func NewTestUser(userID int, companyID int, positionID int) *UserInfo {
+	userInfo := &UserInfo{
+		User: User{
+			ID: userID, IsActive: true, IsArchived: false,
+			CompanyID: companyID, PositionID: positionID,
+			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+			Name:       randomseq.RandomString(10),
+			Surname:    randomseq.RandomString(10),
+			Patronymic: randomseq.RandomString(10),
+		},
+		CompanyName:  fmt.Sprintf("company-name-%s", randomseq.RandomString(5)),
+		PositionName: fmt.Sprintf("company-name-%s", randomseq.RandomString(5)),
+	}
+
+	return userInfo
 }

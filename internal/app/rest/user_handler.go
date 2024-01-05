@@ -122,32 +122,26 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 //	@Router			/users/{id} [get]
 func (r *RestServer) handlerGetUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+
+	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		msg := fmt.Errorf("got invalid user id: %s", idParam)
-		logger.Log.Warn("error", zap.Error(msg))
-		c.JSON(http.StatusBadRequest, s().SetError(msg))
-		return
-	}
-	us := r.getUserSession(c)
-	u, err := r.services.User().GetUserByID(ctx, id)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
-	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, u.ID, u.CompanyID) {
-		c.Status(http.StatusForbidden)
+	session := r.getUserSession(c)
+	user, err := r.services.User().GetUserByID(ctx, userID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, u)
+	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, user.ID, user.CompanyID) {
+		r.handleError(c, errs.ErrErrNoAccess)
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
 
 // EditUser godoc

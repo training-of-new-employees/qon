@@ -3,12 +3,14 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 
 	"go.uber.org/mock/gomock"
 )
@@ -229,7 +231,7 @@ func (suite *handlerTestSuite) TestGetUsers() {
 			name:         "success",
 			expectedCode: http.StatusOK,
 			prepare: func() {
-				suite.userService.EXPECT().GetUsersByCompany(gomock.Any(), companyID).Return(model.NewTestUsers(companyID), nil)
+				suite.userService.EXPECT().GetUsersByCompany(gomock.Any(), companyID).Return(model.NewTestListUsers(companyID), nil)
 
 			},
 		},
@@ -261,6 +263,91 @@ func (suite *handlerTestSuite) TestGetUsers() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodGet, "/api/v1/users", nil)
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestGetUser() {
+	companyID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() string
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() string {
+				userID := 2
+				positionID := 2
+
+				suite.userService.EXPECT().GetUserByID(gomock.Any(), userID).Return(model.NewTestUser(userID, companyID, positionID), nil)
+
+				return fmt.Sprint(userID)
+			},
+		},
+		{
+			name:         "bad request",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				userID := "invalid"
+
+				return userID
+			},
+		},
+		{
+			name:         "not access",
+			expectedCode: http.StatusForbidden,
+			prepare: func() string {
+				userID := 2
+				positionID := 2
+
+				suite.userService.EXPECT().GetUserByID(gomock.Any(), userID).Return(model.NewTestUser(userID, randomseq.RandomTestInt(), positionID), nil)
+
+				return fmt.Sprint(userID)
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				userID := 2
+
+				suite.userService.EXPECT().GetUserByID(gomock.Any(), userID).Return(nil, errs.ErrUserNotFound)
+
+				return fmt.Sprint(userID)
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() string {
+				userID := 2
+
+				suite.userService.EXPECT().GetUserByID(gomock.Any(), userID).Return(nil, errs.ErrInternal)
+
+				return fmt.Sprint(userID)
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	// проверка тест-кейсов
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			userID := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/users/%s", userID), nil)
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)
