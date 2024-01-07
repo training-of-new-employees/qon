@@ -79,7 +79,7 @@ func NewTestUser(userID int, companyID int, positionID int) *UserInfo {
 }
 
 func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserEdit) {
-	user := NewTestUserCreate()
+	user := NewTestUser(userID, companyID, positionID)
 
 	expected := UserEdit{
 		ID:         userID,
@@ -148,6 +148,62 @@ func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserE
 		editField.IsActive = &active
 
 		expected.IsActive = &active
+	}
+
+	return editField, expected
+}
+
+func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, AdminEdit) {
+	user := NewTestUser(userID, companyID, positionID)
+
+	expected := AdminEdit{
+		ID:         userID,
+		Email:      &user.Email,
+		Company:    &user.CompanyName,
+		Name:       &user.Name,
+		Patronymic: &user.Patronymic,
+		Surname:    &user.Surname,
+	}
+
+	editField := AdminEdit{ID: userID}
+
+	// определение случайным образом полей для редактирования:
+	//
+	// изменение емейла
+	if randomseq.RandomBool() {
+		email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
+
+		editField.Email = &email
+		expected.Email = &email
+
+	}
+	// изменение названия компании
+	if randomseq.RandomBool() {
+		companyName := randomseq.RandomString(8)
+
+		editField.Company = &companyName
+		expected.Company = &companyName
+	}
+	// изменение имени
+	if randomseq.RandomBool() {
+		name := randomseq.RandomString(8)
+
+		editField.Name = &name
+		expected.Name = &name
+	}
+	// изменение отчества
+	if randomseq.RandomBool() {
+		patronymic := randomseq.RandomString(8)
+
+		editField.Patronymic = &patronymic
+		expected.Patronymic = &patronymic
+	}
+	// изменение фамилии
+	if randomseq.RandomBool() {
+		surname := randomseq.RandomString(8)
+
+		editField.Surname = &surname
+		expected.Surname = &surname
 	}
 
 	return editField, expected

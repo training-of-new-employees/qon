@@ -416,6 +416,23 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				return fmt.Sprint(userID), body
 			},
 		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+
+				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(nil, errs.ErrInternal)
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+
+			},
+		},
 	}
 
 	// получение тестового токена для авторизации админа
@@ -430,6 +447,86 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/users/%s", userID), bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestHandlerEditAdmin() {
+	userID := 1
+	companyID := 1
+	positionID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() []byte
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() []byte {
+				editField, expected := model.NewTestAdminEdit(userID, companyID, positionID)
+
+				suite.userService.EXPECT().EditAdmin(gomock.Any(), editField).Return(&expected, nil)
+
+				body, _ := json.Marshal(editField)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid request body",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() []byte {
+				body, _ := json.Marshal("invalid")
+
+				return body
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() []byte {
+				editField, _ := model.NewTestAdminEdit(userID, companyID, positionID)
+
+				suite.userService.EXPECT().EditAdmin(gomock.Any(), editField).Return(nil, errs.ErrUserNotFound)
+
+				body, _ := json.Marshal(editField)
+
+				return body
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() []byte {
+				editField, _ := model.NewTestAdminEdit(userID, companyID, positionID)
+
+				suite.userService.EXPECT().EditAdmin(gomock.Any(), editField).Return(nil, errs.ErrInternal)
+
+				body, _ := json.Marshal(editField)
+
+				return body
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, companyID, true)
+	suite.NoError(err)
+
+	// проверка тест-кейсов
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPatch, "/api/v1/admin/info", bytes.NewBuffer(body))
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)

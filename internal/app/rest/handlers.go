@@ -41,7 +41,7 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.Use(s.IsAuthenticated())
 	restrictedAdmin.Use(s.IsAdmin())
 	restrictedAdmin.POST("/employee", s.handlerCreateUser)
-	restrictedAdmin.PATCH("/info", s.handlerAdminEdit)
+	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
 
 	lessons := mvp.Group("/lesson")
 	lessons.POST("/", s.handlerLessonCreate)

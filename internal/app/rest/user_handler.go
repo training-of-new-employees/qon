@@ -414,24 +414,22 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
 //	@Router		/admin/info [post]
-func (r *RestServer) handlerAdminEdit(c *gin.Context) {
+func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	ctx := c.Request.Context()
+
 	edit := model.AdminEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
-	us := r.getUserSession(c)
-	edit.ID = us.UserID
+	edit.ID = r.getUserSession(c).UserID
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, edited)
 }
 
