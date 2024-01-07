@@ -30,7 +30,7 @@ var (
 	// ErrOnlyAdmin - действие доступно только администратору
 	ErrOnlyAdmin = errors.New("you aren't admin")
 	// ErrNoAccess - нет доступа
-	ErrErrNoAccess = errors.New("no access")
+	ErrNoAccess = errors.New("no access")
 )
 
 var (

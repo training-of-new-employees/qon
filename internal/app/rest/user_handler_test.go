@@ -15,7 +15,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func (suite *handlerTestSuite) TestCreateAdminInCache() {
+func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
 	testCases := []struct {
 		name         string
 		expectedCode int
@@ -95,7 +95,7 @@ func (suite *handlerTestSuite) TestCreateAdminInCache() {
 	}
 }
 
-func (suite *handlerTestSuite) TestCreateUser() {
+func (suite *handlerTestSuite) TestHandlerCreateUser() {
 	testCases := []struct {
 		name         string
 		expectedCode int
@@ -219,7 +219,7 @@ func (suite *handlerTestSuite) TestCreateUser() {
 	}
 }
 
-func (suite *handlerTestSuite) TestGetUsers() {
+func (suite *handlerTestSuite) TestHandlerGetUsers() {
 	companyID := 1
 
 	testCases := []struct {
@@ -271,7 +271,7 @@ func (suite *handlerTestSuite) TestGetUsers() {
 	}
 }
 
-func (suite *handlerTestSuite) TestGetUser() {
+func (suite *handlerTestSuite) TestHandlerGetUser() {
 	companyID := 1
 
 	testCases := []struct {
@@ -348,6 +348,88 @@ func (suite *handlerTestSuite) TestGetUser() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/users/%s", userID), nil)
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestHandlerEditUser() {
+	companyID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() (string, []byte)
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, expected := model.NewTestEditUser(userID, companyID, positionID)
+
+				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(&expected, nil)
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "invalid user id",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				body, _ := json.Marshal(nil)
+
+				return "invalid", body
+			},
+		},
+		{
+			name:         "invalid request body",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+
+				body, _ := json.Marshal("invalid")
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+
+				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(nil, errs.ErrUserNotFound)
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	// проверка тест-кейсов
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			userID, body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/users/%s", userID), bytes.NewBuffer(body))
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)

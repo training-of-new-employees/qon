@@ -137,7 +137,7 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 	}
 
 	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, user.ID, user.CompanyID) {
-		r.handleError(c, errs.ErrErrNoAccess)
+		r.handleError(c, errs.ErrNoAccess)
 		return
 	}
 
@@ -160,39 +160,33 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Router			/users/{id} [patch]
 func (r *RestServer) handlerEditUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		msg := fmt.Errorf("got invalid user id: %s", idParam)
-		logger.Log.Warn("error", zap.Error(msg))
-		c.JSON(http.StatusBadRequest, s().SetError(msg))
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg.Error()})
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+
 	edit := &model.UserEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 	edit.ID = id
-	us := r.getUserSession(c)
-	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, edit.ID, us.OrgID) {
-		logger.Log.Warn("User try edit info without rights", zap.Int("id", us.UserID), zap.Int("edited", edit.ID))
 
-		c.JSON(http.StatusForbidden, s().SetError(fmt.Errorf("you can't edit user")))
+	session := r.getUserSession(c)
+	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, edit.ID, session.OrgID) {
+		r.handleError(c, errs.ErrNoAccess)
 		return
 	}
-	edited, err := r.services.User().EditUser(ctx, edit, us.OrgID)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+
+	edited, err := r.services.User().EditUser(ctx, edit, session.OrgID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, edited)
-
 }
 
 // SetPassword godoc

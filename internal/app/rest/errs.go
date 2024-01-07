@@ -11,7 +11,7 @@ import (
 
 // errorToCode - мапа соответствия ошибки http-коду.
 var errorToCode = map[string]int{
-	errs.ErrErrNoAccess.Error(): http.StatusForbidden,
+	errs.ErrNoAccess.Error(): http.StatusForbidden,
 
 	errs.ErrNotFound.Error():         http.StatusNotFound,
 	errs.ErrUserNotFound.Error():     http.StatusNotFound,

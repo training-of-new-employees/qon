@@ -77,3 +77,78 @@ func NewTestUser(userID int, companyID int, positionID int) *UserInfo {
 
 	return userInfo
 }
+
+func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserEdit) {
+	user := NewTestUserCreate()
+
+	expected := UserEdit{
+		ID:         userID,
+		CompanyID:  &companyID,
+		PositionID: &positionID,
+		Email:      &user.Email,
+		Name:       &user.Name,
+		Patronymic: &user.Patronymic,
+		Surname:    &user.Surname,
+		IsActive:   &user.IsActive,
+		IsArchived: &user.IsArchived,
+	}
+
+	editField := UserEdit{
+		ID:         userID,
+		CompanyID:  &companyID,
+		PositionID: &positionID,
+	}
+
+	// определение случайным образом полей для редактирования:
+	//
+	// изменение емейла
+	if randomseq.RandomBool() {
+		email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
+
+		editField.Email = &email
+
+		expected.Email = &email
+	}
+	// изменение имени
+	if randomseq.RandomBool() {
+		name := randomseq.RandomString(8)
+
+		editField.Name = &name
+
+		expected.Name = &name
+	}
+	// изменение отчества
+	if randomseq.RandomBool() {
+		patronymic := randomseq.RandomString(8)
+
+		editField.Patronymic = &patronymic
+
+		expected.Patronymic = &patronymic
+	}
+	// изменение фамилии
+	if randomseq.RandomBool() {
+		surname := randomseq.RandomString(8)
+
+		editField.Surname = &surname
+
+		expected.Surname = &surname
+	}
+	// изменение статуса архив
+	if randomseq.RandomBool() {
+		archived := randomseq.RandomBool()
+
+		editField.IsArchived = &archived
+
+		expected.IsArchived = &archived
+	}
+	// изменение статуса активности
+	if randomseq.RandomBool() {
+		active := randomseq.RandomBool()
+
+		editField.IsActive = &active
+
+		expected.IsActive = &active
+	}
+
+	return editField, expected
+}
