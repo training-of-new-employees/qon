@@ -3,8 +3,6 @@ package model
 import (
 	"fmt"
 	"math/rand"
-	"regexp"
-	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -70,14 +68,50 @@ type (
 	}
 )
 
+// Validation - валидация входящих данных при регистрации сотрудника.
 func (u *UserCreate) Validation() error {
-	return validation.ValidateStruct(u,
-		validation.Field(&u.Email, validation.Required, is.Email),
-		validation.Field(&u.CompanyID, validation.Required),
-		validation.Field(&u.PositionID, validation.Required),
-		validation.Field(&u.Name, validation.Required),
-		validation.Field(&u.Surname, validation.Required),
-	)
+	// проверка на пустоту поля емейл
+	if err := validation.Validate(&u.Email, validation.Required); err != nil {
+		return errs.ErrEmailNotEmpty
+	}
+	// проверка емейла на корректность
+	if err := validation.Validate(&u.Email, is.Email); err != nil {
+		return errs.ErrInvalidEmail
+	}
+	// проверка на пустоту id компании
+	if err := validation.Validate(&u.CompanyID, validation.Required); err != nil {
+		return errs.ErrCompanyIDNotEmpty
+	}
+	// проверка на пустоту id должности
+	if err := validation.Validate(&u.PositionID, validation.Required); err != nil {
+		return errs.ErrPositionIDNotEmpty
+	}
+	// проверка на пустоту имени пользователя
+	if err := validation.Validate(&u.Name, validation.Required); err != nil {
+		return errs.ErrUserNameNotEmpty
+	}
+	// проверка требований к имени
+	if err := validation.Validate(&u.Name, validation.RuneLength(2, 128), validation.By(validateUserName(u.Name))); err != nil {
+		return errs.ErrInvalidUserName
+	}
+	// проверка на пустоту фамилии пользователя
+	if err := validation.Validate(&u.Surname, validation.Required); err != nil {
+		return errs.ErrUserSurnameNotEmpty
+	}
+	// проверка требований к фамилии
+	if err := validation.Validate(&u.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(u.Surname))); err != nil {
+		return errs.ErrInvalidUserSurname
+	}
+
+	// проверка требований к отчеству
+	if u.Patronymic != "" {
+		// проверка требований к отчеству
+		if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(u.Patronymic))); err != nil {
+			return errs.ErrInvalidUserPatronymic
+		}
+	}
+
+	return nil
 }
 
 func (u *UserCreate) SetPassword() error {
@@ -160,7 +194,7 @@ func (u *CreateAdmin) Validation() error {
 	if err := validation.Validate(&u.Email, validation.Required); err != nil {
 		return errs.ErrEmailNotEmpty
 	}
-	// Проверка емейла на коррестность
+	// Проверка емейла на корректность
 	if err := validation.Validate(&u.Email, is.Email); err != nil {
 		return errs.ErrInvalidEmail
 	}
@@ -180,33 +214,12 @@ func (u *CreateAdmin) Validation() error {
 	if err := validation.Validate(&u.Company, validation.Required); err != nil {
 		return errs.ErrCompanyNameNotEmpty
 	}
-	// Проверка длины имени компании
-	if err := validation.Validate(&u.Company, validation.Length(1, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})); err != nil {
-		return errs.ErrIncorrectCompanyName
+	// Проверка имени компании на состав
+	if err := validation.Validate(&u.Company, validation.Length(1, 256), validation.By(validateCompanyPositionName(u.Company))); err != nil {
+		return errs.ErrInvalidCompanyName
 	}
 
 	return nil
-}
-
-// validatePassword - проверка пароля на состав.
-// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
-func validatePassword(password string) validation.RuleFunc {
-	return func(value interface{}) error {
-		// Минимум 1 цифра
-		numeric := regexp.MustCompile(`\d`).MatchString(password)
-		// Минимум 1 буква в нижнем регистре
-		lowercase := regexp.MustCompile(`[a-z]`).MatchString(password)
-		// Минимум 1 буква в верхнем регистре
-		uppercase := regexp.MustCompile(`[A-Z]`).MatchString(password)
-		// Минимум 1 специальный символ
-		special := strings.ContainsAny(password, "!@#$%^&*()_+")
-
-		if !(numeric && lowercase && uppercase && special) {
-			return errs.ErrInvalidPassword
-		}
-
-		return nil
-	}
 }
 
 func (u *CreateAdmin) SetPassword() error {

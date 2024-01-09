@@ -3,6 +3,8 @@ package model
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
@@ -14,14 +16,14 @@ func TestPositionEdit_Validation(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		wantErr bool
+		wantErr error
 	}{
 		{
 			"Bad company ID",
 			fields{
 				Name: "valid",
 			},
-			true,
+			errs.ErrCompanyIDNotEmpty,
 		},
 		{
 			"Short position",
@@ -29,7 +31,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "s",
 			},
-			true,
+			errs.ErrInvalidPositionName,
 		},
 		{
 			"Long position",
@@ -37,15 +39,15 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      randomseq.RandomString(257),
 			},
-			true,
+			errs.ErrInvalidPositionName,
 		},
 		{
-			"Long position",
+			"Correct length position",
 			fields{
 				CompanyID: 1,
 				Name:      randomseq.RandomString(256),
 			},
-			false,
+			nil,
 		},
 		{
 			"Bad symbols position",
@@ -53,7 +55,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "*position",
 			},
-			true,
+			errs.ErrInvalidPositionName,
 		},
 		{
 			"Bad symbols position",
@@ -61,7 +63,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "#position",
 			},
-			true,
+			errs.ErrInvalidPositionName,
 		},
 		{
 			"Punctuation position",
@@ -69,7 +71,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "position,some",
 			},
-			true,
+			errs.ErrInvalidPositionName,
 		},
 		{
 			"Space position",
@@ -77,7 +79,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "какая-то должность",
 			},
-			true,
+			nil,
 		},
 		{
 			"Cyrillic position",
@@ -85,7 +87,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "стажер",
 			},
-			false,
+			nil,
 		},
 		{
 			"Latin position",
@@ -93,7 +95,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "validposition",
 			},
-			false,
+			nil,
 		},
 	}
 	for _, tt := range tests {
@@ -102,9 +104,9 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: tt.fields.CompanyID,
 				Name:      tt.fields.Name,
 			}
-			if err := p.Validation(); (err != nil) != tt.wantErr {
-				t.Errorf("PositionEdit.Validation() error = %v, wantErr %v, name = %v", err, tt.wantErr, tt.fields.Name)
-			}
+
+			err := p.Validation()
+			assert.Equal(t, tt.wantErr, err)
 		})
 	}
 }
