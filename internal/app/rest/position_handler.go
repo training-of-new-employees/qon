@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -154,21 +153,18 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	ctx := c.Request.Context()
 	us := r.getUserSession(c)
 
-	if err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID,
-		positionCourse.CourseID, us.UserID); err != nil {
-		if errors.Is(err, errs.ErrUnauthorized) {
-			c.JSON(http.StatusUnauthorized, s().SetError(err))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID, positionCourse.CourseID, us.UserID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusOK)
 }

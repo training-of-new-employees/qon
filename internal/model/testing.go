@@ -8,11 +8,11 @@ import (
 
 func NewTestUserCreate() UserCreate {
 	return UserCreate{
-		Email:      fmt.Sprintf("%s@example.org", randomseq.RandomHexString(16)),
+		Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
 		Password:   randomseq.RandomHexString(64),
-		Name:       "Test",
-		Patronymic: "Test",
-		Surname:    "Test",
+		Name:       fmt.Sprintf("Test%s", randomseq.RandomName(10)),
+		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
+		Surname:    fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		IsAdmin:    false,
 		IsActive:   true,
 	}
@@ -22,13 +22,13 @@ func NewTestCreateAdmin() CreateAdmin {
 	return CreateAdmin{
 		Email:    fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
 		Password: "abcdA1*",
-		Company:  fmt.Sprintf("test-%s", randomseq.RandomString(10)),
+		Company:  fmt.Sprintf("test-%s", randomseq.RandomName(10)),
 	}
 }
 
 func NewTestPositionSet() PositionSet {
 	return PositionSet{
-		Name: fmt.Sprintf("test-%s", randomseq.RandomString(10)),
+		Name: fmt.Sprintf("test-%s", randomseq.RandomName(10)),
 	}
 }
 
@@ -37,7 +37,7 @@ func NewTestPositions(companyID int) []*Position {
 	positions := make([]*Position, number)
 
 	for i := 0; i < number; i++ {
-		positions[i] = &Position{ID: i + 1, CompanyID: companyID, IsActive: true, IsArchived: false, Name: fmt.Sprintf("test-%s", randomseq.RandomString(10))}
+		positions[i] = &Position{ID: i + 1, CompanyID: companyID, IsActive: true, IsArchived: false, Name: fmt.Sprintf("test-%s", randomseq.RandomName(10))}
 	}
 
 	return positions
@@ -52,9 +52,9 @@ func NewTestListUsers(companyID int) []User {
 			ID: i + 1, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: randomseq.RandomTestInt() - 99,
 			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
-			Name:       randomseq.RandomString(10),
-			Surname:    randomseq.RandomString(10),
-			Patronymic: randomseq.RandomString(10),
+			Name:       randomseq.RandomName(10),
+			Surname:    randomseq.RandomName(10),
+			Patronymic: randomseq.RandomName(10),
 		}
 	}
 
@@ -67,12 +67,12 @@ func NewTestUser(userID int, companyID int, positionID int) *UserInfo {
 			ID: userID, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: positionID,
 			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
-			Name:       randomseq.RandomString(10),
-			Surname:    randomseq.RandomString(10),
-			Patronymic: randomseq.RandomString(10),
+			Name:       randomseq.RandomName(10),
+			Surname:    randomseq.RandomName(10),
+			Patronymic: randomseq.RandomName(10),
 		},
-		CompanyName:  fmt.Sprintf("company-name-%s", randomseq.RandomString(5)),
-		PositionName: fmt.Sprintf("company-name-%s", randomseq.RandomString(5)),
+		CompanyName:  fmt.Sprintf("company-name-%s", randomseq.RandomName(5)),
+		PositionName: fmt.Sprintf("company-name-%s", randomseq.RandomName(5)),
 	}
 
 	return userInfo
@@ -111,7 +111,7 @@ func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserE
 	}
 	// изменение имени
 	if randomseq.RandomBool() {
-		name := randomseq.RandomString(8)
+		name := randomseq.RandomName(8)
 
 		editField.Name = &name
 
@@ -119,7 +119,7 @@ func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserE
 	}
 	// изменение отчества
 	if randomseq.RandomBool() {
-		patronymic := randomseq.RandomString(8)
+		patronymic := randomseq.RandomName(8)
 
 		editField.Patronymic = &patronymic
 
@@ -127,7 +127,7 @@ func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserE
 	}
 	// изменение фамилии
 	if randomseq.RandomBool() {
-		surname := randomseq.RandomString(8)
+		surname := randomseq.RandomName(8)
 
 		editField.Surname = &surname
 
@@ -179,28 +179,28 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 	}
 	// изменение названия компании
 	if randomseq.RandomBool() {
-		companyName := randomseq.RandomString(8)
+		companyName := randomseq.RandomName(8)
 
 		editField.Company = &companyName
 		expected.Company = &companyName
 	}
 	// изменение имени
 	if randomseq.RandomBool() {
-		name := randomseq.RandomString(8)
+		name := randomseq.RandomName(8)
 
 		editField.Name = &name
 		expected.Name = &name
 	}
 	// изменение отчества
 	if randomseq.RandomBool() {
-		patronymic := randomseq.RandomString(8)
+		patronymic := randomseq.RandomName(8)
 
 		editField.Patronymic = &patronymic
 		expected.Patronymic = &patronymic
 	}
 	// изменение фамилии
 	if randomseq.RandomBool() {
-		surname := randomseq.RandomString(8)
+		surname := randomseq.RandomName(8)
 
 		editField.Surname = &surname
 		expected.Surname = &surname

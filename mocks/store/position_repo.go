@@ -41,17 +41,17 @@ func (m *MockRepositoryPosition) EXPECT() *MockRepositoryPositionMockRecorder {
 }
 
 // AssignCourseDB mocks base method.
-func (m *MockRepositoryPosition) AssignCourseDB(ctx context.Context, positionID, courseID, user_id int) error {
+func (m *MockRepositoryPosition) AssignCourseDB(ctx context.Context, positionID, courseID int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignCourseDB", ctx, positionID, courseID, user_id)
+	ret := m.ctrl.Call(m, "AssignCourseDB", ctx, positionID, courseID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AssignCourseDB indicates an expected call of AssignCourseDB.
-func (mr *MockRepositoryPositionMockRecorder) AssignCourseDB(ctx, positionID, courseID, user_id any) *gomock.Call {
+func (mr *MockRepositoryPositionMockRecorder) AssignCourseDB(ctx, positionID, courseID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourseDB", reflect.TypeOf((*MockRepositoryPosition)(nil).AssignCourseDB), ctx, positionID, courseID, user_id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourseDB", reflect.TypeOf((*MockRepositoryPosition)(nil).AssignCourseDB), ctx, positionID, courseID)
 }
 
 // CreatePositionDB mocks base method.

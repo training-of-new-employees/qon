@@ -73,7 +73,7 @@ func newPostgresDB(dsn string) (*sqlx.DB, error) {
 	return db, nil
 }
 
-// UserStorage - хранилище пользователей.
+// UserStorage - доступ к репозиторию пользователей.
 func (s *Store) UserStorage() store.RepositoryUser {
 	if s.userStore != nil {
 		return s.userStore
@@ -83,7 +83,7 @@ func (s *Store) UserStorage() store.RepositoryUser {
 	return s.userStore
 }
 
-// PositionStorage - хранилище должностей.
+// PositionStorage - доступ к репозиторию должностей.
 func (s *Store) PositionStorage() store.RepositoryPosition {
 	if s.positionStore != nil {
 		return s.positionStore
@@ -94,7 +94,7 @@ func (s *Store) PositionStorage() store.RepositoryPosition {
 	return s.positionStore
 }
 
-// CompanyStorage - хранилище компаний.
+// CompanyStorage - доступ к репозиторию компаний.
 func (s *Store) CompanyStorage() store.RepositoryCompany {
 	if s.companyStore != nil {
 		return s.companyStore
@@ -105,7 +105,7 @@ func (s *Store) CompanyStorage() store.RepositoryCompany {
 	return s.companyStore
 }
 
-// CompanyStorage - хранилище компаний.
+// CompanyStorage - доступ к репозиторию уроков.
 func (s *Store) LessonStorage() store.RepositoryLesson {
 	if s.companyStore != nil {
 		return s.lessonStore

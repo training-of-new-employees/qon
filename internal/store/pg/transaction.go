@@ -190,8 +190,8 @@ func (tn *transaction) createPositionTx(ctx context.Context, tx *sqlx.Tx, compan
 // updatePasswordTx обновляет пароль пользователя.
 // ВAЖНО: использовать только только внутри транзакции.
 func (tn *transaction) updatePasswordTx(ctx context.Context, tx *sqlx.Tx, userID int, encPassword string) error {
-	query := `UPDATE users SET enc_password = $1 WHERE id = $2`
-	_, err := tx.ExecContext(ctx, query, encPassword, userID)
+	query := `UPDATE users SET enc_password = $1 WHERE id = $2 RETURNING id`
+	err := tx.GetContext(ctx, new(model.User), query, encPassword, userID)
 	if err != nil {
 		return err
 	}
@@ -202,10 +202,22 @@ func (tn *transaction) updatePasswordTx(ctx context.Context, tx *sqlx.Tx, userID
 // activateUserTx активирует пользователя.
 // ВAЖНО: использовать только внутри транзакции.
 func (tn *transaction) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID int) error {
-	query := `UPDATE users SET active = true WHERE id = $1`
-	_, err := tx.ExecContext(ctx, query, userID)
+	query := `UPDATE users SET active = true WHERE id = $1 RETURNING id`
+	err := tx.GetContext(ctx, new(model.User), query, userID)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// createCompanyTx - назначение курса на должность.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) assignCourseTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseID int) error {
+	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2) RETURNING id`
+
+	if err := tx.QueryRowxContext(ctx, query, positionID, courseID).Err(); err != nil {
+		return err
+	}
+
 	return nil
 }
