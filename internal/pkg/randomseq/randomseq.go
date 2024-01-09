@@ -10,7 +10,12 @@ import (
 )
 
 var rnd *mrand.Rand
-var alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// alphabetRandomString - набор для генерации случайной строки
+var alphabetRandomString = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// alphabetName - набор для генерации имён/названий
+var alphabetName = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func init() {
 	rnd = mrand.New(mrand.NewSource(time.Now().UnixNano()))
@@ -42,7 +47,18 @@ func RandomHexString(n int) string {
 func RandomString(n int) string {
 	seq := make([]byte, 0, n)
 	for len(seq) < n {
-		symb := alphabet[rnd.Intn(len(alphabet))]
+		symb := alphabetRandomString[rnd.Intn(len(alphabetRandomString))]
+		seq = append(seq, byte(symb))
+
+	}
+	return string(seq)
+}
+
+// RandomName - создает последовательность, удовлетворяющую требованиям валидатора имен.
+func RandomName(n int) string {
+	seq := make([]byte, 0, n)
+	for len(seq) < n {
+		symb := alphabetName[rnd.Intn(len(alphabetName))]
 		seq = append(seq, byte(symb))
 
 	}
