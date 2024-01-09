@@ -9,6 +9,6 @@ import (
 type RepositoryCourse interface {
 	PositionCourses(ctx context.Context, userID int) ([]model.Course, error)
 	CompanyCourses(ctx context.Context, companyID int) ([]model.Course, error)
-	CreateCourse(ctx context.Context, course model.CourseSet) (*model.Course, error)
-	EditCourse(ctx context.Context, course model.CourseSet) (*model.Course, error)
+	CreateCourse(ctx context.Context, course model.CourseSet) (model.Course, error)
+	EditCourse(ctx context.Context, course model.CourseSet, companyID int) (model.Course, error)
 }

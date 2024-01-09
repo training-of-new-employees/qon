@@ -87,13 +87,14 @@ func (r *RestServer) handlerEditCourse(c *gin.Context) {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
-	course := model.NewCourseSet(id, r.getUserSession(c).UserID)
+	us := r.getUserSession(c)
+	course := model.NewCourseSet(id, us.UserID)
 	err = c.BindJSON(&course)
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
-	_, err = r.services.Course().EditCourse(ctx, course)
+	_, err = r.services.Course().EditCourse(ctx, course, us.OrgID)
 	if err != nil {
 		r.handleError(c, err)
 		return
