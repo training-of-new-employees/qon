@@ -4,10 +4,10 @@ import "time"
 
 type (
 	Lesson struct {
-		ID          int       `db:"id"          json:"id"`
-		CourseID    int       `db:"course_id"   json:"course_id"`
-		CreatedBy   int       `db:"created_by"   json:"created_by"`
-		Number      int       `db:"number"      json:"number"`
+		ID        int `db:"id"          json:"id"`
+		CourseID  int `db:"course_id"   json:"course_id"`
+		CreatedBy int `db:"created_by"   json:"created_by"`
+		//Number      int       `db:"number"      json:"number"`
 		Name        string    `db:"name"        json:"name"`
 		Description string    `db:"description" json:"description"`
 		IsActive    bool      `db:"active"      json:"active"`

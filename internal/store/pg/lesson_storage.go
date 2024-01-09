@@ -30,7 +30,8 @@ func (l *lessonStorage) CreateLessonDB(ctx context.Context,
 
 	query := `INSERT INTO lessons (course_id, created_by, name, description)
 	VALUES ($1, $2, $3, $4)
-	RETURNING id, number, name, description, created_at`
+	RETURNING id, course_id, created_by, name, description, active, archived,
+	created_at, updated_at`
 
 	var createdLesson model.Lesson
 
