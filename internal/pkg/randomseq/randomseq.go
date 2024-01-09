@@ -1,3 +1,4 @@
+// Package randomseq - пакет для генерации случайных данных.
 package randomseq
 
 import (
@@ -15,7 +16,7 @@ func init() {
 	rnd = mrand.New(mrand.NewSource(time.Now().UnixNano()))
 }
 
-// RandomDigitNumber генерирует случайное n-значное число в виде строки.
+// RandomDigitNumber - генерирует случайное n-значное число в виде строки.
 func RandomDigitNumber(n int) string {
 
 	// генерация случайного n-значного числа
@@ -27,7 +28,7 @@ func RandomDigitNumber(n int) string {
 	return number
 }
 
-// RandomHexString генерирует случайную последовательность байт заданной длины и отдаёт их в качестве строки.
+// RandomHexString - генерирует случайную последовательность байт заданной длины и отдаёт их в качестве строки.
 func RandomHexString(n int) string {
 	b := make([]byte, n)
 	n, err := rand.Read(b)
@@ -37,7 +38,7 @@ func RandomHexString(n int) string {
 	return hex.EncodeToString(b)
 }
 
-// RandomString генерирует случайную строку заданной длины
+// RandomString - генерирует случайную строку заданной длины.
 func RandomString(n int) string {
 	seq := make([]byte, 0, n)
 	for len(seq) < n {
@@ -46,4 +47,17 @@ func RandomString(n int) string {
 
 	}
 	return string(seq)
+}
+
+// RandomBool - генерирует случайное булево значение.
+func RandomBool() bool {
+	return rnd.Intn(2) == 1
+}
+
+// RandomTestInt - генерирует случайное число от 100 до 356.
+// Используется в тестах в основном для генерации идентификаторов объектов (также может использоваться и для других целей).
+// Генерируются значения в диапазоне от 100 до 356, которые не включаются в тестируемые данные.
+// При тестировании преимущественно используются первые цифры.
+func RandomTestInt() int {
+	return 100 + rnd.Intn(256)
 }
