@@ -79,7 +79,7 @@ func TestCourse_Validation(t *testing.T) {
 			fields{
 				Name: strings.Join([]string{randomseq.RandomString(10), randomseq.RandomString(20)}, " "),
 			},
-			true,
+			false,
 		},
 		{
 			"Название с плохим символом",

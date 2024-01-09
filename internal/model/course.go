@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -33,11 +34,13 @@ func (c *Course) Validation() error {
 	if err != nil {
 		return errs.ErrCourseNameNotEmpty
 	}
-	err = validation.Validate(&c.Name, validation.Length(5, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	nameWOSpaces := strings.ReplaceAll(c.Name, " ", "")
+	err = validation.Validate(&nameWOSpaces, validation.Length(5, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
 	if err != nil {
 		return errs.ErrCourseNameInvalid
 	}
-	err = validation.Validate(&c.Description, validation.Length(10, 512), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	descWOSpaces := strings.ReplaceAll(c.Description, " ", "")
+	err = validation.Validate(&descWOSpaces, validation.Length(10, 512), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
 	if err != nil {
 		return errs.ErrCourseDescriptionInvalid
 	}
