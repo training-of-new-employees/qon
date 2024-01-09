@@ -254,7 +254,7 @@ func (u *uStorage) SetPasswordAndActivateUser(ctx context.Context, userID int, e
 
 // GetUsersByCompany - получение данных для каждого пользователя в компании.
 func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]model.User, error) {
-	users := make([]model.User, 0)
+	users := make([]model.User, 0, 10)
 
 	// открываем транзакцию
 	err := u.tx(func(tx *sqlx.Tx) error {

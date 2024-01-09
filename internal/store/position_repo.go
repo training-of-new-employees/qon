@@ -8,17 +8,18 @@ import (
 
 // RepositoryPosition - интерфейс репозитория должности.
 type RepositoryPosition interface {
-	// CreatePositionDB - создание должности
+	// TODO: Не совсем понятно, зачем в методах используется окончание 'DB', возможно, его следует потом убрать.
 	CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error)
+
 	// GetPositionDB - получение данных должности, привязанной к компании
 	// TODO: возможно этот метод стоит убрать, вместо можно использовать GetPositionByID
 	GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error)
-	// GetPositionsDB - получение должностей компании
+
+	// TODO: Названия методов GetPositionDB и GetPositionsDB создают путаницу, т.к. раличаются только наличием одной буквы 's'.
+	// Возможно, следует изменить название метода на ListPositionDB (для примера).
 	GetPositionsDB(ctx context.Context, companyID int) ([]*model.Position, error)
-	// GetPositionByID - получение данных должности по ID
+
 	GetPositionByID(ctx context.Context, positionID int) (*model.Position, error)
-	// UpdatePositionDB - обновление данных должности
-	UpdatePositionDB(ctx context.Context, id int, position model.PositionSet) (*model.Position, error)
-	// AssignCourseDB - назначение курса на должность
+	UpdatePositionDB(ctx context.Context, positionID int, position model.PositionSet) (*model.Position, error)
 	AssignCourseDB(ctx context.Context, positionID int, courseID int) error
 }
