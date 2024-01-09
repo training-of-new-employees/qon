@@ -50,6 +50,27 @@ func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.P
 	return createdPosition, nil
 }
 
+// GetPositionByID - получение данных должности по идентификатору.
+func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `
+		SELECT id, company_id, name, active, archived, created_at, updated_at
+        FROM positions 
+        WHERE id = $1 AND archived = false
+	`
+
+	err := p.db.GetContext(ctx, &position, query, positionID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrPositionNotFound
+		}
+		return nil, handleError(err)
+	}
+
+	return &position, nil
+}
+
 // GetPositionDB - получение данных должности, привязанной к компании.
 // TODO: возможно этот метод стоит убрать, вместо можно использовать GetPositionByID
 func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
@@ -107,27 +128,6 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]
 	}
 
 	return positions, nil
-}
-
-// GetPositionByID - получение данных должности по идентификатору.
-func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
-	position := model.Position{}
-
-	query := `
-		SELECT id, company_id, name, active, archived, created_at, updated_at
-        FROM positions 
-        WHERE id = $1 AND archived = false
-	`
-
-	err := p.db.GetContext(ctx, &position, query, positionID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errs.ErrPositionNotFound
-		}
-		return nil, handleError(err)
-	}
-
-	return &position, nil
 }
 
 // UpdatePositionDB - обновление данных должности.

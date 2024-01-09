@@ -69,6 +69,47 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 	suite.NoError(err)
 }
 
+func (suite *storeTestSuite) TestGetPositionByID() {
+	suite.NotNil(suite.store)
+
+	// добавление компании
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// добавление должности
+	position, err := suite.store.PositionStorage().CreatePositionDB(
+		context.TODO(),
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
+	)
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	testCases := []struct {
+		name       string
+		positionID int
+		err        error
+	}{
+		{
+			name:       "success",
+			positionID: position.ID,
+			err:        nil,
+		},
+		{
+			name:       "random position",
+			positionID: randomseq.RandomTestInt(),
+			err:        errs.ErrPositionNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			_, err := suite.store.PositionStorage().GetPositionByID(context.TODO(), tc.positionID)
+			suite.Equal(tc.err, err)
+		})
+	}
+}
+
 func (suite *storeTestSuite) TestGetPositionDB() {
 	suite.NotNil(suite.store)
 
@@ -167,47 +208,6 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	}
 
 	suite.EqualValues(expectedIDs, actualIDs)
-}
-
-func (suite *storeTestSuite) TestGetPositionByID() {
-	suite.NotNil(suite.store)
-
-	// добавление компании
-	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
-	suite.NoError(err)
-	suite.NotEmpty(company)
-
-	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(
-		context.TODO(),
-		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
-	)
-	suite.NoError(err)
-	suite.NotEmpty(position)
-
-	testCases := []struct {
-		name       string
-		positionID int
-		err        error
-	}{
-		{
-			name:       "success",
-			positionID: position.ID,
-			err:        nil,
-		},
-		{
-			name:       "random position",
-			positionID: randomseq.RandomTestInt(),
-			err:        errs.ErrPositionNotFound,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			_, err := suite.store.PositionStorage().GetPositionByID(context.TODO(), tc.positionID)
-			suite.Equal(tc.err, err)
-		})
-	}
 }
 
 func (suite *storeTestSuite) TestUpdatePositionDB() {

@@ -186,6 +186,162 @@ func (suite *storeTestSuite) TestCreateAdmin() {
 	}
 }
 
+func (suite *storeTestSuite) TestGetUserByID() {
+	suite.NotNil(suite.store)
+
+	// добавление компании
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// добавление должности
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	// подготовка данных пользователя для добавления
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	// добавление пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	testCases := []struct {
+		name   string
+		userID int
+		err    error
+	}{
+		{
+			name:   "success",
+			userID: user.ID,
+			err:    nil,
+		},
+		{
+			name:   "random user id",
+			userID: randomseq.RandomTestInt(),
+			err:    errs.ErrUserNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			_, err := suite.store.UserStorage().GetUserByID(context.TODO(), tc.userID)
+			suite.Equal(tc.err, err)
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestGetUserByEmail() {
+	suite.NotNil(suite.store)
+
+	// добавление компании
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// добавление должности
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	// подготовка данных пользователя для добавления
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	// добавление пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	testCases := []struct {
+		name      string
+		userEmail func() string
+		err       error
+	}{
+		{
+			name: "success",
+			userEmail: func() string {
+				return user.Email
+			},
+			err: nil,
+		},
+		{
+			name: "random user email",
+			userEmail: func() string {
+				return model.NewTestUserCreate().Email
+			},
+			err: errs.ErrUserNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			email := tc.userEmail()
+			_, err := suite.store.UserStorage().GetUserByEmail(context.TODO(), email)
+			suite.Equal(tc.err, err)
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestGetUsersByCompany() {
+	suite.NotNil(suite.store)
+
+	// поиск пользователей в пустой базе по id несуществующей компании
+	users, err := suite.store.UserStorage().GetUsersByCompany(context.TODO(), randomseq.RandomTestInt())
+	suite.Error(err)
+	suite.Empty(users)
+
+	// добавление компании
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	// добавление должности
+	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	// генерация кол-ва пользователей
+	countUsers := randomseq.RandomTestInt()
+
+	// массив с ожидаемыми идентификаторами пользователей
+	expectedIDs := []int{}
+
+	// добавление случайного кол-ва пользователей (от 100 до 356)
+	for i := 0; i < countUsers; i++ {
+
+		u := model.NewTestUserCreate()
+		u.CompanyID = company.ID
+		u.PositionID = position.ID
+
+		user, err := suite.store.UserStorage().CreateUser(
+			context.TODO(),
+			u,
+		)
+		suite.NoError(err)
+
+		// добавление в массив идентификаторов добавленных пользователей
+		expectedIDs = append(expectedIDs, user.ID)
+	}
+
+	// получение добавленных пользователей
+	users, err = suite.store.UserStorage().GetUsersByCompany(context.TODO(), company.ID)
+	suite.NotEmpty(users)
+	suite.NoError(err)
+
+	// добавление в массив идентификаторов полученных пользователей
+	actualIDs := []int{}
+	for _, u := range users {
+		actualIDs = append(actualIDs, u.ID)
+	}
+
+	suite.EqualValues(expectedIDs, actualIDs)
+}
+
 func (suite *storeTestSuite) TestEditUser() {
 	suite.NotNil(suite.store)
 
@@ -420,163 +576,7 @@ func (suite *storeTestSuite) TestEditAdmin() {
 	}
 }
 
-func (suite *storeTestSuite) TestGetUserByID() {
-	suite.NotNil(suite.store)
-
-	// добавление компании
-	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
-	suite.NoError(err)
-	suite.NotEmpty(company)
-
-	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
-	suite.NoError(err)
-	suite.NotEmpty(position)
-
-	// подготовка данных пользователя для добавления
-	u := model.NewTestUserCreate()
-	u.CompanyID = company.ID
-	u.PositionID = position.ID
-
-	// добавление пользователя
-	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
-	suite.NoError(err)
-	suite.NotEmpty(user)
-
-	testCases := []struct {
-		name   string
-		userID int
-		err    error
-	}{
-		{
-			name:   "success",
-			userID: user.ID,
-			err:    nil,
-		},
-		{
-			name:   "random user id",
-			userID: randomseq.RandomTestInt(),
-			err:    errs.ErrUserNotFound,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			_, err := suite.store.UserStorage().GetUserByID(context.TODO(), tc.userID)
-			suite.Equal(tc.err, err)
-		})
-	}
-}
-
-func (suite *storeTestSuite) TestGetUserByEmail() {
-	suite.NotNil(suite.store)
-
-	// добавление компании
-	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
-	suite.NoError(err)
-	suite.NotEmpty(company)
-
-	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
-	suite.NoError(err)
-	suite.NotEmpty(position)
-
-	// подготовка данных пользователя для добавления
-	u := model.NewTestUserCreate()
-	u.CompanyID = company.ID
-	u.PositionID = position.ID
-
-	// добавление пользователя
-	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
-	suite.NoError(err)
-	suite.NotEmpty(user)
-
-	testCases := []struct {
-		name      string
-		userEmail func() string
-		err       error
-	}{
-		{
-			name: "success",
-			userEmail: func() string {
-				return user.Email
-			},
-			err: nil,
-		},
-		{
-			name: "random user email",
-			userEmail: func() string {
-				return model.NewTestUserCreate().Email
-			},
-			err: errs.ErrUserNotFound,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			email := tc.userEmail()
-			_, err := suite.store.UserStorage().GetUserByEmail(context.TODO(), email)
-			suite.Equal(tc.err, err)
-		})
-	}
-}
-
-func (suite *storeTestSuite) TestGetUsersByCompany() {
-	suite.NotNil(suite.store)
-
-	// поиск пользователей в пустой базе по id несуществующей компании
-	users, err := suite.store.UserStorage().GetUsersByCompany(context.TODO(), randomseq.RandomTestInt())
-	suite.Error(err)
-	suite.Empty(users)
-
-	// добавление компании
-	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
-	suite.NoError(err)
-	suite.NotEmpty(company)
-
-	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
-	suite.NoError(err)
-	suite.NotEmpty(position)
-
-	// генерация кол-ва пользователей
-	countUsers := randomseq.RandomTestInt()
-
-	// массив с ожидаемыми идентификаторами пользователей
-	expectedIDs := []int{}
-
-	// добавление случайного кол-ва пользователей (от 100 до 356)
-	for i := 0; i < countUsers; i++ {
-
-		u := model.NewTestUserCreate()
-		u.CompanyID = company.ID
-		u.PositionID = position.ID
-
-		user, err := suite.store.UserStorage().CreateUser(
-			context.TODO(),
-			u,
-		)
-		suite.NoError(err)
-
-		// добавление в массив идентификаторов добавленных пользователей
-		expectedIDs = append(expectedIDs, user.ID)
-	}
-
-	// получение добавленных пользователей
-	users, err = suite.store.UserStorage().GetUsersByCompany(context.TODO(), company.ID)
-	suite.NotEmpty(users)
-	suite.NoError(err)
-
-	// добавление в массив идентификаторов полученных пользователей
-	actualIDs := []int{}
-	for _, u := range users {
-		actualIDs = append(actualIDs, u.ID)
-	}
-
-	suite.EqualValues(expectedIDs, actualIDs)
-}
-
-func (suite *storeTestSuite) TestSetPassword() {
+func (suite *storeTestSuite) TestUpdateUserPassword() {
 	suite.NotNil(suite.store)
 
 	// добавление компании
