@@ -9,14 +9,10 @@ import (
 
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
-	"github.com/training-of-new-employees/qon/internal/store"
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"
 )
 
 func Test_newCourseService(t *testing.T) {
-	type args struct {
-		db store.Storages
-	}
 	tests := []struct {
 		name string
 		want *courseService
