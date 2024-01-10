@@ -105,7 +105,7 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
-	company, err := u.db.UserStorage().GetCompany(ctx, user.CompanyID)
+	company, err := u.db.CompanyStorage().GetCompany(ctx, user.CompanyID)
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
@@ -129,10 +129,10 @@ func (u *uService) ArchiveUser(ctx context.Context, id int, editorCompanyID int)
 	if user.CompanyID != editorCompanyID {
 		return errs.ErrUserNotFound
 	}
-	val := &model.UserEdit{
-		ID:         id,
-		IsArchived: true,
-	}
+
+	valTrue := true
+	val := &model.UserEdit{ID: id, IsArchived: &valTrue}
+
 	_, err = u.db.UserStorage().EditUser(ctx, val)
 	return err
 

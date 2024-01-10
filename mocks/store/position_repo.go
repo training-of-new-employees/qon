@@ -40,17 +40,17 @@ func (m *MockRepositoryPosition) EXPECT() *MockRepositoryPositionMockRecorder {
 }
 
 // AssignCourseDB mocks base method.
-func (m *MockRepositoryPosition) AssignCourseDB(ctx context.Context, positionID, courseID, user_id int) error {
+func (m *MockRepositoryPosition) AssignCourseDB(ctx context.Context, positionID, courseID int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AssignCourseDB", ctx, positionID, courseID, user_id)
+	ret := m.ctrl.Call(m, "AssignCourseDB", ctx, positionID, courseID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AssignCourseDB indicates an expected call of AssignCourseDB.
-func (mr *MockRepositoryPositionMockRecorder) AssignCourseDB(ctx, positionID, courseID, user_id any) *gomock.Call {
+func (mr *MockRepositoryPositionMockRecorder) AssignCourseDB(ctx, positionID, courseID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourseDB", reflect.TypeOf((*MockRepositoryPosition)(nil).AssignCourseDB), ctx, positionID, courseID, user_id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourseDB", reflect.TypeOf((*MockRepositoryPosition)(nil).AssignCourseDB), ctx, positionID, courseID)
 }
 
 // CreatePositionDB mocks base method.
@@ -114,16 +114,16 @@ func (mr *MockRepositoryPositionMockRecorder) GetPositionsDB(ctx, companyID any)
 }
 
 // UpdatePositionDB mocks base method.
-func (m *MockRepositoryPosition) UpdatePositionDB(ctx context.Context, id int, position model.PositionSet) (*model.Position, error) {
+func (m *MockRepositoryPosition) UpdatePositionDB(ctx context.Context, positionID int, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePositionDB", ctx, id, position)
+	ret := m.ctrl.Call(m, "UpdatePositionDB", ctx, positionID, position)
 	ret0, _ := ret[0].(*model.Position)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdatePositionDB indicates an expected call of UpdatePositionDB.
-func (mr *MockRepositoryPositionMockRecorder) UpdatePositionDB(ctx, id, position any) *gomock.Call {
+func (mr *MockRepositoryPositionMockRecorder) UpdatePositionDB(ctx, positionID, position any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePositionDB", reflect.TypeOf((*MockRepositoryPosition)(nil).UpdatePositionDB), ctx, id, position)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePositionDB", reflect.TypeOf((*MockRepositoryPosition)(nil).UpdatePositionDB), ctx, positionID, position)
 }

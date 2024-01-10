@@ -6,4 +6,5 @@ type Service interface {
 	User() ServiceUser
 	Position() ServicePosition
 	Course() ServiceCourse
+	Lesson() ServiceLesson
 }

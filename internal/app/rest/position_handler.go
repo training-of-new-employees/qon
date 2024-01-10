@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -26,28 +25,25 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	positionReq := model.PositionSet{}
 
 	if err := c.ShouldBindJSON(&positionReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := positionReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	us := r.getUserSession(c)
 	if us.OrgID != positionReq.CompanyID {
-		c.JSON(http.StatusBadRequest, s().SetError(errs.ErrCompanyNotFound))
+		r.handleError(c, errs.ErrCompanyNotFound)
 		return
 	}
 
 	position, err := r.services.Position().CreatePosition(ctx, positionReq)
-	switch {
-	case errors.Is(err, model.ErrCompanyIDNotFound):
-		c.JSON(http.StatusBadRequest, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -67,24 +63,15 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 func (r *RestServer) handlerGetPosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	val := c.Param("id")
-
-	id, err := strconv.Atoi(val)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
-	us := r.getUserSession(c)
-
-	position, err := r.services.Position().GetPosition(ctx, us.OrgID, id)
-	switch {
-	case errors.Is(err, model.ErrPositionNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-
+	position, err := r.services.Position().GetPosition(ctx, r.getUserSession(c).OrgID, id)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -102,16 +89,10 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 //	@Router		/positions [get]
 func (r *RestServer) handlerGetPositions(c *gin.Context) {
 	ctx := c.Request.Context()
-	us := r.getUserSession(c)
 
-	positions, err := r.services.Position().GetPositions(ctx, us.OrgID)
-
-	switch {
-	case errors.Is(err, model.ErrPositionsNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	positions, err := r.services.Position().GetPositions(ctx, r.getUserSession(c).OrgID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -134,31 +115,25 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 	positionReq := model.PositionSet{}
 
-	val := c.Param("id")
-
-	id, err := strconv.Atoi(val)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
 	if err := c.ShouldBindJSON(&positionReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err = positionReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	position, err := r.services.Position().UpdatePosition(ctx, id, positionReq)
-	switch {
-	case errors.Is(err, model.ErrPositionNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -174,24 +149,22 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 // @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
 // @Failure	500	{object}	error	"Внутренняя ошибка сервера"
 // @Router		/positions/course [post]
+
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 	positionCourse := model.PositionCourse{}
 	if err := c.ShouldBindJSON(&positionCourse); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	ctx := c.Request.Context()
 	us := r.getUserSession(c)
 
-	if err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID,
-		positionCourse.CourseID, us.UserID); err != nil {
-		if errors.Is(err, model.ErrNoAuthorized) {
-			c.JSON(http.StatusUnauthorized, s().SetError(err))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID, positionCourse.CourseID, us.UserID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusOK)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -56,9 +57,8 @@ func (p *positionService) UpdatePosition(ctx context.Context, id int, val model.
 	return position, nil
 }
 
-func (p *positionService) AssignCourse(ctx context.Context, positionID int,
-	courseID int, user_id int) error {
-	user, err := p.db.UserStorage().GetUserByID(ctx, user_id)
+func (p *positionService) AssignCourse(ctx context.Context, positionID int, courseID int, userID int) error {
+	user, err := p.db.UserStorage().GetUserByID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -68,11 +68,10 @@ func (p *positionService) AssignCourse(ctx context.Context, positionID int,
 	}
 
 	if user.CompanyID != position.CompanyID {
-		return model.ErrNoAuthorized
+		return errs.ErrUnauthorized
 	}
 
-	if err := p.db.PositionStorage().AssignCourseDB(ctx,
-		positionID, courseID, user_id); err != nil {
+	if err := p.db.PositionStorage().AssignCourseDB(ctx, positionID, courseID); err != nil {
 		return err
 	}
 	return nil

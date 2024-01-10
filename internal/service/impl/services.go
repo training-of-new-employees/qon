@@ -20,6 +20,7 @@ type Services struct {
 	userService     *uService
 	positionService *positionService
 	courseService   *courseService
+	lessonService   *lessonService
 	sender          doar.EmailSender
 }
 
@@ -71,4 +72,14 @@ func (s *Services) Course() service.ServiceCourse {
 	}
 	s.courseService = newCourseService(s.db)
 	return s.courseService
+}
+
+func (s *Services) Lesson() service.ServiceLesson {
+	if s.lessonService != nil {
+		return s.lessonService
+	}
+
+	s.lessonService = newLessonService(s.db)
+
+	return s.lessonService
 }

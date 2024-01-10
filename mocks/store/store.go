@@ -66,6 +66,20 @@ func (mr *MockStoragesMockRecorder) CourseStorage() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CourseStorage", reflect.TypeOf((*MockStorages)(nil).CourseStorage))
 }
 
+// LessonStorage mocks base method.
+func (m *MockStorages) LessonStorage() store.RepositoryLesson {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LessonStorage")
+	ret0, _ := ret[0].(store.RepositoryLesson)
+	return ret0
+}
+
+// LessonStorage indicates an expected call of LessonStorage.
+func (mr *MockStoragesMockRecorder) LessonStorage() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LessonStorage", reflect.TypeOf((*MockStorages)(nil).LessonStorage))
+}
+
 // PositionStorage mocks base method.
 func (m *MockStorages) PositionStorage() store.RepositoryPosition {
 	m.ctrl.T.Helper()

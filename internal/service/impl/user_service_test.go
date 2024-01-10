@@ -231,6 +231,7 @@ func Test_uService_GetUserByEmail(t *testing.T) {
 func Test_uService_GetUserByID(t *testing.T) {
 	type fields struct {
 		userdb     *mock_store.MockRepositoryUser
+		companydb  *mock_store.MockRepositoryCompany
 		posdb      *mock_store.MockRepositoryPosition
 		cache      cache.Cache
 		secretKey  string
@@ -268,7 +269,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 					CompanyID: 1,
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
-				f.userdb.EXPECT().GetCompany(nil, 1).Return(nil, errs.ErrCompanyNotFound)
+				f.companydb.EXPECT().GetCompany(nil, 1).Return(nil, errs.ErrCompanyNotFound)
 			},
 			args{nil, 1},
 			nil,
@@ -286,7 +287,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 					Name: "company",
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
-				f.userdb.EXPECT().GetCompany(nil, 1).Return(company, nil)
+				f.companydb.EXPECT().GetCompany(nil, 1).Return(company, nil)
 				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(nil, errs.ErrPositionNotFound)
 			},
 			args{nil, 1},
@@ -308,7 +309,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 					Name: "position",
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
-				f.userdb.EXPECT().GetCompany(nil, 1).Return(company, nil)
+				f.companydb.EXPECT().GetCompany(nil, 1).Return(company, nil)
 				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(pos, nil)
 			},
 			args{nil, 1},
@@ -330,11 +331,14 @@ func Test_uService_GetUserByID(t *testing.T) {
 			defer ctrl.Finish()
 			f := &fields{}
 			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
+			f.companydb = mock_store.NewMockRepositoryCompany(ctrl)
 			f.posdb = mock_store.NewMockRepositoryPosition(ctrl)
 			if tt.prepare != nil {
 				tt.prepare(f)
 			}
-			storages := mockPUStorage(ctrl, f.userdb, f.posdb)
+
+			storages := mockUCPStorage(ctrl, f.userdb, f.companydb, f.posdb)
+
 			u := &uService{
 				db:         storages,
 				cache:      f.cache,
@@ -1564,9 +1568,10 @@ func mockUserStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryU
 	return storages
 }
 
-func mockPUStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUser, pStore *mock_store.MockRepositoryPosition) *mock_store.MockStorages {
+func mockUCPStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUser, cStore *mock_store.MockRepositoryCompany, pStore *mock_store.MockRepositoryPosition) *mock_store.MockStorages {
 	storages := mock_store.NewMockStorages(ctrl)
 	storages.EXPECT().UserStorage().Return(uStore).AnyTimes()
+	storages.EXPECT().CompanyStorage().Return(cStore).AnyTimes()
 	storages.EXPECT().PositionStorage().Return(pStore).AnyTimes()
 	return storages
 

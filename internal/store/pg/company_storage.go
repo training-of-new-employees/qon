@@ -2,29 +2,34 @@ package pg
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	"errors"
 
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
 
-	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
 )
 
 var _ store.RepositoryCompany = (*companyStorage)(nil)
 
+// companyStorage - репозиторий для компании/организации.
 type companyStorage struct {
-	db    *sqlx.DB
-	store *Store
+	db *sqlx.DB
+	transaction
 }
 
-func newCompanyStorage(db *sqlx.DB, s *Store) *companyStorage {
-	return &companyStorage{db: db, store: s}
+// newCompanyStorage - конструктор репозитория компании/организации.
+func newCompanyStorage(db *sqlx.DB) *companyStorage {
+	return &companyStorage{
+		db:          db,
+		transaction: transaction{db: db},
+	}
 }
 
-// createCompanyDB - создание компании.
-func (c *companyStorage) CreateCompanyDB(ctx context.Context, companyName string) (*model.Company, error) {
+// createCompany - создание компании/организации.
+func (c *companyStorage) CreateCompany(ctx context.Context, companyName string) (*model.Company, error) {
 	var createdCompany *model.Company
 
 	// открываем транзакцию
@@ -44,41 +49,25 @@ func (c *companyStorage) CreateCompanyDB(ctx context.Context, companyName string
 	}
 
 	return createdCompany, nil
-
 }
 
-// createCompanyTx - создание компании в транзакции.
-// ВAЖНО: использовать только внутри транзакции.
-func (c *companyStorage) createCompanyTx(ctx context.Context, tx *sqlx.Tx, companyName string) (*model.Company, error) {
-	company := model.Company{}
+// GetCompany - получение информации о компании/организации по id.
+func (c *companyStorage) GetCompany(ctx context.Context, id int) (*model.Company, error) {
+	var comp *model.Company
 
-	query := `INSERT INTO companies (name) VALUES ($1) RETURNING id, name`
-
-	if err := tx.GetContext(ctx, &company, query, companyName); err != nil {
-		return nil, err
-	}
-
-	return &company, nil
-}
-
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func (c *companyStorage) tx(f func(*sqlx.Tx) error) error {
 	// открываем транзакцию
-	tx, err := c.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
+	err := c.tx(func(tx *sqlx.Tx) error {
+		var err error
+		comp, err = c.getCompanyTx(ctx, tx, id)
 		return err
+	})
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrCompanyNotFound
+		}
+		return nil, handleError(err)
 	}
 
-	// фиксация транзакции
-	return tx.Commit()
+	return comp, nil
 }

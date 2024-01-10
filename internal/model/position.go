@@ -4,7 +4,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 type (
@@ -31,9 +31,18 @@ type (
 )
 
 func (p *PositionSet) Validation() error {
-	return validation.ValidateStruct(
-		p,
-		validation.Field(&p.Name, validation.Required, validation.Length(2, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'})),
-		validation.Field(&p.CompanyID, validation.Required),
-	)
+	// проверка на пустоту имя компании
+	if err := validation.Validate(p.Name, validation.Required); err != nil {
+		return errs.ErrPositionNameNotEmpty
+	}
+	// проверка на корректность имени компании
+	if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateCompanyPositionName(p.Name))); err != nil {
+		return errs.ErrInvalidPositionName
+	}
+	// проверка на наличие id компании
+	if err := validation.Validate(&p.CompanyID, validation.Required); err != nil {
+		return errs.ErrCompanyIDNotEmpty
+	}
+
+	return nil
 }

@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "github.com/training-of-new-employees/qon/docs"
+	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 //	@title			QuickOn
@@ -39,7 +41,13 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.Use(s.IsAuthenticated())
 	restrictedAdmin.Use(s.IsAdmin())
 	restrictedAdmin.POST("/employee", s.handlerCreateUser)
-	restrictedAdmin.PATCH("/info", s.handlerAdminEdit)
+	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
+
+	lessons := mvp.Group("/lesson")
+	lessons.POST("/", s.handlerLessonCreate)
+	lessons.DELETE("/", s.handlerLessonDelete)
+	lessons.GET("/", s.handlerLessonGet)
+	lessons.PATCH("/", s.handlerLessonUpdate)
 
 	userGroup := mvp.Group("/users")
 	userGroup.Use(s.IsAuthenticated())
@@ -48,6 +56,8 @@ func (s *RestServer) InitRoutes() {
 	userGroup.PATCH("/:id", s.handlerEditUser)
 	userGroup.POST("/set-password", s.handlerSetPassword)
 	userGroup.PATCH("/archive/:id", s.handlerArchiveUser)
+	userGroup.Use(s.IsAuthenticated())
+	userGroup.GET("/info", s.handlerUserInfo)
 
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())
@@ -55,6 +65,7 @@ func (s *RestServer) InitRoutes() {
 	position.POST("", s.handlerCreatePosition)
 	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
+	position.Any("/", s.NotFound(errs.ErrPositionNotFound))
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 
@@ -67,4 +78,10 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+}
+
+func (s *RestServer) NotFound(err error) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		s.handleError(c, err)
+	}
 }

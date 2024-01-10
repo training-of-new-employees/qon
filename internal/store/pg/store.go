@@ -21,6 +21,7 @@ type Store struct {
 	positionStore *positionStorage
 	companyStore  *companyStorage
 	courseStorage *courseStorage
+	lessonStore   *lessonStorage
 }
 
 // NewStore - конструктор для Store.
@@ -73,34 +74,34 @@ func newPostgresDB(dsn string) (*sqlx.DB, error) {
 	return db, nil
 }
 
-// UserStorage - хранилище пользователей.
+// UserStorage - доступ к репозиторию пользователей.
 func (s *Store) UserStorage() store.RepositoryUser {
 	if s.userStore != nil {
 		return s.userStore
 	}
 
-	s.userStore = newUStorages(s.conn, s)
+	s.userStore = newUStorages(s.conn)
 	return s.userStore
 }
 
-// PositionStorage - хранилище должностей.
+// PositionStorage - доступ к репозиторию должностей.
 func (s *Store) PositionStorage() store.RepositoryPosition {
 	if s.positionStore != nil {
 		return s.positionStore
 	}
 
-	s.positionStore = newPositionStorage(s.conn, s)
+	s.positionStore = newPositionStorage(s.conn)
 
 	return s.positionStore
 }
 
-// CompanyStorage - хранилище компаний.
+// CompanyStorage - доступ к репозиторию компаний.
 func (s *Store) CompanyStorage() store.RepositoryCompany {
 	if s.companyStore != nil {
 		return s.companyStore
 	}
 
-	s.companyStore = newCompanyStorage(s.conn, s)
+	s.companyStore = newCompanyStorage(s.conn)
 
 	return s.companyStore
 }
@@ -114,24 +115,13 @@ func (s *Store) CourseStorage() store.RepositoryCourse {
 	return s.courseStorage
 }
 
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func tx(db *sqlx.DB, f func(*sqlx.Tx) error) error {
-	// открываем транзакцию
-	tx, err := db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
-		return err
+// CompanyStorage - доступ к репозиторию уроков.
+func (s *Store) LessonStorage() store.RepositoryLesson {
+	if s.companyStore != nil {
+		return s.lessonStore
 	}
 
-	// фиксация транзакции
-	return tx.Commit()
+	s.lessonStore = newLessonStorage(s.conn)
+
+	return s.lessonStore
 }
