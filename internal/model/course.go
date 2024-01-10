@@ -10,6 +10,13 @@ import (
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
+const (
+	minNameL = 5
+	maxNameL = 256
+	minDescL = 10
+	maxDescL = 512
+)
+
 type Course struct {
 	ID          int       `db:"id" json:"id"`
 	CreatedBy   int       `db:"created_by" json:"created_by"`
@@ -34,13 +41,22 @@ func (c *Course) Validation() error {
 	if err != nil {
 		return errs.ErrCourseNameNotEmpty
 	}
-	nameWOSpaces := strings.ReplaceAll(c.Name, " ", "")
-	err = validation.Validate(&nameWOSpaces, validation.Length(5, 256), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	err = validation.Validate(&c.Name, validation.Length(minNameL, maxNameL))
 	if err != nil {
 		return errs.ErrCourseNameInvalid
 	}
+	nameWOSpaces := strings.ReplaceAll(c.Name, " ", "")
+	err = validation.Validate(&nameWOSpaces, is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	if err != nil {
+		return errs.ErrCourseNameInvalid
+	}
+
+	err = validation.Validate(&c.Description, validation.Length(minDescL, maxDescL))
+	if err != nil {
+		return errs.ErrCourseDescriptionInvalid
+	}
 	descWOSpaces := strings.ReplaceAll(c.Description, " ", "")
-	err = validation.Validate(&descWOSpaces, validation.Length(10, 512), is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
+	err = validation.Validate(&descWOSpaces, is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
 	if err != nil {
 		return errs.ErrCourseDescriptionInvalid
 	}
