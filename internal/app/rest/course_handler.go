@@ -10,9 +10,9 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
-// GetCourses godoc
+// GetAdminCourses godoc
 //
-//	@Summary	Получение данных о курсах пользователем и администратором
+//	@Summary	Получение данных о курсах администратором
 //	@Tags		course
 //	@Produce	json
 //	@Success	200	{array}		model.Course
@@ -20,22 +20,38 @@ import (
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
 //	@Failure	500	{object}	errResponse
-//	@Router		/courses [get]
-func (r *RestServer) handlerGetCourses(c *gin.Context) {
+//	@Router		/admin/courses [get]
+func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 	ctx := c.Request.Context()
 	us := r.getUserSession(c)
-	u := model.User{
-		ID:        us.UserID,
-		IsAdmin:   us.IsAdmin,
-		CompanyID: us.OrgID,
-	}
-	courses, err := r.services.Course().GetCourses(ctx, u)
+	courses, err := r.services.Course().GetCompanyCourses(ctx, us.OrgID)
 	if err != nil {
 		r.handleError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, courses)
+}
 
+// GetUserCourses godoc
+//
+//	@Summary	Получение данных о курсах пользователем
+//	@Tags		course
+//	@Produce	json
+//	@Success	200	{array}		model.Course
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
+//	@Router		/users/courses [get]
+func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
+	ctx := c.Request.Context()
+	us := r.getUserSession(c)
+	courses, err := r.services.Course().GetUserCourses(ctx, us.UserID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, courses)
 }
 
 // CreateCourse godoc
@@ -48,7 +64,7 @@ func (r *RestServer) handlerGetCourses(c *gin.Context) {
 //	@Failure	400		{object}	errResponse
 //	@Failure	401		{object}	errResponse
 //	@Failure	500		{object}	errResponse
-//	@Router		/courses [post]
+//	@Router		/admin/courses [post]
 func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 	ctx := c.Request.Context()
 	course := model.NewCourseSet(0, r.getUserSession(c).UserID)
@@ -78,7 +94,7 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
 //	@Failure	500	{object}	errResponse
-//	@Router		/courses/{id} [patch]
+//	@Router		/admin/courses/{id} [patch]
 func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	ctx := c.Request.Context()
 	sID := c.Param("id")

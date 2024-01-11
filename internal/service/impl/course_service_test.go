@@ -8,7 +8,6 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/model"
-	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"
 )
 
@@ -32,14 +31,13 @@ func Test_newCourseService(t *testing.T) {
 		})
 	}
 }
-
-func Test_courseService_GetCourses(t *testing.T) {
+func Test_courseService_GetAdminCourses(t *testing.T) {
 	type fields struct {
 		coursedb *mock_store.MockRepositoryCourse
 	}
 	type args struct {
-		ctx context.Context
-		u   model.User
+		ctx       context.Context
+		companyID int
 	}
 	tests := []struct {
 		name    string
@@ -55,31 +53,7 @@ func Test_courseService_GetCourses(t *testing.T) {
 			},
 			args{
 				nil,
-				model.User{
-					ID:        1,
-					CompanyID: 10,
-					Name:      randomseq.RandomString(10),
-					Email:     randomseq.RandomString(10),
-					IsAdmin:   true,
-				},
-			},
-			[]model.Course{},
-			false,
-		},
-		{
-			"Получение курсов пользователем",
-			func(f *fields) {
-				f.coursedb.EXPECT().UserCourses(gomock.Any(), 1).Return([]model.Course{}, nil)
-			},
-			args{
-				nil,
-				model.User{
-					ID:        1,
-					CompanyID: 10,
-					Name:      randomseq.RandomString(10),
-					Email:     randomseq.RandomString(10),
-					IsAdmin:   false,
-				},
+				10,
 			},
 			[]model.Course{},
 			false,
@@ -98,7 +72,59 @@ func Test_courseService_GetCourses(t *testing.T) {
 			cs := &courseService{
 				db: storage,
 			}
-			got, err := cs.GetCourses(tt.args.ctx, tt.args.u)
+			got, err := cs.GetCompanyCourses(tt.args.ctx, tt.args.companyID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("courseService.GetCourses() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("courseService.GetCourses() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+func Test_courseService_GetUserCourses(t *testing.T) {
+	type fields struct {
+		coursedb *mock_store.MockRepositoryCourse
+	}
+	type args struct {
+		ctx    context.Context
+		userID int
+	}
+	tests := []struct {
+		name    string
+		prepare func(*fields)
+		args    args
+		want    []model.Course
+		wantErr bool
+	}{
+		{
+			"Получение курсов пользователем",
+			func(f *fields) {
+				f.coursedb.EXPECT().UserCourses(gomock.Any(), 1).Return([]model.Course{}, nil)
+			},
+			args{
+				nil,
+				1,
+			},
+			[]model.Course{},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			cdb := mock_store.NewMockRepositoryCourse(ctrl)
+			f := &fields{coursedb: cdb}
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storage := mockCourseStorage(ctrl, f.coursedb)
+			cs := &courseService{
+				db: storage,
+			}
+			got, err := cs.GetUserCourses(tt.args.ctx, tt.args.userID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("courseService.GetCourses() error = %v, wantErr %v", err, tt.wantErr)
 				return

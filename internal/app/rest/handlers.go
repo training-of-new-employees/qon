@@ -42,6 +42,11 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.Use(s.IsAdmin())
 	restrictedAdmin.POST("/employee", s.handlerCreateUser)
 	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
+	adminCourses := restrictedAdmin.Group("/courses")
+	adminCourses.Any("/", s.NotFound(errs.ErrCourseNotFound))
+	adminCourses.GET("", s.handlerGetAdminCourses)
+	adminCourses.POST("", s.handlerCreateCourse)
+	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
 	lessons := mvp.Group("/lesson")
 	lessons.POST("/", s.handlerLessonCreate)
@@ -58,6 +63,7 @@ func (s *RestServer) InitRoutes() {
 	userGroup.PATCH("/archive/:id", s.handlerArchiveUser)
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("/info", s.handlerUserInfo)
+	userGroup.GET("/courses", s.handlerGetUserCourses)
 
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())
@@ -68,14 +74,6 @@ func (s *RestServer) InitRoutes() {
 	position.Any("/", s.NotFound(errs.ErrPositionNotFound))
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
-
-	courses := mvp.Group("/courses")
-	courses.Use(s.IsAuthenticated())
-	courses.GET("", s.handlerGetCourses)
-	adminCourses := courses.Group("")
-	adminCourses.Use(s.IsAdmin())
-	adminCourses.POST("", s.handlerCreateCourse)
-	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

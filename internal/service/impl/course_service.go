@@ -22,11 +22,12 @@ func newCourseService(db store.Storages) *courseService {
 	}
 }
 
-func (cs *courseService) GetCourses(ctx context.Context, u model.User) ([]model.Course, error) {
-	if !u.IsAdmin {
-		return cs.db.CourseStorage().UserCourses(ctx, u.ID)
-	}
-	return cs.db.CourseStorage().CompanyCourses(ctx, u.CompanyID)
+func (cs *courseService) GetUserCourses(ctx context.Context, userID int) ([]model.Course, error) {
+	return cs.db.CourseStorage().UserCourses(ctx, userID)
+
+}
+func (cs *courseService) GetCompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
+	return cs.db.CourseStorage().CompanyCourses(ctx, companyID)
 }
 
 func (cs *courseService) CreateCourse(ctx context.Context, c model.CourseSet) (model.Course, error) {

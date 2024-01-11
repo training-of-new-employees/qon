@@ -7,7 +7,8 @@ import (
 )
 
 type ServiceCourse interface {
-	GetCourses(ctx context.Context, u model.User) ([]model.Course, error)
+	GetUserCourses(ctx context.Context, userID int) ([]model.Course, error)
+	GetCompanyCourses(ctx context.Context, companyID int) ([]model.Course, error)
 	CreateCourse(ctx context.Context, c model.CourseSet) (model.Course, error)
 	EditCourse(ctx context.Context, c model.CourseSet, companyID int) (model.Course, error)
 }
