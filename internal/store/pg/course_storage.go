@@ -23,7 +23,7 @@ func newCourseStorage(db *sqlx.DB, s *Store) *courseStorage {
 	}
 }
 
-func (c *courseStorage) PositionCourses(ctx context.Context, userID int) ([]model.Course, error) {
+func (c *courseStorage) UserCourses(ctx context.Context, userID int) ([]model.Course, error) {
 	courses := make([]model.Course, 0, 10)
 	qCourses := `SELECT c.id, c.created_by, c.active, c.archived, c.name, c.description, c.created_at, c.updated_at 
 	FROM users u
