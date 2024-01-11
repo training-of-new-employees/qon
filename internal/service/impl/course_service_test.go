@@ -69,7 +69,7 @@ func Test_courseService_GetCourses(t *testing.T) {
 		{
 			"Получение курсов пользователем",
 			func(f *fields) {
-				f.coursedb.EXPECT().PositionCourses(gomock.Any(), 1).Return([]model.Course{}, nil)
+				f.coursedb.EXPECT().UserCourses(gomock.Any(), 1).Return([]model.Course{}, nil)
 			},
 			args{
 				nil,

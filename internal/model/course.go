@@ -1,11 +1,9 @@
 package model
 
 import (
-	"strings"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
@@ -39,25 +37,18 @@ type CourseSet struct {
 func (c *Course) Validation() error {
 	err := validation.Validate(&c.Name, validation.Required)
 	if err != nil {
-		return errs.ErrCourseNameNotEmpty
+		return errs.ErrCourseNameIsEmpty
 	}
-	err = validation.Validate(&c.Name, validation.Length(minNameL, maxNameL))
+	err = validation.Validate(c.Name,
+		validation.RuneLength(minNameL, maxNameL),
+		validation.By(validateCourseName(c.Name)))
 	if err != nil {
 		return errs.ErrCourseNameInvalid
 	}
-	nameWOSpaces := strings.ReplaceAll(c.Name, " ", "")
-	err = validation.Validate(&nameWOSpaces, is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
-	if err != nil {
-		return errs.ErrCourseNameInvalid
-	}
-
-	err = validation.Validate(&c.Description, validation.Length(minDescL, maxDescL))
-	if err != nil {
-		return errs.ErrCourseDescriptionInvalid
-	}
-	descWOSpaces := strings.ReplaceAll(c.Description, " ", "")
-	err = validation.Validate(&descWOSpaces, is.UTFLetterNumeric, validation.NotIn([]rune{'*', '#'}))
-	if err != nil {
+	err = validation.Validate(c.Description,
+		validation.RuneLength(minDescL, maxDescL),
+		validation.By(validateCourseName(c.Description)))
+	if err != nil && err != errSpaceEmpty {
 		return errs.ErrCourseDescriptionInvalid
 	}
 	return nil

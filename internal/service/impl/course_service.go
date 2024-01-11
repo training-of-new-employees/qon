@@ -39,7 +39,7 @@ func (cs *courseService) CreateCourse(ctx context.Context, c model.CourseSet) (m
 
 func (cs *courseService) EditCourse(ctx context.Context, c model.CourseSet, companyID int) (model.Course, error) {
 	err := c.Validation()
-	if !errors.Is(err, errs.ErrCourseNameNotEmpty) && err != nil {
+	if !errors.Is(err, errs.ErrCourseNameIsEmpty) && err != nil {
 		return model.Course{}, err
 	}
 	return cs.db.CourseStorage().EditCourse(ctx, c, companyID)

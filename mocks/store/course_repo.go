@@ -84,17 +84,17 @@ func (mr *MockRepositoryCourseMockRecorder) EditCourse(ctx, course, companyID an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).EditCourse), ctx, course, companyID)
 }
 
-// PositionCourses mocks base method.
-func (m *MockRepositoryCourse) PositionCourses(ctx context.Context, userID int) ([]model.Course, error) {
+// UserCourses mocks base method.
+func (m *MockRepositoryCourse) UserCourses(ctx context.Context, userID int) ([]model.Course, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PositionCourses", ctx, userID)
+	ret := m.ctrl.Call(m, "UserCourses", ctx, userID)
 	ret0, _ := ret[0].([]model.Course)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// PositionCourses indicates an expected call of PositionCourses.
-func (mr *MockRepositoryCourseMockRecorder) PositionCourses(ctx, userID any) *gomock.Call {
+// UserCourses indicates an expected call of UserCourses.
+func (mr *MockRepositoryCourseMockRecorder) UserCourses(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PositionCourses", reflect.TypeOf((*MockRepositoryCourse)(nil).PositionCourses), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserCourses", reflect.TypeOf((*MockRepositoryCourse)(nil).UserCourses), ctx, userID)
 }

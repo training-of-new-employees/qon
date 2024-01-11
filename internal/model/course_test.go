@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
@@ -23,82 +24,82 @@ func TestCourse_Validation(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		wantErr bool
+		wantErr error
 	}{
 		{
 			"Короткое название",
 			fields{
 				Name: randomseq.RandomString(minNameL - 1),
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Максимально допустимая длина названия",
 			fields{
 				Name: randomseq.RandomString(maxNameL),
 			},
-			false,
+			nil,
 		},
 		{
 			"Слишком длинное название",
 			fields{
 				Name: randomseq.RandomString(maxNameL + 1),
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Название с символом *",
 			fields{
 				Name: randomseq.RandomString(minNameL) + "*",
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Название с символом #",
 			fields{
 				Name: randomseq.RandomString(minNameL) + "#",
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Название со знаками препинания",
 			fields{
 				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, ","),
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Название со знаками препинания",
 			fields{
 				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, ";"),
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Название с пробелом",
 			fields{
 				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, " "),
 			},
-			false,
+			nil,
 		},
 		{
 			"Название с плохим символом",
 			fields{
 				Name: randomseq.RandomString(minNameL) + "☺",
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Пустое название",
 			fields{},
-			true,
+			errs.ErrCourseNameIsEmpty,
 		},
 		{
 			"Описание с символом #",
 			fields{
 				Name: randomseq.RandomString(minDescL) + "#",
 			},
-			true,
+			errs.ErrCourseNameInvalid,
 		},
 		{
 			"Слишком короткое описание",
@@ -106,7 +107,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: randomseq.RandomString(minDescL - 1),
 			},
-			true,
+			errs.ErrCourseDescriptionInvalid,
 		},
 		{
 			"Максимально короткое описание",
@@ -114,7 +115,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: randomseq.RandomString(minDescL),
 			},
-			false,
+			nil,
 		},
 		{
 			"Максимально длинное описание",
@@ -122,7 +123,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: randomseq.RandomString(maxDescL),
 			},
-			false,
+			nil,
 		},
 		{
 			"Максимально длинное описание с пробелом",
@@ -130,7 +131,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: strings.Join([]string{randomseq.RandomString(maxDescL / 2), randomseq.RandomString(maxDescL/2 + 1)}, " "),
 			},
-			true,
+			errs.ErrCourseDescriptionInvalid,
 		},
 		{
 			"Слишком длинное описание",
@@ -138,7 +139,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: randomseq.RandomString(maxDescL + 1),
 			},
-			true,
+			errs.ErrCourseDescriptionInvalid,
 		},
 	}
 	for _, tt := range tests {
@@ -153,7 +154,7 @@ func TestCourse_Validation(t *testing.T) {
 				CreatedAt:   tt.fields.CreatedAt,
 				UpdatedAt:   tt.fields.UpdatedAt,
 			}
-			if err := c.Validation(); (err != nil) != tt.wantErr {
+			if err := c.Validation(); err != tt.wantErr {
 				t.Errorf("Course.Validation() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
