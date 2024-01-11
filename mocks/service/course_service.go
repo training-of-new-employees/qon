@@ -69,17 +69,32 @@ func (mr *MockServiceCourseMockRecorder) EditCourse(ctx, c, companyID any) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCourse", reflect.TypeOf((*MockServiceCourse)(nil).EditCourse), ctx, c, companyID)
 }
 
-// GetCourses mocks base method.
-func (m *MockServiceCourse) GetCourses(ctx context.Context, u model.User) ([]model.Course, error) {
+// GetCompanyCourses mocks base method.
+func (m *MockServiceCourse) GetCompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCourses", ctx, u)
+	ret := m.ctrl.Call(m, "GetCompanyCourses", ctx, companyID)
 	ret0, _ := ret[0].([]model.Course)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetCourses indicates an expected call of GetCourses.
-func (mr *MockServiceCourseMockRecorder) GetCourses(ctx, u any) *gomock.Call {
+// GetCompanyCourses indicates an expected call of GetCompanyCourses.
+func (mr *MockServiceCourseMockRecorder) GetCompanyCourses(ctx, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCourses", reflect.TypeOf((*MockServiceCourse)(nil).GetCourses), ctx, u)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompanyCourses", reflect.TypeOf((*MockServiceCourse)(nil).GetCompanyCourses), ctx, companyID)
+}
+
+// GetUserCourses mocks base method.
+func (m *MockServiceCourse) GetUserCourses(ctx context.Context, userID int) ([]model.Course, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCourses", ctx, userID)
+	ret0, _ := ret[0].([]model.Course)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCourses indicates an expected call of GetUserCourses.
+func (mr *MockServiceCourseMockRecorder) GetUserCourses(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCourses", reflect.TypeOf((*MockServiceCourse)(nil).GetUserCourses), ctx, userID)
 }
