@@ -40,10 +40,10 @@ func (m *MockServiceCourse) EXPECT() *MockServiceCourseMockRecorder {
 }
 
 // CreateCourse mocks base method.
-func (m *MockServiceCourse) CreateCourse(ctx context.Context, c model.CourseSet) (model.Course, error) {
+func (m *MockServiceCourse) CreateCourse(ctx context.Context, c model.CourseSet) (*model.Course, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCourse", ctx, c)
-	ret0, _ := ret[0].(model.Course)
+	ret0, _ := ret[0].(*model.Course)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -55,10 +55,10 @@ func (mr *MockServiceCourseMockRecorder) CreateCourse(ctx, c any) *gomock.Call {
 }
 
 // EditCourse mocks base method.
-func (m *MockServiceCourse) EditCourse(ctx context.Context, c model.CourseSet, companyID int) (model.Course, error) {
+func (m *MockServiceCourse) EditCourse(ctx context.Context, c model.CourseSet, companyID int) (*model.Course, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EditCourse", ctx, c, companyID)
-	ret0, _ := ret[0].(model.Course)
+	ret0, _ := ret[0].(*model.Course)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

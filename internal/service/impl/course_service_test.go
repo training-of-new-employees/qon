@@ -148,7 +148,7 @@ func Test_courseService_CreateCourse(t *testing.T) {
 		name    string
 		prepare func(*fields)
 		args    args
-		want    model.Course
+		want    *model.Course
 		wantErr bool
 	}{
 		{
@@ -158,7 +158,7 @@ func Test_courseService_CreateCourse(t *testing.T) {
 				nil,
 				model.NewCourseSet(1, 10),
 			},
-			model.Course{},
+			nil,
 			true,
 		},
 		{
@@ -168,7 +168,7 @@ func Test_courseService_CreateCourse(t *testing.T) {
 					Name:        "Мой новый курс",
 					Description: "Описание курса",
 					CreatedBy:   10,
-				}).Return(model.Course{
+				}).Return(&model.Course{
 					ID:          1,
 					CreatedBy:   10,
 					IsActive:    true,
@@ -186,7 +186,7 @@ func Test_courseService_CreateCourse(t *testing.T) {
 					CreatedBy:   10,
 				},
 			},
-			model.Course{
+			&model.Course{
 				ID:          1,
 				CreatedBy:   10,
 				IsActive:    true,
@@ -236,7 +236,7 @@ func Test_courseService_EditCourse(t *testing.T) {
 		name    string
 		prepare func(*fields)
 		args    args
-		want    model.Course
+		want    *model.Course
 		wantErr bool
 	}{
 		{
@@ -251,7 +251,7 @@ func Test_courseService_EditCourse(t *testing.T) {
 				},
 				1,
 			},
-			model.Course{},
+			nil,
 			true,
 		},
 		{
@@ -260,7 +260,7 @@ func Test_courseService_EditCourse(t *testing.T) {
 				set := model.CourseSet{
 					Name: "Новое имя",
 				}
-				ret := model.Course{
+				ret := &model.Course{
 					ID:         1,
 					Name:       set.Name,
 					IsArchived: false,
@@ -274,7 +274,7 @@ func Test_courseService_EditCourse(t *testing.T) {
 				},
 				10,
 			},
-			model.Course{
+			&model.Course{
 				ID:         1,
 				Name:       "Новое имя",
 				IsArchived: false,

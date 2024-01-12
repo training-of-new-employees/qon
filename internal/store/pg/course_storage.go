@@ -48,7 +48,7 @@ func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]mo
 	return courses, err
 }
 
-func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet) (model.Course, error) {
+func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet) (*model.Course, error) {
 	var res model.Course
 	qCreate := `INSERT INTO courses (name, description, created_by)
 	VALUES ($1, $2, $3)
@@ -56,10 +56,10 @@ func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.GetContext(ctx, &res, qCreate, course.Name, course.Description, course.CreatedBy)
 	})
-	return res, err
+	return &res, err
 }
 
-func (c *courseStorage) EditCourse(ctx context.Context, course model.CourseSet, companyID int) (model.Course, error) {
+func (c *courseStorage) EditCourse(ctx context.Context, course model.CourseSet, companyID int) (*model.Course, error) {
 	var res model.Course
 	qEdit := `UPDATE courses c
 	JOIN users u ON c.created_by = u.id
@@ -69,6 +69,6 @@ func (c *courseStorage) EditCourse(ctx context.Context, course model.CourseSet, 
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.GetContext(ctx, &res, qEdit, course.Name, course.Description, course.IsArchived, course.ID, companyID)
 	})
-	return res, err
+	return &res, err
 
 }
