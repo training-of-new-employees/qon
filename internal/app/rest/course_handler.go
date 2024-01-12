@@ -87,13 +87,13 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 //	@Summary	Изменение данных курса
 //	@Tags		course
 //	@Produce	json
-//	@Param		id		path	int				true	"Course ID"
-//	@Param		object	body	model.CourseSet	true	"Course Edit"
-//	@Success	200
-//	@Failure	400	{object}	errResponse
-//	@Failure	401	{object}	errResponse
-//	@Failure	404	{object}	errResponse
-//	@Failure	500	{object}	errResponse
+//	@Param		id		path		int				true	"Course ID"
+//	@Param		object	body		model.CourseSet	true	"Course Edit"
+//	@Success	200		{object}	courseResp
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //	@Router		/admin/courses/{id} [patch]
 func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -110,11 +110,24 @@ func (r *RestServer) handlerEditCourse(c *gin.Context) {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
-	_, err = r.services.Course().EditCourse(ctx, course, us.OrgID)
+	edited, err := r.services.Course().EditCourse(ctx, course, us.OrgID)
 	if err != nil {
 		r.handleError(c, err)
 		return
 	}
-	c.Status(http.StatusOK)
+	resp := courseResp{
+		ID: edited.ID,
+		CourseSet: model.CourseSet{
+			Name:        edited.Name,
+			Description: edited.Description,
+			IsArchived:  edited.IsArchived,
+		},
+	}
+	c.JSON(http.StatusOK, resp)
 
+}
+
+type courseResp struct {
+	ID int `json:"id"`
+	model.CourseSet
 }

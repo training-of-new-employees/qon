@@ -242,6 +242,17 @@ definitions:
       password:
         type: string
     type: object
+  rest.courseResp:
+    properties:
+      archived:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   rest.errResponse:
     properties:
       code:
@@ -353,6 +364,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/rest.courseResp'
         "400":
           description: Bad Request
           schema:
