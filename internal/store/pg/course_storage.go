@@ -39,10 +39,9 @@ func (c *courseStorage) UserCourses(ctx context.Context, userID int) ([]model.Co
 func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
 	courses := make([]model.Course, 0, 10)
 	qCourses := `SELECT c.id, c.created_by, c.active, c.archived, c.name, c.description, c.created_at, c.updated_at 
-	FROM positions p
-	JOIN position_course pc ON p.id = pc.position_id
-	JOIN courses c ON pc.course_id = c.id
-	WHERE p.company_id = $1`
+	FROM courses c
+	JOIN users u ON u.id = c.created_by
+	WHERE u.company_id = $1`
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.SelectContext(ctx, courses, qCourses, companyID)
 	})
