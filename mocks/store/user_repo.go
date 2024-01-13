@@ -41,48 +41,48 @@ func (m *MockRepositoryUser) EXPECT() *MockRepositoryUserMockRecorder {
 }
 
 // CreateAdmin mocks base method.
-func (m *MockRepositoryUser) CreateAdmin(arg0 context.Context, arg1 model.UserCreate, arg2 string) (*model.User, error) {
+func (m *MockRepositoryUser) CreateAdmin(ctx context.Context, admin model.UserCreate, companyName string) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateAdmin", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "CreateAdmin", ctx, admin, companyName)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateAdmin indicates an expected call of CreateAdmin.
-func (mr *MockRepositoryUserMockRecorder) CreateAdmin(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockRepositoryUserMockRecorder) CreateAdmin(ctx, admin, companyName any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdmin", reflect.TypeOf((*MockRepositoryUser)(nil).CreateAdmin), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAdmin", reflect.TypeOf((*MockRepositoryUser)(nil).CreateAdmin), ctx, admin, companyName)
 }
 
 // CreateUser mocks base method.
-func (m *MockRepositoryUser) CreateUser(arg0 context.Context, arg1 model.UserCreate) (*model.User, error) {
+func (m *MockRepositoryUser) CreateUser(ctx context.Context, user model.UserCreate) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockRepositoryUserMockRecorder) CreateUser(arg0, arg1 any) *gomock.Call {
+func (mr *MockRepositoryUserMockRecorder) CreateUser(ctx, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockRepositoryUser)(nil).CreateUser), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockRepositoryUser)(nil).CreateUser), ctx, user)
 }
 
 // EditAdmin mocks base method.
-func (m *MockRepositoryUser) EditAdmin(arg0 context.Context, arg1 model.AdminEdit) (*model.AdminEdit, error) {
+func (m *MockRepositoryUser) EditAdmin(ctx context.Context, edit model.AdminEdit) (*model.AdminEdit, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EditAdmin", arg0, arg1)
+	ret := m.ctrl.Call(m, "EditAdmin", ctx, edit)
 	ret0, _ := ret[0].(*model.AdminEdit)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EditAdmin indicates an expected call of EditAdmin.
-func (mr *MockRepositoryUserMockRecorder) EditAdmin(arg0, arg1 any) *gomock.Call {
+func (mr *MockRepositoryUserMockRecorder) EditAdmin(ctx, edit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditAdmin", reflect.TypeOf((*MockRepositoryUser)(nil).EditAdmin), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditAdmin", reflect.TypeOf((*MockRepositoryUser)(nil).EditAdmin), ctx, edit)
 }
 
 // EditUser mocks base method.
@@ -101,18 +101,18 @@ func (mr *MockRepositoryUserMockRecorder) EditUser(ctx, edit any) *gomock.Call {
 }
 
 // GetUserByEmail mocks base method.
-func (m *MockRepositoryUser) GetUserByEmail(arg0 context.Context, arg1 string) (*model.User, error) {
+func (m *MockRepositoryUser) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByEmail", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetUserByEmail", ctx, email)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserByEmail indicates an expected call of GetUserByEmail.
-func (mr *MockRepositoryUserMockRecorder) GetUserByEmail(arg0, arg1 any) *gomock.Call {
+func (mr *MockRepositoryUserMockRecorder) GetUserByEmail(ctx, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockRepositoryUser)(nil).GetUserByEmail), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockRepositoryUser)(nil).GetUserByEmail), ctx, email)
 }
 
 // GetUserByID mocks base method.

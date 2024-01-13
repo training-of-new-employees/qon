@@ -8,6 +8,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/logger"
 	apisender "github.com/training-of-new-employees/qon/internal/pkg/doar/api-sender"
 	smtpsender "github.com/training-of-new-employees/qon/internal/pkg/doar/smtp-sender"
+	testsender "github.com/training-of-new-employees/qon/internal/pkg/doar/test-sender"
 )
 
 // Интерфейс EmailSender.
@@ -15,6 +16,7 @@ type EmailSender interface {
 	SendCode(email string, code string) error
 	InviteUser(email string, invitationLink string) error
 	SendPassword(email string, password string) error
+	Mode() string
 }
 
 type Mailer interface {
@@ -25,6 +27,7 @@ type Mailer interface {
 type Sender struct {
 	mailer      Mailer
 	ClientEmail string
+	mode        string
 }
 
 // NewSender - конструктор Sender.
@@ -37,13 +40,17 @@ func NewSender(mode string, config *config.Config) *Sender {
 	if mode == "api" {
 		sender = apisender.NewApiSender(config.SenderEmail, config.SenderApiKey)
 	}
+	if mode == "test" {
+		sender = testsender.NewTestSender()
+	}
 
 	return &Sender{
 		mailer: sender,
+		mode:   mode,
 	}
 }
 
-// SendCode отправляет код верификации.
+// SendCode - отправка кода верификации.
 func (s *Sender) SendCode(email string, code string) error {
 	title := "Подтверждение регистрации (QuickOn)"
 	body := fmt.Sprintf("Код верификации: %s", code)
@@ -55,7 +62,7 @@ func (s *Sender) SendCode(email string, code string) error {
 	return nil
 }
 
-// SendCode отправляет пригласительную ссылку.
+// SendCode - отправка пригласительной ссылки.
 func (s *Sender) InviteUser(email string, invitationLink string) error {
 	title := "Пригласительная ссылка (QuickOn)"
 	body := fmt.Sprintf("Пригласительная cсылка: %s", invitationLink)
@@ -67,7 +74,7 @@ func (s *Sender) InviteUser(email string, invitationLink string) error {
 	return nil
 }
 
-// SendCode отправляет новый пароль.
+// SendCode - отправка нового пароля.
 func (s *Sender) SendPassword(email string, password string) error {
 	title := "Новый пароль (QuickOn)"
 	body := fmt.Sprintf("пароль: %s", password)
@@ -77,4 +84,9 @@ func (s *Sender) SendPassword(email string, password string) error {
 	}
 
 	return nil
+}
+
+// Mode - чтобы узнать, как отправляются письма.
+func (s *Sender) Mode() string {
+	return s.mode
 }

@@ -61,7 +61,7 @@ func InitConfig() *Config {
 	flag.StringVar(&senderEmail, "se", defaultSenderEmail, "sender email")
 	flag.StringVar(&senderPassword, "sp", defaultSenderPassword, "sender password")
 	flag.StringVar(&senderApiKey, "sk", defaultSenderApiKey, "sender api key")
-	flag.StringVar(&domain, "url", defaultDomain, "http://localhost")
+	flag.StringVar(&domain, "url", defaultDomain, "domain")
 
 	flag.Parse()
 

@@ -108,7 +108,7 @@ func (m *MockServiceUser) EditAdmin(ctx context.Context, val model.AdminEdit) (*
 }
 
 // EditAdmin indicates an expected call of EditAdmin.
-func (mr *MockServiceUserMockRecorder) EditAdmin(ctx, val interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) EditAdmin(ctx, val any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditAdmin", reflect.TypeOf((*MockServiceUser)(nil).EditAdmin), ctx, val)
 }
@@ -123,7 +123,7 @@ func (m *MockServiceUser) EditUser(ctx context.Context, val *model.UserEdit, edi
 }
 
 // EditUser indicates an expected call of EditUser.
-func (mr *MockServiceUserMockRecorder) EditUser(ctx, val, editorCompanyID interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) EditUser(ctx, val, editorCompanyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditUser", reflect.TypeOf((*MockServiceUser)(nil).EditUser), ctx, val, editorCompanyID)
 }
@@ -138,7 +138,7 @@ func (m *MockServiceUser) GenerateInvitationLinkUser(ctx context.Context, email 
 }
 
 // GenerateInvitationLinkUser indicates an expected call of GenerateInvitationLinkUser.
-func (mr *MockServiceUserMockRecorder) GenerateInvitationLinkUser(ctx, email interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GenerateInvitationLinkUser(ctx, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateInvitationLinkUser", reflect.TypeOf((*MockServiceUser)(nil).GenerateInvitationLinkUser), ctx, email)
 }
@@ -153,7 +153,7 @@ func (m *MockServiceUser) GenerateTokenPair(ctx context.Context, userId int, isA
 }
 
 // GenerateTokenPair indicates an expected call of GenerateTokenPair.
-func (mr *MockServiceUserMockRecorder) GenerateTokenPair(ctx, userId, isAdmin, companyID interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GenerateTokenPair(ctx, userId, isAdmin, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateTokenPair", reflect.TypeOf((*MockServiceUser)(nil).GenerateTokenPair), ctx, userId, isAdmin, companyID)
 }
@@ -168,7 +168,7 @@ func (m *MockServiceUser) GetAdminFromCache(arg0 context.Context, arg1 string) (
 }
 
 // GetAdminFromCache indicates an expected call of GetAdminFromCache.
-func (mr *MockServiceUserMockRecorder) GetAdminFromCache(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GetAdminFromCache(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminFromCache", reflect.TypeOf((*MockServiceUser)(nil).GetAdminFromCache), arg0, arg1)
 }
@@ -183,7 +183,7 @@ func (m *MockServiceUser) GetUserByEmail(ctx context.Context, email string) (*mo
 }
 
 // GetUserByEmail indicates an expected call of GetUserByEmail.
-func (mr *MockServiceUserMockRecorder) GetUserByEmail(ctx, email interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GetUserByEmail(ctx, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByEmail", reflect.TypeOf((*MockServiceUser)(nil).GetUserByEmail), ctx, email)
 }
@@ -198,7 +198,7 @@ func (m *MockServiceUser) GetUserByID(ctx context.Context, id int) (*model.UserI
 }
 
 // GetUserByID indicates an expected call of GetUserByID.
-func (mr *MockServiceUserMockRecorder) GetUserByID(ctx, id interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GetUserByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockServiceUser)(nil).GetUserByID), ctx, id)
 }
@@ -213,7 +213,7 @@ func (m *MockServiceUser) GetUserInviteCodeFromCache(ctx context.Context, email 
 }
 
 // GetUserInviteCodeFromCache indicates an expected call of GetUserInviteCodeFromCache.
-func (mr *MockServiceUserMockRecorder) GetUserInviteCodeFromCache(ctx, email interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GetUserInviteCodeFromCache(ctx, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInviteCodeFromCache", reflect.TypeOf((*MockServiceUser)(nil).GetUserInviteCodeFromCache), ctx, email)
 }
@@ -228,7 +228,7 @@ func (m *MockServiceUser) GetUsersByCompany(ctx context.Context, companyID int) 
 }
 
 // GetUsersByCompany indicates an expected call of GetUsersByCompany.
-func (mr *MockServiceUserMockRecorder) GetUsersByCompany(ctx, companyID interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) GetUsersByCompany(ctx, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByCompany", reflect.TypeOf((*MockServiceUser)(nil).GetUsersByCompany), ctx, companyID)
 }
@@ -242,7 +242,7 @@ func (m *MockServiceUser) ResetPassword(ctx context.Context, email string) error
 }
 
 // ResetPassword indicates an expected call of ResetPassword.
-func (mr *MockServiceUserMockRecorder) ResetPassword(ctx, email interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) ResetPassword(ctx, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetPassword", reflect.TypeOf((*MockServiceUser)(nil).ResetPassword), ctx, email)
 }
@@ -256,7 +256,7 @@ func (m *MockServiceUser) UpdatePasswordAndActivateUser(ctx context.Context, ema
 }
 
 // UpdatePasswordAndActivateUser indicates an expected call of UpdatePasswordAndActivateUser.
-func (mr *MockServiceUserMockRecorder) UpdatePasswordAndActivateUser(ctx, email, password interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) UpdatePasswordAndActivateUser(ctx, email, password any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePasswordAndActivateUser", reflect.TypeOf((*MockServiceUser)(nil).UpdatePasswordAndActivateUser), ctx, email, password)
 }
@@ -271,7 +271,7 @@ func (m *MockServiceUser) WriteAdminToCache(ctx context.Context, admin model.Cre
 }
 
 // WriteAdminToCache indicates an expected call of WriteAdminToCache.
-func (mr *MockServiceUserMockRecorder) WriteAdminToCache(ctx, admin interface{}) *gomock.Call {
+func (mr *MockServiceUserMockRecorder) WriteAdminToCache(ctx, admin any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteAdminToCache", reflect.TypeOf((*MockServiceUser)(nil).WriteAdminToCache), ctx, admin)
 }
