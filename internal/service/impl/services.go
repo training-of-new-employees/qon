@@ -21,9 +21,10 @@ type Services struct {
 	positionService *positionService
 	lessonService   *lessonService
 	sender          doar.EmailSender
+	host            string
 }
 
-func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTimeDur time.Duration, rTokTimeDur time.Duration, sender doar.EmailSender) *Services {
+func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTimeDur time.Duration, rTokTimeDur time.Duration, sender doar.EmailSender, host string) *Services {
 	return &Services{
 		db:         db,
 		cache:      cache,
@@ -31,6 +32,7 @@ func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTim
 		aTokenTime: aTokTimeDur,
 		rTokenTime: rTokTimeDur,
 		sender:     sender,
+		host:       host,
 	}
 }
 
@@ -49,6 +51,7 @@ func (s *Services) User() service.ServiceUser {
 		jwttoken.NewTokenGenerator(s.secretKey),
 		jwttoken.NewTokenValidator(s.secretKey),
 		s.sender,
+		s.host,
 	)
 
 	return s.userService

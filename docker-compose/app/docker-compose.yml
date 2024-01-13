@@ -10,6 +10,7 @@ services:
       REDIS_DSN: redis:6379
       SENDER_EMAIL: ivan.frontoff42@gmail.com
       SENDER_PASSWORD: "ahlb bhnf zvsl pxya"
+      APP_URL: "http://localhost"
     ports:
       - "8081:8081"
     restart: always

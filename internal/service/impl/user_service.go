@@ -33,6 +33,7 @@ type uService struct {
 	tokenGen   jwttoken.JWTGenerator
 	tokenVal   jwttoken.JWTValidator
 	sender     doar.EmailSender
+	host       string
 }
 
 func newUserService(
@@ -44,6 +45,7 @@ func newUserService(
 	jwtGen jwttoken.JWTGenerator,
 	jwtVal jwttoken.JWTValidator,
 	sender doar.EmailSender,
+	host string,
 ) *uService {
 	return &uService{
 		db:         db,
@@ -54,6 +56,7 @@ func newUserService(
 		tokenGen:   jwtGen,
 		tokenVal:   jwtVal,
 		sender:     sender,
+		host:       host,
 	}
 }
 
@@ -191,8 +194,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		return nil, err
 	}
 
-	// TODO: генерирация пригласительной ссылки
-	link := fmt.Sprintf("https://sample?email=%s", val.Email)
+	link, err := u.GenerateInvitationLinkUser(ctx, val.Email)
 
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(val.Email, link); err != nil {
@@ -302,4 +304,35 @@ func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.A
 	}
 	return edited, nil
 
+}
+
+func (u *uService) GenerateInvitationLinkUser(
+	ctx context.Context,
+	email string,
+) (string, error) {
+	code := randomseq.RandomString(20)
+	key := strings.Join([]string{"register", "user", email}, ":")
+
+	if err := u.cache.SetInviteCode(ctx, key, code); err != nil {
+		return "", err
+	}
+
+	logger.Log.Info("cache write successful", zap.String("key", key))
+
+	link := fmt.Sprintf("%s/first-login?email=%s&invite=%s", u.host, email, code)
+
+	logger.Log.Info("Generate invite link successful", zap.String("invite link", link))
+
+	return link, nil
+}
+
+func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error) {
+	key := strings.Join([]string{"register", "user", email}, ":")
+
+	invite, err := u.cache.GetInviteCode(ctx, key)
+	if err != nil {
+		return "", fmt.Errorf("err GetUserInviteFromCache: %v", err)
+	}
+
+	return invite, nil
 }
