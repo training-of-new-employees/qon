@@ -113,7 +113,7 @@ func InitConfig() *Config {
 		jwtSecretKey = randomseq.RandomHexString(64)
 	}
 
-	if envDomain := os.Getenv("APP_URL"); envDomain != "" {
+	if envDomain := os.Getenv("DOMAIN"); envDomain != "" {
 		domain = envDomain
 	}
 
