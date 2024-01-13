@@ -53,6 +53,19 @@ func (r *Redis) Set(ctx context.Context, uuid string, admin model.CreateAdmin) e
 	return nil
 }
 
+func (r *Redis) SetInviteCode(ctx context.Context, key string, code string) error {
+	err := r.client.Set(ctx, key, code, 0).Err()
+	if err != nil {
+		return ErrWritingCache
+	}
+
+	return nil
+}
+
+func (r *Redis) GetInviteCode(ctx context.Context, key string) (string, error) {
+	return r.client.Get(ctx, key).Result()
+}
+
 func (r *Redis) Delete(ctx context.Context, key string) error {
 	_, err := r.client.Del(ctx, key).Result()
 	if err != nil {

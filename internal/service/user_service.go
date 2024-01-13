@@ -21,4 +21,6 @@ type ServiceUser interface {
 	DeleteAdminFromCache(ctx context.Context, key string) error
 	UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error
 	ResetPassword(ctx context.Context, email string) error
+	GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error)
+	GenerateInvitationLinkUser(ctx context.Context, email string) (string, error)
 }

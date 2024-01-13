@@ -69,6 +69,21 @@ func (mr *MockCacheMockRecorder) Get(ctx, key any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCache)(nil).Get), ctx, key)
 }
 
+// GetInviteCode mocks base method.
+func (m *MockCache) GetInviteCode(ctx context.Context, key string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInviteCode", ctx, key)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInviteCode indicates an expected call of GetInviteCode.
+func (mr *MockCacheMockRecorder) GetInviteCode(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInviteCode", reflect.TypeOf((*MockCache)(nil).GetInviteCode), ctx, key)
+}
+
 // Set mocks base method.
 func (m *MockCache) Set(ctx context.Context, uuid string, admin model.CreateAdmin) error {
 	m.ctrl.T.Helper()
@@ -81,4 +96,18 @@ func (m *MockCache) Set(ctx context.Context, uuid string, admin model.CreateAdmi
 func (mr *MockCacheMockRecorder) Set(ctx, uuid, admin any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockCache)(nil).Set), ctx, uuid, admin)
+}
+
+// SetInviteCode mocks base method.
+func (m *MockCache) SetInviteCode(ctx context.Context, key, code string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetInviteCode", ctx, key, code)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetInviteCode indicates an expected call of SetInviteCode.
+func (mr *MockCacheMockRecorder) SetInviteCode(ctx, key, code interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetInviteCode", reflect.TypeOf((*MockCache)(nil).SetInviteCode), ctx, key, code)
 }
