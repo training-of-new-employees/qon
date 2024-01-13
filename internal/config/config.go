@@ -21,7 +21,7 @@ var (
 	senderEmail    string
 	senderPassword string
 	senderApiKey   string
-	appURL         string
+	appDomain      string
 )
 
 // Config хранит настройки приложения.
@@ -41,7 +41,7 @@ type Config struct {
 	SenderPassword string
 	SenderApiKey   string
 
-	AppURL string
+	AppDomain string
 }
 
 // InitConfig определяет настройки приложения по флагам, переменным окружения.
@@ -61,7 +61,7 @@ func InitConfig() *Config {
 	flag.StringVar(&senderEmail, "se", defaultSenderEmail, "sender email")
 	flag.StringVar(&senderPassword, "sp", defaultSenderPassword, "sender password")
 	flag.StringVar(&senderApiKey, "sk", defaultSenderApiKey, "sender api key")
-	flag.StringVar(&appURL, "url", defaultAppURL, "http://localhost")
+	flag.StringVar(&appDomain, "url", defaultDomain, "http://localhost")
 
 	flag.Parse()
 
@@ -113,8 +113,8 @@ func InitConfig() *Config {
 		jwtSecretKey = randomseq.RandomHexString(64)
 	}
 
-	if envAppURL := os.Getenv("APP_URL"); envAppURL != "" {
-		appURL = envAppURL
+	if envDomain := os.Getenv("APP_URL"); envDomain != "" {
+		appDomain = envDomain
 	}
 
 	// Определение конфига
@@ -133,7 +133,7 @@ func InitConfig() *Config {
 		SenderEmail:    senderEmail,
 		SenderPassword: senderPassword,
 		SenderApiKey:   senderApiKey,
-		AppURL:         appURL,
+		AppDomain:      appDomain,
 	}
 
 	return config

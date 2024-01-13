@@ -16,7 +16,7 @@ var (
 	defaultRedisDSN      = "localhost:6379"
 	defaultRedisPassword = ""
 	defaultRedisDB       = 0
-	defaultAppURL        = "http://localhost"
+	defaultDomain        = "http://localhost"
 
 	defaultSenderMode     = "smtp"
 	defaultSenderEmail    = "ivan.frontoff42@gmail.com"
