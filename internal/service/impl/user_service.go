@@ -195,6 +195,9 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	}
 
 	link, err := u.GenerateInvitationLinkUser(ctx, val.Email)
+	if err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось с генерировать пригласительную ссылку сотруднику с емейлом %s", val.Email))
+	}
 
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(val.Email, link); err != nil {
