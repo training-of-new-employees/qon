@@ -4,6 +4,7 @@ package rest
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -89,4 +90,14 @@ func (r *RestServer) getUserSession(c *gin.Context) *UserSession {
 	}
 
 	return us
+}
+
+func (r *RestServer) CORS() gin.HandlerFunc {
+	return cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PATCH", "PUT"},
+		AllowHeaders: []string{"Origin, Content-Type, Authorization"},
+		ExposeHeaders: []string{"Content-Length"},
+		AllowCredentials: true,
+	})
 }
