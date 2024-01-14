@@ -2,13 +2,13 @@ package model
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"github.com/training-of-new-employees/qon/internal/errs"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 type (
@@ -245,18 +245,8 @@ func (e *AdminEdit) Validation() error {
 	)
 }
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func GeneratePassword() string {
-	password := make([]byte, 6)
-	for i := 0; i < 6; i++ {
-		password[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(password)
-}
-
 func GenerateHash(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
 		return "", err
 	}
