@@ -208,3 +208,10 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 
 	return editField, expected
 }
+
+func NewInvitationLinkResponse(email, link string) InvitationLinkResponse {
+	return InvitationLinkResponse{
+		Email: email,
+		Link:  link,
+	}
+}

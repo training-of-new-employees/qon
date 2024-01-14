@@ -2,10 +2,12 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
@@ -1559,6 +1561,101 @@ func Test_uService_EditAdmin(t *testing.T) {
 			}
 			if got.ID != tt.want.ID {
 				t.Errorf("uService.EditAdmin() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
+	type fields struct {
+		db         *mock_store.MockRepositoryUser
+		cache      *mock_cache.MockCache
+		secretKey  string
+		aTokenTime time.Duration
+		rTokenTime time.Duration
+		tokenGen   jwttoken.JWTGenerator
+		tokenVal   jwttoken.JWTValidator
+		sender     *mock_doar.MockEmailSender
+		host       string
+	}
+	type args struct {
+		ctx   context.Context
+		email string
+	}
+	tests := []struct {
+		name    string
+		prepare func(*fields)
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Regeneration Invite Link User Error",
+			func(f *fields) {
+				u := &model.User{
+					ID:    1,
+					Email: "user@mail.com",
+				}
+				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
+				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
+			},
+			args{
+				ctx:   nil,
+				email: "user@mail.com",
+			},
+			"",
+			false,
+		},
+		{
+			"Regeneration Invite Link User success",
+			func(f *fields) {
+				u := &model.User{
+					ID:    1,
+					Email: "user@mail.com",
+				}
+				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(nil)
+				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.host = "http://localhost"
+			},
+			args{
+				nil,
+				"user@mail.com",
+			},
+			"http://localhost/first-login\\?email=user@mail.com&invite=*",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.cache = mock_cache.NewMockCache(ctrl)
+			f.db = mock_store.NewMockRepositoryUser(ctrl)
+			f.sender = mock_doar.NewMockEmailSender(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.db)
+			u := &uService{
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
+				host:       f.host,
+			}
+			got, err := u.RegenerationInvitationLinkUser(tt.args.ctx, tt.args.email)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("uService.RegenerationInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(tt.want) > 0 {
+				fmt.Print(got)
+				assert.Regexp(t, tt.want, got)
 			}
 		})
 	}

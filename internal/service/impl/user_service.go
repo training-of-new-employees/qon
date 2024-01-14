@@ -332,10 +332,24 @@ func (u *uService) GenerateInvitationLinkUser(
 func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error) {
 	key := strings.Join([]string{"register", "user", email}, ":")
 
-	invite, err := u.cache.GetInviteCode(ctx, key)
+	code, err := u.cache.GetInviteCode(ctx, key)
 	if err != nil {
 		return "", fmt.Errorf("err GetUserInviteFromCache: %v", err)
 	}
 
-	return invite, nil
+	return code, nil
+}
+
+func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email string) (string, error) {
+	link, err := u.GenerateInvitationLinkUser(ctx, email)
+	if err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось с генерировать пригласительную ссылку сотруднику с емейлом %s", email))
+	}
+
+	// Отправление пригласительной ссылки сотруднику
+	if err = u.sender.InviteUser(email, link); err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
+	}
+
+	return link, nil
 }

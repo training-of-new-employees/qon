@@ -17,6 +17,8 @@ var (
 	ErrNotFound = errors.New("record not found")
 	// ErrNotFound - пользователь не найден
 	ErrUserNotFound = errors.New("user not found")
+	// ErrUserActivated - пользователь уже активирован в системе
+	ErrUserActivated = errors.New("user is activated")
 	// ErrNoRows - в результате нет записей
 	ErrNoRows = errors.New("no rows in result set")
 	// ErrUnauthorized - пользователь не авторизован

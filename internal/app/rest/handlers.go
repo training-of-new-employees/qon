@@ -43,6 +43,10 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.POST("/employee", s.handlerCreateUser)
 	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
 
+	invitationLinkGroup := mvp.Group("/invitation-link")
+	invitationLinkGroup.Use(s.IsAuthenticated())
+	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
+
 	lessons := mvp.Group("/lesson")
 	lessons.POST("/", s.handlerLessonCreate)
 	lessons.DELETE("/", s.handlerLessonDelete)

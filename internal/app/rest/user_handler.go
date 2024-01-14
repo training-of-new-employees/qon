@@ -246,18 +246,18 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
 }
 
-//	ArchiveUser godoc
+// ArchiveUser godoc
 //
-// @Summary	Архивирование пользователя по id
-// @Tags		user
-// @Produce	json
-// @Param		id	path	int	true	"User ID"
-// @Success	200
-// @Failure	400	{object}	sErr
-// @Failure	403	{object}	sErr
-// @Failure	404	{object}	sErr
-// @Failure	500	{object}	sErr
-// @Router		/users/archive/{id} [patch]
+//	@Summary	Архивирование пользователя по id
+//	@Tags		user
+//	@Produce	json
+//	@Param		id	path	int	true	"User ID"
+//	@Success	200
+//	@Failure	400	{object}	sErr
+//	@Failure	403	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/users/archive/{id} [patch]
 func (r *RestServer) handlerArchiveUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")
@@ -431,6 +431,80 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, edited)
+}
+
+// @Summary		Регенерация пригласительной ссылки
+// @Description	Изменение по email сотрудника
+// @Tags			admin
+// @Produce		json
+// @Param			object	body		model.InvitationLinkRequest	true	"User email"
+// @Success		200		{object}	model.InvitationLinkResponse
+// @Failure		400		{object}	sErr
+// @Failure		401		{object}	sErr
+// @Failure		403		{object}	sErr
+// @Failure		404		{object}	sErr
+// @Failure		409		{object}	sErr
+// @Failure		500		{object}	sErr
+// @Router			/invitation-link [patch]
+func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	session := r.getUserSession(c)
+
+	invitationLinkRequest := model.InvitationLinkRequest{}
+
+	if err := c.ShouldBindJSON(&invitationLinkRequest); err != nil {
+		c.JSON(http.StatusBadRequest, s().SetError(err))
+		return
+	}
+
+	if err := invitationLinkRequest.Validate(); err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, s().SetError(err))
+		return
+	}
+
+	invitationLinkResponse := &model.InvitationLinkResponse{}
+	userAdmin, err := r.services.User().GetUserByID(ctx, session.UserID)
+
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
+		c.JSON(http.StatusUnauthorized, s().SetError(err))
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		return
+	}
+
+	if !access.CanAdmin(session.IsAdmin, session.UserID, userAdmin.ID) {
+		c.JSON(http.StatusForbidden, s().SetError(errs.ErrNoAccess))
+		return
+	}
+
+	employee, err := r.services.User().GetUserByEmail(ctx, invitationLinkRequest.Email)
+	switch {
+	case errors.Is(err, errs.ErrUserNotFound):
+		fmt.Println(invitationLinkRequest.Email)
+		c.JSON(http.StatusNotFound, s().SetError(err))
+		return
+	case err != nil:
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		return
+	}
+	if employee.IsActive {
+		c.JSON(http.StatusConflict, s().SetError(errs.ErrUserActivated))
+	}
+
+	link, err := r.services.User().RegenerationInvitationLinkUser(ctx, invitationLinkRequest.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		return
+	}
+
+	invitationLinkResponse.Link = link
+	invitationLinkResponse.Email = invitationLinkRequest.Email
+
+	c.JSON(http.StatusOK, invitationLinkResponse)
 }
 
 // GetUser godoc
