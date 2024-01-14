@@ -11,6 +11,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
+
 	"go.uber.org/mock/gomock"
 )
 
@@ -527,6 +528,83 @@ func (suite *handlerTestSuite) TestHandlerEditAdmin() {
 
 			req, _ := http.NewRequest(http.MethodPatch, "/api/v1/admin/info", bytes.NewBuffer(body))
 			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestHandlerResetPassword() {
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() []byte
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() []byte {
+				u := model.NewTestResetPassword()
+				suite.userService.
+					EXPECT().
+					ResetPassword(gomock.Any(), u.Email).
+					Return(nil)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid request body",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() []byte {
+				body, _ := json.Marshal("invalid")
+
+				return body
+			},
+		},
+		{
+			name:         "user not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() []byte {
+				u := model.NewTestResetPassword()
+				suite.userService.
+					EXPECT().
+					ResetPassword(gomock.Any(), u.Email).
+					Return(errs.ErrUserNotFound)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() []byte {
+				u := model.NewTestResetPassword()
+				suite.userService.
+					EXPECT().
+					ResetPassword(gomock.Any(), u.Email).
+					Return(errs.ErrInternal)
+
+				body, _ := json.Marshal(u)
+
+				return body
+			},
+		},
+	}
+
+	// проверка тест-кейсов
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPost, "/api/v1/password", bytes.NewBuffer(body))
 
 			suite.srv.ServeHTTP(w, req)
 			suite.Equal(tc.expectedCode, w.Code)
