@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// constraintToAppError - соответствие ограничений CУБД ошибкам приложения
+// constraintToAppError - соответствие ограничений CУБД ошибкам приложения.
 var constraintToAppError = map[string]error{
 	// companies
 	"chck_company_name_not_empty": errs.ErrCompanyNameNotEmpty,
@@ -81,18 +81,19 @@ var constraintToAppError = map[string]error{
 	"unq_assignlesson": errs.ErrAssignLessonUsed,
 }
 
+// handleError - обработчик ошибок для слоя store (PostgreSql).
 func handleError(err error) error {
-	// Если ошибки нет, возвращаем nil
+	// если ошибки нет, возвращаем nil
 	if err == nil {
 		return nil
 	}
 
-	// Если не найдены записи, то возвращаем ErrNotFound
+	// если не найдены записи, то возвращаем ErrNotFound
 	if errors.Is(err, sql.ErrNoRows) {
 		return errs.ErrNotFound
 	}
 
-	// Проверка, является ли ошибка нарушением ограничения СУБД
+	// проверка, является ли ошибка нарушением ограничения СУБД
 	if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.ConstraintName != "" {
 		// Если ограничение известно, то возвращаем соответствующую ошибку
 		if appErr, ok := constraintToAppError[pgErr.ConstraintName]; ok {
@@ -100,7 +101,7 @@ func handleError(err error) error {
 		}
 	}
 
-	// Если другая ошибка или неизвестное ограничение, то возвращаем ErrInternal
+	// если другая ошибка или неизвестное ограничение, то возвращаем ErrInternal
 	logger.Log.Warn("internal error: %v", zap.Error(err))
 	return errs.ErrInternal
 }

@@ -13,13 +13,13 @@ import (
 
 var _ store.RepositoryPosition = (*positionStorage)(nil)
 
-// positionStorage - репозиторий "Должностей".
+// positionStorage - репозиторий должности.
 type positionStorage struct {
 	db *sqlx.DB
 	transaction
 }
 
-// newPositionStorage - конструктор репозитория "Должностей".
+// newPositionStorage - конструктор репозитория должности.
 func newPositionStorage(db *sqlx.DB) *positionStorage {
 	return &positionStorage{
 		db:          db,
@@ -27,7 +27,7 @@ func newPositionStorage(db *sqlx.DB) *positionStorage {
 	}
 }
 
-// CreatePositionDB создание должности в рамках компании.
+// CreatePositionDB - создание должности в рамках компании.
 func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	var createdPosition *model.Position
 
@@ -50,7 +50,29 @@ func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.P
 	return createdPosition, nil
 }
 
-// GetPositionDB - получить данные должности, привязанной к компании.
+// GetPositionByID - получение данных должности по идентификатору.
+func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `
+		SELECT id, company_id, name, active, archived, created_at, updated_at
+        FROM positions 
+        WHERE id = $1 AND archived = false
+	`
+
+	err := p.db.GetContext(ctx, &position, query, positionID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrPositionNotFound
+		}
+		return nil, handleError(err)
+	}
+
+	return &position, nil
+}
+
+// GetPositionDB - получение данных должности, привязанной к компании.
+// TODO: возможно этот метод стоит убрать, вместо можно использовать GetPositionByID
 func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position := &model.Position{}
 
@@ -82,7 +104,7 @@ func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, posi
 	return position, nil
 }
 
-// GetPositionsDB - получить список должностей компании.
+// GetPositionsDB - получение списка должностей компании.
 // TODO: возможно следует изменить название метода на ListPositionDB
 // (название методов GetPositionDB, GetPositionsDB создают путаницу, т.к. раличаются только одной буквой 's').
 func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]*model.Position, error) {
@@ -108,28 +130,7 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]
 	return positions, nil
 }
 
-// GetPositionByID - получить данные должности по идентификатору.
-func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (*model.Position, error) {
-	position := model.Position{}
-
-	query := `
-		SELECT id, company_id, name, active, archived, created_at, updated_at
-        FROM positions 
-        WHERE id = $1 AND archived = false
-	`
-
-	err := p.db.GetContext(ctx, &position, query, positionID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errs.ErrPositionNotFound
-		}
-		return nil, handleError(err)
-	}
-
-	return &position, nil
-}
-
-// UpdatePositionDB - обновить должность.
+// UpdatePositionDB - обновление данных должности.
 func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, val model.PositionSet) (*model.Position, error) {
 	position := model.Position{}
 
@@ -155,13 +156,15 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, 
 	return &position, nil
 }
 
-// AssignCourseDB - назначить курс на должность.
-// TODO: непонятно зачем здесь аргумент user_id int - нужно убрать.
-func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int, user_id int) error {
+// AssignCourseDB - назначение курса на должность.
+func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int) error {
+	// открываем транзакцию
+	err := p.tx(func(tx *sqlx.Tx) error {
+		// назначение курса на должность
+		return p.assignCourseTx(ctx, tx, positionID, courseID)
+	})
 
-	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2)`
-
-	if _, err := p.db.ExecContext(ctx, query, positionID, courseID); err != nil {
+	if err != nil {
 		return handleError(err)
 	}
 

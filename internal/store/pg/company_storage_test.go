@@ -2,10 +2,9 @@ package pg
 
 import (
 	"context"
-	"math/rand"
-	"time"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
 func (suite *storeTestSuite) TestCreateCompany() {
@@ -39,8 +38,6 @@ func (suite *storeTestSuite) TestCreateCompany() {
 func (suite *storeTestSuite) TestGetCompany() {
 	suite.NotNil(suite.store)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test-company")
 	suite.NoError(err)
 	suite.NotEmpty(company)
@@ -57,7 +54,7 @@ func (suite *storeTestSuite) TestGetCompany() {
 		},
 		{
 			name:      "not found",
-			companyID: rnd.Intn(32) + 2,
+			companyID: randomseq.RandomTestInt(),
 			err:       errs.ErrCompanyNotFound,
 		},
 	}
