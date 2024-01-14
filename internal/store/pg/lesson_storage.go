@@ -2,9 +2,11 @@ package pg
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -28,15 +30,15 @@ func newLessonStorage(db *sqlx.DB) *lessonStorage {
 func (l *lessonStorage) CreateLessonDB(ctx context.Context,
 	lesson model.LessonCreate, user_id int) (*model.Lesson, error) {
 
-	query := `INSERT INTO lessons (course_id, created_by, name, description)
-	VALUES ($1, $2, $3, $4)
-	RETURNING id, course_id, created_by, name, description, active, archived,
+	query := `INSERT INTO lessons (course_id, created_by, name, content, url_picture)
+	VALUES ($1, $2, $3, $4, $5)
+	RETURNING id, course_id, created_by, name, content, url_picture, active, archived,
 	created_at, updated_at`
 
 	var createdLesson model.Lesson
 
 	err := l.db.GetContext(ctx, &createdLesson, query,
-		lesson.CourseID, user_id, lesson.Name, lesson.Description)
+		lesson.CourseID, user_id, lesson.Name, lesson.Content, lesson.URLPicture)
 	if err != nil {
 		return nil, handleError(err)
 	}
@@ -45,10 +47,20 @@ func (l *lessonStorage) CreateLessonDB(ctx context.Context,
 }
 
 func (l *lessonStorage) DeleteLessonDB(ctx context.Context, lessonID int) error {
+
 	query := `UPDATE lessons SET archived = true WHERE id = $1`
 
-	if _, err := l.db.ExecContext(ctx, query, lessonID); err != nil {
+	var result sql.Result
+	var err error
+
+	if result, err = l.db.ExecContext(ctx, query, lessonID); err != nil {
+		fmt.Println(err.Error())
 		return handleError(err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errs.ErrLessonNotFound
 	}
 
 	return nil
@@ -56,8 +68,8 @@ func (l *lessonStorage) DeleteLessonDB(ctx context.Context, lessonID int) error 
 
 func (l *lessonStorage) GetLessonDB(ctx context.Context,
 	lessonID int) (*model.Lesson, error) {
-	query := `SELECT id, course_id, created_by, number, name, 
-			         description, created_at, updated_at
+	query := `SELECT id, course_id, created_by, active, archived, name, 
+			         content, url_picture, created_at, updated_at
 			  FROM lessons
 		      WHERE id = $1 AND archived = false`
 	var lesson model.Lesson
@@ -91,7 +103,6 @@ func (l *lessonStorage) UpdateLessonDB(ctx context.Context,
 // ВAЖНО: использовать только внутри транзакции.
 func (l *lessonStorage) updateLessonTx(ctx context.Context,
 	tx *sqlx.Tx, lesson model.LessonUpdate) (*model.Lesson, error) {
-
 	updatedLesson := model.Lesson{}
 
 	query := `SELECT id
@@ -103,17 +114,20 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 	}
 
 	query = `UPDATE lessons
-			  	SET name = COALESCE($1, name), description = COALESCE($2, description),
-				path = COALESCE($3, path)
-				WHERE id = $4 AND course_id = $4 `
-	_, err = tx.ExecContext(ctx, query, lesson.Name, lesson.Description,
-		lesson.Path, lesson.ID, lesson.CourseID)
+			  	SET 
+					name 		= COALESCE(NULLIF($1, ''), name),
+					content     = COALESCE(NULLIF($2, ''), content),
+					url_picture = COALESCE(NULLIF($3, ''), url_picture)
+				WHERE id = $4 AND course_id = $5 `
+	_, err = tx.ExecContext(ctx, query, lesson.Name, lesson.Content,
+		lesson.URLPicture, lesson.ID, lesson.CourseID)
 	if err != nil {
 		return nil, handleError(err)
 	}
 
-	query = `SELECT id, course_id, created_by, number, name, 
-			        description, created_at, updated_at
+	query = `SELECT id, course_id, created_by, name, 
+			        content, url_picture, active, archived,
+					created_at, updated_at
 			  FROM lessons
 		      WHERE id = $1 AND course_id = $2`
 	err = tx.GetContext(ctx, &updatedLesson, query, lesson.ID, lesson.CourseID)
