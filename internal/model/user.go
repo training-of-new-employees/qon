@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -244,42 +243,6 @@ func (e *AdminEdit) Validation() error {
 		validation.Field(&e.Surname, validation.Length(0, 128)),
 		validation.Field(&e.Patronymic, validation.Length(0, 128)),
 	)
-}
-
-const (
-	lowerLetters = "abcdefghijklmnopqrstuvwxyz"
-	upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	numbers      = "0123456789"
-	symbols      = "!@#$%^&*()_+"
-)
-
-func GeneratePassword() string {
-	passwordLen := 30
-	upperLettersCount := passwordLen / 2
-	numbersCount := upperLettersCount / 2
-	symbolsCount := numbersCount / 2
-	password := make([]byte, passwordLen)
-
-	for i := 0; i < len(password); i++ {
-		password[i] = lowerLetters[rand.Intn(len(lowerLetters))]
-	}
-
-	for i := 0; i < upperLettersCount; i++ {
-		randomPosition := rand.Intn(passwordLen)
-		password[randomPosition] = upperLetters[rand.Intn(len(upperLetters))]
-	}
-
-	for i := 0; i < numbersCount; i++ {
-		randomPosition := rand.Intn(passwordLen)
-		password[randomPosition] = numbers[rand.Intn(len(numbers))]
-	}
-
-	for i := 0; i < symbolsCount; i++ {
-		randomPosition := rand.Intn(passwordLen)
-		password[randomPosition] = symbols[rand.Intn(len(symbols))]
-	}
-
-	return string(password)
 }
 
 func GenerateHash(password string) (string, error) {

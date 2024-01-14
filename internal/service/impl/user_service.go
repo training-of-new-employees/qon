@@ -274,7 +274,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 		return err
 	}
 
-	password := model.GeneratePassword()
+	password := randomseq.RandomPassword()
 
 	encPassword, err := model.GenerateHash(password)
 	if err != nil {
