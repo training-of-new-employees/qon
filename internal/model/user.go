@@ -7,8 +7,9 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
-	"github.com/training-of-new-employees/qon/internal/errs"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 type (
@@ -245,13 +246,39 @@ func (e *AdminEdit) Validation() error {
 	)
 }
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const (
+	lowerLetters = "abcdefghijklmnopqrstuvwxyz"
+	upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numbers      = "0123456789"
+	symbols      = "!@#$%^&*()_+"
+)
 
 func GeneratePassword() string {
-	password := make([]byte, 6)
-	for i := 0; i < 6; i++ {
-		password[i] = charset[rand.Intn(len(charset))]
+	passwordLen := 30
+	upperLettersCount := passwordLen / 2
+	numbersCount := upperLettersCount / 2
+	symbolsCount := numbersCount / 2
+	password := make([]byte, passwordLen)
+
+	for i := 0; i < len(password); i++ {
+		password[i] = lowerLetters[rand.Intn(len(lowerLetters))]
 	}
+
+	for i := 0; i < upperLettersCount; i++ {
+		randomPosition := rand.Intn(passwordLen)
+		password[randomPosition] = upperLetters[rand.Intn(len(upperLetters))]
+	}
+
+	for i := 0; i < numbersCount; i++ {
+		randomPosition := rand.Intn(passwordLen)
+		password[randomPosition] = numbers[rand.Intn(len(numbers))]
+	}
+
+	for i := 0; i < symbolsCount; i++ {
+		randomPosition := rand.Intn(passwordLen)
+		password[randomPosition] = symbols[rand.Intn(len(symbols))]
+	}
+
 	return string(password)
 }
 

@@ -208,3 +208,9 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 
 	return editField, expected
 }
+
+func NewTestResetPassword() EmailReset {
+	return EmailReset{
+		Email: fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
+	}
+}

@@ -28,3 +28,28 @@ func Test_CheckPassword(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func TestGeneratePassword(t *testing.T) {
+	testCases := []struct {
+		name    string
+		isValid bool
+	}{
+		{
+			name:    "valid password",
+			isValid: true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			password := GeneratePassword()
+			err := validatePassword(password)(password)
+
+			if testCase.isValid {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
+}
