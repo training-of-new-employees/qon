@@ -651,7 +651,6 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 
 				suite.userService.EXPECT().GetUserByEmail(gomock.Any(), email).Return(u, nil)
 				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(model.NewTestUser(userAdminID, companyID, positionID), nil)
-				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email).Return(link, nil)
 
 				body, _ := json.Marshal(response)
 

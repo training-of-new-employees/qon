@@ -37,6 +37,7 @@ var errorToCode = map[string]int{
 	errs.ErrInvalidUserPatronymic.Error(): http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
+	errs.ErrUserActivated.Error():      http.StatusConflict,
 
 	errs.ErrUnauthorized.Error():  http.StatusUnauthorized,
 	errs.ErrNotFirstLogin.Error(): http.StatusMethodNotAllowed,

@@ -454,13 +454,12 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 	invitationLinkRequest := model.InvitationLinkRequest{}
 
 	if err := c.ShouldBindJSON(&invitationLinkRequest); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := invitationLinkRequest.Validate(); err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
@@ -469,35 +468,35 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 
 	switch {
 	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
+		r.handleError(c, errs.ErrUnauthorized)
 		return
 	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, errs.ErrInternal)
 		return
 	}
 
 	if !access.CanAdmin(session.IsAdmin, session.UserID, userAdmin.ID) {
-		c.JSON(http.StatusForbidden, s().SetError(errs.ErrNoAccess))
+		r.handleError(c, errs.ErrNoAccess)
 		return
 	}
 
 	employee, err := r.services.User().GetUserByEmail(ctx, invitationLinkRequest.Email)
 	switch {
 	case errors.Is(err, errs.ErrUserNotFound):
-		fmt.Println(invitationLinkRequest.Email)
-		c.JSON(http.StatusNotFound, s().SetError(err))
+		r.handleError(c, errs.ErrNotFound)
 		return
 	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, errs.ErrInternal)
 		return
 	}
 	if employee.IsActive {
-		c.JSON(http.StatusConflict, s().SetError(errs.ErrUserActivated))
+		r.handleError(c, errs.ErrUserActivated)
+		return
 	}
 
 	link, err := r.services.User().RegenerationInvitationLinkUser(ctx, invitationLinkRequest.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, errs.ErrInternal)
 		return
 	}
 
