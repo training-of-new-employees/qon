@@ -844,6 +844,7 @@ func Test_uService_CreateUser(t *testing.T) {
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
 				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
+				f.sender.EXPECT().Mode().Return("api")
 			},
 			args{
 				nil,

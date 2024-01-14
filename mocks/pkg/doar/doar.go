@@ -52,6 +52,20 @@ func (mr *MockEmailSenderMockRecorder) InviteUser(email, invitationLink any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InviteUser", reflect.TypeOf((*MockEmailSender)(nil).InviteUser), email, invitationLink)
 }
 
+// Mode mocks base method.
+func (m *MockEmailSender) Mode() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Mode")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Mode indicates an expected call of Mode.
+func (mr *MockEmailSenderMockRecorder) Mode() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mode", reflect.TypeOf((*MockEmailSender)(nil).Mode))
+}
+
 // SendCode mocks base method.
 func (m *MockEmailSender) SendCode(email, code string) error {
 	m.ctrl.T.Helper()
