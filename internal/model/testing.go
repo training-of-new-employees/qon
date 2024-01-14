@@ -7,9 +7,11 @@ import (
 )
 
 func NewTestUserCreate() UserCreate {
+	hash, _ := GenerateHash(randomseq.RandomPassword())
+
 	return UserCreate{
 		Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
-		Password:   randomseq.RandomHexString(64),
+		Password:   hash,
 		Name:       fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		Surname:    fmt.Sprintf("Test%s", randomseq.RandomName(10)),
@@ -21,7 +23,7 @@ func NewTestUserCreate() UserCreate {
 func NewTestCreateAdmin() CreateAdmin {
 	return CreateAdmin{
 		Email:    fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
-		Password: "abcdA1*",
+		Password: randomseq.RandomPassword(),
 		Company:  fmt.Sprintf("test-%s", randomseq.RandomName(10)),
 	}
 }

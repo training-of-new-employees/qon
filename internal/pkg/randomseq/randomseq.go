@@ -83,7 +83,7 @@ func RandomBool() bool {
 
 // RandomPassword - генерирует случайный пароль.
 func RandomPassword() string {
-	passwordLen := 30
+	passwordLen := 10
 	upperLettersCount := passwordLen / 2
 	numbersCount := upperLettersCount / 2
 	symbolsCount := numbersCount / 2

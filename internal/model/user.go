@@ -246,7 +246,7 @@ func (e *AdminEdit) Validation() error {
 }
 
 func GenerateHash(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
 		return "", err
 	}
