@@ -61,7 +61,7 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), tc.position())
+			_, err := suite.store.PositionStorage().CreatePosition(context.TODO(), tc.position())
 			suite.Equal(tc.err, err)
 		})
 	}
@@ -78,7 +78,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(
+	position, err := suite.store.PositionStorage().CreatePosition(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
@@ -119,7 +119,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(
+	position, err := suite.store.PositionStorage().CreatePosition(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
@@ -159,7 +159,7 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			companyID, positionID := tc.payload()
-			_, err := suite.store.PositionStorage().GetPositionDB(context.TODO(), companyID, positionID)
+			_, err := suite.store.PositionStorage().GetPositionInComp(context.TODO(), companyID, positionID)
 			suite.Equal(tc.err, err)
 		})
 	}
@@ -169,7 +169,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	suite.NotNil(suite.store)
 
 	// поиск в пустой базе должностей по id несуществующей компании
-	positions, err := suite.store.PositionStorage().GetPositionsDB(context.TODO(), randomseq.RandomTestInt())
+	positions, err := suite.store.PositionStorage().ListPositions(context.TODO(), randomseq.RandomTestInt())
 	suite.Error(err)
 	suite.Empty(positions)
 
@@ -186,7 +186,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 
 	// добавление случайного кол-ва должностей
 	for i := 0; i < countPositions; i++ {
-		position, err := suite.store.PositionStorage().CreatePositionDB(
+		position, err := suite.store.PositionStorage().CreatePosition(
 			context.TODO(),
 			model.PositionSet{CompanyID: company.ID, Name: fmt.Sprintf("test-position-%d", i)},
 		)
@@ -197,7 +197,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	}
 
 	// получение добавленных должностей
-	positions, err = suite.store.PositionStorage().GetPositionsDB(context.TODO(), company.ID)
+	positions, err = suite.store.PositionStorage().ListPositions(context.TODO(), company.ID)
 	suite.NotEmpty(positions)
 	suite.NoError(err)
 
@@ -219,7 +219,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(
+	position, err := suite.store.PositionStorage().CreatePosition(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)
@@ -265,7 +265,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 		suite.Run(tc.name, func() {
 			positionID, positionUpdate := tc.payload()
 
-			_, err := suite.store.PositionStorage().UpdatePositionDB(
+			_, err := suite.store.PositionStorage().UpdatePosition(
 				context.TODO(),
 				positionID,
 				positionUpdate,
@@ -285,7 +285,7 @@ func (suite *storeTestSuite) TestAssignCourseDB() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(
+	position, err := suite.store.PositionStorage().CreatePosition(
 		context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
 	)

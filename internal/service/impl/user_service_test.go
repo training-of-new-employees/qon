@@ -289,7 +289,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
 				f.companydb.EXPECT().GetCompany(nil, 1).Return(company, nil)
-				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(nil, errs.ErrPositionNotFound)
+				f.posdb.EXPECT().GetPositionInComp(nil, 1, 1).Return(nil, errs.ErrPositionNotFound)
 			},
 			args{nil, 1},
 			nil,
@@ -311,7 +311,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
 				f.companydb.EXPECT().GetCompany(nil, 1).Return(company, nil)
-				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(pos, nil)
+				f.posdb.EXPECT().GetPositionInComp(nil, 1, 1).Return(pos, nil)
 			},
 			args{nil, 1},
 			&model.UserInfo{

@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// errorToCode - мапа соответствия ошибки http-коду.
+// errorToCode - преобразование ошибки приложения в http-код.
 var errorToCode = map[string]int{
 	errs.ErrNoAccess.Error(): http.StatusForbidden,
 
