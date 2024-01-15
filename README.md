@@ -3,6 +3,11 @@
 - [Общая информация](#info)
 
 - [Работа с приложением](#work)
+  - [Установка make](#make)
+    - [Ubuntu/Linux Mint/Debian](#make-ubuntu)
+    - [Mac OS](#make-macos)
+    - [Windows](#make-windows)
+
   - [Управление приложением (Makefile)](#work-management)
   - [Локальный запуск приложения](#work-local)
 - [Разработка приложения](#develop)
@@ -20,6 +25,43 @@
 
 
 # Работа с приложением <a name="work"/>
+
+## Установка make <a name="make"/>
+
+Для управления командами приложения, которые перечислены в [Makefile](Makefile), нужна утилита make. 
+
+### Ubuntu/Linux Mint/Debian <a name="make-ubuntu"/>
+Для установки make в Ubuntu / Linux Mint / Debian, введите в терминале:
+```
+sudo apt update
+```
+```
+sudo apt install make
+```
+
+### Mac OS <a name="make-macos"/>
+Для установки make в Mac OS, введите в терминале:
+```
+brew update
+```
+```
+brew install make
+```
+
+### Windows <a name="make-windows"/>
+
+Для установки make в Windows нужно выполнить следующие шаги:
+
+- Скачать и установить [TDM-GCC для Windows](https://cpp-python-nsu.inp.nsk.su/textbook/sec2/ch4)
+
+- Добавить путь к папке C:\TDM-GCC-64\bin в системную переменную PATH.  
+_Подробнее:_ Для этого в поиске Windows введите "Изменение системных переменных", затем нажмите "Переменные среды", и в окне c cистемными переменными измените или добавьте переменную PATH.  
+  
+- _Важно:_ Необходимо проверить, есть ли в папке bin файл make.exe. Вместо него может быть файл с другим именем, например, mingw32-make.exe. Если такой файл есть, то нужно переименовать его в make.”
+
+_Альтернативный вариант:_  
+Установить Choco и с помощью него установить make ([подробнее на stack overflow](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows)).
+
 
 ## Управление приложением (Makefile) <a name="work-management"/>
 Подготовка приложения, тестирование, запуск на локальной машине и другие команды, выполняется с помощью команды make (из корня репозитория).  
