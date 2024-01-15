@@ -51,3 +51,11 @@ func (l *lessonService) DeleteLesson(ctx context.Context, lessonID int) error {
 	}
 	return nil
 }
+
+func (l *lessonService) GetLessonsList(ctx context.Context, courseID int) ([]*model.Lesson, error) {
+	lessonsList, err := l.db.LessonStorage().GetLessonsListDB(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+	return lessonsList, nil
+}

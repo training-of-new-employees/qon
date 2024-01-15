@@ -2,6 +2,8 @@ package pg
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -49,6 +51,58 @@ func (suite *storeTestSuite) prepareLessonCreation() (*model.Course,
 	return course, user, nil
 }
 
+func (suite *storeTestSuite) TestGetLessonDB() {
+	course, user, err := suite.prepareLessonCreation()
+
+	suite.NoError(err)
+	suite.NotEmpty(course)
+
+	lesson := func() model.LessonCreate {
+		l := model.LessonCreate{
+			CourseID:   course.ID,
+			Name:       "Lesson2",
+			Content:    "Content2",
+			URLPicture: "http://test",
+		}
+		return l
+	}
+	newLesson, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+		lesson(), user.ID)
+	suite.NoError(err)
+	suite.NotEmpty(newLesson)
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	testCases := []struct {
+		name           string
+		lessonID       int
+		expectedLesson *model.Lesson
+		err            error
+	}{
+		{
+			name:           "success",
+			lessonID:       newLesson.ID,
+			expectedLesson: newLesson,
+			err:            nil,
+		},
+		{
+			name:           "not existing lesson",
+			lessonID:       rnd.Intn(32) + 1,
+			expectedLesson: nil,
+			err:            errs.ErrLessonNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			l, err := suite.store.LessonStorage().GetLessonDB(context.TODO(), tc.lessonID)
+			suite.Equal(tc.err, err)
+			suite.Equal(tc.expectedLesson, l)
+		})
+	}
+
+}
+
 func (suite *storeTestSuite) TestCreateLessonDB() {
 
 	course, user, err := suite.prepareLessonCreation()
@@ -59,6 +113,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 	if err != nil || course == nil {
 		return
 	}
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 
 	testCases := []struct {
 		name    string
@@ -130,7 +186,7 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 				}
 				return l
 			},
-			user_id: 34,
+			user_id: rnd.Intn(32) + 1,
 			err:     errs.ErrCreaterNotFound,
 		},
 	}
@@ -163,6 +219,8 @@ func (suite *storeTestSuite) TestDeleteLessonDB() {
 	suite.NoError(err)
 	suite.NotEmpty(newLesson)
 
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
 	testCases := []struct {
 		name     string
 		lessonId int
@@ -175,7 +233,7 @@ func (suite *storeTestSuite) TestDeleteLessonDB() {
 		},
 		{
 			name:     "lesson id don't exist",
-			lessonId: 977272727,
+			lessonId: rnd.Intn(32) + 1,
 			err:      errs.ErrLessonNotFound,
 		},
 	}
