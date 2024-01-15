@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -28,6 +29,7 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			prepare: func() []byte {
 				courseSet := model.NewTestCourseSet()
 				courseSet.CreatedBy = creatorID
+				courseSet.ID = 0
 
 				course := &model.Course{
 					ID:          courseID,
@@ -71,6 +73,7 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			expectedCode: http.StatusInternalServerError,
 			prepare: func() []byte {
 				courseSet := model.NewTestCourseSet()
+				courseSet.ID = 0
 				courseSet.CreatedBy = creatorID
 
 				suite.courseService.EXPECT().CreateCourse(gomock.Any(), courseSet).Return(nil, errs.ErrInternal)
@@ -229,6 +232,129 @@ func (suite *handlerTestSuite) TestGetUserCourses() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodGet, "/api/v1/users/courses", bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestEditCourse() {
+	userID := 1
+	companyID := 2
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() (string, []byte)
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() (string, []byte) {
+				courseSet := model.NewTestCourseSet()
+				courseSet.CreatedBy = userID
+
+				course := &model.Course{
+					ID:          courseSet.ID,
+					Name:        courseSet.Name,
+					Description: courseSet.Description,
+					CreatedBy:   userID,
+					IsActive:    true,
+					IsArchived:  false,
+				}
+
+				suite.courseService.EXPECT().EditCourse(gomock.Any(), courseSet, companyID).Return(course, nil)
+
+				body, _ := json.Marshal(courseSet)
+
+				return fmt.Sprintf("%d", courseSet.ID), body
+			},
+		},
+		{
+			name:         "invalid course id",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				id := "invalid"
+				body, _ := json.Marshal("invalid")
+
+				return id, body
+			},
+		},
+		{
+			name:         "invalid body",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				id := "1"
+				body, _ := json.Marshal("invalid")
+
+				return id, body
+			},
+		},
+		{
+			name:         "invalid course name",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				courseSet := model.NewTestCourseSet()
+				courseSet.Name = "invalid-name-#$%!"
+
+				body, _ := json.Marshal(courseSet)
+
+				return fmt.Sprintf("%d", courseSet.ID), body
+			},
+		},
+		{
+			name:         "empty course name",
+			expectedCode: http.StatusOK,
+			prepare: func() (string, []byte) {
+				courseSet := model.NewTestCourseSet()
+				courseSet.Name = ""
+				courseSet.CreatedBy = userID
+
+				course := &model.Course{
+					ID:          courseSet.ID,
+					Name:        courseSet.Name,
+					Description: courseSet.Description,
+					CreatedBy:   userID,
+					IsActive:    true,
+					IsArchived:  false,
+				}
+
+				suite.courseService.EXPECT().EditCourse(gomock.Any(), courseSet, companyID).Return(course, nil)
+
+				body, _ := json.Marshal(courseSet)
+
+				return fmt.Sprintf("%d", courseSet.ID), body
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() (string, []byte) {
+				courseSet := model.NewTestCourseSet()
+				courseSet.CreatedBy = userID
+
+				suite.courseService.EXPECT().EditCourse(gomock.Any(), courseSet, companyID).Return(nil, errs.ErrInternal)
+
+				body, _ := json.Marshal(courseSet)
+
+				return fmt.Sprintf("%d", courseSet.ID), body
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, companyID, true)
+	suite.NoError(err)
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			id, body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/admin/courses/%s", id), bytes.NewBuffer(body))
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)
