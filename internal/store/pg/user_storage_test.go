@@ -18,7 +18,7 @@ func (suite *storeTestSuite) TestCreateUser() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
@@ -195,7 +195,7 @@ func (suite *storeTestSuite) TestGetUserByID() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
@@ -243,7 +243,7 @@ func (suite *storeTestSuite) TestGetUserByEmail() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
@@ -301,7 +301,7 @@ func (suite *storeTestSuite) TestGetUsersByCompany() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
@@ -351,7 +351,7 @@ func (suite *storeTestSuite) TestEditUser() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
@@ -585,7 +585,7 @@ func (suite *storeTestSuite) TestUpdateUserPassword() {
 	suite.NotEmpty(company)
 
 	// добавление должности
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 
@@ -648,7 +648,7 @@ func (suite *storeTestSuite) TestSetPasswordAndActivateUser() {
 	suite.NotEmpty(company)
 
 	// создаём должность
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(), model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	suite.NoError(err)
 	suite.NotEmpty(position)
 

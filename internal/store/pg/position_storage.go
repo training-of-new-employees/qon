@@ -27,8 +27,8 @@ func newPositionStorage(db *sqlx.DB) *positionStorage {
 	}
 }
 
-// CreatePositionDB - создание должности в рамках компании.
-func (p *positionStorage) CreatePositionDB(ctx context.Context, position model.PositionSet) (*model.Position, error) {
+// CreatePosition - создание должности в рамках компании.
+func (p *positionStorage) CreatePosition(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	var createdPosition *model.Position
 
 	// открываем транзакцию
@@ -71,9 +71,8 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 	return &position, nil
 }
 
-// GetPositionDB - получение данных должности, привязанной к компании.
-// TODO: возможно этот метод стоит убрать, вместо можно использовать GetPositionByID
-func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
+// GetPositionInCompany - получение данных должности, привязанной к компании.
+func (p *positionStorage) GetPositionInCompany(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position := &model.Position{}
 
 	query := `
@@ -104,10 +103,8 @@ func (p *positionStorage) GetPositionDB(ctx context.Context, companyID int, posi
 	return position, nil
 }
 
-// GetPositionsDB - получение списка должностей компании.
-// TODO: возможно следует изменить название метода на ListPositionDB
-// (название методов GetPositionDB, GetPositionsDB создают путаницу, т.к. раличаются только одной буквой 's').
-func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]*model.Position, error) {
+// ListPositions - получение списка должностей компании.
+func (p *positionStorage) ListPositions(ctx context.Context, companyID int) ([]*model.Position, error) {
 	positions := make([]*model.Position, 0)
 
 	query := `
@@ -126,8 +123,8 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]
 	return positions, nil
 }
 
-// UpdatePositionDB - обновление данных должности.
-func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, val model.PositionSet) (*model.Position, error) {
+// UpdatePosition - обновление данных должности.
+func (p *positionStorage) UpdatePosition(ctx context.Context, positionID int, val model.PositionSet) (*model.Position, error) {
 	position := model.Position{}
 
 	query := `
@@ -152,8 +149,8 @@ func (p *positionStorage) UpdatePositionDB(ctx context.Context, positionID int, 
 	return &position, nil
 }
 
-// AssignCourseDB - назначение курса на должность.
-func (p *positionStorage) AssignCourseDB(ctx context.Context, positionID int, courseID int) error {
+// AssignCourse - назначение курса на должность.
+func (p *positionStorage) AssignCourse(ctx context.Context, positionID int, courseID int) error {
 	// открываем транзакцию
 	err := p.tx(func(tx *sqlx.Tx) error {
 		// назначение курса на должность

@@ -112,7 +112,7 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
-	position, err := u.db.PositionStorage().GetPositionDB(ctx, user.CompanyID, user.PositionID)
+	position, err := u.db.PositionStorage().GetPositionInCompany(ctx, user.CompanyID, user.PositionID)
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}

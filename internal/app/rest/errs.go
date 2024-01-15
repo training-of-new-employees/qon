@@ -10,7 +10,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/logger"
 )
 
-// errorToCode - мапа соответствия ошибки http-коду.
+// errorToCode - преобразование ошибки приложения в http-код.
 var errorToCode = map[string]int{
 	errs.ErrNoAccess.Error(): http.StatusForbidden,
 
@@ -53,7 +53,6 @@ var errorToCode = map[string]int{
 
 // errResponse - тело для ответа.
 type errResponse struct {
-	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
@@ -66,5 +65,5 @@ func (r RestServer) handleError(c *gin.Context, err error) {
 		httpCode = http.StatusInternalServerError
 	}
 
-	c.JSON(httpCode, errResponse{Code: httpCode, Message: err.Error()})
+	c.AbortWithStatusJSON(httpCode, errResponse{Message: err.Error()})
 }
