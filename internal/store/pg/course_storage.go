@@ -2,7 +2,6 @@ package pg
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 
@@ -37,12 +36,10 @@ func (c *courseStorage) UserCourses(ctx context.Context, userID int) ([]model.Co
 	if err != nil {
 		return nil, handleError(err)
 	}
-	if len(courses) == 0 {
-		return nil, handleError(sql.ErrNoRows)
-	}
-	return courses, handleError(err)
 
+	return courses, nil
 }
+
 func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
 	courses := make([]model.Course, 0, 10)
 	qCourses := `SELECT c.id, c.created_by, c.active, c.archived, c.name, c.description, c.created_at, c.updated_at 
@@ -55,10 +52,8 @@ func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]mo
 	if err != nil {
 		return nil, handleError(err)
 	}
-	if len(courses) == 0 {
-		return nil, handleError(sql.ErrNoRows)
-	}
-	return courses, handleError(err)
+
+	return courses, nil
 }
 
 func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet) (*model.Course, error) {

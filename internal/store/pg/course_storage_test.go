@@ -96,9 +96,10 @@ func (suite *storeTestSuite) TestUserCourses() {
 			courses: courses,
 		},
 		{
-			name: "not found",
-			uid:  admin.ID,
-			err:  errs.ErrNotFound,
+			name:    "not found",
+			uid:     admin.ID,
+			err:     nil,
+			courses: []model.Course{},
 		},
 	}
 
@@ -149,9 +150,10 @@ func (suite *storeTestSuite) TestCompanyCourses() {
 			courses: courses,
 		},
 		{
-			name: "not found",
-			cid:  admin2.CompanyID,
-			err:  errs.ErrNotFound,
+			name:    "not found",
+			cid:     admin2.CompanyID,
+			err:     nil,
+			courses: []model.Course{},
 		},
 	}
 
