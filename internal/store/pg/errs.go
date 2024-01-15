@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	"github.com/jackc/pgconn"
+	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
-	"go.uber.org/zap"
 )
 
 // constraintToAppError - соответствие ограничений CУБД ошибкам приложения.
@@ -33,7 +33,7 @@ var constraintToAppError = map[string]error{
 	// courses
 	"chck_course_creater_not_empty": errs.ErrCreaterNotEmpty,
 	"fk_course_creater":             errs.ErrCreaterNotFound,
-	"chck_course_name_not_empty":    errs.ErrCourseNameNotEmpty,
+	"chck_course_name_not_empty":    errs.ErrCourseNameIsEmpty,
 
 	// lessons
 	"chck_lesson_course_not_empty":  errs.ErrCourseIDNotEmpty,

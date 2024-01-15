@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/pkg/doar/doar.go -destination=mocks/pkg/doar/doar.go
 //
-
 // Package mock_doar is a generated GoMock package.
 package mock_doar
 

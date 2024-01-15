@@ -217,6 +217,14 @@ func NewTestResetPassword() EmailReset {
 	}
 }
 
+func NewTestCourseSet() CourseSet {
+	return CourseSet{
+		ID:          randomseq.RandomTestInt(),
+		Name:        randomseq.RandomName(minNameL),
+		Description: randomseq.RandomName(minDescL),
+	}
+}
+
 func NewInvitationLinkResponse(email, link string) InvitationLinkResponse {
 	return InvitationLinkResponse{
 		Email: email,

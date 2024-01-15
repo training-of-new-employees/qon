@@ -42,6 +42,11 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.Use(s.IsAdmin())
 	restrictedAdmin.POST("/employee", s.handlerCreateUser)
 	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
+	adminCourses := restrictedAdmin.Group("/courses")
+	adminCourses.Any("/", s.NotFound(errs.ErrCourseNotFound))
+	adminCourses.GET("", s.handlerGetAdminCourses)
+	adminCourses.POST("", s.handlerCreateCourse)
+	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
 	invitationLinkGroup := mvp.Group("/invitation-link")
 	invitationLinkGroup.Use(s.IsAuthenticated(), s.IsAdmin())
@@ -62,6 +67,7 @@ func (s *RestServer) InitRoutes() {
 	userGroup.PATCH("/archive/:id", s.handlerArchiveUser)
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("/info", s.handlerUserInfo)
+	userGroup.GET("/courses", s.handlerGetUserCourses)
 
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())

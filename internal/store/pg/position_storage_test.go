@@ -170,8 +170,8 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 
 	// поиск в пустой базе должностей по id несуществующей компании
 	positions, err := suite.store.PositionStorage().GetPositionsDB(context.TODO(), randomseq.RandomTestInt())
-	suite.Error(err)
-	suite.Empty(positions)
+	suite.NoError(err)
+	suite.Equal([]*model.Position{}, positions)
 
 	// создание компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")

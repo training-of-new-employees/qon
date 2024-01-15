@@ -9,6 +9,8 @@ type Storages interface {
 	PositionStorage() RepositoryPosition
 	// CompanyStorage - интерфейс репозитория компании/организации
 	CompanyStorage() RepositoryCompany
+	// CourseStorage - интерфейс репозитория курсов
+	CourseStorage() RepositoryCourse
 	// LessonStorage - интерфейс репозитория уроков
 	LessonStorage() RepositoryLesson
 }
