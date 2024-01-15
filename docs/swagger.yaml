@@ -255,8 +255,6 @@ definitions:
     type: object
   rest.errResponse:
     properties:
-      code:
-        type: integer
       message:
         type: string
     type: object
