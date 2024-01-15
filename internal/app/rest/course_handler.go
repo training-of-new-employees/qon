@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -73,6 +74,11 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+	err = course.Validation()
+	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
 	created, err := r.services.Course().CreateCourse(ctx, course)
 	if err != nil {
 		r.handleError(c, err)
@@ -107,6 +113,11 @@ func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	course := model.NewCourseSet(id, us.UserID)
 	err = c.BindJSON(&course)
 	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
+	err = course.Validation()
+	if !errors.Is(err, errs.ErrCourseNameIsEmpty) && err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}

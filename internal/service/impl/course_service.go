@@ -31,10 +31,6 @@ func (cs *courseService) GetCompanyCourses(ctx context.Context, companyID int) (
 }
 
 func (cs *courseService) CreateCourse(ctx context.Context, c model.CourseSet) (*model.Course, error) {
-	err := c.Validation()
-	if err != nil {
-		return nil, err
-	}
 	return cs.db.CourseStorage().CreateCourse(ctx, c)
 }
 

@@ -152,16 +152,6 @@ func Test_courseService_CreateCourse(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Invalid course info",
-			nil,
-			args{
-				nil,
-				model.NewCourseSet(1, 10),
-			},
-			nil,
-			true,
-		},
-		{
 			"Корректные данные курса",
 			func(f *fields) {
 				f.coursedb.EXPECT().CreateCourse(gomock.Any(), model.CourseSet{
