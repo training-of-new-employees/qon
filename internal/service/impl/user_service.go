@@ -202,6 +202,11 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(val.Email, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
+
+		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
+		if u.sender.Mode() == "test" {
+			return nil, errs.ErrNotSendEmail
+		}
 	}
 
 	return createdUser, nil

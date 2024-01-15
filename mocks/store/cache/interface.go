@@ -79,7 +79,7 @@ func (m *MockCache) GetInviteCode(ctx context.Context, key string) (string, erro
 }
 
 // GetInviteCode indicates an expected call of GetInviteCode.
-func (mr *MockCacheMockRecorder) GetInviteCode(ctx, key interface{}) *gomock.Call {
+func (mr *MockCacheMockRecorder) GetInviteCode(ctx, key any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInviteCode", reflect.TypeOf((*MockCache)(nil).GetInviteCode), ctx, key)
 }
@@ -107,7 +107,7 @@ func (m *MockCache) SetInviteCode(ctx context.Context, key, code string) error {
 }
 
 // SetInviteCode indicates an expected call of SetInviteCode.
-func (mr *MockCacheMockRecorder) SetInviteCode(ctx, key, code interface{}) *gomock.Call {
+func (mr *MockCacheMockRecorder) SetInviteCode(ctx, key, code any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetInviteCode", reflect.TypeOf((*MockCache)(nil).SetInviteCode), ctx, key, code)
 }
