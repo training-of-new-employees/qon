@@ -84,19 +84,19 @@ func (mr *MockRepositoryPositionMockRecorder) GetPositionByID(ctx, positionID an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPositionByID", reflect.TypeOf((*MockRepositoryPosition)(nil).GetPositionByID), ctx, positionID)
 }
 
-// GetPositionInComp mocks base method.
-func (m *MockRepositoryPosition) GetPositionInComp(ctx context.Context, companyID, positionID int) (*model.Position, error) {
+// GetPositionInCompany mocks base method.
+func (m *MockRepositoryPosition) GetPositionInCompany(ctx context.Context, companyID, positionID int) (*model.Position, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPositionInComp", ctx, companyID, positionID)
+	ret := m.ctrl.Call(m, "GetPositionInCompany", ctx, companyID, positionID)
 	ret0, _ := ret[0].(*model.Position)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetPositionInComp indicates an expected call of GetPositionInComp.
-func (mr *MockRepositoryPositionMockRecorder) GetPositionInComp(ctx, companyID, positionID any) *gomock.Call {
+// GetPositionInCompany indicates an expected call of GetPositionInCompany.
+func (mr *MockRepositoryPositionMockRecorder) GetPositionInCompany(ctx, companyID, positionID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPositionInComp", reflect.TypeOf((*MockRepositoryPosition)(nil).GetPositionInComp), ctx, companyID, positionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPositionInCompany", reflect.TypeOf((*MockRepositoryPosition)(nil).GetPositionInCompany), ctx, companyID, positionID)
 }
 
 // ListPositions mocks base method.

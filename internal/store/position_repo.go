@@ -12,8 +12,8 @@ type RepositoryPosition interface {
 
 	GetPositionByID(ctx context.Context, positionID int) (*model.Position, error)
 
-	// GetPositionInComp - получение данных должности, привязанной к компании
-	GetPositionInComp(ctx context.Context, companyID int, positionID int) (*model.Position, error)
+	// GetPositionInCompany - получение данных должности, привязанной к компании
+	GetPositionInCompany(ctx context.Context, companyID int, positionID int) (*model.Position, error)
 
 	ListPositions(ctx context.Context, companyID int) ([]*model.Position, error)
 

@@ -27,7 +27,7 @@ func newPositionStorage(db *sqlx.DB) *positionStorage {
 	}
 }
 
-// CreatePositionDB - создание должности в рамках компании.
+// CreatePosition - создание должности в рамках компании.
 func (p *positionStorage) CreatePosition(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	var createdPosition *model.Position
 
@@ -71,8 +71,8 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 	return &position, nil
 }
 
-// GetPositionDB - получение данных должности, привязанной к компании.
-func (p *positionStorage) GetPositionInComp(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
+// GetPositionInCompany - получение данных должности, привязанной к компании.
+func (p *positionStorage) GetPositionInCompany(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position := &model.Position{}
 
 	query := `
@@ -120,14 +120,10 @@ func (p *positionStorage) ListPositions(ctx context.Context, companyID int) ([]*
 		return nil, handleError(err)
 	}
 
-	if len(positions) == 0 {
-		return nil, errs.ErrPositionNotFound
-	}
-
 	return positions, nil
 }
 
-// UpdatePositionDB - обновление данных должности.
+// UpdatePosition - обновление данных должности.
 func (p *positionStorage) UpdatePosition(ctx context.Context, positionID int, val model.PositionSet) (*model.Position, error) {
 	position := model.Position{}
 
@@ -153,7 +149,7 @@ func (p *positionStorage) UpdatePosition(ctx context.Context, positionID int, va
 	return &position, nil
 }
 
-// AssignCourseDB - назначение курса на должность.
+// AssignCourse - назначение курса на должность.
 func (p *positionStorage) AssignCourse(ctx context.Context, positionID int, courseID int) error {
 	// открываем транзакцию
 	err := p.tx(func(tx *sqlx.Tx) error {

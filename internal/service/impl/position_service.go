@@ -31,7 +31,7 @@ func (p *positionService) CreatePosition(ctx context.Context, val model.Position
 }
 
 func (p *positionService) GetPosition(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
-	position, err := p.db.PositionStorage().GetPositionInComp(ctx, companyID, positionID)
+	position, err := p.db.PositionStorage().GetPositionInCompany(ctx, companyID, positionID)
 	if err != nil {
 		return nil, fmt.Errorf("failed GetPositionDB: %w", err)
 	}

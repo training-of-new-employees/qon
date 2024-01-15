@@ -30,7 +30,7 @@ jobs:
           # When `install-mode` is `goinstall` the value can be v1.2.3, `latest`, or the hash of a commit.
           version: v1.54
   go-fmt:
-    name: "Format"
+    name: format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,7 +53,7 @@ jobs:
           swag fmt && git diff --exit-code
           swag init -g ./internal/app/rest/handlers.go && git diff --exit-code
   go-mod-check:
-    name: "Dependencies"
+    name: dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -71,7 +71,7 @@ jobs:
       - name: Go Mod Verify # Prevent supply chain attacks
         run: go mod verify
   go-tests:
-    name: "Tests"
+    name: tests
     
     runs-on: ubuntu-latest
 

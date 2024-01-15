@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	mock_service "github.com/training-of-new-employees/qon/mocks/service"
-
 	"go.uber.org/mock/gomock"
+
+	mock_service "github.com/training-of-new-employees/qon/mocks/service"
 )
 
 type handlerTestSuite struct {
@@ -15,6 +15,7 @@ type handlerTestSuite struct {
 	userService     *mock_service.MockServiceUser
 	positionService *mock_service.MockServicePosition
 	lessonService   *mock_service.MockServiceLesson
+	courseService   *mock_service.MockServiceCourse
 	srv             *RestServer
 }
 
@@ -33,12 +34,14 @@ func (suite *handlerTestSuite) SetupTest() {
 	suite.userService = mock_service.NewMockServiceUser(ctrl)
 	suite.positionService = mock_service.NewMockServicePosition(ctrl)
 	suite.lessonService = mock_service.NewMockServiceLesson(ctrl)
+	suite.courseService = mock_service.NewMockServiceCourse(ctrl)
 
 	suite.service = mockService(
 		ctrl,
 		suite.userService,
 		suite.positionService,
 		suite.lessonService,
+		suite.courseService,
 	)
 
 	suite.srv = New("secret", suite.service)
@@ -54,10 +57,11 @@ func TestHandlerTestSuite(t *testing.T) {
 }
 
 // mockService - инициализация моки-сервиса.
-func mockService(ctrl *gomock.Controller, userService *mock_service.MockServiceUser, positionService *mock_service.MockServicePosition, lessonService *mock_service.MockServiceLesson) *mock_service.MockService {
+func mockService(ctrl *gomock.Controller, userService *mock_service.MockServiceUser, positionService *mock_service.MockServicePosition, lessonService *mock_service.MockServiceLesson, courseService *mock_service.MockServiceCourse) *mock_service.MockService {
 	service := mock_service.NewMockService(ctrl)
 	service.EXPECT().User().Return(userService).AnyTimes()
 	service.EXPECT().Position().Return(positionService).AnyTimes()
 	service.EXPECT().Lesson().Return(lessonService).AnyTimes()
+	service.EXPECT().Course().Return(courseService).AnyTimes()
 	return service
 }

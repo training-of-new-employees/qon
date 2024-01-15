@@ -20,6 +20,7 @@ type Store struct {
 	userStore     *uStorage
 	positionStore *positionStorage
 	companyStore  *companyStorage
+	courseStorage *courseStorage
 	lessonStore   *lessonStorage
 }
 
@@ -103,6 +104,15 @@ func (s *Store) CompanyStorage() store.RepositoryCompany {
 	s.companyStore = newCompanyStorage(s.conn)
 
 	return s.companyStore
+}
+
+// CourseStorage - хранилище курсов.
+func (s *Store) CourseStorage() store.RepositoryCourse {
+	if s.courseStorage != nil {
+		return s.courseStorage
+	}
+	s.courseStorage = newCourseStorage(s.conn, s)
+	return s.courseStorage
 }
 
 // CompanyStorage - доступ к репозиторию уроков.

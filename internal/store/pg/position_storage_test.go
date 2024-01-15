@@ -110,7 +110,7 @@ func (suite *storeTestSuite) TestGetPositionByID() {
 	}
 }
 
-func (suite *storeTestSuite) TestGetPositionDB() {
+func (suite *storeTestSuite) TestGetPositionInCompany() {
 	suite.NotNil(suite.store)
 
 	// добавление компании
@@ -159,19 +159,19 @@ func (suite *storeTestSuite) TestGetPositionDB() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			companyID, positionID := tc.payload()
-			_, err := suite.store.PositionStorage().GetPositionInComp(context.TODO(), companyID, positionID)
+			_, err := suite.store.PositionStorage().GetPositionInCompany(context.TODO(), companyID, positionID)
 			suite.Equal(tc.err, err)
 		})
 	}
 }
 
-func (suite *storeTestSuite) TestGetPositionsDB() {
+func (suite *storeTestSuite) TestListPositions() {
 	suite.NotNil(suite.store)
 
 	// поиск в пустой базе должностей по id несуществующей компании
 	positions, err := suite.store.PositionStorage().ListPositions(context.TODO(), randomseq.RandomTestInt())
-	suite.Error(err)
-	suite.Empty(positions)
+	suite.NoError(err)
+	suite.Equal([]*model.Position{}, positions)
 
 	// создание компании
 	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
@@ -210,7 +210,7 @@ func (suite *storeTestSuite) TestGetPositionsDB() {
 	suite.EqualValues(expectedIDs, actualIDs)
 }
 
-func (suite *storeTestSuite) TestUpdatePositionDB() {
+func (suite *storeTestSuite) TestUpdatePosition() {
 	suite.NotNil(suite.store)
 
 	// добавление компании
@@ -276,7 +276,7 @@ func (suite *storeTestSuite) TestUpdatePositionDB() {
 	}
 }
 
-func (suite *storeTestSuite) TestAssignCourseDB() {
+func (suite *storeTestSuite) TestAssignCourse() {
 	suite.NotNil(suite.store)
 
 	// добавление компании
