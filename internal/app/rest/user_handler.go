@@ -460,47 +460,13 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 		return
 	}
 
-	invitationLinkResponse := &model.InvitationLinkResponse{}
-	userAdmin, err := r.services.User().GetUserByID(ctx, session.UserID)
-
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		r.handleError(c, errs.ErrUnauthorized)
-		return
-	case err != nil:
-		r.handleError(c, errs.ErrInternal)
-		return
-	}
-
-	if !access.CanAdmin(session.IsAdmin, session.UserID, userAdmin.ID) {
-		r.handleError(c, errs.ErrNoAccess)
-		return
-	}
-
-	employee, err := r.services.User().GetUserByEmail(ctx, invitationLinkRequest.Email)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		r.handleError(c, errs.ErrNotFound)
-		return
-	case err != nil:
-		r.handleError(c, errs.ErrInternal)
-		return
-	}
-	if employee.IsActive {
-		r.handleError(c, errs.ErrUserActivated)
-		return
-	}
-
-	link, err := r.services.User().RegenerationInvitationLinkUser(ctx, invitationLinkRequest.Email)
+	response, err := r.services.User().RegenerationInvitationLinkUser(ctx, invitationLinkRequest.Email, session.OrgID)
 	if err != nil {
-		r.handleError(c, errs.ErrInternal)
+		r.handleError(c, err)
 		return
 	}
 
-	invitationLinkResponse.Link = link
-	invitationLinkResponse.Email = invitationLinkRequest.Email
-
-	c.JSON(http.StatusOK, invitationLinkResponse)
+	c.JSON(http.StatusOK, response)
 }
 
 // GetUser godoc

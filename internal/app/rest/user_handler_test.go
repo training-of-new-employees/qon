@@ -616,7 +616,6 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 	userAdminID := 1
 	userID := 2
 	companyID := 1
-	positionID := 1
 	email := "user@mail.com"
 
 	link := fmt.Sprintf("http://localhost/first-login?email=%s&invite=%s", email, randomseq.RandomString(20))
@@ -639,16 +638,10 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 			expectedCode: http.StatusOK,
 			prepare: func() []byte {
 				response := model.NewInvitationLinkResponse(email, link)
-				u := &model.User{
-					Email: email,
-					ID:    userID,
-				}
 
-				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email).Return(link, nil)
-				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(model.NewTestUser(userAdminID, companyID, positionID), nil)
-				suite.userService.EXPECT().GetUserByEmail(gomock.Any(), email).Return(u, nil)
+				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, nil)
 
-				body, _ := json.Marshal(response)
+				body, _ := json.Marshal(&response)
 
 				return body
 			},
@@ -676,13 +669,8 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 			expectedCode: http.StatusNotFound,
 			prepare: func() []byte {
 				response := model.NewInvitationLinkResponse(email, link)
-				u := &model.User{
-					Email: email,
-					ID:    userID,
-				}
 
-				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(model.NewTestUser(userAdminID, companyID, positionID), nil)
-				suite.userService.EXPECT().GetUserByEmail(gomock.Any(), email).Return(u, errs.ErrUserNotFound)
+				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrUserNotFound)
 
 				body, _ := json.Marshal(response)
 
@@ -698,14 +686,8 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 			expectedCode: http.StatusInternalServerError,
 			prepare: func() []byte {
 				response := model.NewInvitationLinkResponse(email, link)
-				u := &model.User{
-					Email: email,
-					ID:    userID,
-				}
 
-				suite.userService.EXPECT().GetUserByEmail(gomock.Any(), email).Return(u, nil)
-				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(model.NewTestUser(userAdminID, companyID, positionID), nil)
-				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email).Return(link, errs.ErrInternal)
+				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrInternal)
 
 				body, _ := json.Marshal(response)
 
@@ -721,14 +703,8 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 			expectedCode: http.StatusConflict,
 			prepare: func() []byte {
 				response := model.NewInvitationLinkResponse(email, link)
-				u := &model.User{
-					Email:    email,
-					ID:       userID,
-					IsActive: true,
-				}
 
-				suite.userService.EXPECT().GetUserByEmail(gomock.Any(), email).Return(u, nil)
-				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(model.NewTestUser(userAdminID, companyID, positionID), nil)
+				suite.userService.EXPECT().RegenerationInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrUserActivated)
 
 				body, _ := json.Marshal(response)
 
@@ -744,23 +720,21 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 			expectedCode: http.StatusForbidden,
 			prepare: func() []byte {
 				response := model.NewInvitationLinkResponse(email, link)
-				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(model.NewTestUser(userAdminID, companyID, positionID), nil)
-				body, _ := json.Marshal(response)
+
+				body, _ := json.Marshal(&response)
 
 				return body
 			},
 		},
-
 		{
 			name:         "user is not authorized",
 			userID:       userID,
-			userAdminID:  userAdminID,
 			isAdmin:      true,
 			companyID:    companyID,
 			expectedCode: http.StatusUnauthorized,
 			prepare: func() []byte {
 				response := model.NewInvitationLinkResponse(email, link)
-				suite.userService.EXPECT().GetUserByID(gomock.Any(), userAdminID).Return(nil, errs.ErrUserNotFound)
+
 				body, _ := json.Marshal(response)
 
 				return body
@@ -770,8 +744,12 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 
 	for _, tt := range tests {
 		// получение тестового токена для авторизации админа
-		accessToken, err := jwttoken.TestAuthorizateUser(tt.userAdminID, tt.companyID, tt.isAdmin)
-		suite.NoError(err)
+		var accessToken string
+		var err error
+		if tt.userAdminID > 0 {
+			accessToken, err = jwttoken.TestAuthorizateUser(tt.userAdminID, tt.companyID, tt.isAdmin)
+			suite.NoError(err)
+		}
 
 		suite.Run(tt.name, func() {
 			body := tt.prepare()
@@ -779,7 +757,10 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodPatch, "/api/v1/invitation-link", bytes.NewBuffer(body))
-			req.Header.Set("Authorization", accessToken)
+
+			if len(accessToken) > 0 {
+				req.Header.Set("Authorization", accessToken)
+			}
 
 			suite.srv.ServeHTTP(w, req)
 			suite.Equal(tt.expectedCode, w.Code)

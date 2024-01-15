@@ -345,16 +345,35 @@ func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string)
 	return code, nil
 }
 
-func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email string) (string, error) {
+func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	invitationLinkResponse := &model.InvitationLinkResponse{}
+
+	employee, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if employee.IsActive {
+
+		return nil, errs.ErrUserActivated
+	}
+
+	if employee.CompanyID != companyID {
+		return nil, errs.ErrNoAccess
+	}
+
 	link, err := u.GenerateInvitationLinkUser(ctx, email)
 	if err != nil {
-		logger.Log.Warn(fmt.Sprintf("Не удалось с генерировать пригласительную ссылку сотруднику с емейлом %s", email))
+		return nil, errs.ErrInternal
 	}
+
+	invitationLinkResponse.Link = link
+	invitationLinkResponse.Email = email
 
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(email, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
 	}
 
-	return link, nil
+	return invitationLinkResponse, nil
 }

@@ -44,7 +44,7 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
 
 	invitationLinkGroup := mvp.Group("/invitation-link")
-	invitationLinkGroup.Use(s.IsAuthenticated())
+	invitationLinkGroup.Use(s.IsAuthenticated(), s.IsAdmin())
 	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
 
 	lessons := mvp.Group("/lesson")

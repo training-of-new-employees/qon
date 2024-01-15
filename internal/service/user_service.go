@@ -23,5 +23,5 @@ type ServiceUser interface {
 	ResetPassword(ctx context.Context, email string) error
 	GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error)
 	GenerateInvitationLinkUser(ctx context.Context, email string) (string, error)
-	RegenerationInvitationLinkUser(ctx context.Context, email string) (string, error)
+	RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error)
 }
