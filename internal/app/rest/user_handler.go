@@ -385,17 +385,14 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
 	email := model.EmailReset{}
+
 	if err := c.ShouldBindJSON(&email); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
-		if errors.Is(err, errs.ErrUserNotFound) {
-			c.JSON(http.StatusNotFound, s().SetError(err))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 

@@ -30,6 +30,7 @@ func Test_newUserService(t *testing.T) {
 		jwtGen     jwttoken.JWTGenerator
 		jwtVal     jwttoken.JWTValidator
 		sender     doar.EmailSender
+		host       string
 	}
 	tests := []struct {
 		name string
@@ -44,7 +45,7 @@ func Test_newUserService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newUserService(tt.args.db, tt.args.secretKey, tt.args.aTokenTime, tt.args.rTokenTime, tt.args.cache, tt.args.jwtGen, tt.args.jwtVal, tt.args.sender); !reflect.DeepEqual(got, tt.want) {
+			if got := newUserService(tt.args.db, tt.args.secretKey, tt.args.aTokenTime, tt.args.rTokenTime, tt.args.cache, tt.args.jwtGen, tt.args.jwtVal, tt.args.sender, tt.args.host); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("newUserService() = %v, want %v", got, tt.want)
 			}
 		})
@@ -751,7 +752,7 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 func Test_uService_CreateUser(t *testing.T) {
 	type fields struct {
 		userdb     *mock_store.MockRepositoryUser
-		cache      cache.Cache
+		cache      *mock_cache.MockCache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
@@ -794,6 +795,8 @@ func Test_uService_CreateUser(t *testing.T) {
 				}
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
 				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
+				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
+				f.sender.EXPECT().Mode().Return("api")
 			},
 			args{
 				nil,
@@ -817,6 +820,7 @@ func Test_uService_CreateUser(t *testing.T) {
 				}
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
 				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(nil)
+				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args{
 				nil,
@@ -837,6 +841,7 @@ func Test_uService_CreateUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			f := &fields{}
+			f.cache = mock_cache.NewMockCache(ctrl)
 			f.userdb = mock_store.NewMockRepositoryUser(ctrl)
 			f.sender = mock_doar.NewMockEmailSender(ctrl)
 			if tt.prepare != nil {

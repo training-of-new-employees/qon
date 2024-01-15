@@ -127,6 +127,21 @@ func (mr *MockServiceUserMockRecorder) EditUser(ctx, val, editorCompanyID any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditUser", reflect.TypeOf((*MockServiceUser)(nil).EditUser), ctx, val, editorCompanyID)
 }
 
+// GenerateInvitationLinkUser mocks base method.
+func (m *MockServiceUser) GenerateInvitationLinkUser(ctx context.Context, email string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateInvitationLinkUser", ctx, email)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateInvitationLinkUser indicates an expected call of GenerateInvitationLinkUser.
+func (mr *MockServiceUserMockRecorder) GenerateInvitationLinkUser(ctx, email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateInvitationLinkUser", reflect.TypeOf((*MockServiceUser)(nil).GenerateInvitationLinkUser), ctx, email)
+}
+
 // GenerateTokenPair mocks base method.
 func (m *MockServiceUser) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyID int) (*model.Tokens, error) {
 	m.ctrl.T.Helper()
@@ -185,6 +200,21 @@ func (m *MockServiceUser) GetUserByID(ctx context.Context, id int) (*model.UserI
 func (mr *MockServiceUserMockRecorder) GetUserByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockServiceUser)(nil).GetUserByID), ctx, id)
+}
+
+// GetUserInviteCodeFromCache mocks base method.
+func (m *MockServiceUser) GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserInviteCodeFromCache", ctx, email)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserInviteCodeFromCache indicates an expected call of GetUserInviteCodeFromCache.
+func (mr *MockServiceUserMockRecorder) GetUserInviteCodeFromCache(ctx, email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInviteCodeFromCache", reflect.TypeOf((*MockServiceUser)(nil).GetUserInviteCodeFromCache), ctx, email)
 }
 
 // GetUsersByCompany mocks base method.
