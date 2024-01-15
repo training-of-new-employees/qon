@@ -48,7 +48,6 @@ var errorToCode = map[string]int{
 
 // errResponse - тело для ответа.
 type errResponse struct {
-	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
@@ -61,5 +60,5 @@ func (r RestServer) handleError(c *gin.Context, err error) {
 		httpCode = http.StatusInternalServerError
 	}
 
-	c.JSON(httpCode, errResponse{Code: httpCode, Message: err.Error()})
+	c.JSON(httpCode, errResponse{Message: err.Error()})
 }
