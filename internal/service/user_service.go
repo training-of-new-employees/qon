@@ -23,4 +23,5 @@ type ServiceUser interface {
 	ResetPassword(ctx context.Context, email string) error
 	GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error)
 	GenerateInvitationLinkUser(ctx context.Context, email string) (string, error)
+	ClearSession(ctx context.Context, hashedRefreshToken string) error
 }

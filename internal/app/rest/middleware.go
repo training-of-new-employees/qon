@@ -11,9 +11,10 @@ import (
 )
 
 type UserSession struct {
-	UserID  int
-	IsAdmin bool
-	OrgID   int
+	UserID        int
+	IsAdmin       bool
+	OrgID         int
+	HashedRefresh string
 }
 
 // IsAuthenticated - middleware для проверки авторизации.
@@ -29,10 +30,18 @@ func (r *RestServer) IsAuthenticated() gin.HandlerFunc {
 			return
 		}
 
+		_, err = r.cache.GetRefreshToken(c.Request.Context(), claims.HashedRefresh)
+		if err != nil {
+			logger.Log.Warn("error invalid session: %v", zap.Error(err))
+			r.handleError(c, errs.ErrUnauthorized)
+			return
+		}
+
 		us := UserSession{
-			UserID:  claims.UserID,
-			IsAdmin: claims.IsAdmin,
-			OrgID:   claims.OrgID,
+			UserID:        claims.UserID,
+			IsAdmin:       claims.IsAdmin,
+			OrgID:         claims.OrgID,
+			HashedRefresh: claims.HashedRefresh,
 		}
 
 		c.Set("session", &us)

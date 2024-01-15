@@ -54,6 +54,20 @@ func (mr *MockCacheMockRecorder) Delete(ctx, key any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCache)(nil).Delete), ctx, key)
 }
 
+// DeleteRefreshToken mocks base method.
+func (m *MockCache) DeleteRefreshToken(ctx context.Context, hashedRefresh string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRefreshToken", ctx, hashedRefresh)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRefreshToken indicates an expected call of DeleteRefreshToken.
+func (mr *MockCacheMockRecorder) DeleteRefreshToken(ctx, hashedRefresh any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRefreshToken", reflect.TypeOf((*MockCache)(nil).DeleteRefreshToken), ctx, hashedRefresh)
+}
+
 // Get mocks base method.
 func (m *MockCache) Get(ctx context.Context, key string) (*model.CreateAdmin, error) {
 	m.ctrl.T.Helper()
@@ -84,6 +98,21 @@ func (mr *MockCacheMockRecorder) GetInviteCode(ctx, key any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInviteCode", reflect.TypeOf((*MockCache)(nil).GetInviteCode), ctx, key)
 }
 
+// GetRefreshToken mocks base method.
+func (m *MockCache) GetRefreshToken(ctx context.Context, hashedRefresh string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRefreshToken", ctx, hashedRefresh)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRefreshToken indicates an expected call of GetRefreshToken.
+func (mr *MockCacheMockRecorder) GetRefreshToken(ctx, hashedRefresh any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRefreshToken", reflect.TypeOf((*MockCache)(nil).GetRefreshToken), ctx, hashedRefresh)
+}
+
 // Set mocks base method.
 func (m *MockCache) Set(ctx context.Context, uuid string, admin model.CreateAdmin) error {
 	m.ctrl.T.Helper()
@@ -110,4 +139,18 @@ func (m *MockCache) SetInviteCode(ctx context.Context, key, code string) error {
 func (mr *MockCacheMockRecorder) SetInviteCode(ctx, key, code any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetInviteCode", reflect.TypeOf((*MockCache)(nil).SetInviteCode), ctx, key, code)
+}
+
+// SetRefreshToken mocks base method.
+func (m *MockCache) SetRefreshToken(ctx context.Context, hashedRefresh, originalRefresh string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetRefreshToken", ctx, hashedRefresh, originalRefresh)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetRefreshToken indicates an expected call of SetRefreshToken.
+func (mr *MockCacheMockRecorder) SetRefreshToken(ctx, hashedRefresh, originalRefresh any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRefreshToken", reflect.TypeOf((*MockCache)(nil).SetRefreshToken), ctx, hashedRefresh, originalRefresh)
 }

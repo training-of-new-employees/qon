@@ -92,6 +92,7 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -160,6 +161,7 @@ func (suite *handlerTestSuite) TestGetAdminCourses() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -228,6 +230,7 @@ func (suite *handlerTestSuite) TestGetUserCourses() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
 
 			w := httptest.NewRecorder()
 
@@ -351,6 +354,7 @@ func (suite *handlerTestSuite) TestEditCourse() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			id, body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 

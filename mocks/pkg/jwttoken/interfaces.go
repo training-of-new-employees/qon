@@ -41,18 +41,18 @@ func (m *MockJWTGenerator) EXPECT() *MockJWTGeneratorMockRecorder {
 }
 
 // GenerateToken mocks base method.
-func (m *MockJWTGenerator) GenerateToken(id int, isAdmin bool, orgID int, exp time.Duration) (string, error) {
+func (m *MockJWTGenerator) GenerateToken(id int, isAdmin bool, orgID int, hashedRefreshToken string, exp time.Duration) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateToken", id, isAdmin, orgID, exp)
+	ret := m.ctrl.Call(m, "GenerateToken", id, isAdmin, orgID, hashedRefreshToken, exp)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GenerateToken indicates an expected call of GenerateToken.
-func (mr *MockJWTGeneratorMockRecorder) GenerateToken(id, isAdmin, orgID, exp any) *gomock.Call {
+func (mr *MockJWTGeneratorMockRecorder) GenerateToken(id, isAdmin, orgID, hashedRefreshToken, exp any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockJWTGenerator)(nil).GenerateToken), id, isAdmin, orgID, exp)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockJWTGenerator)(nil).GenerateToken), id, isAdmin, orgID, hashedRefreshToken, exp)
 }
 
 // MockJWTValidator is a mock of JWTValidator interface.

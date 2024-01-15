@@ -54,6 +54,20 @@ func (mr *MockServiceUserMockRecorder) ArchiveUser(ctx, id, editorCompanyID any)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArchiveUser", reflect.TypeOf((*MockServiceUser)(nil).ArchiveUser), ctx, id, editorCompanyID)
 }
 
+// ClearSession mocks base method.
+func (m *MockServiceUser) ClearSession(ctx context.Context, hashedRefreshToken string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearSession", ctx, hashedRefreshToken)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearSession indicates an expected call of ClearSession.
+func (mr *MockServiceUserMockRecorder) ClearSession(ctx, hashedRefreshToken any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearSession", reflect.TypeOf((*MockServiceUser)(nil).ClearSession), ctx, hashedRefreshToken)
+}
+
 // CreateAdmin mocks base method.
 func (m *MockServiceUser) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*model.User, error) {
 	m.ctrl.T.Helper()
