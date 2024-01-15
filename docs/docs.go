@@ -657,6 +657,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/logout": {
+            "post": {
+                "description": "После выхода из сессии, авторизационный токен становится невалидным.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Выход из сессии",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    }
+                }
+            }
+        },
         "/password": {
             "post": {
                 "produces": [
@@ -1636,9 +1662,6 @@ const docTemplate = `{
         "rest.errResponse": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer"
-                },
                 "message": {
                     "type": "string"
                 }

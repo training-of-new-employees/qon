@@ -2,6 +2,8 @@ package impl
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -112,7 +114,7 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
-	position, err := u.db.PositionStorage().GetPositionDB(ctx, user.CompanyID, user.PositionID)
+	position, err := u.db.PositionStorage().GetPositionInCompany(ctx, user.CompanyID, user.PositionID)
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
@@ -163,12 +165,16 @@ func (u *uService) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 
 func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyID int) (*model.Tokens, error) {
 
-	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, u.aTokenTime)
+	refreshToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, "", u.rTokenTime)
 	if err != nil {
 		return nil, fmt.Errorf("error failed GenerateToken %v", err)
 	}
 
-	refreshToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, u.rTokenTime)
+	hasher := sha1.New()
+	hasher.Write([]byte(refreshToken))
+	hashedRefresh := hex.EncodeToString(hasher.Sum(nil))
+
+	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, hashedRefresh, u.aTokenTime)
 	if err != nil {
 		return nil, fmt.Errorf("error failed GenerateToken %v", err)
 	}
@@ -176,6 +182,10 @@ func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bo
 	tokens := model.Tokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}
+
+	if err := u.cache.SetRefreshToken(ctx, hashedRefresh, refreshToken); err != nil {
+		return nil, fmt.Errorf("error failed SetRefreshToken %w", err)
 	}
 
 	//TODO save token
@@ -376,4 +386,8 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	}
 
 	return invitationLinkResponse, nil
+}
+
+func (u *uService) ClearSession(ctx context.Context, hashedRefreshToken string) error {
+	return u.cache.DeleteRefreshToken(ctx, hashedRefreshToken)
 }

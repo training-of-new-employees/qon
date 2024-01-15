@@ -207,6 +207,7 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -259,6 +260,7 @@ func (suite *handlerTestSuite) TestHandlerGetUsers() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -344,6 +346,7 @@ func (suite *handlerTestSuite) TestHandlerGetUser() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			userID := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -443,6 +446,7 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			userID, body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -523,6 +527,7 @@ func (suite *handlerTestSuite) TestHandlerEditAdmin() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -612,7 +617,7 @@ func (suite *handlerTestSuite) TestHandlerResetPassword() {
 	}
 }
 
-func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink() {
+func (suite *handlerTestSuite) TestHandlerRegenerationInvitationLink() {
 	userAdminID := 1
 	userID := 2
 	companyID := 1
@@ -748,6 +753,7 @@ func (suite *handlerTestSuite) TestRestServer_handlerRegenerationInvitationLink(
 		var err error
 		if tt.userAdminID > 0 {
 			accessToken, err = jwttoken.TestAuthorizateUser(tt.userAdminID, tt.companyID, tt.isAdmin)
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 			suite.NoError(err)
 		}
 
