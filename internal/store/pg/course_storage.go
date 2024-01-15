@@ -33,7 +33,7 @@ func (c *courseStorage) UserCourses(ctx context.Context, userID int) ([]model.Co
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.SelectContext(ctx, courses, qCourses, userID)
 	})
-	return courses, err
+	return courses, handleError(err)
 
 }
 func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
@@ -45,7 +45,7 @@ func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]mo
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.SelectContext(ctx, courses, qCourses, companyID)
 	})
-	return courses, err
+	return courses, handleError(err)
 }
 
 func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet) (*model.Course, error) {
@@ -56,7 +56,7 @@ func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.GetContext(ctx, &res, qCreate, course.Name, course.Description, course.CreatedBy)
 	})
-	return &res, err
+	return &res, handleError(err)
 }
 
 func (c *courseStorage) EditCourse(ctx context.Context, course model.CourseSet, companyID int) (*model.Course, error) {
@@ -69,6 +69,6 @@ func (c *courseStorage) EditCourse(ctx context.Context, course model.CourseSet, 
 	err := c.tx(func(tx *sqlx.Tx) error {
 		return tx.GetContext(ctx, &res, qEdit, course.Name, course.Description, course.IsArchived, course.ID, companyID)
 	})
-	return &res, err
+	return &res, handleError(err)
 
 }
