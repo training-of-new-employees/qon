@@ -217,7 +217,7 @@ func NewTestResetPassword() EmailReset {
 	}
 }
 
-func NewTestCreateCourse() CourseSet {
+func NewTestCourseSet() CourseSet {
 	return CourseSet{
 		Name:        randomseq.RandomName(minNameL),
 		Description: randomseq.RandomName(minDescL),

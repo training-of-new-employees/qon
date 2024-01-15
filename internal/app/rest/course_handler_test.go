@@ -26,7 +26,7 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			name:         "success",
 			expectedCode: http.StatusCreated,
 			prepare: func() []byte {
-				courseSet := model.NewTestCreateCourse()
+				courseSet := model.NewTestCourseSet()
 				courseSet.CreatedBy = creatorID
 
 				course := &model.Course{
@@ -58,7 +58,7 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			name:         "invalid course name",
 			expectedCode: http.StatusBadRequest,
 			prepare: func() []byte {
-				courseSet := model.NewTestCreateCourse()
+				courseSet := model.NewTestCourseSet()
 				courseSet.Name = "invalid-name-#$%!"
 
 				body, _ := json.Marshal(courseSet)
@@ -70,7 +70,7 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			name:         "internal error",
 			expectedCode: http.StatusInternalServerError,
 			prepare: func() []byte {
-				courseSet := model.NewTestCreateCourse()
+				courseSet := model.NewTestCourseSet()
 				courseSet.CreatedBy = creatorID
 
 				suite.courseService.EXPECT().CreateCourse(gomock.Any(), courseSet).Return(nil, errs.ErrInternal)
@@ -93,6 +93,142 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodPost, "/api/v1/admin/courses", bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestGetAdminCourses() {
+	companyID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() []byte
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() []byte {
+				courseSet := model.NewTestCourseSet()
+
+				courses := []model.Course{
+					{
+						ID:          1,
+						Name:        courseSet.Name,
+						Description: courseSet.Description,
+						CreatedBy:   1,
+						IsActive:    true,
+						IsArchived:  false,
+					},
+				}
+
+				suite.courseService.EXPECT().GetCompanyCourses(gomock.Any(), companyID).Return(courses, nil)
+				return nil
+			},
+		},
+		{
+			name:         "not found courses",
+			expectedCode: http.StatusNotFound,
+			prepare: func() []byte {
+				suite.courseService.EXPECT().GetCompanyCourses(gomock.Any(), companyID).Return(nil, errs.ErrCourseNotFound)
+
+				return nil
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() []byte {
+				suite.courseService.EXPECT().GetCompanyCourses(gomock.Any(), companyID).Return(nil, errs.ErrInternal)
+
+				return nil
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/courses", bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestGetUserCourses() {
+	userID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() []byte
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() []byte {
+				courseSet := model.NewTestCourseSet()
+
+				courses := []model.Course{
+					{
+						ID:          1,
+						Name:        courseSet.Name,
+						Description: courseSet.Description,
+						CreatedBy:   1,
+						IsActive:    true,
+						IsArchived:  false,
+					},
+				}
+
+				suite.courseService.EXPECT().GetUserCourses(gomock.Any(), userID).Return(courses, nil)
+				return nil
+			},
+		},
+		{
+			name:         "not found courses",
+			expectedCode: http.StatusNotFound,
+			prepare: func() []byte {
+				suite.courseService.EXPECT().GetUserCourses(gomock.Any(), userID).Return(nil, errs.ErrCourseNotFound)
+
+				return nil
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() []byte {
+				suite.courseService.EXPECT().GetUserCourses(gomock.Any(), userID).Return(nil, errs.ErrInternal)
+
+				return nil
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации пользователя
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, false)
+	suite.NoError(err)
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			body := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, "/api/v1/users/courses", bytes.NewBuffer(body))
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)
