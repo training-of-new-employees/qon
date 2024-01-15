@@ -181,54 +181,6 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 	}
 }
 
-func Test_uService_GetUserByEmail(t *testing.T) {
-	type fields struct {
-		db         store.Storages
-		cache      cache.Cache
-		secretKey  string
-		aTokenTime time.Duration
-		rTokenTime time.Duration
-		tokenGen   jwttoken.JWTGenerator
-		tokenVal   jwttoken.JWTValidator
-		sender     doar.EmailSender
-	}
-	type args struct {
-		ctx   context.Context
-		email string
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *model.User
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			u := &uService{
-				db:         tt.fields.db,
-				cache:      tt.fields.cache,
-				secretKey:  tt.fields.secretKey,
-				aTokenTime: tt.fields.aTokenTime,
-				rTokenTime: tt.fields.rTokenTime,
-				tokenGen:   tt.fields.tokenGen,
-				tokenVal:   tt.fields.tokenVal,
-				sender:     tt.fields.sender,
-			}
-			got, err := u.GetUserByEmail(tt.args.ctx, tt.args.email)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("uService.GetUserByEmail() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("uService.GetUserByEmail() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_uService_GetUserByID(t *testing.T) {
 	type fields struct {
 		userdb     *mock_store.MockRepositoryUser

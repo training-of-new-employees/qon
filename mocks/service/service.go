@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/service/service.go -destination=mocks/service/service.go
 //
-
 // Package mock_service is a generated GoMock package.
 package mock_service
 
@@ -37,6 +36,20 @@ func NewMockService(ctrl *gomock.Controller) *MockService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
+}
+
+// Course mocks base method.
+func (m *MockService) Course() service.ServiceCourse {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Course")
+	ret0, _ := ret[0].(service.ServiceCourse)
+	return ret0
+}
+
+// Course indicates an expected call of Course.
+func (mr *MockServiceMockRecorder) Course() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Course", reflect.TypeOf((*MockService)(nil).Course))
 }
 
 // Lesson mocks base method.

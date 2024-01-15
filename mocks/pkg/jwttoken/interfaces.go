@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/pkg/jwttoken/interfaces.go -destination=mocks/pkg/jwttoken/interfaces.go
 //
-
 // Package mock_jwttoken is a generated GoMock package.
 package mock_jwttoken
 

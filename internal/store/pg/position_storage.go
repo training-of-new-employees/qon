@@ -123,10 +123,6 @@ func (p *positionStorage) GetPositionsDB(ctx context.Context, companyID int) ([]
 		return nil, handleError(err)
 	}
 
-	if len(positions) == 0 {
-		return nil, errs.ErrPositionNotFound
-	}
-
 	return positions, nil
 }
 

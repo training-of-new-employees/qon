@@ -4,9 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
-	"go.uber.org/zap"
 )
 
 // errorToCode - мапа соответствия ошибки http-коду.
@@ -17,24 +18,28 @@ var errorToCode = map[string]int{
 	errs.ErrUserNotFound.Error():     http.StatusNotFound,
 	errs.ErrCompanyNotFound.Error():  http.StatusNotFound,
 	errs.ErrPositionNotFound.Error(): http.StatusNotFound,
+	errs.ErrCourseNotFound.Error():   http.StatusNotFound,
 
-	errs.ErrBadRequest.Error():            http.StatusBadRequest,
-	errs.ErrInvalidRequest.Error():        http.StatusBadRequest,
-	errs.ErrEmailNotEmpty.Error():         http.StatusBadRequest,
-	errs.ErrInvalidEmail.Error():          http.StatusBadRequest,
-	errs.ErrPasswordNotEmpty.Error():      http.StatusBadRequest,
-	errs.ErrInvalidPassword.Error():       http.StatusBadRequest,
-	errs.ErrCompanyNameNotEmpty.Error():   http.StatusBadRequest,
-	errs.ErrInvalidCompanyName.Error():    http.StatusBadRequest,
-	errs.ErrCompanyIDNotEmpty.Error():     http.StatusBadRequest,
-	errs.ErrPositionNameNotEmpty.Error():  http.StatusBadRequest,
-	errs.ErrInvalidPositionName.Error():   http.StatusBadRequest,
-	errs.ErrPositionIDNotEmpty.Error():    http.StatusBadRequest,
-	errs.ErrUserNameNotEmpty.Error():      http.StatusBadRequest,
-	errs.ErrInvalidUserName.Error():       http.StatusBadRequest,
-	errs.ErrUserSurnameNotEmpty.Error():   http.StatusBadRequest,
-	errs.ErrInvalidUserSurname.Error():    http.StatusBadRequest,
-	errs.ErrInvalidUserPatronymic.Error(): http.StatusBadRequest,
+	errs.ErrBadRequest.Error():               http.StatusBadRequest,
+	errs.ErrInvalidRequest.Error():           http.StatusBadRequest,
+	errs.ErrEmailNotEmpty.Error():            http.StatusBadRequest,
+	errs.ErrInvalidEmail.Error():             http.StatusBadRequest,
+	errs.ErrPasswordNotEmpty.Error():         http.StatusBadRequest,
+	errs.ErrInvalidPassword.Error():          http.StatusBadRequest,
+	errs.ErrCompanyNameNotEmpty.Error():      http.StatusBadRequest,
+	errs.ErrInvalidCompanyName.Error():       http.StatusBadRequest,
+	errs.ErrCompanyIDNotEmpty.Error():        http.StatusBadRequest,
+	errs.ErrPositionNameNotEmpty.Error():     http.StatusBadRequest,
+	errs.ErrInvalidPositionName.Error():      http.StatusBadRequest,
+	errs.ErrPositionIDNotEmpty.Error():       http.StatusBadRequest,
+	errs.ErrUserNameNotEmpty.Error():         http.StatusBadRequest,
+	errs.ErrInvalidUserName.Error():          http.StatusBadRequest,
+	errs.ErrUserSurnameNotEmpty.Error():      http.StatusBadRequest,
+	errs.ErrInvalidUserSurname.Error():       http.StatusBadRequest,
+	errs.ErrInvalidUserPatronymic.Error():    http.StatusBadRequest,
+	errs.ErrCourseNameInvalid.Error():        http.StatusBadRequest,
+	errs.ErrCourseNameIsEmpty.Error():        http.StatusBadRequest,
+	errs.ErrCourseDescriptionInvalid.Error(): http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
 

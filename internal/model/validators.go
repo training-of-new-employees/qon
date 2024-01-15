@@ -7,8 +7,11 @@ import (
 	"unicode"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
+
+var errSpaceEmpty = errors.New("string only contains spaces")
 
 // validatePassword - проверка пароля на состав.
 // ВАЖНО: используется при валидации с методами пакета ozzo-validation.
@@ -52,7 +55,7 @@ func validateCompanyPositionName(str string) validation.RuleFunc {
 		// случай когда строка состоит только из пробелов
 		trimmed := strings.Trim(str, " ")
 		if trimmed == "" {
-			return errors.New("string only contains spaces")
+			return errSpaceEmpty
 		}
 
 		for _, c := range str {
@@ -63,4 +66,11 @@ func validateCompanyPositionName(str string) validation.RuleFunc {
 
 		return nil
 	}
+}
+
+// validateCourseName - проверка имени и описания курсов на состав.
+// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
+func validateCourseName(str string) validation.RuleFunc {
+	return validateCompanyPositionName(str)
+
 }

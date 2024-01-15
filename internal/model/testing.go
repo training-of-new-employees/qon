@@ -216,3 +216,11 @@ func NewTestResetPassword() EmailReset {
 		Email: fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
 	}
 }
+
+func NewTestCourseSet() CourseSet {
+	return CourseSet{
+		ID:          randomseq.RandomTestInt(),
+		Name:        randomseq.RandomName(minNameL),
+		Description: randomseq.RandomName(minDescL),
+	}
+}
