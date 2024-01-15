@@ -13,5 +13,10 @@ type Cache interface {
 
 	SetInviteCode(ctx context.Context, key string, code string) error
 	GetInviteCode(ctx context.Context, key string) (string, error)
+
+	GetRefreshToken(ctx context.Context, hashedRefresh string) (string, error)
+	SetRefreshToken(ctx context.Context, hashedRefresh string, originalRefresh string) error
+	DeleteRefreshToken(ctx context.Context, hashedRefresh string) error
+
 	Delete(ctx context.Context, key string) error
 }

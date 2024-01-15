@@ -470,3 +470,27 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, u)
 }
+
+// LogOut godoc
+//
+//	@Summary		Выход из сессии
+//	@Description	После выхода из сессии, авторизационный токен становится невалидным.
+//	@Produce		json
+//	@Success		200
+//	@Failure		401	{object}	sErr
+//	@Failure		500	{object}	sErr
+//	@Router			/logout [post]
+func (r *RestServer) handlerLogOut(c *gin.Context) {
+	us := r.getUserSession(c)
+	if us.UserID == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	if err := r.services.User().ClearSession(c.Request.Context(), us.HashedRefresh); err != nil {
+		r.handleError(c, errs.ErrInternal)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

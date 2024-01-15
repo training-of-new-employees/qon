@@ -4,7 +4,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+
 	mock_service "github.com/training-of-new-employees/qon/mocks/service"
+	mock_cache "github.com/training-of-new-employees/qon/mocks/store/cache"
 
 	"go.uber.org/mock/gomock"
 )
@@ -15,6 +17,7 @@ type handlerTestSuite struct {
 	userService     *mock_service.MockServiceUser
 	positionService *mock_service.MockServicePosition
 	lessonService   *mock_service.MockServiceLesson
+	cache           *mock_cache.MockCache
 	srv             *RestServer
 }
 
@@ -40,8 +43,9 @@ func (suite *handlerTestSuite) SetupTest() {
 		suite.positionService,
 		suite.lessonService,
 	)
+	suite.cache = mock_cache.NewMockCache(ctrl)
 
-	suite.srv = New("secret", suite.service)
+	suite.srv = New("secret", suite.service, suite.cache)
 }
 
 // TearDownTest - запуск после каждого тест-кейса.

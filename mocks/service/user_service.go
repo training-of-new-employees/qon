@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/service/user_service.go -destination=mocks/service/user_service.go
 //
-
 // Package mock_service is a generated GoMock package.
 package mock_service
 
@@ -52,6 +51,20 @@ func (m *MockServiceUser) ArchiveUser(ctx context.Context, id, editorCompanyID i
 func (mr *MockServiceUserMockRecorder) ArchiveUser(ctx, id, editorCompanyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArchiveUser", reflect.TypeOf((*MockServiceUser)(nil).ArchiveUser), ctx, id, editorCompanyID)
+}
+
+// ClearSession mocks base method.
+func (m *MockServiceUser) ClearSession(ctx context.Context, hashedRefreshToken string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearSession", ctx, hashedRefreshToken)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearSession indicates an expected call of ClearSession.
+func (mr *MockServiceUserMockRecorder) ClearSession(ctx, hashedRefreshToken any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearSession", reflect.TypeOf((*MockServiceUser)(nil).ClearSession), ctx, hashedRefreshToken)
 }
 
 // CreateAdmin mocks base method.

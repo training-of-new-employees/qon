@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"go.uber.org/mock/gomock"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
-	"go.uber.org/mock/gomock"
 )
 
 func (suite *handlerTestSuite) TestCreatePosition() {
@@ -99,6 +100,7 @@ func (suite *handlerTestSuite) TestCreatePosition() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -182,6 +184,7 @@ func (suite *handlerTestSuite) TestGetPosition() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			positionID := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -232,6 +235,7 @@ func (suite *handlerTestSuite) TestGetPositions() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
@@ -352,6 +356,7 @@ func (suite *handlerTestSuite) TestUpdatePosition() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			positionID, body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
 
 			w := httptest.NewRecorder()
 
