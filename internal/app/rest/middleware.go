@@ -2,11 +2,10 @@
 package rest
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 )
@@ -26,16 +25,15 @@ func (r *RestServer) IsAuthenticated() gin.HandlerFunc {
 		claims, err := r.tokenVal.ValidateToken(token)
 
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err})
 			logger.Log.Warn("error invalid token: %v", zap.Error(err))
-
+			r.handleError(c, errs.ErrUnauthorized)
 			return
 		}
 
 		_, err = r.cache.GetRefreshToken(c.Request.Context(), claims.HashedRefresh)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid session"})
 			logger.Log.Warn("error invalid session: %v", zap.Error(err))
+			r.handleError(c, errs.ErrUnauthorized)
 			return
 		}
 
@@ -59,15 +57,14 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 
 		claims, err := r.tokenVal.ValidateToken(token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 			logger.Log.Warn("error  invalid token: %v", zap.Error(err))
-
+			r.handleError(c, errs.ErrUnauthorized)
 			return
 		}
 
 		if !claims.IsAdmin {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 			logger.Log.Warn("error permission denied: %v", zap.Error(err))
+			r.handleError(c, errs.ErrNoAccess)
 			return
 		}
 

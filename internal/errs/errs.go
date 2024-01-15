@@ -135,7 +135,13 @@ var (
 	// -- Ошибки курсов --
 
 	// ErrCourseUserNotFound - имя курса не должно быть пустым
-	ErrCourseNameNotEmpty = errors.New("course name cannot be empty")
+	ErrCourseNameIsEmpty = errors.New("course name cannot be empty")
+
+	// ErrCourseNameInvalid - имя курса не соответствует требованиям
+	ErrCourseNameInvalid = errors.New("course name is invalid")
+
+	// ErrCourseDescriptionInvalid - описание курса не соответствует требованиям
+	ErrCourseDescriptionInvalid = errors.New("course description is invalid")
 
 	// -- Ошибки уроков --
 

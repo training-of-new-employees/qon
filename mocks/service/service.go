@@ -39,6 +39,20 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
+// Course mocks base method.
+func (m *MockService) Course() service.ServiceCourse {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Course")
+	ret0, _ := ret[0].(service.ServiceCourse)
+	return ret0
+}
+
+// Course indicates an expected call of Course.
+func (mr *MockServiceMockRecorder) Course() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Course", reflect.TypeOf((*MockService)(nil).Course))
+}
+
 // Lesson mocks base method.
 func (m *MockService) Lesson() service.ServiceLesson {
 	m.ctrl.T.Helper()
