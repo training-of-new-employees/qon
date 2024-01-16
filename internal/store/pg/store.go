@@ -117,7 +117,7 @@ func (s *Store) CourseStorage() store.RepositoryCourse {
 
 // CompanyStorage - доступ к репозиторию уроков.
 func (s *Store) LessonStorage() store.RepositoryLesson {
-	if s.companyStore != nil {
+	if s.lessonStore != nil {
 		return s.lessonStore
 	}
 

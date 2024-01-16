@@ -48,11 +48,11 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
-	lessons := mvp.Group("/lesson")
+	lessons := mvp.Group("/admin/lessons")
 	lessons.POST("/", s.handlerLessonCreate)
-	lessons.DELETE("/", s.handlerLessonDelete)
-	lessons.GET("/", s.handlerLessonGet)
-	lessons.PATCH("/", s.handlerLessonUpdate)
+	lessons.DELETE("/:id", s.handlerLessonDelete)
+	lessons.GET("/:id", s.handlerLessonGet)
+	lessons.PATCH("/:id", s.handlerLessonUpdate)
 
 	userGroup := mvp.Group("/users")
 	userGroup.Use(s.IsAuthenticated())

@@ -76,12 +76,13 @@ CREATE TABLE IF NOT EXISTS lessons (
     archived BOOLEAN NOT NULL DEFAULT FALSE,
     number INTEGER,
     name VARCHAR(256),
-    description VARCHAR(512) NOT NULL DEFAULT '',
+    content VARCHAR(512) NOT NULL DEFAULT '',
+    url_picture VARCHAR(512) DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_lesson_course_not_empty CHECK ( course_id IS NOT NULL ),
+    CONSTRAINT chck_lesson_course_not_empty CHECK ( course_id IS NOT NULL AND course_id <> 0 ),
     CONSTRAINT fk_lesson_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-    CONSTRAINT chck_lesson_creater_not_empty CHECK ( created_by IS NOT NULL ),
+    CONSTRAINT chck_lesson_creater_not_empty CHECK ( created_by IS NOT NULL AND created_by <> 0 ),
     CONSTRAINT fk_lesson_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chck_lesson_name_not_empty CHECK ( NOT (name IS NULL OR name = '') )
 );
