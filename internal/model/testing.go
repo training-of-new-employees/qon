@@ -224,3 +224,10 @@ func NewTestCourseSet() CourseSet {
 		Description: randomseq.RandomName(minDescL),
 	}
 }
+
+func NewInvitationLinkResponse(email, link string) InvitationLinkResponse {
+	return InvitationLinkResponse{
+		Email: email,
+		Link:  link,
+	}
+}

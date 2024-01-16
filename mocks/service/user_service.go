@@ -5,6 +5,7 @@
 //
 //	mockgen -source=internal/service/user_service.go -destination=mocks/service/user_service.go
 //
+
 // Package mock_service is a generated GoMock package.
 package mock_service
 
@@ -51,6 +52,20 @@ func (m *MockServiceUser) ArchiveUser(ctx context.Context, id, editorCompanyID i
 func (mr *MockServiceUserMockRecorder) ArchiveUser(ctx, id, editorCompanyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ArchiveUser", reflect.TypeOf((*MockServiceUser)(nil).ArchiveUser), ctx, id, editorCompanyID)
+}
+
+// ClearSession mocks base method.
+func (m *MockServiceUser) ClearSession(ctx context.Context, hashedRefreshToken string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClearSession", ctx, hashedRefreshToken)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClearSession indicates an expected call of ClearSession.
+func (mr *MockServiceUserMockRecorder) ClearSession(ctx, hashedRefreshToken any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClearSession", reflect.TypeOf((*MockServiceUser)(nil).ClearSession), ctx, hashedRefreshToken)
 }
 
 // CreateAdmin mocks base method.
@@ -230,6 +245,21 @@ func (m *MockServiceUser) GetUsersByCompany(ctx context.Context, companyID int) 
 func (mr *MockServiceUserMockRecorder) GetUsersByCompany(ctx, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByCompany", reflect.TypeOf((*MockServiceUser)(nil).GetUsersByCompany), ctx, companyID)
+}
+
+// RegenerationInvitationLinkUser mocks base method.
+func (m *MockServiceUser) RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegenerationInvitationLinkUser", ctx, email, companyID)
+	ret0, _ := ret[0].(*model.InvitationLinkResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RegenerationInvitationLinkUser indicates an expected call of RegenerationInvitationLinkUser.
+func (mr *MockServiceUserMockRecorder) RegenerationInvitationLinkUser(ctx, email, companyID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegenerationInvitationLinkUser", reflect.TypeOf((*MockServiceUser)(nil).RegenerationInvitationLinkUser), ctx, email, companyID)
 }
 
 // ResetPassword mocks base method.

@@ -246,18 +246,18 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
 }
 
-//	ArchiveUser godoc
+// ArchiveUser godoc
 //
-// @Summary	Архивирование пользователя по id
-// @Tags		user
-// @Produce	json
-// @Param		id	path	int	true	"User ID"
-// @Success	200
-// @Failure	400	{object}	sErr
-// @Failure	403	{object}	sErr
-// @Failure	404	{object}	sErr
-// @Failure	500	{object}	sErr
-// @Router		/users/archive/{id} [patch]
+//	@Summary	Архивирование пользователя по id
+//	@Tags		user
+//	@Produce	json
+//	@Param		id	path	int	true	"User ID"
+//	@Success	200
+//	@Failure	400	{object}	sErr
+//	@Failure	403	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/users/archive/{id} [patch]
 func (r *RestServer) handlerArchiveUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")
@@ -430,6 +430,45 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, edited)
 }
 
+// @Summary		Регенерация пригласительной ссылки
+// @Description	Изменение по email сотрудника
+// @Tags			admin
+// @Produce		json
+// @Param			object	body		model.InvitationLinkRequest	true	"User email"
+// @Success		200		{object}	model.InvitationLinkResponse
+// @Failure		400		{object}	sErr
+// @Failure		401		{object}	sErr
+// @Failure		403		{object}	sErr
+// @Failure		404		{object}	sErr
+// @Failure		409		{object}	sErr
+// @Failure		500		{object}	sErr
+// @Router			/invitation-link [patch]
+func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	session := r.getUserSession(c)
+
+	invitationLinkRequest := model.InvitationLinkRequest{}
+
+	if err := c.ShouldBindJSON(&invitationLinkRequest); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+
+	if err := invitationLinkRequest.Validate(); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+
+	response, err := r.services.User().RegenerationInvitationLinkUser(ctx, invitationLinkRequest.Email, session.OrgID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 // GetUser godoc
 //
 //	@Summary		Получение данные авторизованного пользователя
@@ -469,4 +508,28 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, u)
+}
+
+// LogOut godoc
+//
+//	@Summary		Выход из сессии
+//	@Description	После выхода из сессии, авторизационный токен становится невалидным.
+//	@Produce		json
+//	@Success		200
+//	@Failure		401	{object}	sErr
+//	@Failure		500	{object}	sErr
+//	@Router			/logout [post]
+func (r *RestServer) handlerLogOut(c *gin.Context) {
+	us := r.getUserSession(c)
+	if us.UserID == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	if err := r.services.User().ClearSession(c.Request.Context(), us.HashedRefresh); err != nil {
+		r.handleError(c, errs.ErrInternal)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

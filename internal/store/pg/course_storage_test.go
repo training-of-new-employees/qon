@@ -61,7 +61,7 @@ func (suite *storeTestSuite) TestUserCourses() {
 
 	p := model.NewTestPositionSet()
 	p.CompanyID = admin.CompanyID
-	pos, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(), p)
+	pos, err := suite.store.PositionStorage().CreatePosition(context.TODO(), p)
 	suite.NoError(err)
 
 	uc2 := model.NewTestUserCreate()
@@ -78,7 +78,7 @@ func (suite *storeTestSuite) TestUserCourses() {
 		c.CreatedBy = admin.ID
 		created, err := suite.store.CourseStorage().CreateCourse(context.TODO(), c)
 		suite.NoError(err)
-		err = suite.store.PositionStorage().AssignCourseDB(context.TODO(), pos.ID, created.ID)
+		err = suite.store.PositionStorage().AssignCourse(context.TODO(), pos.ID, created.ID)
 		suite.NoError(err)
 		courses = append(courses, *created)
 	}
