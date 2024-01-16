@@ -311,7 +311,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
-	
+
 	if err = user.CheckPassword(userReq.Password); err != nil {
 		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
