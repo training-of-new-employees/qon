@@ -32,6 +32,9 @@ func (s *RestServer) InitRoutes() {
 	mvp := allRoutes.Group("/v1")
 	login := mvp.Group("/login")
 	login.POST("", s.handlerSignIn)
+	logout := mvp.Group("/logout")
+	logout.Use(s.IsAuthenticated())
+	logout.POST("", s.handlerLogOut)
 	password := mvp.Group("/password")
 	password.POST("", s.handlerResetPassword)
 	adminGroup := mvp.Group("/admin")
@@ -48,7 +51,6 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
-	lessons := mvp.Group("/admin/lessons")
 	lessons.POST("/", s.handlerLessonCreate)
 	lessons.DELETE("/:id", s.handlerLessonDelete)
 	lessons.GET("/:id", s.handlerLessonGet)

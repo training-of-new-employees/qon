@@ -2,10 +2,14 @@ package impl
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
@@ -241,7 +245,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
 				f.companydb.EXPECT().GetCompany(nil, 1).Return(company, nil)
-				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(nil, errs.ErrPositionNotFound)
+				f.posdb.EXPECT().GetPositionInCompany(nil, 1, 1).Return(nil, errs.ErrPositionNotFound)
 			},
 			args{nil, 1},
 			nil,
@@ -263,7 +267,7 @@ func Test_uService_GetUserByID(t *testing.T) {
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
 				f.companydb.EXPECT().GetCompany(nil, 1).Return(company, nil)
-				f.posdb.EXPECT().GetPositionDB(nil, 1, 1).Return(pos, nil)
+				f.posdb.EXPECT().GetPositionInCompany(nil, 1, 1).Return(pos, nil)
 			},
 			args{nil, 1},
 			&model.UserInfo{
@@ -650,7 +654,7 @@ func Test_uService_GetUsersByCompany(t *testing.T) {
 func Test_uService_GenerateTokenPair(t *testing.T) {
 	type fields struct {
 		db         store.Storages
-		cache      cache.Cache
+		cache      *mock_cache.MockCache
 		secretKey  string
 		aTokenTime time.Duration
 		rTokenTime time.Duration
@@ -676,7 +680,15 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 			func(f *fields) {
 				f.aTokenTime = 12 * time.Hour
 				f.rTokenTime = 120 * time.Hour
-				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.aTokenTime).Return("", errs.ErrInternal)
+				r := "refresh"
+
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, "", f.rTokenTime).Return(r, nil)
+
+				hasher := sha1.New()
+				hasher.Write([]byte(r))
+				hashedRefresh := hex.EncodeToString(hasher.Sum(nil))
+
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, hashedRefresh, f.aTokenTime).Return("", errs.ErrInternal)
 			},
 			args{
 				nil,
@@ -689,9 +701,7 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 			func(f *fields) {
 				f.aTokenTime = 12 * time.Hour
 				f.rTokenTime = 120 * time.Hour
-				t := "access"
-				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.aTokenTime).Return(t, nil)
-				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.rTokenTime).Return("", errs.ErrInternal)
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, "", f.rTokenTime).Return("", errs.ErrInternal)
 			},
 			args{
 				nil,
@@ -706,8 +716,14 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 				f.rTokenTime = 120 * time.Hour
 				a := "access"
 				r := "refresh"
-				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.aTokenTime).Return(a, nil)
-				f.tokenGen.EXPECT().GenerateToken(1, true, 1, f.rTokenTime).Return(r, nil)
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, "", f.rTokenTime).Return(r, nil)
+
+				hasher := sha1.New()
+				hasher.Write([]byte(r))
+				hashedRefresh := hex.EncodeToString(hasher.Sum(nil))
+
+				f.tokenGen.EXPECT().GenerateToken(1, true, 1, hashedRefresh, f.aTokenTime).Return(a, nil)
+				f.cache.EXPECT().SetRefreshToken(gomock.Any(), hashedRefresh, r).Return(nil)
 			},
 			args{
 				nil,
@@ -724,6 +740,7 @@ func Test_uService_GenerateTokenPair(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			f := &fields{}
 			f.tokenGen = mock_jwttoken.NewMockJWTGenerator(ctrl)
+			f.cache = mock_cache.NewMockCache(ctrl)
 			if tt.prepare != nil {
 				tt.prepare(f)
 			}
@@ -1512,6 +1529,172 @@ func Test_uService_EditAdmin(t *testing.T) {
 			}
 			if got.ID != tt.want.ID {
 				t.Errorf("uService.EditAdmin() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUService_ClearSession(t *testing.T) {
+	type fields struct {
+		db         store.Storages
+		cache      *mock_cache.MockCache
+		secretKey  string
+		aTokenTime time.Duration
+		rTokenTime time.Duration
+		tokenGen   *mock_jwttoken.MockJWTGenerator
+		tokenVal   jwttoken.JWTValidator
+		sender     doar.EmailSender
+	}
+	type args struct {
+		ctx           context.Context
+		hashedRefresh string
+	}
+	tests := []struct {
+		name    string
+		prepare func(*fields)
+		args    args
+		wantErr bool
+	}{
+		{
+			"Error Clear Session",
+			func(f *fields) {
+				f.cache.EXPECT().DeleteRefreshToken(gomock.Any(), "hashed").Return(errs.ErrInternal)
+			},
+			args{nil, "hashed"},
+			true,
+		},
+		{
+			"Success Clear Session",
+			func(f *fields) {
+				f.cache.EXPECT().DeleteRefreshToken(gomock.Any(), "hashed").Return(nil)
+			},
+			args{nil, "hashed"},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			f := &fields{}
+			f.tokenGen = mock_jwttoken.NewMockJWTGenerator(ctrl)
+			f.cache = mock_cache.NewMockCache(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			u := &uService{
+				db:         f.db,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
+			}
+			err := u.ClearSession(tt.args.ctx, tt.args.hashedRefresh)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("uService.ClearSession() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
+	type fields struct {
+		userDB     *mock_store.MockRepositoryUser
+		cache      *mock_cache.MockCache
+		secretKey  string
+		aTokenTime time.Duration
+		rTokenTime time.Duration
+		tokenGen   jwttoken.JWTGenerator
+		tokenVal   jwttoken.JWTValidator
+		sender     *mock_doar.MockEmailSender
+		host       string
+	}
+	type args struct {
+		ctx       context.Context
+		email     string
+		companyID int
+	}
+	tests := []struct {
+		name    string
+		prepare func(*fields)
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Regeneration Invite Link User Error",
+			func(f *fields) {
+				f.userDB.EXPECT().GetUserByEmail(nil, "user@mail.com").Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				ctx:       nil,
+				email:     "user@mail.com",
+				companyID: 1,
+			},
+			"",
+			true,
+		},
+		{
+			name: "Regeneration Invite Link User success",
+			prepare: func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					Email:     "user@mail.com",
+					CompanyID: 1,
+					IsActive:  false,
+				}
+
+				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.userDB.EXPECT().GetUserByEmail(nil, "user@mail.com").Return(u, nil)
+				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(nil)
+
+				f.host = "http://localhost"
+			},
+			args: args{
+				ctx:       nil,
+				email:     "user@mail.com",
+				companyID: 1,
+			},
+			want:    "http://localhost/first-login\\?email=user@mail.com&invite=*",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.cache = mock_cache.NewMockCache(ctrl)
+			f.userDB = mock_store.NewMockRepositoryUser(ctrl)
+			f.sender = mock_doar.NewMockEmailSender(ctrl)
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.userDB)
+			u := &uService{
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				sender:     f.sender,
+				host:       f.host,
+			}
+
+			got, err := u.RegenerationInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
+			fmt.Println(err)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("uService.RegenerationInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if len(tt.want) > 0 {
+				assert.Regexp(t, tt.want, got.Link)
 			}
 		})
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/service"
+	"github.com/training-of-new-employees/qon/internal/store/cache"
 )
 
 // RestServer - реализация rest-сервера.
@@ -15,17 +16,19 @@ type RestServer struct {
 	router    *gin.Engine
 	secretKey string
 	tokenVal  jwttoken.JWTValidator
+	cache     cache.Cache
 	services  service.Service
 }
 
 // New - конструктор для RestServer.
-func New(secretKey string, services service.Service) *RestServer {
+func New(secretKey string, services service.Service, cache cache.Cache) *RestServer {
 	gin.SetMode(gin.ReleaseMode)
 
 	s := &RestServer{
 		router:    gin.New(),
 		secretKey: secretKey,
 		tokenVal:  jwttoken.NewTokenValidator(secretKey),
+		cache:     cache,
 		services:  services,
 	}
 
