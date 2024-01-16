@@ -145,3 +145,40 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, lesson)
 }
+
+// GetLessonsList godoc
+//
+//	@Summary	Получение уроков курса
+//	@Tags		course
+//	@Produce	json
+//	@Param		id	path		int	true	"Course ID"
+//	@Success	200	{object}	[]model.Lesson
+//	@Failure	404	{object}	sErr
+//	@Failure	401	{object}	sErr
+//	@Failure	403	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/admin/courses/{id}/lessons [get]
+func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
+	val := c.Param("id")
+
+	courseID, err := strconv.Atoi(val)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, s().SetError(err))
+		return
+	}
+
+	ctx := c.Request.Context()
+	lessonsList, err := r.services.Lesson().GetLessonsList(ctx, courseID)
+	if err != nil {
+		switch {
+		case errors.Is(err, errs.ErrNotFound):
+			c.JSON(http.StatusNotFound, s().SetError(err))
+			return
+		case err != nil:
+			c.JSON(http.StatusInternalServerError, s().SetError(err))
+			return
+		}
+	}
+	c.JSON(http.StatusOK, lessonsList)
+
+}

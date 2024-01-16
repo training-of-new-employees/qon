@@ -50,6 +50,7 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.GET("", s.handlerGetAdminCourses)
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
+	adminCourses.GET("/:id/lessons", s.handlerGetLessonsList)
 
 	invitationLinkGroup := mvp.Group("/invitation-link")
 	invitationLinkGroup.Use(s.IsAuthenticated(), s.IsAdmin())

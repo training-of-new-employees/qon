@@ -12,4 +12,5 @@ type RepositoryLesson interface {
 	DeleteLessonDB(ctx context.Context, lessonID int) error
 	GetLessonDB(ctx context.Context, lessonID int) (*model.Lesson, error)
 	UpdateLessonDB(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error)
+	GetLessonsListDB(ctx context.Context, courseID int) ([]*model.Lesson, error)
 }

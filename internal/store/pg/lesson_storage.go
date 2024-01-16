@@ -161,3 +161,24 @@ func (l *lessonStorage) tx(f func(*sqlx.Tx) error) error {
 	// фиксация транзакции
 	return tx.Commit()
 }
+
+// GetLessonsListDB - получить список уроков курса.
+func (l *lessonStorage) GetLessonsListDB(ctx context.Context, courseID int) ([]*model.Lesson, error) {
+	lessonsList := []*model.Lesson{}
+
+	query := `SELECT id, course_id, created_by, active, archived, name, 
+			  content, url_picture, created_at, updated_at
+			  FROM lessons
+			  WHERE course_id = $1`
+
+	err := l.db.SelectContext(ctx, &lessonsList, query, courseID)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	if len(lessonsList) == 0 {
+		return nil, errs.ErrLessonNotFound
+	}
+
+	return lessonsList, nil
+}

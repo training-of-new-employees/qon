@@ -334,3 +334,72 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 		})
 	}
 }
+
+func (suite *storeTestSuite) TestGetLessonListDB() {
+	course, user, err := suite.prepareLessonCreation()
+
+	suite.NoError(err)
+	suite.NotEmpty(course)
+
+	lesson := func() model.LessonCreate {
+		l := model.LessonCreate{
+			CourseID:   course.ID,
+			Name:       "Lesson2",
+			Content:    "Content2",
+			URLPicture: "http://test",
+		}
+		return l
+	}
+	lesson1, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+		lesson(), user.ID)
+	suite.NoError(err)
+	suite.NotEmpty(lesson1)
+
+	lesson = func() model.LessonCreate {
+		l := model.LessonCreate{
+			CourseID:   course.ID,
+			Name:       "Lesson3",
+			Content:    "Content3",
+			URLPicture: "http://test3",
+		}
+		return l
+	}
+	lesson2, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+		lesson(), user.ID)
+	suite.NoError(err)
+	suite.NotEmpty(lesson2)
+
+	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+
+	testCases := []struct {
+		name     string
+		courseID int
+		expected []*model.Lesson
+		err      error
+	}{
+		{
+			name:     "success",
+			courseID: course.ID,
+			expected: []*model.Lesson{
+				lesson1,
+				lesson2,
+			},
+			err: nil,
+		},
+		{
+			name:     "not existing course",
+			courseID: rnd.Intn(32) + 17,
+			expected: nil,
+			err:      errs.ErrLessonNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			lessonsList, err := suite.store.LessonStorage().GetLessonsListDB(context.TODO(),
+				tc.courseID)
+			suite.Equal(tc.err, err)
+			suite.Equal(tc.expected, lessonsList)
+		})
+	}
+}
