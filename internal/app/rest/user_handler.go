@@ -297,28 +297,29 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 	userReq := model.UserSignIn{}
 
 	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
 	if err := userReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
+		return
 	}
 
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
-
+	
 	if err = user.CheckPassword(userReq.Password); err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
 
 	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 

@@ -62,10 +62,7 @@ func newUserService(
 	}
 }
 
-func (u *uService) WriteAdminToCache(
-	ctx context.Context,
-	val model.CreateAdmin,
-) (*model.CreateAdmin, error) {
+func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin) (*model.CreateAdmin, error) {
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
 	}
@@ -89,7 +86,11 @@ func (u *uService) WriteAdminToCache(
 
 	if err = u.sender.SendCode(val.Email, code); err != nil {
 		logger.Log.Error("service error", zap.Error(err))
-		return nil, errs.ErrNotSendEmail
+
+		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
+		if u.sender.Mode() == "test" {
+			return nil, err
+		}
 	}
 
 	return &val, nil
@@ -108,15 +109,15 @@ func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.Use
 func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, error) {
 	user, err := u.db.UserStorage().GetUserByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("can't get user by service: %w", err)
+		return nil, err
 	}
 	company, err := u.db.CompanyStorage().GetCompany(ctx, user.CompanyID)
 	if err != nil {
-		return nil, fmt.Errorf("can't get user by service: %w", err)
+		return nil, err
 	}
 	position, err := u.db.PositionStorage().GetPositionInCompany(ctx, user.CompanyID, user.PositionID)
 	if err != nil {
-		return nil, fmt.Errorf("can't get user by service: %w", err)
+		return nil, err
 	}
 	info := &model.UserInfo{
 		User:         *user,
@@ -215,7 +216,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
 		if u.sender.Mode() == "test" {
-			return nil, errs.ErrNotSendEmail
+			return nil, err
 		}
 	}
 
@@ -383,6 +384,11 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(email, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
+
+		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
+		if u.sender.Mode() == "test" {
+			return nil, err
+		}
 	}
 
 	return invitationLinkResponse, nil
