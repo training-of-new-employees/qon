@@ -16,9 +16,10 @@ type TokenGenerator struct {
 
 type MyClaims struct {
 	jwt.RegisteredClaims
-	UserID  int  `json:"id"`
-	IsAdmin bool `json:"is_admin"`
-	OrgID   int  `json:"org_id"`
+	UserID        int    `json:"id"`
+	IsAdmin       bool   `json:"is_admin"`
+	OrgID         int    `json:"org_id"`
+	HashedRefresh string `json:"hashed_refresh"`
 }
 
 func NewTokenGenerator(secretKey string) *TokenGenerator {
@@ -27,12 +28,13 @@ func NewTokenGenerator(secretKey string) *TokenGenerator {
 	}
 }
 
-func (g *TokenGenerator) GenerateToken(id int, isAdmin bool, orgID int, exp time.Duration) (string, error) {
+func (g *TokenGenerator) GenerateToken(id int, isAdmin bool, orgID int, hashedRefreshToken string, exp time.Duration) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := MyClaims{
-		UserID:  id,
-		IsAdmin: isAdmin,
-		OrgID:   orgID,
+		UserID:        id,
+		IsAdmin:       isAdmin,
+		OrgID:         orgID,
+		HashedRefresh: hashedRefreshToken,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(exp)),
 		},

@@ -13,8 +13,24 @@ permissions:
   # pull-requests: read
 
 jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Require: The version of golangci-lint to use.
+          # When `install-mode` is `binary` (default) the value can be v1.2 or v1.2.3 or `latest` to use the latest version.
+          # When `install-mode` is `goinstall` the value can be v1.2.3, `latest`, or the hash of a commit.
+          version: v1.54
   go-fmt:
-    name: "Format"
+    name: format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -37,7 +53,7 @@ jobs:
           swag fmt && git diff --exit-code
           swag init -g ./internal/app/rest/handlers.go && git diff --exit-code
   go-mod-check:
-    name: "Dependencies"
+    name: dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -55,8 +71,24 @@ jobs:
       - name: Go Mod Verify # Prevent supply chain attacks
         run: go mod verify
   go-tests:
-    name: "Tests"
+    name: tests
+    
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: qon_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+            - 5432:5432
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -64,5 +96,7 @@ jobs:
           go-version: '1.21'
           cache: false
       - name: Run tests
+        env:
+          TEST_DB_DSN: postgres://postgres:postgres@localhost:5432/qon_test?sslmode=disable
         run: |
           go test -count 1 -cover -race ./...

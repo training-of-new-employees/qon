@@ -19,11 +19,13 @@ type Services struct {
 	rTokenTime      time.Duration
 	userService     *uService
 	positionService *positionService
+	courseService   *courseService
 	lessonService   *lessonService
 	sender          doar.EmailSender
+	host            string
 }
 
-func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTimeDur time.Duration, rTokTimeDur time.Duration, sender doar.EmailSender) *Services {
+func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTimeDur time.Duration, rTokTimeDur time.Duration, sender doar.EmailSender, host string) *Services {
 	return &Services{
 		db:         db,
 		cache:      cache,
@@ -31,6 +33,7 @@ func NewServices(db store.Storages, cache cache.Cache, secretKey string, aTokTim
 		aTokenTime: aTokTimeDur,
 		rTokenTime: rTokTimeDur,
 		sender:     sender,
+		host:       host,
 	}
 }
 
@@ -49,6 +52,7 @@ func (s *Services) User() service.ServiceUser {
 		jwttoken.NewTokenGenerator(s.secretKey),
 		jwttoken.NewTokenValidator(s.secretKey),
 		s.sender,
+		s.host,
 	)
 
 	return s.userService
@@ -63,6 +67,14 @@ func (s *Services) Position() service.ServicePosition {
 	s.positionService = newPositionService(s.db)
 
 	return s.positionService
+}
+
+func (s *Services) Course() service.ServiceCourse {
+	if s.courseService != nil {
+		return s.courseService
+	}
+	s.courseService = newCourseService(s.db)
+	return s.courseService
 }
 
 func (s *Services) Lesson() service.ServiceLesson {

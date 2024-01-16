@@ -20,6 +20,34 @@ definitions:
       code:
         type: string
     type: object
+  model.Course:
+    properties:
+      active:
+        type: boolean
+      archived:
+        type: boolean
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.CourseSet:
+    properties:
+      archived:
+        type: boolean
+      description:
+        type: string
+      name:
+        type: string
+    type: object
   model.CreateAdmin:
     properties:
       company_name:
@@ -32,6 +60,18 @@ definitions:
   model.EmailReset:
     properties:
       email:
+        type: string
+    type: object
+  model.InvitationLinkRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  model.InvitationLinkResponse:
+    properties:
+      email:
+        type: string
+      link:
         type: string
     type: object
   model.Lesson:
@@ -214,6 +254,22 @@ definitions:
       password:
         type: string
     type: object
+  rest.courseResp:
+    properties:
+      archived:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  rest.errResponse:
+    properties:
+      message:
+        type: string
+    type: object
   rest.sEmail:
     properties:
       email:
@@ -239,6 +295,106 @@ info:
   title: QuickOn
   version: "0.1"
 paths:
+  /admin/courses:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Course'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Получение данных о курсах администратором
+      tags:
+      - course
+    post:
+      parameters:
+      - description: Course Create
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseSet'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Course'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Создание нового курса
+      tags:
+      - course
+  /admin/courses/{id}:
+    patch:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Course Edit
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.CourseSet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.courseResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Изменение данных курса
+      tags:
+      - course
   /admin/employee:
     post:
       parameters:
@@ -367,6 +523,50 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Верификация email'a пользователя
+      tags:
+      - admin
+  /invitation-link:
+    patch:
+      description: Изменение по email сотрудника
+      parameters:
+      - description: User email
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.InvitationLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.InvitationLinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Регенерация пригласительной ссылки
       tags:
       - admin
   /lesson:
@@ -513,6 +713,23 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Вход пользователя
+  /logout:
+    post:
+      description: После выхода из сессии, авторизационный токен становится невалидным.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Выход из сессии
   /password:
     post:
       parameters:
@@ -786,6 +1003,36 @@ paths:
       summary: Архивирование пользователя по id
       tags:
       - user
+  /users/courses:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Course'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Получение данных о курсах пользователем
+      tags:
+      - course
   /users/info:
     get:
       description: Получение по сесии авторизованного пользователя

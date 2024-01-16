@@ -2,6 +2,8 @@ package impl
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -33,6 +35,7 @@ type uService struct {
 	tokenGen   jwttoken.JWTGenerator
 	tokenVal   jwttoken.JWTValidator
 	sender     doar.EmailSender
+	host       string
 }
 
 func newUserService(
@@ -44,6 +47,7 @@ func newUserService(
 	jwtGen jwttoken.JWTGenerator,
 	jwtVal jwttoken.JWTValidator,
 	sender doar.EmailSender,
+	host string,
 ) *uService {
 	return &uService{
 		db:         db,
@@ -54,6 +58,7 @@ func newUserService(
 		tokenGen:   jwtGen,
 		tokenVal:   jwtVal,
 		sender:     sender,
+		host:       host,
 	}
 }
 
@@ -109,7 +114,7 @@ func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, er
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
-	position, err := u.db.PositionStorage().GetPositionDB(ctx, user.CompanyID, user.PositionID)
+	position, err := u.db.PositionStorage().GetPositionInCompany(ctx, user.CompanyID, user.PositionID)
 	if err != nil {
 		return nil, fmt.Errorf("can't get user by service: %w", err)
 	}
@@ -160,12 +165,16 @@ func (u *uService) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 
 func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyID int) (*model.Tokens, error) {
 
-	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, u.aTokenTime)
+	refreshToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, "", u.rTokenTime)
 	if err != nil {
 		return nil, fmt.Errorf("error failed GenerateToken %v", err)
 	}
 
-	refreshToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, u.rTokenTime)
+	hasher := sha1.New()
+	hasher.Write([]byte(refreshToken))
+	hashedRefresh := hex.EncodeToString(hasher.Sum(nil))
+
+	accessToken, err := u.tokenGen.GenerateToken(userId, isAdmin, companyID, hashedRefresh, u.aTokenTime)
 	if err != nil {
 		return nil, fmt.Errorf("error failed GenerateToken %v", err)
 	}
@@ -173,6 +182,10 @@ func (u *uService) GenerateTokenPair(ctx context.Context, userId int, isAdmin bo
 	tokens := model.Tokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+	}
+
+	if err := u.cache.SetRefreshToken(ctx, hashedRefresh, refreshToken); err != nil {
+		return nil, fmt.Errorf("error failed SetRefreshToken %w", err)
 	}
 
 	//TODO save token
@@ -191,12 +204,19 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		return nil, err
 	}
 
-	// TODO: генерирация пригласительной ссылки
-	link := fmt.Sprintf("https://sample?email=%s", val.Email)
+	link, err := u.GenerateInvitationLinkUser(ctx, val.Email)
+	if err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось с генерировать пригласительную ссылку сотруднику с емейлом %s", val.Email))
+	}
 
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(val.Email, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
+
+		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
+		if u.sender.Mode() == "test" {
+			return nil, errs.ErrNotSendEmail
+		}
 	}
 
 	return createdUser, nil
@@ -269,7 +289,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 		return err
 	}
 
-	password := model.GeneratePassword()
+	password := randomseq.RandomPassword()
 
 	encPassword, err := model.GenerateHash(password)
 	if err != nil {
@@ -302,4 +322,72 @@ func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.A
 	}
 	return edited, nil
 
+}
+
+func (u *uService) GenerateInvitationLinkUser(
+	ctx context.Context,
+	email string,
+) (string, error) {
+	code := randomseq.RandomString(20)
+	key := strings.Join([]string{"register", "user", email}, ":")
+
+	if err := u.cache.SetInviteCode(ctx, key, code); err != nil {
+		return "", err
+	}
+
+	logger.Log.Info("cache write successful", zap.String("key", key))
+
+	link := fmt.Sprintf("%s/first-login?email=%s&invite=%s", u.host, email, code)
+
+	logger.Log.Info("Generate invite link successful", zap.String("invite link", link))
+
+	return link, nil
+}
+
+func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error) {
+	key := strings.Join([]string{"register", "user", email}, ":")
+
+	code, err := u.cache.GetInviteCode(ctx, key)
+	if err != nil {
+		return "", fmt.Errorf("err GetUserInviteFromCache: %v", err)
+	}
+
+	return code, nil
+}
+
+func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	invitationLinkResponse := &model.InvitationLinkResponse{}
+
+	employee, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if employee.IsActive {
+
+		return nil, errs.ErrUserActivated
+	}
+
+	if employee.CompanyID != companyID {
+		return nil, errs.ErrNoAccess
+	}
+
+	link, err := u.GenerateInvitationLinkUser(ctx, email)
+	if err != nil {
+		return nil, errs.ErrInternal
+	}
+
+	invitationLinkResponse.Link = link
+	invitationLinkResponse.Email = email
+
+	// Отправление пригласительной ссылки сотруднику
+	if err = u.sender.InviteUser(email, link); err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
+	}
+
+	return invitationLinkResponse, nil
+}
+
+func (u *uService) ClearSession(ctx context.Context, hashedRefreshToken string) error {
+	return u.cache.DeleteRefreshToken(ctx, hashedRefreshToken)
 }

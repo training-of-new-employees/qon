@@ -65,23 +65,18 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	userReq := model.UserCreate{}
 
 	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := userReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
 	user, err := r.services.User().CreateUser(ctx, userReq)
-	switch {
-	case errors.Is(err, errs.ErrEmailAlreadyExists):
-		c.JSON(http.StatusConflict, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		logger.Log.Warn("error", zap.Error(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -102,24 +97,14 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 //	@Router			/users [get]
 func (r *RestServer) handlerGetUsers(c *gin.Context) {
 	ctx := c.Request.Context()
-	us := r.getUserSession(c)
-	if !us.IsAdmin {
-		logger.Log.Warn("Not admin user try to get info about users", zap.Int("id", us.UserID))
-		c.JSON(http.StatusForbidden, s().SetError(fmt.Errorf("you can't get users info: %w", errs.ErrOnlyAdmin)))
-		return
-	}
-	users, err := r.services.User().GetUsersByCompany(ctx, us.OrgID)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
 
+	users, err := r.services.User().GetUsersByCompany(ctx, r.getUserSession(c).OrgID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, users)
-
 }
 
 // GetUser godoc
@@ -137,32 +122,26 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 //	@Router			/users/{id} [get]
 func (r *RestServer) handlerGetUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+
+	userID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		msg := fmt.Errorf("got invalid user id: %s", idParam)
-		logger.Log.Warn("error", zap.Error(msg))
-		c.JSON(http.StatusBadRequest, s().SetError(msg))
-		return
-	}
-	us := r.getUserSession(c)
-	u, err := r.services.User().GetUserByID(ctx, id)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
-	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, u.ID, u.CompanyID) {
-		c.Status(http.StatusForbidden)
+	session := r.getUserSession(c)
+	user, err := r.services.User().GetUserByID(ctx, userID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, u)
+	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, user.ID, user.CompanyID) {
+		r.handleError(c, errs.ErrNoAccess)
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
 
 // EditUser godoc
@@ -181,39 +160,33 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Router			/users/{id} [patch]
 func (r *RestServer) handlerEditUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
+
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		msg := fmt.Errorf("got invalid user id: %s", idParam)
-		logger.Log.Warn("error", zap.Error(msg))
-		c.JSON(http.StatusBadRequest, s().SetError(msg))
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg.Error()})
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+
 	edit := &model.UserEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 	edit.ID = id
-	us := r.getUserSession(c)
-	if !access.CanUser(us.IsAdmin, us.OrgID, us.UserID, edit.ID, us.OrgID) {
-		logger.Log.Warn("User try edit info without rights", zap.Int("id", us.UserID), zap.Int("edited", edit.ID))
 
-		c.JSON(http.StatusForbidden, s().SetError(fmt.Errorf("you can't edit user")))
+	session := r.getUserSession(c)
+	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, edit.ID, session.OrgID) {
+		r.handleError(c, errs.ErrNoAccess)
 		return
 	}
-	edited, err := r.services.User().EditUser(ctx, edit, us.OrgID)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+
+	edited, err := r.services.User().EditUser(ctx, edit, session.OrgID)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, edited)
-
 }
 
 // SetPassword godoc
@@ -273,18 +246,18 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
 }
 
-//	ArchiveUser godoc
+// ArchiveUser godoc
 //
-// @Summary	Архивирование пользователя по id
-// @Tags		user
-// @Produce	json
-// @Param		id	path	int	true	"User ID"
-// @Success	200
-// @Failure	400	{object}	sErr
-// @Failure	403	{object}	sErr
-// @Failure	404	{object}	sErr
-// @Failure	500	{object}	sErr
-// @Router		/users/archive/{id} [patch]
+//	@Summary	Архивирование пользователя по id
+//	@Tags		user
+//	@Produce	json
+//	@Param		id	path	int	true	"User ID"
+//	@Success	200
+//	@Failure	400	{object}	sErr
+//	@Failure	403	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/users/archive/{id} [patch]
 func (r *RestServer) handlerArchiveUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	idParam := c.Param("id")
@@ -412,17 +385,14 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
 	email := model.EmailReset{}
+
 	if err := c.ShouldBindJSON(&email); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	if err := r.services.User().ResetPassword(ctx, email.Email); err != nil {
-		if errors.Is(err, errs.ErrUserNotFound) {
-			c.JSON(http.StatusNotFound, s().SetError(err))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
@@ -441,25 +411,62 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
 //	@Router		/admin/info [post]
-func (r *RestServer) handlerAdminEdit(c *gin.Context) {
+func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	ctx := c.Request.Context()
+
 	edit := model.AdminEdit{}
 	if err := c.ShouldBindJSON(&edit); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
-	us := r.getUserSession(c)
-	edit.ID = us.UserID
+	edit.ID = r.getUserSession(c).UserID
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, edited)
+}
+
+// @Summary		Регенерация пригласительной ссылки
+// @Description	Изменение по email сотрудника
+// @Tags			admin
+// @Produce		json
+// @Param			object	body		model.InvitationLinkRequest	true	"User email"
+// @Success		200		{object}	model.InvitationLinkResponse
+// @Failure		400		{object}	sErr
+// @Failure		401		{object}	sErr
+// @Failure		403		{object}	sErr
+// @Failure		404		{object}	sErr
+// @Failure		409		{object}	sErr
+// @Failure		500		{object}	sErr
+// @Router			/invitation-link [patch]
+func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	session := r.getUserSession(c)
+
+	invitationLinkRequest := model.InvitationLinkRequest{}
+
+	if err := c.ShouldBindJSON(&invitationLinkRequest); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+
+	if err := invitationLinkRequest.Validate(); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+
+	response, err := r.services.User().RegenerationInvitationLinkUser(ctx, invitationLinkRequest.Email, session.OrgID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // GetUser godoc
@@ -501,4 +508,28 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, u)
+}
+
+// LogOut godoc
+//
+//	@Summary		Выход из сессии
+//	@Description	После выхода из сессии, авторизационный токен становится невалидным.
+//	@Produce		json
+//	@Success		200
+//	@Failure		401	{object}	sErr
+//	@Failure		500	{object}	sErr
+//	@Router			/logout [post]
+func (r *RestServer) handlerLogOut(c *gin.Context) {
+	us := r.getUserSession(c)
+	if us.UserID == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	if err := r.services.User().ClearSession(c.Request.Context(), us.HashedRefresh); err != nil {
+		r.handleError(c, errs.ErrInternal)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

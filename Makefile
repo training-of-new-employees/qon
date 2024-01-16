@@ -31,7 +31,7 @@ fmt:
 	gofmt -s -w .
 	goimports -w .
 
-mocks: $(shell find ./internal -name "*.go" -not -path "*test.go")
+mocks: $(shell grep -lrP --include='*.go' --exclude='*test.go' 'type\s+\w+\s+interface\s*' ./)
 	@echo "Generating mocks"
 	@rm -rf $(MOCKS_DESTINATION)
 	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file#*internal/}`; done

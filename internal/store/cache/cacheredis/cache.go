@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/redis/go-redis/v9"
+
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store/cache"
 )
@@ -53,6 +55,19 @@ func (r *Redis) Set(ctx context.Context, uuid string, admin model.CreateAdmin) e
 	return nil
 }
 
+func (r *Redis) SetInviteCode(ctx context.Context, key string, code string) error {
+	err := r.client.Set(ctx, key, code, 0).Err()
+	if err != nil {
+		return ErrWritingCache
+	}
+
+	return nil
+}
+
+func (r *Redis) GetInviteCode(ctx context.Context, key string) (string, error) {
+	return r.client.Get(ctx, key).Result()
+}
+
 func (r *Redis) Delete(ctx context.Context, key string) error {
 	_, err := r.client.Del(ctx, key).Result()
 	if err != nil {
@@ -60,4 +75,20 @@ func (r *Redis) Delete(ctx context.Context, key string) error {
 	}
 
 	return nil
+}
+
+func (r *Redis) GetRefreshToken(ctx context.Context, hashedRefresh string) (string, error) {
+	return r.client.Get(ctx, r.refreshTokenKey(hashedRefresh)).Result()
+}
+
+func (r *Redis) SetRefreshToken(ctx context.Context, hashedRefresh string, originalRefresh string) error {
+	return r.client.Set(ctx, r.refreshTokenKey(hashedRefresh), originalRefresh, 0).Err()
+}
+
+func (r *Redis) DeleteRefreshToken(ctx context.Context, hashedRefresh string) error {
+	return r.client.Del(ctx, r.refreshTokenKey(hashedRefresh)).Err()
+}
+
+func (r *Redis) refreshTokenKey(hashedRefresh string) string {
+	return fmt.Sprintf("login:%s", hashedRefresh)
 }
