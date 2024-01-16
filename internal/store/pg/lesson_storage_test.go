@@ -19,7 +19,7 @@ func (suite *storeTestSuite) prepareLessonCreation() (*model.Course,
 	}
 	suite.NotEmpty(company)
 
-	position, err := suite.store.PositionStorage().CreatePositionDB(context.TODO(),
+	position, err := suite.store.PositionStorage().CreatePosition(context.TODO(),
 		model.PositionSet{CompanyID: company.ID, Name: "test-position"})
 	if err != nil {
 		return nil, nil, err
