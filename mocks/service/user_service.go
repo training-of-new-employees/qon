@@ -247,6 +247,21 @@ func (mr *MockServiceUserMockRecorder) GetUsersByCompany(ctx, companyID any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByCompany", reflect.TypeOf((*MockServiceUser)(nil).GetUsersByCompany), ctx, companyID)
 }
 
+// RegenerationInvitationLinkUser mocks base method.
+func (m *MockServiceUser) RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegenerationInvitationLinkUser", ctx, email, companyID)
+	ret0, _ := ret[0].(*model.InvitationLinkResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RegenerationInvitationLinkUser indicates an expected call of RegenerationInvitationLinkUser.
+func (mr *MockServiceUserMockRecorder) RegenerationInvitationLinkUser(ctx, email, companyID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegenerationInvitationLinkUser", reflect.TypeOf((*MockServiceUser)(nil).RegenerationInvitationLinkUser), ctx, email, companyID)
+}
+
 // ResetPassword mocks base method.
 func (m *MockServiceUser) ResetPassword(ctx context.Context, email string) error {
 	m.ctrl.T.Helper()

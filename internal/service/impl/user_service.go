@@ -347,12 +347,45 @@ func (u *uService) GenerateInvitationLinkUser(
 func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error) {
 	key := strings.Join([]string{"register", "user", email}, ":")
 
-	invite, err := u.cache.GetInviteCode(ctx, key)
+	code, err := u.cache.GetInviteCode(ctx, key)
 	if err != nil {
 		return "", fmt.Errorf("err GetUserInviteFromCache: %v", err)
 	}
 
-	return invite, nil
+	return code, nil
+}
+
+func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	invitationLinkResponse := &model.InvitationLinkResponse{}
+
+	employee, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if employee.IsActive {
+
+		return nil, errs.ErrUserActivated
+	}
+
+	if employee.CompanyID != companyID {
+		return nil, errs.ErrNoAccess
+	}
+
+	link, err := u.GenerateInvitationLinkUser(ctx, email)
+	if err != nil {
+		return nil, errs.ErrInternal
+	}
+
+	invitationLinkResponse.Link = link
+	invitationLinkResponse.Email = email
+
+	// Отправление пригласительной ссылки сотруднику
+	if err = u.sender.InviteUser(email, link); err != nil {
+		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
+	}
+
+	return invitationLinkResponse, nil
 }
 
 func (u *uService) ClearSession(ctx context.Context, hashedRefreshToken string) error {

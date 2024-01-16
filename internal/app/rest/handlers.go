@@ -51,6 +51,10 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
 
+	invitationLinkGroup := mvp.Group("/invitation-link")
+	invitationLinkGroup.Use(s.IsAuthenticated(), s.IsAdmin())
+	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
+
 	lessons := mvp.Group("/lesson")
 	lessons.POST("/", s.handlerLessonCreate)
 	lessons.DELETE("/", s.handlerLessonDelete)
