@@ -137,6 +137,18 @@ func (suite *handlerTestSuite) TestGetPosition() {
 			},
 		},
 		{
+			name:         "negative pos",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				positionSet := model.NewTestPositionSet()
+				positionSet.CompanyID = companyID
+
+				positionID := -1
+
+				return fmt.Sprint(positionID)
+			},
+		},
+		{
 			name:         "not found",
 			expectedCode: http.StatusNotFound,
 			prepare: func() string {

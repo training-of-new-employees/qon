@@ -64,7 +64,7 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
+	if err != nil || id < 0 {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
