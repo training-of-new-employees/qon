@@ -167,9 +167,17 @@ func (p *positionStorage) AssignCourse(ctx context.Context, positionID int, cour
 
 // AssignCourses - назначение нескольких курсов на должность.
 func (p *positionStorage) AssignCourses(ctx context.Context, positionID int, courseIDs []int) error {
-	// открываем транзакцию
 	err := p.tx(func(tx *sqlx.Tx) error {
-		// назначение курса на должность
+		query := `DELETE FROM position_course WHERE position_id = $1`
+		_, err := tx.ExecContext(ctx, query, positionID)
+		if err != nil {
+			return err
+		}
+
+		if len(courseIDs) == 0 {
+			return nil
+		}
+
 		return p.assignCoursesTx(ctx, tx, positionID, courseIDs)
 	})
 

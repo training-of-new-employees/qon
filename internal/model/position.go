@@ -53,9 +53,5 @@ func (p *PositionSet) Validation() error {
 }
 
 func (p *PositionAssignCourses) Validation() error {
-	if len(p.CourseID) == 0 {
-		return errs.ErrBadRequest
-	}
-
 	return nil
 }

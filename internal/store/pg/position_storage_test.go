@@ -425,13 +425,6 @@ func (suite *storeTestSuite) TestAssignCourses() {
 			},
 			err: errs.ErrCourseReference,
 		},
-		{
-			name: "course already added",
-			payload: func() (int, []int) {
-				return position.ID, []int{course.ID}
-			},
-			err: errs.ErrPositionCourseUsed,
-		},
 	}
 
 	for _, tc := range testCases {
