@@ -281,6 +281,58 @@ func (suite *handlerTestSuite) TestUpdatePosition() {
 			},
 		},
 		{
+			name:         "success for empty name",
+			expectedCode: http.StatusOK,
+			prepare: func() (string, []byte) {
+				positionID := 2
+
+				positionSet := model.NewTestPositionSet()
+				positionSet.Name = ""
+				positionSet.CompanyID = companyID
+
+				position := &model.Position{
+					ID:         positionID,
+					CompanyID:  positionSet.CompanyID,
+					Name:       positionSet.Name,
+					IsActive:   true,
+					IsArchived: false,
+				}
+
+				suite.positionService.EXPECT().UpdatePosition(gomock.Any(), positionID, positionSet).Return(position, nil)
+
+				body, _ := json.Marshal(positionSet)
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+		{
+			name:         "success for archive only",
+			expectedCode: http.StatusOK,
+			prepare: func() (string, []byte) {
+				positionID := 2
+
+				positionSet := model.NewTestPositionSet()
+				positionSet.Name = ""
+				positionSet.IsArchived = true
+				positionSet.CompanyID = companyID
+
+				position := &model.Position{
+					ID:         positionID,
+					CompanyID:  positionSet.CompanyID,
+					Name:       positionSet.Name,
+					IsActive:   true,
+					IsArchived: false,
+				}
+
+				suite.positionService.EXPECT().UpdatePosition(gomock.Any(), positionID, positionSet).Return(position, nil)
+
+				body, _ := json.Marshal(positionSet)
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+
+		{
 			name:         "not found",
 			expectedCode: http.StatusNotFound,
 			prepare: func() (string, []byte) {

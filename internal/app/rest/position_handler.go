@@ -126,7 +126,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 		return
 	}
 
-	if err = positionReq.Validation(); err != nil {
+	if err = positionReq.Validation(); err != nil && err != errs.ErrPositionNameNotEmpty {
 		r.handleError(c, err)
 		return
 	}
