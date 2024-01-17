@@ -4,11 +4,18 @@ package doar
 import (
 	"fmt"
 
-	"github.com/training-of-new-employees/qon/internal/config"
 	"github.com/training-of-new-employees/qon/internal/logger"
 	apisender "github.com/training-of-new-employees/qon/internal/pkg/doar/api-sender"
 	smtpsender "github.com/training-of-new-employees/qon/internal/pkg/doar/smtp-sender"
 	testsender "github.com/training-of-new-employees/qon/internal/pkg/doar/test-sender"
+)
+
+type SenderMode string
+
+const (
+	TestMode SenderMode = "test"
+	ApiMode  SenderMode = "api"
+	SmtpMode SenderMode = "smtp"
 )
 
 // Интерфейс EmailSender.
@@ -16,7 +23,7 @@ type EmailSender interface {
 	SendCode(email string, code string) error
 	InviteUser(email string, invitationLink string) error
 	SendPassword(email string, password string) error
-	Mode() string
+	Mode() SenderMode
 }
 
 type Mailer interface {
@@ -27,26 +34,26 @@ type Mailer interface {
 type Sender struct {
 	mailer      Mailer
 	ClientEmail string
-	mode        string
+	mode        SenderMode
 }
 
 // NewSender - конструктор Sender.
-func NewSender(mode string, config *config.Config) *Sender {
+func NewSender(config *SenderConfig) *Sender {
 	var sender Mailer
-	if mode == "smtp" {
+	if config.Mode == SmtpMode {
 		logger.Log.Debug(config.SenderEmail + ": " + config.SenderPassword)
 		sender = smtpsender.NewSmtpSender(config.SenderEmail, config.SenderPassword)
 	}
-	if mode == "api" {
+	if config.Mode == ApiMode {
 		sender = apisender.NewApiSender(config.SenderEmail, config.SenderApiKey)
 	}
-	if mode == "test" {
+	if config.Mode == TestMode {
 		sender = testsender.NewTestSender()
 	}
 
 	return &Sender{
 		mailer: sender,
-		mode:   mode,
+		mode:   config.Mode,
 	}
 }
 
@@ -87,6 +94,6 @@ func (s *Sender) SendPassword(email string, password string) error {
 }
 
 // Mode - чтобы узнать, как отправляются письма.
-func (s *Sender) Mode() string {
+func (s *Sender) Mode() SenderMode {
 	return s.mode
 }

@@ -88,7 +88,7 @@ func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin)
 		logger.Log.Error("service error", zap.Error(err))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
-		if u.sender.Mode() == "test" {
+		if u.sender.Mode() == doar.TestMode {
 			return nil, err
 		}
 	}
@@ -215,7 +215,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
-		if u.sender.Mode() == "test" {
+		if u.sender.Mode() == doar.TestMode {
 			return nil, err
 		}
 	}
@@ -386,7 +386,7 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
-		if u.sender.Mode() == "test" {
+		if u.sender.Mode() == doar.TestMode {
 			return nil, err
 		}
 	}
