@@ -1276,9 +1276,12 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 				tokenVal:   f.tokenVal,
 				sender:     f.sender,
 			}
-			if err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password); (err != nil) != tt.wantErr {
+
+			_, err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.UpdatePasswordAndActivateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 		})
 	}
 }

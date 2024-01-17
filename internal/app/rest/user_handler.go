@@ -194,7 +194,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Summary	Активация пользователя и установка ему пароля
 //	@Tags		user
 //	@Produce	json
-//	@Param		object	body		model.UserSignIn	true	"User Set Password"
+//	@Param		object	body		model.UserActivation	true	"User Set Password"
 //	@Success	200		{object}	sToken
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
@@ -203,41 +203,31 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Router		/users/set-password [post]
 func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
-	userReq := model.UserSignIn{}
-
-	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+	userActivate := model.UserActivation{}
+	if err := c.ShouldBindJSON(&userActivate); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+	if err := userActivate.Validation(); err != nil {
+		r.handleError(c, err)
 		return
 	}
 
-	if err := userReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+	code, err := r.services.User().GetUserInviteCodeFromCache(ctx, userActivate.Email)
+	if err != nil || code != userActivate.Invite {
+		r.handleError(c, errs.ErrUnauthorized)
 		return
 	}
 
-	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		return
-	}
-
-	if user.IsActive {
-		c.JSON(http.StatusUnauthorized, s().SetError(errs.ErrNotFirstLogin))
-		return
-	}
-
-	if err := r.services.User().UpdatePasswordAndActivateUser(ctx, userReq.Email, userReq.Password); err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	user, err := r.services.User().UpdatePasswordAndActivateUser(ctx, userActivate.Email, userActivate.Password)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
 	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 

@@ -23,6 +23,7 @@ var errorToCode = map[string]int{
 	errs.ErrBadRequest.Error():               http.StatusBadRequest,
 	errs.ErrInvalidRequest.Error():           http.StatusBadRequest,
 	errs.ErrEmailNotEmpty.Error():            http.StatusBadRequest,
+	errs.ErrInviteNotEmpty.Error():           http.StatusBadRequest,
 	errs.ErrInvalidEmail.Error():             http.StatusBadRequest,
 	errs.ErrPasswordNotEmpty.Error():         http.StatusBadRequest,
 	errs.ErrInvalidPassword.Error():          http.StatusBadRequest,
