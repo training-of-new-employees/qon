@@ -276,6 +276,179 @@ func (suite *storeTestSuite) TestUpdatePosition() {
 	}
 }
 
+func (suite *storeTestSuite) TestGetCourseForPosition() {
+	suite.NotNil(suite.store)
+
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	position, err := suite.store.PositionStorage().CreatePosition(
+		context.TODO(),
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
+	)
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	position2, err := suite.store.PositionStorage().CreatePosition(
+		context.TODO(),
+		model.PositionSet{CompanyID: company.ID, Name: "test-position2"},
+	)
+	suite.NoError(err)
+	suite.NotEmpty(position2)
+
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	// добавление пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	course, err := suite.store.CourseStorage().CreateCourse(context.TODO(), model.CourseSet{
+		Name:        "Test Course",
+		Description: "Test Description Test Description",
+		IsArchived:  false,
+		CreatedBy:   user.ID,
+	})
+	suite.NoError(err)
+	suite.NotEmpty(course)
+
+	err = suite.store.PositionStorage().AssignCourses(context.TODO(), position.ID, []int{course.ID})
+	suite.NoError(err)
+
+	testCases := []struct {
+		name      string
+		payload   func() int // возвращает ИД должности
+		err       error
+		resultLen int
+	}{
+		{
+			name: "success",
+			payload: func() int {
+				return position.ID
+			},
+			resultLen: 1,
+			err:       nil,
+		},
+		{
+			name: "success (empty)",
+			payload: func() int {
+				return position2.ID
+			},
+			resultLen: 0,
+			err:       nil,
+		},
+		{
+			name: "position not found",
+			payload: func() int {
+				return randomseq.RandomTestInt()
+			},
+			resultLen: 0,
+			err:       nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			positionID := tc.payload()
+
+			courses, err := suite.store.PositionStorage().GetCourseForPosition(
+				context.TODO(),
+				positionID,
+			)
+
+			suite.Equal(tc.err, err)
+			if tc.err == nil {
+				suite.Len(courses, tc.resultLen)
+			}
+		})
+	}
+}
+
+func (suite *storeTestSuite) TestAssignCourses() {
+	suite.NotNil(suite.store)
+
+	company, err := suite.store.CompanyStorage().CreateCompany(context.TODO(), "test&Co")
+	suite.NoError(err)
+	suite.NotEmpty(company)
+
+	position, err := suite.store.PositionStorage().CreatePosition(
+		context.TODO(),
+		model.PositionSet{CompanyID: company.ID, Name: "test-position"},
+	)
+	suite.NoError(err)
+	suite.NotEmpty(position)
+
+	u := model.NewTestUserCreate()
+	u.CompanyID = company.ID
+	u.PositionID = position.ID
+
+	// добавление пользователя
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), u)
+	suite.NoError(err)
+	suite.NotEmpty(user)
+
+	course, err := suite.store.CourseStorage().CreateCourse(context.TODO(), model.CourseSet{
+		Name:        "Test Course",
+		Description: "Test Description Test Description",
+		IsArchived:  false,
+		CreatedBy:   user.ID,
+	})
+	suite.NoError(err)
+	suite.NotEmpty(course)
+
+	testCases := []struct {
+		name    string
+		payload func() (int, []int)
+		err     error
+	}{
+		{
+			name: "success",
+			payload: func() (int, []int) {
+				return position.ID, []int{course.ID}
+			},
+			err: nil,
+		},
+		{
+			name: "position not found",
+			payload: func() (int, []int) {
+				return randomseq.RandomTestInt(), []int{course.ID}
+			},
+			err: errs.ErrPositionReference,
+		},
+		{
+			name: "course not found",
+			payload: func() (int, []int) {
+				return position.ID, []int{randomseq.RandomTestInt()}
+			},
+			err: errs.ErrCourseReference,
+		},
+		{
+			name: "course already added",
+			payload: func() (int, []int) {
+				return position.ID, []int{course.ID}
+			},
+			err: errs.ErrPositionCourseUsed,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			positionID, courses := tc.payload()
+
+			err := suite.store.PositionStorage().AssignCourses(
+				context.TODO(),
+				positionID,
+				courses,
+			)
+
+			suite.Equal(tc.err, err)
+		})
+	}
+}
+
 func (suite *storeTestSuite) TestAssignCourse() {
 	suite.NotNil(suite.store)
 
