@@ -40,14 +40,14 @@ type Sender struct {
 // NewSender - конструктор Sender.
 func NewSender(config *SenderConfig) *Sender {
 	var sender Mailer
-	if config.Mode == SmtpMode {
+
+	switch config.Mode {
+	case SmtpMode: // рассылка с помощью SMTP
 		logger.Log.Debug(config.SenderEmail + ": " + config.SenderPassword)
 		sender = smtpsender.NewSmtpSender(config.SenderEmail, config.SenderPassword)
-	}
-	if config.Mode == ApiMode {
+	case ApiMode: // рассылка с помощью API-сервиса
 		sender = apisender.NewApiSender(config.SenderEmail, config.SenderApiKey)
-	}
-	if config.Mode == TestMode {
+	case TestMode: // мок-рассылка
 		sender = testsender.NewTestSender()
 	}
 

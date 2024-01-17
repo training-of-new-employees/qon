@@ -71,6 +71,7 @@ func (r RestServer) handleError(c *gin.Context, err error) {
 	}
 
 	// mock-рассылка
+	// TODO: конструкция выглядит слишком громоздкой, нужно искать более элегантное решение
 	if strings.HasPrefix(err.Error(), "<mock-sender>: ") {
 		err = fmt.Errorf(strings.TrimPrefix(err.Error(), "<mock-sender>: "))
 
