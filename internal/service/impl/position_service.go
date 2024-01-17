@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -24,7 +23,7 @@ func (p *positionService) CreatePosition(ctx context.Context, val model.Position
 
 	position, err := p.db.PositionStorage().CreatePosition(ctx, val)
 	if err != nil {
-		return nil, fmt.Errorf("failed CreatePositionDB: %w", err)
+		return nil, err
 	}
 
 	return position, nil
@@ -33,7 +32,7 @@ func (p *positionService) CreatePosition(ctx context.Context, val model.Position
 func (p *positionService) GetPosition(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position, err := p.db.PositionStorage().GetPositionInCompany(ctx, companyID, positionID)
 	if err != nil {
-		return nil, fmt.Errorf("failed GetPositionDB: %w", err)
+		return nil, err
 	}
 
 	return position, nil
@@ -42,7 +41,7 @@ func (p *positionService) GetPosition(ctx context.Context, companyID int, positi
 func (p *positionService) GetPositions(ctx context.Context, id int) ([]*model.Position, error) {
 	positions, err := p.db.PositionStorage().ListPositions(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed GetPositionsDB: %w", err)
+		return nil, err
 	}
 
 	return positions, nil
@@ -51,7 +50,7 @@ func (p *positionService) GetPositions(ctx context.Context, id int) ([]*model.Po
 func (p *positionService) UpdatePosition(ctx context.Context, id int, val model.PositionSet) (*model.Position, error) {
 	position, err := p.db.PositionStorage().UpdatePosition(ctx, id, val)
 	if err != nil {
-		return nil, fmt.Errorf("failed UpdatePositionDB: %w", err)
+		return nil, err
 	}
 
 	return position, nil
