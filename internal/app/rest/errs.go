@@ -52,6 +52,8 @@ var errorToCode = map[string]int{
 	errs.ErrNotFirstLogin.Error():            http.StatusMethodNotAllowed,
 	errs.ErrOnlyAdmin.Error():                http.StatusMethodNotAllowed,
 
+	errs.ErrPositionCourseUsed.Error(): http.StatusConflict,
+
 	errs.ErrNotSendEmail.Error(): http.StatusInternalServerError,
 	errs.ErrInternal.Error():     http.StatusInternalServerError,
 }

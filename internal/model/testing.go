@@ -34,6 +34,12 @@ func NewTestPositionSet() PositionSet {
 	}
 }
 
+func NewTestPositionAssignCourses() PositionAssignCourses {
+	return PositionAssignCourses{
+		CourseID: []int{1, 2, 3},
+	}
+}
+
 func NewTestPositions(companyID int) []*Position {
 	number := randomseq.RandomTestInt()
 	positions := make([]*Position, number)
