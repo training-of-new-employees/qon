@@ -26,6 +26,7 @@ import (
 
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
+	s.router.Use(s.CORS())
 
 	s.router.Use(s.LoggerMiddleware())
 	allRoutes := s.router.Group("/api")
