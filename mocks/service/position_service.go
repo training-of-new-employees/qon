@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/service/position_service.go -destination=mocks/service/position_service.go
 //
-
 // Package mock_service is a generated GoMock package.
 package mock_service
 
@@ -54,6 +53,20 @@ func (mr *MockServicePositionMockRecorder) AssignCourse(ctx, positionID, courseI
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourse", reflect.TypeOf((*MockServicePosition)(nil).AssignCourse), ctx, positionID, courseID, user_id)
 }
 
+// AssignCourses mocks base method.
+func (m *MockServicePosition) AssignCourses(ctx context.Context, positionID int, courseIDs []int, userID int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignCourses", ctx, positionID, courseIDs, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AssignCourses indicates an expected call of AssignCourses.
+func (mr *MockServicePositionMockRecorder) AssignCourses(ctx, positionID, courseIDs, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourses", reflect.TypeOf((*MockServicePosition)(nil).AssignCourses), ctx, positionID, courseIDs, userID)
+}
+
 // CreatePosition mocks base method.
 func (m *MockServicePosition) CreatePosition(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
@@ -82,6 +95,21 @@ func (m *MockServicePosition) GetPosition(ctx context.Context, companyID, positi
 func (mr *MockServicePositionMockRecorder) GetPosition(ctx, companyID, positionID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPosition", reflect.TypeOf((*MockServicePosition)(nil).GetPosition), ctx, companyID, positionID)
+}
+
+// GetPositionCourses mocks base method.
+func (m *MockServicePosition) GetPositionCourses(ctx context.Context, companyID, positionID int) ([]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPositionCourses", ctx, companyID, positionID)
+	ret0, _ := ret[0].([]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPositionCourses indicates an expected call of GetPositionCourses.
+func (mr *MockServicePositionMockRecorder) GetPositionCourses(ctx, companyID, positionID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPositionCourses", reflect.TypeOf((*MockServicePosition)(nil).GetPositionCourses), ctx, companyID, positionID)
 }
 
 // GetPositions mocks base method.

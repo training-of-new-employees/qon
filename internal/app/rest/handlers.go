@@ -79,6 +79,8 @@ func (s *RestServer) InitRoutes() {
 	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
 	position.Any("/", s.NotFound(errs.ErrPositionNotFound))
+	position.GET("/:id/courses", s.handlerGetPositionCourses)
+	position.PATCH("/:id/courses", s.handlerAssignCourses)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 

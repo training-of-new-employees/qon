@@ -5,9 +5,10 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
-	"go.uber.org/zap"
 )
 
 // transaction - структура для встраивания в репозитории (companyStorage, positionStorage, uStorage,...).
@@ -216,6 +217,28 @@ func (tn *transaction) assignCourseTx(ctx context.Context, tx *sqlx.Tx, position
 	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2) RETURNING id`
 
 	if err := tx.QueryRowxContext(ctx, query, positionID, courseID).Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tn *transaction) assignCoursesTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseIDs []int) error {
+	query := `INSERT INTO position_course (position_id, course_id) VALUES `
+
+	var params []interface{}
+
+	for i, courseID := range courseIDs {
+		position := i * 2
+
+		query += fmt.Sprintf("($%d,$%d),", position+1, position+2)
+
+		params = append(params, positionID, courseID)
+	}
+
+	query = query[:len(query)-1]
+	_, err := tx.ExecContext(ctx, query, params...)
+	if err != nil {
 		return err
 	}
 

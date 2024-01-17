@@ -4,6 +4,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
@@ -28,6 +29,10 @@ type (
 		CourseID   int `json:"course_id"`
 		PositionID int `json:"position_id"`
 	}
+
+	PositionAssignCourses struct {
+		CourseID []int `json:"course_id"`
+	}
 )
 
 func (p *PositionSet) Validation() error {
@@ -42,6 +47,14 @@ func (p *PositionSet) Validation() error {
 	// проверка на наличие id компании
 	if err := validation.Validate(&p.CompanyID, validation.Required); err != nil {
 		return errs.ErrCompanyIDNotEmpty
+	}
+
+	return nil
+}
+
+func (p *PositionAssignCourses) Validation() error {
+	if len(p.CourseID) == 0 {
+		return errs.ErrBadRequest
 	}
 
 	return nil
