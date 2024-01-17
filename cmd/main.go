@@ -72,7 +72,7 @@ func run() error {
 	sender := doar.NewSender(
 		&doar.SenderConfig{
 			Mode:           doar.SenderMode(cfg.SenderMode),
-			SenderEmail:    cfg.SenderMode,
+			SenderEmail:    cfg.SenderEmail,
 			SenderPassword: cfg.SenderPassword,
 			SenderApiKey:   cfg.SenderApiKey,
 		},
