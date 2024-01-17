@@ -724,6 +724,11 @@
         },
         "/positions": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -756,6 +761,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -798,6 +808,11 @@
         },
         "/positions/update/{id}": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -853,6 +868,11 @@
         },
         "/positions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],

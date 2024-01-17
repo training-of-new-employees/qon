@@ -730,6 +730,11 @@ const docTemplate = `{
         },
         "/positions": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -762,6 +767,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -804,6 +814,11 @@ const docTemplate = `{
         },
         "/positions/update/{id}": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -859,6 +874,11 @@ const docTemplate = `{
         },
         "/positions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],

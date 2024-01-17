@@ -19,6 +19,9 @@ import (
 //	@Success	201		{object}	model.Position
 //	@Failure	400		{object}	sErr
 //	@Failure	500		{object}	sErr
+//
+// @Security Bearer
+//
 //	@Router		/positions [post]
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -59,6 +62,9 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 //	@Success	200	{object}	model.Position
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
+//
+// @Security Bearer
+//
 //	@Router		/positions/{id} [get]
 func (r *RestServer) handlerGetPosition(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -86,6 +92,9 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 //	@Success	200	{array}		model.Position
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
+//
+// @Security Bearer
+//
 //	@Router		/positions [get]
 func (r *RestServer) handlerGetPositions(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -110,6 +119,9 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Failure	400		{object}	sErr
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
+//
+// @Security Bearer
+//
 //	@Router		/positions/update/{id} [patch]
 func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -148,6 +160,9 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 // @Failure	400	{object}	error	"Неверный формат запроса"
 // @Failure	401	{object}	error	"Пользователь не является сотрудником компании"
 // @Failure	500	{object}	error	"Внутренняя ошибка сервера"
+//
+// @Security Bearer
+//
 // @Router		/positions/course [post]
 
 func (r *RestServer) handlerAssignCourse(c *gin.Context) {

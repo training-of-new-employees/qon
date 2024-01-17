@@ -778,6 +778,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение всех должностей
       tags:
       - position
@@ -804,6 +806,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Создание новой должности
       tags:
       - position
@@ -830,6 +834,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение всех должностей
       tags:
       - position
@@ -866,6 +872,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Обновление данных о должности
       tags:
       - position
