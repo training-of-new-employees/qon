@@ -13,8 +13,8 @@ import (
 // @Summary	Создание урока
 // @Tags		lessons
 // @Produce	json
-// @Param		object	body		model.LessonCreate	true	"Lesson Create"
-// @Success	201		{object}	model.LessonCreate
+// @Param		object	body		model.Lesson	true	"Lesson Create"
+// @Success	201		{object}	model.Lesson
 // @Failure	400		{object}	sErr
 // @Failure	404		{object}	sErr
 // @Failure	500		{object}	sErr
