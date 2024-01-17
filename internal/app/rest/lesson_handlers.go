@@ -11,16 +11,16 @@ import (
 )
 
 // @Summary	Создание урока
-// @Tags		lessons
+// @Tags	lessons
 // @Produce	json
-// @Param		object	body		model.LessonCreate	true	"Lesson Create"
-// @Success	201		{object}	model.Lesson
+// @Param	object	body		model.LessonCreate	true	"Lesson Create"
+// @Success	201		{object}	model.LessonCreate
 // @Failure	400		{object}	sErr
 // @Failure	404		{object}	sErr
 // @Failure	500		{object}	sErr
 // @Router		/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
-	lessonCreate := &model.LessonCreate{}
+	lessonCreate := &model.Lesson{}
 
 	if err := c.ShouldBindJSON(&lessonCreate); err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
@@ -43,37 +43,6 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, lesson)
-}
-
-// @Summary	Удаление урока
-// @Tags		lessons
-// @Produce	json
-// @Param		id	path	int	true	"Lesson ID"
-// @Success	200
-// @Failure	400	{object}	sErr
-// @Failure	404	{object}	sErr
-// @Failure	500	{object}	sErr
-// @Router		/lessons/{id} [delete]
-func (r *RestServer) handlerLessonDelete(c *gin.Context) {
-	val := c.Param("id")
-
-	lessonID, err := strconv.Atoi(val)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
-		return
-	}
-
-	ctx := c.Request.Context()
-	if err := r.services.Lesson().DeleteLesson(ctx, lessonID); err != nil {
-		if errors.Is(err, errs.ErrNotFound) {
-			c.JSON(http.StatusNotFound, s().SetError(err))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		return
-	}
-
-	c.Status(http.StatusOK)
 }
 
 // @Summary	Получение урока
@@ -124,9 +93,18 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 // @Failure	500		{object}	sErr
 // @Router		/lessons/{id} [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
+	var err error
 	lessonUpdate := model.LessonUpdate{}
 
-	if err := c.ShouldBindJSON(&lessonUpdate); err != nil {
+	if err = c.ShouldBindJSON(&lessonUpdate); err != nil {
+		c.JSON(http.StatusBadRequest, s().SetError(err))
+		return
+	}
+
+	val := c.Param("id")
+
+	lessonUpdate.ID, err = strconv.Atoi(val)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
 	}

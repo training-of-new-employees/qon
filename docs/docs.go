@@ -1513,14 +1513,11 @@ const docTemplate = `{
         "model.LessonUpdate": {
             "type": "object",
             "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
-                },
-                "course_id": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

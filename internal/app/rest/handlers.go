@@ -58,7 +58,6 @@ func (s *RestServer) InitRoutes() {
 
 	lesson := mvp.Group("/admin/lessons")
 	lesson.POST("/", s.handlerLessonCreate)
-	lesson.DELETE("/:id", s.handlerLessonDelete)
 	lesson.GET("/:id", s.handlerLessonGet)
 	lesson.PATCH("/:id", s.handlerLessonUpdate)
 

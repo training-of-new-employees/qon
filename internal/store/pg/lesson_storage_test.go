@@ -58,8 +58,8 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 	suite.NoError(err)
 	suite.NotEmpty(course)
 
-	lesson := func() model.LessonCreate {
-		l := model.LessonCreate{
+	lesson := func() model.Lesson {
+		l := model.Lesson{
 			CourseID:   course.ID,
 			Name:       "Lesson2",
 			Content:    "Content2",
@@ -67,7 +67,7 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 		}
 		return l
 	}
-	newLesson, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+	newLesson, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
 		lesson(), user.ID)
 	suite.NoError(err)
 	suite.NotEmpty(newLesson)
@@ -96,7 +96,7 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			l, err := suite.store.LessonStorage().GetLessonDB(context.TODO(), tc.lessonID)
+			l, err := suite.store.LessonStorage().GetLesson(context.TODO(), tc.lessonID)
 			suite.Equal(tc.err, err)
 			suite.Equal(tc.expectedLesson, l)
 		})
@@ -115,14 +115,14 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 
 	testCases := []struct {
 		name    string
-		lesson  func() model.LessonCreate
+		lesson  func() model.Lesson
 		user_id int
 		err     error
 	}{
 		{
 			name: "success",
-			lesson: func() model.LessonCreate {
-				l := model.LessonCreate{
+			lesson: func() model.Lesson {
+				l := model.Lesson{
 					CourseID:   course.ID,
 					Name:       "Lesson1",
 					Content:    "Content1",
@@ -135,8 +135,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 		},
 		{
 			name: "empty course id",
-			lesson: func() model.LessonCreate {
-				l := model.LessonCreate{
+			lesson: func() model.Lesson {
+				l := model.Lesson{
 					Name:       "Lesson1",
 					Content:    "Content1",
 					URLPicture: "http://test",
@@ -148,8 +148,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 		},
 		{
 			name: "empty lesson name",
-			lesson: func() model.LessonCreate {
-				l := model.LessonCreate{
+			lesson: func() model.Lesson {
+				l := model.Lesson{
 					CourseID:   course.ID,
 					Content:    "Content1",
 					URLPicture: "http://test",
@@ -161,8 +161,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 		},
 		{
 			name: "empty user id",
-			lesson: func() model.LessonCreate {
-				l := model.LessonCreate{
+			lesson: func() model.Lesson {
+				l := model.Lesson{
 					CourseID:   course.ID,
 					Name:       "Lesson1",
 					Content:    "Content",
@@ -174,8 +174,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 		},
 		{
 			name: "non existing user",
-			lesson: func() model.LessonCreate {
-				l := model.LessonCreate{
+			lesson: func() model.Lesson {
+				l := model.Lesson{
 					CourseID:   course.ID,
 					Name:       "Lesson1",
 					Content:    "Content1",
@@ -190,55 +190,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+			_, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
 				tc.lesson(), tc.user_id)
-			suite.Equal(tc.err, err)
-		})
-	}
-}
-
-func (suite *storeTestSuite) TestDeleteLessonDB() {
-	course, user, err := suite.prepareLessonCreation()
-	suite.NoError(err)
-	suite.NotEmpty(course)
-
-	lesson := func() model.LessonCreate {
-		l := model.LessonCreate{
-			CourseID:   course.ID,
-			Name:       "Lesson2",
-			Content:    "Content2",
-			URLPicture: "http://test",
-		}
-		return l
-	}
-	newLesson, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
-		lesson(), user.ID)
-	suite.NoError(err)
-	suite.NotEmpty(newLesson)
-
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
-	testCases := []struct {
-		name     string
-		lessonId int
-		err      error
-	}{
-		{
-			name:     "success",
-			lessonId: newLesson.ID,
-			err:      nil,
-		},
-		{
-			name:     "lesson id don't exist",
-			lessonId: rnd.Intn(32) + 1,
-			err:      errs.ErrLessonNotFound,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			err := suite.store.LessonStorage().DeleteLessonDB(context.TODO(),
-				tc.lessonId)
 			suite.Equal(tc.err, err)
 		})
 	}
@@ -249,8 +202,8 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 	suite.NoError(err)
 	suite.NotEmpty(course)
 
-	lesson := func() model.LessonCreate {
-		l := model.LessonCreate{
+	lesson := func() model.Lesson {
+		l := model.Lesson{
 			CourseID:   course.ID,
 			Name:       "Lesson4",
 			Content:    "Content3",
@@ -258,7 +211,7 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 		}
 		return l
 	}
-	newLesson, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+	newLesson, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
 		lesson(), user.ID)
 	suite.NoError(err)
 	suite.NotEmpty(newLesson)
@@ -273,9 +226,8 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 			name: "change name",
 			lesson: func() model.LessonUpdate {
 				l := model.LessonUpdate{
-					ID:       newLesson.ID,
-					CourseID: newLesson.CourseID,
-					Name:     "Lesson4",
+					ID:   newLesson.ID,
+					Name: "Lesson4",
 				}
 				return l
 			},
@@ -290,10 +242,9 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 			name: "change content",
 			lesson: func() model.LessonUpdate {
 				l := model.LessonUpdate{
-					ID:       newLesson.ID,
-					CourseID: newLesson.CourseID,
-					Name:     newLesson.Name,
-					Content:  "NewContent",
+					ID:      newLesson.ID,
+					Name:    newLesson.Name,
+					Content: "NewContent",
 				}
 				return l
 			},
@@ -309,7 +260,6 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 			lesson: func() model.LessonUpdate {
 				l := model.LessonUpdate{
 					ID:         newLesson.ID,
-					CourseID:   newLesson.CourseID,
 					Name:       newLesson.Name,
 					URLPicture: "http://newPicture",
 				}
@@ -325,7 +275,7 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			updLesson, err := suite.store.LessonStorage().UpdateLessonDB(context.TODO(),
+			updLesson, err := suite.store.LessonStorage().UpdateLesson(context.TODO(),
 				tc.lesson())
 			suite.Equal(tc.err, err)
 			suite.Equal(tc.expected.Name, updLesson.Name)
@@ -341,8 +291,8 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 	suite.NoError(err)
 	suite.NotEmpty(course)
 
-	lesson := func() model.LessonCreate {
-		l := model.LessonCreate{
+	lesson := func() model.Lesson {
+		l := model.Lesson{
 			CourseID:   course.ID,
 			Name:       "Lesson2",
 			Content:    "Content2",
@@ -350,13 +300,13 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 		}
 		return l
 	}
-	lesson1, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+	lesson1, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
 		lesson(), user.ID)
 	suite.NoError(err)
 	suite.NotEmpty(lesson1)
 
-	lesson = func() model.LessonCreate {
-		l := model.LessonCreate{
+	lesson = func() model.Lesson {
+		l := model.Lesson{
 			CourseID:   course.ID,
 			Name:       "Lesson3",
 			Content:    "Content3",
@@ -364,7 +314,7 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 		}
 		return l
 	}
-	lesson2, err := suite.store.LessonStorage().CreateLessonDB(context.TODO(),
+	lesson2, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
 		lesson(), user.ID)
 	suite.NoError(err)
 	suite.NotEmpty(lesson2)
@@ -396,7 +346,7 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			lessonsList, err := suite.store.LessonStorage().GetLessonsListDB(context.TODO(),
+			lessonsList, err := suite.store.LessonStorage().GetLessonsList(context.TODO(),
 				tc.courseID)
 			suite.Equal(tc.err, err)
 			suite.Equal(tc.expected, lessonsList)

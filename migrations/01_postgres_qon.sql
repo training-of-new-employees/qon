@@ -76,8 +76,6 @@ CREATE TABLE IF NOT EXISTS lessons (
     archived BOOLEAN NOT NULL DEFAULT FALSE,
     number INTEGER,
     name VARCHAR(256),
-    content VARCHAR(512) NOT NULL DEFAULT '',
-    url_picture VARCHAR(512) DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_lesson_course_not_empty CHECK ( course_id IS NOT NULL AND course_id <> 0 ),
@@ -111,14 +109,14 @@ CREATE TABLE IF NOT EXISTS pictures (
     created_by INTEGER,
     number INTEGER,
     name VARCHAR(256) DEFAULT '',
-    link VARCHAR(1024),
+    url_picture VARCHAR(1024),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_picture_lesson_not_empty CHECK ( lesson_id IS NOT NULL ),
     CONSTRAINT fk_picture_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
     CONSTRAINT chck_picture_creater_not_empty CHECK ( created_by IS NOT NULL ),
     CONSTRAINT fk_picture_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chck_link_not_empty CHECK ( NOT (link IS NULL OR link = '') )
+    CONSTRAINT chck_url_picture_not_empty CHECK ( NOT (url_picture IS NULL OR url_picture = '') )
 );
 
 -- Должности-Курсы (назначенные на должность курсы)
