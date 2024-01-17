@@ -63,9 +63,7 @@ func (s *RestServer) InitRoutes() {
 	lessons.PATCH("/", s.handlerLessonUpdate)
 
 	userGroup := mvp.Group("/users")
-
 	userGroup.POST("/set-password", s.handlerSetPassword)
-
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
