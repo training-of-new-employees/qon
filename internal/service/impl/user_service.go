@@ -264,22 +264,26 @@ func (u *uService) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*mod
 }
 
 // UpdatePasswordAndActivateUser устанавливает пароль и активирует учётную запись пользователя.
-func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error {
+func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) (*model.User, error) {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	if user.IsActive {
+		return nil, errs.ErrUnauthorized
 	}
 
 	encPassword, err := utils.EncryptPassword(password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err = u.db.UserStorage().SetPasswordAndActivateUser(ctx, user.ID, encPassword); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return user, nil
 }
 
 // ResetPassword сбрасывает пользовательский пароль и устанавливает новый.

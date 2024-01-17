@@ -1099,7 +1099,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserSignIn"
+                            "$ref": "#/definitions/model.UserActivation"
                         }
                     }
                 ],
@@ -1516,6 +1516,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserActivation": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "invite": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }
