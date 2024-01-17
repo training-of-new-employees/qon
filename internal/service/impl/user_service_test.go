@@ -117,6 +117,7 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 				email := "email@mail.com"
 				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(nil, errs.ErrUserNotFound)
 				f.cache.EXPECT().Set(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 				f.sender.EXPECT().SendCode(email, gomock.Any()).Return(errs.ErrInternal)
 			},
 			args{
@@ -125,8 +126,10 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 					Email: "email@mail.com",
 				},
 			},
-			nil,
-			true,
+			&model.CreateAdmin{
+				Email: "email@mail.com",
+			},
+			false,
 		},
 		{
 			"Success write cache",
@@ -813,7 +816,7 @@ func Test_uService_CreateUser(t *testing.T) {
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
 				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
-				f.sender.EXPECT().Mode().Return("api")
+				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 			},
 			args{
 				nil,

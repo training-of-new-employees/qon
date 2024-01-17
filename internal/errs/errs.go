@@ -33,6 +33,8 @@ var (
 	ErrOnlyAdmin = errors.New("you aren't admin")
 	// ErrNoAccess - нет доступа
 	ErrNoAccess = errors.New("no access")
+	// ErrIncorrectEmailOrPassword - неправильный емейл или пароль
+	ErrIncorrectEmailOrPassword = errors.New("incorrect email or password")
 )
 
 var (

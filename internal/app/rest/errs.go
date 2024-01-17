@@ -1,7 +1,9 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -45,9 +47,10 @@ var errorToCode = map[string]int{
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
 	errs.ErrUserActivated.Error():      http.StatusConflict,
 
-	errs.ErrUnauthorized.Error():  http.StatusUnauthorized,
-	errs.ErrNotFirstLogin.Error(): http.StatusMethodNotAllowed,
-	errs.ErrOnlyAdmin.Error():     http.StatusMethodNotAllowed,
+	errs.ErrUnauthorized.Error():             http.StatusUnauthorized,
+	errs.ErrIncorrectEmailOrPassword.Error(): http.StatusUnauthorized,
+	errs.ErrNotFirstLogin.Error():            http.StatusMethodNotAllowed,
+	errs.ErrOnlyAdmin.Error():                http.StatusMethodNotAllowed,
 
 	errs.ErrNotSendEmail.Error(): http.StatusInternalServerError,
 	errs.ErrInternal.Error():     http.StatusInternalServerError,
@@ -65,6 +68,14 @@ func (r RestServer) handleError(c *gin.Context, err error) {
 	httpCode, exists := errorToCode[err.Error()]
 	if !exists {
 		httpCode = http.StatusInternalServerError
+	}
+
+	// mock-рассылка
+	// TODO: конструкция выглядит слишком громоздкой, нужно искать более элегантное решение
+	if strings.HasPrefix(err.Error(), "<mock-sender>: ") {
+		err = fmt.Errorf(strings.TrimPrefix(err.Error(), "<mock-sender>: "))
+
+		httpCode = http.StatusOK
 	}
 
 	c.AbortWithStatusJSON(httpCode, errResponse{Message: err.Error()})
