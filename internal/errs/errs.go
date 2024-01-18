@@ -33,6 +33,8 @@ var (
 	ErrOnlyAdmin = errors.New("you aren't admin")
 	// ErrNoAccess - нет доступа
 	ErrNoAccess = errors.New("no access")
+	// ErrIncorrectEmailOrPassword - неправильный емейл или пароль
+	ErrIncorrectEmailOrPassword = errors.New("incorrect email or password")
 )
 
 var (
@@ -115,6 +117,9 @@ var (
 
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
+
+	// ErrInviteNotEmpty - code invite не может быть пустым
+	ErrInviteNotEmpty = errors.New("invite cannot be empty")
 
 	// ErrInvalidPassword - невалидный пароль
 	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")

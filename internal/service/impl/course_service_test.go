@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/model"
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"

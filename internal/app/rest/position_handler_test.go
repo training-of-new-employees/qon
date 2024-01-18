@@ -137,6 +137,18 @@ func (suite *handlerTestSuite) TestGetPosition() {
 			},
 		},
 		{
+			name:         "negative pos",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				positionSet := model.NewTestPositionSet()
+				positionSet.CompanyID = companyID
+
+				positionID := -1
+
+				return fmt.Sprint(positionID)
+			},
+		},
+		{
 			name:         "not found",
 			expectedCode: http.StatusNotFound,
 			prepare: func() string {
@@ -361,6 +373,186 @@ func (suite *handlerTestSuite) TestUpdatePosition() {
 			w := httptest.NewRecorder()
 
 			req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/positions/update/%s", positionID), bytes.NewBuffer(body))
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestGetPositionCourses() {
+	companyID := 1
+	positionID := 2
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func()
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() {
+				suite.positionService.
+					EXPECT().
+					GetPositionCourses(gomock.Any(), companyID, positionID).
+					Return([]int{1, 2, 3}, nil)
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() {
+				suite.positionService.
+					EXPECT().
+					GetPositionCourses(gomock.Any(), companyID, positionID).
+					Return(nil, errs.ErrPositionNotFound)
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() {
+				suite.positionService.
+					EXPECT().
+					GetPositionCourses(gomock.Any(), companyID, positionID).
+					Return(nil, errs.ErrInternal)
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/positions/%d/courses", positionID), nil)
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TestPositionAssignCourses() {
+	companyID := 1
+	userID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() (string, []byte)
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() (string, []byte) {
+				positionID := 2
+				positionAssignCourse := model.NewTestPositionAssignCourses()
+
+				suite.positionService.
+					EXPECT().
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					Return(nil)
+
+				body, _ := json.Marshal(positionAssignCourse)
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+		{
+			name:         "not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() (string, []byte) {
+				positionID := 2
+				positionAssignCourse := model.NewTestPositionAssignCourses()
+
+				suite.positionService.
+					EXPECT().
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					Return(errs.ErrPositionNotFound)
+
+				body, _ := json.Marshal(positionAssignCourse)
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+		{
+			name:         "conflict",
+			expectedCode: http.StatusConflict,
+			prepare: func() (string, []byte) {
+				positionID := 2
+				positionAssignCourse := model.NewTestPositionAssignCourses()
+
+				suite.positionService.
+					EXPECT().
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					Return(errs.ErrPositionCourseUsed)
+
+				body, _ := json.Marshal(positionAssignCourse)
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+		{
+			name:         "bad request",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				positionID := 2
+
+				body, _ := json.Marshal("invalid")
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+		{
+			name:         "invalid position id",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				positionID := "invalid"
+
+				return fmt.Sprint(positionID), nil
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() (string, []byte) {
+				positionID := 2
+				positionAssignCourse := model.NewTestPositionAssignCourses()
+
+				suite.positionService.
+					EXPECT().
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					Return(errs.ErrInternal)
+
+				body, _ := json.Marshal(positionAssignCourse)
+
+				return fmt.Sprint(positionID), body
+			},
+		},
+	}
+
+	// получение тестового токена для авторизации админа
+	accessToken, err := jwttoken.TestAuthorizateUser(1, companyID, true)
+	suite.NoError(err)
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			positionID, body := tc.prepare()
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/positions/%s/courses", positionID), bytes.NewBuffer(body))
 			req.Header.Set("Authorization", accessToken)
 
 			suite.srv.ServeHTTP(w, req)

@@ -20,4 +20,8 @@ type RepositoryPosition interface {
 	UpdatePosition(ctx context.Context, positionID int, position model.PositionSet) (*model.Position, error)
 
 	AssignCourse(ctx context.Context, positionID int, courseID int) error
+
+	AssignCourses(ctx context.Context, positionID int, courseIDs []int) error
+
+	GetCourseForPosition(ctx context.Context, positionID int) ([]int, error)
 }

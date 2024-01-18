@@ -117,6 +117,13 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.PositionAssignCourses:
+    properties:
+      course_id:
+        items:
+          type: integer
+        type: array
+    type: object
   model.PositionSet:
     properties:
       archived:
@@ -151,6 +158,15 @@ definitions:
       surname:
         type: string
       updated_at:
+        type: string
+    type: object
+  model.UserActivation:
+    properties:
+      email:
+        type: string
+      invite:
+        type: string
+      password:
         type: string
     type: object
   model.UserCreate:
@@ -233,6 +249,15 @@ definitions:
       password:
         type: string
     type: object
+  rest.assignCoursesResponse:
+    properties:
+      course_id:
+        items:
+          type: integer
+        type: array
+      position_id:
+        type: integer
+    type: object
   rest.courseResp:
     properties:
       archived:
@@ -248,6 +273,15 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  rest.getPositionCoursesResponse:
+    properties:
+      course_id:
+        items:
+          type: integer
+        type: array
+      position_id:
+        type: integer
     type: object
   rest.sEmail:
     properties:
@@ -788,6 +822,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение всех должностей
       tags:
       - position
@@ -814,6 +850,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Создание новой должности
       tags:
       - position
@@ -840,7 +878,84 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение всех должностей
+      tags:
+      - position
+  /positions/{id}/courses:
+    get:
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.getPositionCoursesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
+      summary: Получение всех курсов привязанных к должности
+      tags:
+      - position
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Courses
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.PositionAssignCourses'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.assignCoursesResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Пользователь не является сотрудником компании
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
+      summary: Присвоение нескольких курсов к должности
       tags:
       - position
   /positions/update/{id}:
@@ -876,6 +991,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Обновление данных о должности
       tags:
       - position
@@ -1084,7 +1201,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.UserSignIn'
+          $ref: '#/definitions/model.UserActivation'
       produces:
       - application/json
       responses:

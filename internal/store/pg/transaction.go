@@ -3,11 +3,13 @@ package pg
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
-	"go.uber.org/zap"
 )
 
 // transaction - структура для встраивания в репозитории (companyStorage, positionStorage, uStorage,...).
@@ -288,4 +290,28 @@ func (tn *transaction) updatePicturesTx(ctx context.Context,
 		return "", err
 	}
 	return urlPictureUpd, nil
+}
+
+func (tn *transaction) assignCoursesTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseIDs []int) error {
+	query := strings.Builder{}
+	query.WriteString(`INSERT INTO position_course (position_id, course_id) VALUES `)
+
+	var params []interface{}
+
+	for i, courseID := range courseIDs {
+		position := i * 2
+
+		query.WriteString(fmt.Sprintf("($%d,$%d),", position+1, position+2))
+
+		params = append(params, positionID, courseID)
+	}
+
+	queryStr := query.String()
+	queryStr = queryStr[:len(queryStr)-1]
+	_, err := tx.ExecContext(ctx, queryStr, params...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

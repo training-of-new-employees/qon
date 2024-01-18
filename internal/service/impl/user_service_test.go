@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -117,6 +117,7 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 				email := "email@mail.com"
 				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(nil, errs.ErrUserNotFound)
 				f.cache.EXPECT().Set(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 				f.sender.EXPECT().SendCode(email, gomock.Any()).Return(errs.ErrInternal)
 			},
 			args{
@@ -125,8 +126,10 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 					Email: "email@mail.com",
 				},
 			},
-			nil,
-			true,
+			&model.CreateAdmin{
+				Email: "email@mail.com",
+			},
+			false,
 		},
 		{
 			"Success write cache",
@@ -813,7 +816,7 @@ func Test_uService_CreateUser(t *testing.T) {
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
 				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
-				f.sender.EXPECT().Mode().Return("api")
+				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 			},
 			args{
 				nil,
@@ -1276,9 +1279,12 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 				tokenVal:   f.tokenVal,
 				sender:     f.sender,
 			}
-			if err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password); (err != nil) != tt.wantErr {
+
+			_, err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.UpdatePasswordAndActivateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 		})
 	}
 }

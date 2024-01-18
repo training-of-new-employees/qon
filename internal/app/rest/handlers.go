@@ -26,6 +26,7 @@ import (
 
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
+	s.router.Use(s.CORS())
 
 	s.router.Use(s.LoggerMiddleware())
 	allRoutes := s.router.Group("/api")
@@ -62,11 +63,11 @@ func (s *RestServer) InitRoutes() {
 	lesson.PATCH("/:id", s.handlerLessonUpdate)
 
 	userGroup := mvp.Group("/users")
+	userGroup.POST("/set-password", s.handlerSetPassword)
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
 	userGroup.PATCH("/:id", s.handlerEditUser)
-	userGroup.POST("/set-password", s.handlerSetPassword)
 	userGroup.PATCH("/archive/:id", s.handlerArchiveUser)
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("/info", s.handlerUserInfo)
@@ -79,6 +80,8 @@ func (s *RestServer) InitRoutes() {
 	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
 	position.Any("/", s.NotFound(errs.ErrPositionNotFound))
+	position.GET("/:id/courses", s.handlerGetPositionCourses)
+	position.PATCH("/:id/courses", s.handlerAssignCourses)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 
