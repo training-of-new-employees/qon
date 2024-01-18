@@ -934,3 +934,140 @@ func (suite *handlerTestSuite) TestRestServer_handlerSetPassword() {
 		})
 	}
 }
+
+func (suite *handlerTestSuite) TestRestServer_handlerGetInvitationLink() {
+	userAdminID := 1
+	userID := 2
+	companyID := 1
+	email := "user@mail.com"
+	link := fmt.Sprintf("http://localhost/first-login?email=%s&invite=%s", email, randomseq.RandomString(20))
+
+	tests := []struct {
+		name         string
+		userID       int
+		userAdminID  int
+		isAdmin      bool
+		companyID    int
+		prepare      func() string
+		expectedCode int
+	}{
+		{
+			name:         "success",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusOK,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+				suite.userService.EXPECT().GetInvitationLinkUser(context.Background(), email, companyID).Return(&response, nil)
+
+				return email
+			},
+		},
+		{
+			name:         "invalid request body",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				return "ddd"
+			},
+		},
+		{
+			name:         "not found",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+
+				suite.userService.EXPECT().GetInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrUserNotFound)
+
+				return email
+			},
+		},
+		{
+			name:         "internal error",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+
+				suite.userService.EXPECT().GetInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrInternal)
+
+				return email
+			},
+		},
+		{
+			name:         "error the user is activated in the system",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusConflict,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+
+				suite.userService.EXPECT().GetInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrUserActivated)
+
+				return email
+			},
+		},
+		{
+			name:         "error the user does not have access to the handler",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      false,
+			companyID:    companyID,
+			expectedCode: http.StatusForbidden,
+			prepare: func() string {
+
+				return email
+			},
+		},
+		{
+			name:         "user is not authorized",
+			userID:       userID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusUnauthorized,
+			prepare: func() string {
+
+				return email
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		// получение тестового токена для авторизации админа
+		var accessToken string
+		var err error
+		if tt.userAdminID > 0 {
+			accessToken, err = jwttoken.TestAuthorizateUser(tt.userAdminID, tt.companyID, tt.isAdmin)
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
+			suite.NoError(err)
+		}
+
+		suite.Run(tt.name, func() {
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/invitation-link/%s", tt.prepare()), nil)
+
+			if len(accessToken) > 0 {
+				req.Header.Set("Authorization", accessToken)
+			}
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tt.expectedCode, w.Code)
+		})
+	}
+}

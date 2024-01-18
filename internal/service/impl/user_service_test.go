@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
@@ -1693,7 +1694,6 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 			}
 
 			got, err := u.RegenerationInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
-			fmt.Println(err)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.RegenerationInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -1701,6 +1701,109 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 
 			if len(tt.want) > 0 {
 				assert.Regexp(t, tt.want, got.Link)
+			}
+		})
+	}
+}
+
+func Test_uService_GetInvitationLinkUser(t *testing.T) {
+	email := "user@mail.com"
+	code := randomseq.RandomString(20)
+	userID := 2
+	companyID := 1
+
+	type fields struct {
+		userDB     *mock_store.MockRepositoryUser
+		cache      *mock_cache.MockCache
+		secretKey  string
+		aTokenTime time.Duration
+		rTokenTime time.Duration
+		tokenGen   jwttoken.JWTGenerator
+		tokenVal   jwttoken.JWTValidator
+		host       string
+		code       string
+	}
+	type args struct {
+		ctx       context.Context
+		email     string
+		companyID int
+	}
+	tests := []struct {
+		name    string
+		prepare func(*fields)
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Regeneration Invite Link User Error",
+			func(f *fields) {
+				f.userDB.EXPECT().GetUserByEmail(nil, "user@mail.com").Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				ctx:       nil,
+				email:     email,
+				companyID: companyID,
+			},
+			"",
+			true,
+		},
+		{
+			name: "Regeneration Invite Link User success",
+			prepare: func(f *fields) {
+				u := &model.User{
+					ID:        userID,
+					Email:     email,
+					CompanyID: companyID,
+					IsActive:  false,
+				}
+
+				f.cache.EXPECT().GetInviteCode(nil, gomock.Any()).Return(code, nil)
+				f.userDB.EXPECT().GetUserByEmail(nil, email).Return(u, nil)
+
+				f.host = "http://localhost"
+			},
+			args: args{
+				ctx:       nil,
+				email:     email,
+				companyID: companyID,
+			},
+			want:    fmt.Sprintf("http://localhost/first-login?email=%s&invite=%s", email, code),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			f := &fields{}
+			f.cache = mock_cache.NewMockCache(ctrl)
+			f.userDB = mock_store.NewMockRepositoryUser(ctrl)
+
+			if tt.prepare != nil {
+				tt.prepare(f)
+			}
+			storages := mockUserStorage(ctrl, f.userDB)
+			u := &uService{
+				db:         storages,
+				cache:      f.cache,
+				secretKey:  f.secretKey,
+				aTokenTime: f.aTokenTime,
+				rTokenTime: f.rTokenTime,
+				tokenGen:   f.tokenGen,
+				tokenVal:   f.tokenVal,
+				host:       f.host,
+			}
+
+			got, err := u.GetInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("uService.GetInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if len(tt.want) > 0 {
+				assert.Equal(t, got.Link, tt.want)
 			}
 		})
 	}

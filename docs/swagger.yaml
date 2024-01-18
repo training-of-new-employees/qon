@@ -603,6 +603,44 @@ paths:
       summary: Регенерация пригласительной ссылки
       tags:
       - admin
+  /invitation-link/{email}:
+    get:
+      parameters:
+      - description: User email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.InvitationLinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Получить пригласительную ссылку
+      tags:
+      - admin
   /lesson:
     delete:
       parameters:

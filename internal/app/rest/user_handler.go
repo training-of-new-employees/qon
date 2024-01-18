@@ -460,6 +460,40 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetInvitationLink godoc
+//
+//	@Summary	Получить пригласительную ссылку
+//	@Tags		admin
+//	@Produce	json
+//	@Param		email	path		string	true	"User email"
+//	@Success	200		{object}	model.InvitationLinkResponse
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	403		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//	@Router		/invitation-link/{email}  [get]
+func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
+	ctx := c.Request.Context()
+	email := c.Param("email")
+	invitationLinkRequest := model.InvitationLinkRequest{Email: email}
+
+	if err := invitationLinkRequest.Validate(); err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	session := r.getUserSession(c)
+
+	response, err := r.services.User().GetInvitationLinkUser(ctx, invitationLinkRequest.Email, session.OrgID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 // GetUser godoc
 //
 //	@Summary		Получение данные авторизованного пользователя

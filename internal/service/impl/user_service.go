@@ -398,6 +398,33 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	return invitationLinkResponse, nil
 }
 
+func (u *uService) GetInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	invitationLinkResponse := &model.InvitationLinkResponse{}
+
+	employee, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if employee.IsActive {
+
+		return nil, errs.ErrUserActivated
+	}
+
+	if employee.CompanyID != companyID {
+		return nil, errs.ErrNoAccess
+	}
+
+	code, err := u.GetUserInviteCodeFromCache(ctx, employee.Email)
+	if err != nil {
+		return nil, err
+	}
+	invitationLinkResponse.Link = fmt.Sprintf("%s/first-login?email=%s&invite=%s", u.host, email, code)
+	invitationLinkResponse.Email = email
+
+	return invitationLinkResponse, nil
+}
+
 func (u *uService) ClearSession(ctx context.Context, hashedRefreshToken string) error {
 	return u.cache.DeleteRefreshToken(ctx, hashedRefreshToken)
 }
