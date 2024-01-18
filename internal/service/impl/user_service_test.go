@@ -1721,7 +1721,6 @@ func Test_uService_GetInvitationLinkUser(t *testing.T) {
 		tokenGen   jwttoken.JWTGenerator
 		tokenVal   jwttoken.JWTValidator
 		host       string
-		code       string
 	}
 	type args struct {
 		ctx       context.Context

@@ -419,6 +419,7 @@ func (u *uService) GetInvitationLinkUser(ctx context.Context, email string, comp
 	if err != nil {
 		return nil, err
 	}
+
 	invitationLinkResponse.Link = fmt.Sprintf("%s/first-login?email=%s&invite=%s", u.host, email, code)
 	invitationLinkResponse.Email = email
 
