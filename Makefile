@@ -34,7 +34,7 @@ fmt:
 mocks: $(shell grep -lrP --include='*.go' --exclude='*test.go' 'type\s+\w+\s+interface\s*' ./)
 	@echo "Generating mocks"
 	@rm -rf $(MOCKS_DESTINATION)
-	@for file in $^; do ~/go/bin/mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file#*internal/}`; done
+	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file#*internal/}`; done
 
 swag:
 	swag fmt
