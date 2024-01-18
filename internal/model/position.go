@@ -4,6 +4,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
@@ -45,4 +46,20 @@ func (p *PositionSet) Validation() error {
 	}
 
 	return nil
+}
+
+func (p *PositionSet) ValidationEdit() error {
+	// проверка на корректность имени компании
+	if p.Name != "" {
+		if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateCompanyPositionName(p.Name))); err != nil {
+			return errs.ErrInvalidPositionName
+		}
+	}
+	// проверка на наличие id компании
+	if err := validation.Validate(&p.CompanyID, validation.Required); err != nil {
+		return errs.ErrCompanyIDNotEmpty
+	}
+
+	return nil
+
 }
