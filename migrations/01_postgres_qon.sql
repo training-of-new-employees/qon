@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     archived BOOLEAN NOT NULL DEFAULT FALSE,
     number INTEGER,
     name VARCHAR(256),
+    description VARCHAR(512) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_lesson_course_not_empty CHECK ( course_id IS NOT NULL AND course_id <> 0 ),

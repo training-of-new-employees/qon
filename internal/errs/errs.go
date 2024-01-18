@@ -161,7 +161,7 @@ var (
 
 	// -- Ошибки картинок --
 
-	ErrPictureLinkNotEmpty = errors.New("picture (link) cannot be empty")
+	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 

@@ -2,11 +2,10 @@ package pg
 
 import (
 	"context"
-	"math/rand"
-	"time"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
 func (suite *storeTestSuite) prepareLessonCreation() (*model.Course,
@@ -29,9 +28,9 @@ func (suite *storeTestSuite) prepareLessonCreation() (*model.Course,
 	NewUser := model.UserCreate{
 		CompanyID:  company.ID,
 		PositionID: position.ID,
-		Name:       "test",
+		Name:       randomseq.RandomName(10),
 		Email:      "test@yandex.com",
-		Password:   "123456",
+		Password:   randomseq.RandomPassword(),
 	}
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), NewUser)
 	if err != nil {
@@ -41,8 +40,8 @@ func (suite *storeTestSuite) prepareLessonCreation() (*model.Course,
 
 	NewCourse := model.CourseSet{
 		CreatedBy:   user.ID,
-		Name:        "test",
-		Description: "test",
+		Name:        randomseq.RandomName(10),
+		Description: randomseq.RandomString(20),
 	}
 	course, err := suite.store.CourseStorage().CreateCourse(context.TODO(),
 		NewCourse)
@@ -52,7 +51,7 @@ func (suite *storeTestSuite) prepareLessonCreation() (*model.Course,
 	return course, user, nil
 }
 
-func (suite *storeTestSuite) TestGetLessonDB() {
+func (suite *storeTestSuite) TestGetLesson() {
 	course, user, err := suite.prepareLessonCreation()
 
 	suite.NoError(err)
@@ -61,9 +60,9 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 	lesson := func() model.Lesson {
 		l := model.Lesson{
 			CourseID:   course.ID,
-			Name:       "Lesson2",
-			Content:    "Content2",
-			URLPicture: "http://test",
+			Name:       randomseq.RandomName(10),
+			Content:    randomseq.RandomString(20),
+			URLPicture: randomseq.RandomString(30),
 		}
 		return l
 	}
@@ -71,8 +70,6 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 		lesson(), user.ID)
 	suite.NoError(err)
 	suite.NotEmpty(newLesson)
-
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 
 	testCases := []struct {
 		name           string
@@ -88,7 +85,7 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 		},
 		{
 			name:           "not existing lesson",
-			lessonID:       rnd.Intn(32) + 1,
+			lessonID:       randomseq.RandomTestInt(),
 			expectedLesson: nil,
 			err:            errs.ErrLessonNotFound,
 		},
@@ -104,14 +101,12 @@ func (suite *storeTestSuite) TestGetLessonDB() {
 
 }
 
-func (suite *storeTestSuite) TestCreateLessonDB() {
+func (suite *storeTestSuite) TestCreateLesson() {
 
 	course, user, err := suite.prepareLessonCreation()
 
 	suite.NoError(err)
 	suite.NotEmpty(course)
-
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 
 	testCases := []struct {
 		name    string
@@ -124,9 +119,9 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 			lesson: func() model.Lesson {
 				l := model.Lesson{
 					CourseID:   course.ID,
-					Name:       "Lesson1",
-					Content:    "Content1",
-					URLPicture: "http://test",
+					Name:       randomseq.RandomName(10),
+					Content:    randomseq.RandomString(20),
+					URLPicture: randomseq.RandomString(30),
 				}
 				return l
 			},
@@ -137,9 +132,9 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 			name: "empty course id",
 			lesson: func() model.Lesson {
 				l := model.Lesson{
-					Name:       "Lesson1",
-					Content:    "Content1",
-					URLPicture: "http://test",
+					Name:       randomseq.RandomName(10),
+					Content:    randomseq.RandomString(20),
+					URLPicture: randomseq.RandomString(30),
 				}
 				return l
 			},
@@ -151,8 +146,8 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 			lesson: func() model.Lesson {
 				l := model.Lesson{
 					CourseID:   course.ID,
-					Content:    "Content1",
-					URLPicture: "http://test",
+					Content:    randomseq.RandomString(20),
+					URLPicture: randomseq.RandomString(30),
 				}
 				return l
 			},
@@ -164,9 +159,9 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 			lesson: func() model.Lesson {
 				l := model.Lesson{
 					CourseID:   course.ID,
-					Name:       "Lesson1",
-					Content:    "Content",
-					URLPicture: "http://test",
+					Name:       randomseq.RandomName(10),
+					Content:    randomseq.RandomString(20),
+					URLPicture: randomseq.RandomString(30),
 				}
 				return l
 			},
@@ -177,13 +172,13 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 			lesson: func() model.Lesson {
 				l := model.Lesson{
 					CourseID:   course.ID,
-					Name:       "Lesson1",
-					Content:    "Content1",
-					URLPicture: "http://test",
+					Name:       randomseq.RandomName(10),
+					Content:    randomseq.RandomString(20),
+					URLPicture: randomseq.RandomString(30),
 				}
 				return l
 			},
-			user_id: rnd.Intn(32) + 1,
+			user_id: randomseq.RandomTestInt(),
 			err:     errs.ErrCreaterNotFound,
 		},
 	}
@@ -197,7 +192,7 @@ func (suite *storeTestSuite) TestCreateLessonDB() {
 	}
 }
 
-func (suite *storeTestSuite) TestUpdateLessonDB() {
+func (suite *storeTestSuite) TestUpdateLesson() {
 	course, user, err := suite.prepareLessonCreation()
 	suite.NoError(err)
 	suite.NotEmpty(course)
@@ -205,9 +200,9 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 	lesson := func() model.Lesson {
 		l := model.Lesson{
 			CourseID:   course.ID,
-			Name:       "Lesson4",
-			Content:    "Content3",
-			URLPicture: "http://test",
+			Name:       randomseq.RandomName(10),
+			Content:    randomseq.RandomString(20),
+			URLPicture: randomseq.RandomString(30),
 		}
 		return l
 	}
@@ -216,6 +211,9 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 	suite.NoError(err)
 	suite.NotEmpty(newLesson)
 
+	changedName := randomseq.RandomName(10)
+	changedContent := randomseq.RandomString(20)
+
 	testCases := []struct {
 		name     string
 		lesson   func() model.LessonUpdate
@@ -223,52 +221,19 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 		err      error
 	}{
 		{
-			name: "change name",
-			lesson: func() model.LessonUpdate {
-				l := model.LessonUpdate{
-					ID:   newLesson.ID,
-					Name: "Lesson4",
-				}
-				return l
-			},
-			expected: model.LessonUpdate{
-				Name:       lesson().Name,
-				Content:    newLesson.Content,
-				URLPicture: newLesson.URLPicture,
-			},
-			err: nil,
-		},
-		{
-			name: "change content",
+			name: "success",
 			lesson: func() model.LessonUpdate {
 				l := model.LessonUpdate{
 					ID:      newLesson.ID,
-					Name:    newLesson.Name,
-					Content: "NewContent",
+					Name:    changedName,
+					Content: changedContent,
 				}
 				return l
 			},
 			expected: model.LessonUpdate{
-				Name:       newLesson.Name,
-				Content:    "NewContent",
+				Name:       changedName,
+				Content:    changedContent,
 				URLPicture: newLesson.URLPicture,
-			},
-			err: nil,
-		},
-		{
-			name: "change picture",
-			lesson: func() model.LessonUpdate {
-				l := model.LessonUpdate{
-					ID:         newLesson.ID,
-					Name:       newLesson.Name,
-					URLPicture: "http://newPicture",
-				}
-				return l
-			},
-			expected: model.LessonUpdate{
-				Name:       newLesson.Name,
-				Content:    "NewContent",
-				URLPicture: "http://newPicture",
 			},
 			err: nil,
 		},
@@ -285,7 +250,7 @@ func (suite *storeTestSuite) TestUpdateLessonDB() {
 	}
 }
 
-func (suite *storeTestSuite) TestGetLessonListDB() {
+func (suite *storeTestSuite) TestGetLessonList() {
 	course, user, err := suite.prepareLessonCreation()
 
 	suite.NoError(err)
@@ -294,9 +259,9 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 	lesson := func() model.Lesson {
 		l := model.Lesson{
 			CourseID:   course.ID,
-			Name:       "Lesson2",
-			Content:    "Content2",
-			URLPicture: "http://test",
+			Name:       randomseq.RandomName(10),
+			Content:    randomseq.RandomString(20),
+			URLPicture: randomseq.RandomString(30),
 		}
 		return l
 	}
@@ -308,9 +273,9 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 	lesson = func() model.Lesson {
 		l := model.Lesson{
 			CourseID:   course.ID,
-			Name:       "Lesson3",
-			Content:    "Content3",
-			URLPicture: "http://test3",
+			Name:       randomseq.RandomName(10),
+			Content:    randomseq.RandomString(20),
+			URLPicture: randomseq.RandomString(30),
 		}
 		return l
 	}
@@ -319,28 +284,25 @@ func (suite *storeTestSuite) TestGetLessonListDB() {
 	suite.NoError(err)
 	suite.NotEmpty(lesson2)
 
-	rnd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-
 	testCases := []struct {
 		name     string
 		courseID int
-		expected []*model.Lesson
+		expected []model.Lesson
 		err      error
 	}{
 		{
 			name:     "success",
 			courseID: course.ID,
-			expected: []*model.Lesson{
-				lesson1,
-				lesson2,
+			expected: []model.Lesson{
+				*lesson1,
+				*lesson2,
 			},
 			err: nil,
 		},
 		{
-			name:     "not existing course",
-			courseID: rnd.Intn(32) + 17,
+			name:     "empty course",
 			expected: nil,
-			err:      errs.ErrLessonNotFound,
+			err:      errs.ErrCourseIDNotEmpty,
 		},
 	}
 

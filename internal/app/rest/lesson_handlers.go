@@ -1,12 +1,10 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
@@ -32,13 +30,8 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 
 	lesson, err := r.services.Lesson().CreateLesson(ctx, *lessonCreate,
 		us.UserID)
-	switch {
-	case errors.Is(err, errs.ErrNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -68,14 +61,8 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	ctx := c.Request.Context()
 	lesson, err := r.services.Lesson().GetLesson(ctx, lessonID)
 	if err != nil {
-		switch {
-		case errors.Is(err, errs.ErrNotFound):
-			c.JSON(http.StatusNotFound, s().SetError(err))
-			return
-		case err != nil:
-			c.JSON(http.StatusInternalServerError, s().SetError(err))
-			return
-		}
+		r.handleError(c, err)
+		return
 	}
 	c.JSON(http.StatusOK, lesson)
 }
@@ -112,14 +99,8 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	ctx := c.Request.Context()
 	lesson, err := r.services.Lesson().UpdateLesson(ctx, lessonUpdate)
 	if err != nil {
-		switch {
-		case errors.Is(err, errs.ErrNotFound):
-			c.JSON(http.StatusNotFound, s().SetError(err))
-			return
-		case err != nil:
-			c.JSON(http.StatusInternalServerError, s().SetError(err))
-			return
-		}
+		r.handleError(c, err)
+		return
 	}
 	c.JSON(http.StatusOK, lesson)
 }
@@ -148,14 +129,8 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 	ctx := c.Request.Context()
 	lessonsList, err := r.services.Lesson().GetLessonsList(ctx, courseID)
 	if err != nil {
-		switch {
-		case errors.Is(err, errs.ErrNotFound):
-			c.JSON(http.StatusNotFound, s().SetError(err))
-			return
-		case err != nil:
-			c.JSON(http.StatusInternalServerError, s().SetError(err))
-			return
-		}
+		r.handleError(c, err)
+		return
 	}
 	c.JSON(http.StatusOK, lessonsList)
 

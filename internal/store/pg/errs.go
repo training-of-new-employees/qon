@@ -54,7 +54,7 @@ var constraintToAppError = map[string]error{
 	"fk_picture_lesson":              errs.ErrLessonReference,
 	"chck_picture_creater_not_empty": errs.ErrCreaterNotEmpty,
 	"fk_picture_creater":             errs.ErrCreaterNotFound,
-	"chck_link_not_empty":            errs.ErrPictureLinkNotEmpty,
+	"chck_url_picture_not_empty":     errs.ErrURLPictureNotEmpty,
 
 	// position_course
 	"chck_positioncourse_position_not_empty": errs.ErrPositionIDNotEmpty,

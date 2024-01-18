@@ -19,9 +19,9 @@ func newLessonService(db store.Storages) *lessonService {
 }
 
 func (l *lessonService) CreateLesson(ctx context.Context,
-	lesson model.Lesson, user_id int) (*model.Lesson, error) {
+	lesson model.Lesson, userID int) (*model.Lesson, error) {
 	createdLesson, err := l.db.LessonStorage().CreateLesson(ctx,
-		lesson, user_id)
+		lesson, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (l *lessonService) GetLesson(ctx context.Context, lessonID int) (*model.Les
 	return lesson, nil
 }
 
-func (l *lessonService) GetLessonsList(ctx context.Context, courseID int) ([]*model.Lesson, error) {
+func (l *lessonService) GetLessonsList(ctx context.Context, courseID int) ([]model.Lesson, error) {
 	lessonsList, err := l.db.LessonStorage().GetLessonsList(ctx, courseID)
 	if err != nil {
 		return nil, err

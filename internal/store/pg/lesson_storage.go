@@ -29,12 +29,12 @@ func newLessonStorage(db *sqlx.DB) *lessonStorage {
 }
 
 func (l *lessonStorage) CreateLesson(ctx context.Context,
-	lesson model.Lesson, user_id int) (*model.Lesson, error) {
+	lesson model.Lesson, userID int) (*model.Lesson, error) {
 	var createdLesson *model.Lesson
 	var err error
 
 	err = l.tx(func(tx *sqlx.Tx) error {
-		createdLesson, err = l.createLessonTx(ctx, tx, lesson, user_id)
+		createdLesson, err = l.createLessonTx(ctx, tx, lesson, userID)
 		if err != nil {
 			return err
 		}
@@ -180,9 +180,12 @@ func (l *lessonStorage) tx(f func(*sqlx.Tx) error) error {
 }
 
 // GetLessonsListDB - получить список уроков курса.
-func (l *lessonStorage) GetLessonsList(ctx context.Context, courseID int) ([]*model.Lesson, error) {
-	lessonsList := []*model.Lesson{}
+func (l *lessonStorage) GetLessonsList(ctx context.Context, courseID int) ([]model.Lesson, error) {
+	lessonsList := []model.Lesson{}
 
+	if courseID == 0 {
+		return nil, errs.ErrCourseIDNotEmpty
+	}
 	query := `SELECT l.id, l.course_id, l.name, t.content,
 					 p.url_picture, l.archived
 			  FROM lessons l
@@ -193,10 +196,6 @@ func (l *lessonStorage) GetLessonsList(ctx context.Context, courseID int) ([]*mo
 	err := l.db.SelectContext(ctx, &lessonsList, query, courseID)
 	if err != nil {
 		return nil, handleError(err)
-	}
-
-	if len(lessonsList) == 0 {
-		return nil, errs.ErrLessonNotFound
 	}
 
 	return lessonsList, nil
