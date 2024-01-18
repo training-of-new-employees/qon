@@ -101,8 +101,8 @@ func (r *RestServer) getUserSession(c *gin.Context) *UserSession {
 func (r *RestServer) CORS() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT"},
-		AllowHeaders:     []string{"Origin, Content-Type, Authorization"},
+		AllowMethods:     []string{"OPTIONS", "GET", "POST", "PATCH", "PUT"},
+		AllowHeaders:     []string{"Origin", "Accept", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	})
