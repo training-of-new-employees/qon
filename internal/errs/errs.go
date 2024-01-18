@@ -173,4 +173,10 @@ var (
 
 	// ErrAssignLessonUsed - прогресс пользователя по уроку должен быть уникальным
 	ErrAssignLessonUsed = errors.New("Course progress already has the same lesson progress")
+
+	// ErrInvalidCourseStatus - невалидный статус сотрудника по курсу
+	ErrInvalidCourseStatus = errors.New("user course status can be 'not-started', 'in-process', 'done'")
+
+	// ErrInvalidLessonStatus - невалидный статус сотрудника по уроку
+	ErrInvalidLessonStatus = errors.New("user lesson status can be 'not-started', 'in-process', 'done'")
 )
