@@ -69,6 +69,7 @@ var constraintToAppError = map[string]error{
 	"chck_courseassign_user_not_empty":   errs.ErrUserIDNotEmpty,
 	"fk_courseassign_user":               errs.ErrUserReference,
 	"unq_usercourse":                     errs.ErrUserCourseUsed,
+	"chck_course_status_type":            errs.ErrInvalidCourseStatus,
 
 	// lesson_results
 	"chck_lessonresult_course_not_empty": errs.ErrCourseIDNotEmpty,
@@ -77,6 +78,7 @@ var constraintToAppError = map[string]error{
 	"fk_lessonresult_lesson":             errs.ErrLessonReference,
 	"chck_lessonresult_user_not_empty":   errs.ErrUserIDNotEmpty,
 	"fk_lessonresult_user":               errs.ErrUserReference,
+	"chck_lesson_status_type":            errs.ErrInvalidLessonStatus,
 
 	"unq_assignlesson": errs.ErrAssignLessonUsed,
 }
