@@ -433,7 +433,21 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				return fmt.Sprint(userID), body
 			},
 		},
+		{
+			name:         "empty name",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
 
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Name = p[string]("")
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
 		{
 			name:         "not found",
 			expectedCode: http.StatusNotFound,
