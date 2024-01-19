@@ -65,7 +65,7 @@ func (suite *storeTestSuite) TestGetLesson() {
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}, 
+		},
 		user.ID,
 	)
 	suite.NoError(err)
@@ -204,37 +204,37 @@ func (suite *storeTestSuite) TestUpdateLesson() {
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}, 
+		},
 		user.ID,
 	)
 	suite.NoError(err)
 	suite.NotEmpty(lesson)
 
 	testCases := []struct {
-		name     string
+		name    string
 		prepare func() (model.LessonUpdate, model.Lesson) // возвращает данные для редактирования и ожидаемый результат для проверки тест-кейса
-		err      error
+		err     error
 	}{
 		{
 			name: "success",
 			prepare: func() (model.LessonUpdate, model.Lesson) {
 				editField := model.LessonUpdate{ID: lesson.ID}
-				
+
 				// ожидаемые данные урока
 				expected := *lesson
 				// определение случайным образом полей для редактирования:
 				//
 				// изменение имени урока
 				if randomseq.RandomBool() {
-					 name := randomseq.RandomName(10)
-					 editField.Name = name
-					 expected.Name = name
+					name := randomseq.RandomName(10)
+					editField.Name = name
+					expected.Name = name
 				}
 				// изменение содержания урока
 				if randomseq.RandomBool() {
-					 content := randomseq.RandomString(20)
-					 editField.Content = content
-					 expected.Content = content
+					content := randomseq.RandomString(20)
+					editField.Content = content
+					expected.Content = content
 				}
 				// изменение ссылки картинки
 				if randomseq.RandomBool() {
@@ -275,7 +275,7 @@ func (suite *storeTestSuite) TestGetLessonList() {
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}, 
+		},
 		user.ID,
 	)
 	suite.NoError(err)
@@ -288,7 +288,7 @@ func (suite *storeTestSuite) TestGetLessonList() {
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}, 
+		},
 		user.ID,
 	)
 	suite.NoError(err)
