@@ -74,13 +74,17 @@ jobs:
     name: tests
     
     runs-on: ubuntu-latest
-
+    env:
+      DB_USER: test-quickon
+      DB_PASSWORD: testquickon
+      DB_NAME: qon-test
     services:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: qon_test
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
@@ -97,6 +101,6 @@ jobs:
           cache: false
       - name: Run tests
         env:
-          TEST_DB_DSN: postgres://postgres:postgres@localhost:5432/qon_test?sslmode=disable
+          TEST_DB_DSN: postgres://${{ env.DB_USER }}:${{ env.DB_PASSWORD }}@localhost:5432/${{ env.DB_NAME }}?sslmode=disable
         run: |
           go test -count 1 -cover -race ./...
