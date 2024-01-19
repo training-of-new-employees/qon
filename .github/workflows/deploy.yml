@@ -61,7 +61,6 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "docker-compose/deploy/"
         target: "~"
-        strip_components: 1
     - name: Upload repo
       uses: appleboy/scp-action@v0.1.4
       with:
