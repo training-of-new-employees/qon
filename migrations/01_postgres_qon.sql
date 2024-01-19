@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS positions (
     name VARCHAR(256),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_position_company_not_empty CHECK ( company_id IS NOT NULL ),
+    CONSTRAINT chck_position_company_not_empty CHECK ( NOT (company_id IS NULL OR company_id = 0) ),
     CONSTRAINT fk_position_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
     CONSTRAINT chck_position_name_not_empty CHECK ( NOT (name IS NULL OR name = '') )
 );
@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS users (
     surname VARCHAR(128) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_user_company_not_empty CHECK ( company_id IS NOT NULL ),
+    CONSTRAINT chck_user_company_not_empty CHECK ( NOT (company_id IS NULL OR company_id = 0) ),
     CONSTRAINT fk_user_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    CONSTRAINT chck_user_position_not_empty CHECK ( position_id IS NOT NULL ),
+    CONSTRAINT chck_user_position_not_empty CHECK ( NOT (position_id IS NULL OR position_id = 0) ),
     CONSTRAINT fk_user_position FOREIGN KEY (position_id) REFERENCES positions(id) ON DELETE CASCADE,
     CONSTRAINT chck_user_email_not_empty CHECK ( NOT (email IS NULL OR email = '') ),
     CONSTRAINT unq_user_email UNIQUE (email),
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS courses (
     description VARCHAR(512) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_course_creater_not_empty CHECK ( created_by IS NOT NULL ),
+    CONSTRAINT chck_course_creater_not_empty CHECK ( NOT (created_by IS NULL OR created_by = 0) ),
     CONSTRAINT fk_course_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chck_course_name_not_empty CHECK ( NOT (name IS NULL OR name = '') )
 );
@@ -79,9 +79,9 @@ CREATE TABLE IF NOT EXISTS lessons (
     description VARCHAR(512) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_lesson_course_not_empty CHECK ( course_id IS NOT NULL AND course_id <> 0 ),
+    CONSTRAINT chck_lesson_course_not_empty CHECK ( NOT (course_id IS NULL OR course_id = 0) ),
     CONSTRAINT fk_lesson_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-    CONSTRAINT chck_lesson_creater_not_empty CHECK ( created_by IS NOT NULL AND created_by <> 0 ),
+    CONSTRAINT chck_lesson_creater_not_empty CHECK ( NOT (created_by IS NULL OR created_by = 0) ),
     CONSTRAINT fk_lesson_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chck_lesson_name_not_empty CHECK ( NOT (name IS NULL OR name = '') )
 );
@@ -96,9 +96,9 @@ CREATE TABLE IF NOT EXISTS texts (
     content TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_text_lesson_not_empty CHECK ( lesson_id IS NOT NULL ),
+    CONSTRAINT chck_text_lesson_not_empty CHECK ( NOT (lesson_id IS NULL OR lesson_id = 0)),
     CONSTRAINT fk_text_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
-    CONSTRAINT chck_text_creater_not_empty CHECK ( created_by IS NOT NULL ),
+    CONSTRAINT chck_text_creater_not_empty CHECK ( NOT (created_by IS NULL OR created_by = 0) ),
     CONSTRAINT fk_text_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chck_text_content_not_empty CHECK ( NOT (content IS NULL OR content = '') )
 );
@@ -113,21 +113,20 @@ CREATE TABLE IF NOT EXISTS pictures (
     url_picture VARCHAR(1024),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_picture_lesson_not_empty CHECK ( lesson_id IS NOT NULL ),
+    CONSTRAINT chck_picture_lesson_not_empty CHECK ( NOT (lesson_id IS NULL OR lesson_id = 0) ),
     CONSTRAINT fk_picture_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
-    CONSTRAINT chck_picture_creater_not_empty CHECK ( created_by IS NOT NULL ),
+    CONSTRAINT chck_picture_creater_not_empty CHECK ( NOT (created_by IS NULL OR created_by = 0) ),
     CONSTRAINT fk_picture_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chck_url_picture_not_empty CHECK ( NOT (url_picture IS NULL OR url_picture = '') )
 );
 
 -- Должности-Курсы (назначенные на должность курсы)
 CREATE TABLE IF NOT EXISTS position_course (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     position_id INTEGER,
     course_id INTEGER,
-    CONSTRAINT chck_positioncourse_position_not_empty CHECK ( position_id IS NOT NULL ),
+    CONSTRAINT chck_positioncourse_position_not_empty CHECK ( NOT (position_id IS NULL OR position_id = 0) ),
     CONSTRAINT fk_positioncourse_position FOREIGN KEY (position_id) REFERENCES positions(id) ON DELETE CASCADE,
-    CONSTRAINT chck_positioncourse_course_not_empty CHECK ( course_id IS NOT NULL ),
+    CONSTRAINT chck_positioncourse_course_not_empty CHECK ( NOT (course_id IS NULL OR course_id = 0) ),
     CONSTRAINT fk_positioncourse_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     CONSTRAINT unq_positioncourse UNIQUE (position_id, course_id)
 );
@@ -139,9 +138,9 @@ CREATE TABLE IF NOT EXISTS course_assign (
     status VARCHAR(16) NOT NULL DEFAULT 'not-started',
     started_at TIMESTAMP NOT NULL DEFAULT now(),
     finished_at TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT chck_courseassign_user_not_empty CHECK ( user_id IS NOT NULL ),
+    CONSTRAINT chck_courseassign_user_not_empty CHECK ( NOT (user_id IS NULL OR user_id = 0) ),
     CONSTRAINT fk_courseassign_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chck_courseassign_course_not_empty CHECK ( course_id IS NOT NULL ),
+    CONSTRAINT chck_courseassign_course_not_empty CHECK ( NOT (course_id IS NULL OR course_id = 0) ),
     CONSTRAINT fk_courseassign_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     CONSTRAINT unq_assigncourse UNIQUE (course_id, user_id),
     CONSTRAINT chck_course_status_type CHECK (
@@ -155,11 +154,11 @@ CREATE TABLE IF NOT EXISTS lesson_results (
     course_id INTEGER,
     lesson_id INTEGER,
     status VARCHAR(16) NOT NULL DEFAULT 'not-started',
-    CONSTRAINT chck_lessonresult_course_not_empty CHECK ( course_id IS NOT NULL ),
+    CONSTRAINT chck_lessonresult_course_not_empty CHECK ( NOT (course_id IS NULL OR course_id = 0) ),
     CONSTRAINT fk_lessonresult_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-    CONSTRAINT chck_lessonresult_lesson_not_empty CHECK ( lesson_id IS NOT NULL ),
+    CONSTRAINT chck_lessonresult_lesson_not_empty CHECK ( NOT (lesson_id IS NULL OR lesson_id = 0) ),
     CONSTRAINT fk_lessonresult_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
-    CONSTRAINT chck_lessonresult_user_not_empty CHECK ( user_id IS NOT NULL ),
+    CONSTRAINT chck_lessonresult_user_not_empty CHECK ( NOT (user_id IS NULL OR user_id = 0) ),
     CONSTRAINT fk_lessonresult_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT unq_assignlesson UNIQUE (course_id, lesson_id, user_id),
     CONSTRAINT chck_lesson_status_type CHECK (
