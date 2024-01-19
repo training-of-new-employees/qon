@@ -7,6 +7,7 @@ on:
       - 'main'
       - 'develop'
       - 'deploy'
+      - 'v1-refactore-workflows-1'
     tags:
       - 'v*'
 
@@ -58,8 +59,9 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        source: "docker-compose/deploy"
+        source: "docker-compose/deploy/"
         target: "~"
+        strip_components: 1
     - name: Upload repo
       uses: appleboy/scp-action@v0.1.4
       with:
