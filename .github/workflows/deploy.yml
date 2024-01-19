@@ -52,7 +52,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    - name: Test Upload
+    - name: Upload deploy dir
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.HOST }}
@@ -61,15 +61,7 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "docker-compose/deploy/"
         target: "~"
-    - name: Upload repo
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        source: "*"
-        target: "~"
+        strip_components: 1
     - name: (Re)Generate certificates
       uses: appleboy/ssh-action@v1.0.0
       env:
@@ -82,7 +74,7 @@ jobs:
         port: ${{ secrets.PORT }}
         envs: DOMAIN,MAIL
         script: |
-          docker compose --file docker-compose/deploy/gen-certs.yml up --abort-on-container-exit
+          docker compose --file deploy/gen-certs.yml up --abort-on-container-exit
           
     - name: Rerun server
       uses: appleboy/ssh-action@v1.0.0
@@ -100,4 +92,4 @@ jobs:
         envs: DOMAIN,SENDER_API_KEY,FRONT_TAG,BACK_TAG,SENDER_EMAIL
         script: |
           echo "FRONT:${FRONT_TAG} BACK:${BACK_TAG}"
-          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d --remove-orphans
+          docker compose --file deploy/docker-compose.yml up --pull always -d --remove-orphans
