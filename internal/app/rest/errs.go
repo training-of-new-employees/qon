@@ -14,11 +14,16 @@ import (
 var errorToCode = map[string]int{
 	errs.ErrNoAccess.Error(): http.StatusForbidden,
 
-	errs.ErrNotFound.Error():         http.StatusNotFound,
-	errs.ErrUserNotFound.Error():     http.StatusNotFound,
-	errs.ErrCompanyNotFound.Error():  http.StatusNotFound,
-	errs.ErrPositionNotFound.Error(): http.StatusNotFound,
-	errs.ErrCourseNotFound.Error():   http.StatusNotFound,
+	errs.ErrNotFound.Error():          http.StatusNotFound,
+	errs.ErrUserNotFound.Error():      http.StatusNotFound,
+	errs.ErrCompanyNotFound.Error():   http.StatusNotFound,
+	errs.ErrPositionNotFound.Error():  http.StatusNotFound,
+	errs.ErrCourseNotFound.Error():    http.StatusNotFound,
+	errs.ErrPositionReference.Error(): http.StatusNotFound,
+	errs.ErrUserReference.Error():     http.StatusNotFound,
+	errs.ErrCourseReference.Error():   http.StatusNotFound,
+	errs.ErrCompanyReference.Error():  http.StatusNotFound,
+	errs.ErrLessonReference.Error():   http.StatusNotFound,
 
 	errs.ErrBadRequest.Error():               http.StatusBadRequest,
 	errs.ErrInvalidRequest.Error():           http.StatusBadRequest,
