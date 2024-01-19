@@ -148,10 +148,8 @@ func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, editorComp
 	if err != nil {
 		return nil, err
 	}
-	if val.CompanyID == nil {
-		val.CompanyID = &user.CompanyID
-	}
-	if user.CompanyID != editorCompanyID || *val.CompanyID != user.CompanyID {
+	val.CompanyID = &user.CompanyID
+	if user.CompanyID != editorCompanyID {
 		return nil, errs.ErrUserNotFound
 	}
 	return u.db.UserStorage().EditUser(ctx, val)
