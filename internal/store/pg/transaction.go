@@ -215,13 +215,81 @@ func (tn *transaction) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID i
 // createCompanyTx - назначение курса на должность.
 // ВAЖНО: использовать только внутри транзакции.
 func (tn *transaction) assignCourseTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseID int) error {
-	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2) RETURNING id`
+	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2)`
 
 	if err := tx.QueryRowxContext(ctx, query, positionID, courseID).Err(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// insertTextsTx - добавление новой строки в таблицу texts
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) insertTextsTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, content string, userId int) (string, error) {
+	var contentIns string
+	query := `INSERT INTO 
+			  texts (lesson_id, created_by, content)
+			  VALUES ($1, $2, $3)
+			  RETURNING content`
+
+	err := tx.GetContext(ctx, &contentIns, query, lessonID,
+		userId, content)
+	if err != nil {
+		return "", err
+	}
+	return contentIns, nil
+}
+
+// updateTextsTx - обновление таблицы texts
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) updateTextsTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, content string) (string, error) {
+	var contentUpd string
+	query := `UPDATE texts
+			  SET content    = COALESCE(NULLIF($1, ''), content)
+			  WHERE lesson_id = $2
+			  RETURNING content`
+	err := tx.GetContext(ctx, &contentUpd, query, content, lessonID)
+	if err != nil {
+		return "", err
+	}
+	return contentUpd, nil
+}
+
+// insertPicturesTx - добавление новой строки в таблицу pictures
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) insertPicturesTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, urlPicture string, userId int) (string, error) {
+	var urlPictureIns string
+	query := `INSERT INTO
+			  pictures (lesson_id, created_by, url_picture)
+			  VALUES ($1, $2, $3)
+			  RETURNING url_picture`
+
+	err := tx.GetContext(ctx, &urlPictureIns, query,
+		lessonID, userId, urlPicture)
+	if err != nil {
+		return "", err
+	}
+	return urlPictureIns, nil
+}
+
+// updatePicturesTx - обновление таблицы pictures
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) updatePicturesTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, urlPicture string) (string, error) {
+	var urlPictureUpd string
+	query := `UPDATE pictures
+		      SET url_picture = COALESCE(NULLIF($1, ''), url_picture)
+		      WHERE lesson_id = $2
+			  RETURNING url_picture`
+	err := tx.GetContext(ctx, &urlPictureUpd, query, urlPicture, lessonID)
+	if err != nil {
+		return "", err
+	}
+	return urlPictureUpd, nil
 }
 
 func (tn *transaction) assignCoursesTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseIDs []int) error {

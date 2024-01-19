@@ -168,6 +168,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/courses/{id}/lessons": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course"
+                ],
+                "summary": "Получение уроков курса",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Lesson"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/employee": {
             "post": {
                 "produces": [
@@ -494,54 +549,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/lesson": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "lesson"
-                ],
-                "summary": "Получение урока",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lesson ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
-            },
+        "/lessons": {
             "post": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "lesson"
+                    "lessons"
                 ],
                 "summary": "Создание урока",
                 "parameters": [
@@ -551,7 +565,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.LessonCreate"
+                            "$ref": "#/definitions/model.Lesson"
                         }
                     }
                 ],
@@ -581,15 +595,17 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/lessons/{id}": {
+            "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "lesson"
+                    "lessons"
                 ],
-                "summary": "Удаление урока",
+                "summary": "Получение урока",
                 "parameters": [
                     {
                         "type": "integer",
@@ -605,6 +621,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/rest.sErr"
                         }
@@ -628,10 +656,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "lesson"
+                    "lessons"
                 ],
                 "summary": "Обновление урока",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Lesson Update",
                         "name": "object",
@@ -651,6 +686,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/rest.sErr"
                         }
@@ -1566,23 +1613,14 @@ const docTemplate = `{
         "model.Lesson": {
             "type": "object",
             "properties": {
-                "active": {
-                    "type": "boolean"
-                },
                 "archived": {
                     "type": "boolean"
                 },
+                "content": {
+                    "type": "string"
+                },
                 "course_id": {
                     "type": "integer"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -1590,27 +1628,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "number": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.LessonCreate": {
-            "type": "object",
-            "properties": {
-                "course_id": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "path": {
+                "url_picture": {
                     "type": "string"
                 }
             }
@@ -1618,19 +1636,16 @@ const docTemplate = `{
         "model.LessonUpdate": {
             "type": "object",
             "properties": {
-                "course_id": {
-                    "type": "integer"
+                "archived": {
+                    "type": "boolean"
                 },
-                "description": {
+                "content": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
                 },
-                "path": {
+                "url_picture": {
                     "type": "string"
                 }
             }

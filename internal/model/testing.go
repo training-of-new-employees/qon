@@ -237,3 +237,50 @@ func NewInvitationLinkResponse(email, link string) InvitationLinkResponse {
 		Link:  link,
 	}
 }
+
+func NewTestLesson(courseID int) Lesson {
+	return Lesson{
+		CourseID:   courseID,
+		Name:       randomseq.RandomName(10),
+		Content:    randomseq.RandomString(20),
+		URLPicture: fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5)),
+	}
+}
+
+func NewTestEditLesson(id int) LessonUpdate {
+	editField := LessonUpdate{ID: id}
+	// изменение имени урока
+	if randomseq.RandomBool() {
+		name := randomseq.RandomName(10)
+		editField.Name = name
+	}
+	// изменение содержания урока
+	if randomseq.RandomBool() {
+		content := randomseq.RandomString(20)
+		editField.Content = content
+	}
+	// изменение ссылки картинки
+	if randomseq.RandomBool() {
+		url := fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5))
+		editField.URLPicture = url
+	}
+
+	return editField
+}
+
+func NewTestListLessons(courseID int) []Lesson {
+	number := randomseq.RandomTestInt()
+	lessons := make([]Lesson, number)
+
+	for i := 0; i < number; i++ {
+		lessons[i] = Lesson{
+			ID:         i + 1,
+			CourseID:   courseID,
+			Name:       randomseq.RandomName(10),
+			Content:    randomseq.RandomString(20),
+			URLPicture: fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5)),
+		}
+	}
+
+	return lessons
+}

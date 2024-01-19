@@ -9,7 +9,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
-func (suite *storeTestSuite) TestCreatePositionDB() {
+func (suite *storeTestSuite) TestCreatePosition() {
 	suite.NotNil(suite.store)
 
 	// добавление компании
@@ -43,7 +43,7 @@ func (suite *storeTestSuite) TestCreatePositionDB() {
 
 				return position
 			},
-			err: errs.ErrCompanyReference,
+			err: errs.ErrCompanyIDNotEmpty,
 		},
 		{
 			name: "empty position name",

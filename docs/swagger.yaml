@@ -76,49 +76,28 @@ definitions:
     type: object
   model.Lesson:
     properties:
-      active:
-        type: boolean
       archived:
         type: boolean
+      content:
+        type: string
       course_id:
         type: integer
-      created_at:
-        type: string
-      created_by:
-        type: integer
-      description:
-        type: string
       id:
         type: integer
       name:
         type: string
-      number:
-        type: integer
-      updated_at:
-        type: string
-    type: object
-  model.LessonCreate:
-    properties:
-      course_id:
-        type: integer
-      description:
-        type: string
-      name:
-        type: string
-      path:
+      url_picture:
         type: string
     type: object
   model.LessonUpdate:
     properties:
-      course_id:
-        type: integer
-      description:
+      archived:
+        type: boolean
+      content:
         type: string
-      id:
-        type: integer
       name:
         type: string
-      path:
+      url_picture:
         type: string
     type: object
   model.Position:
@@ -429,6 +408,42 @@ paths:
       summary: Изменение данных курса
       tags:
       - course
+  /admin/courses/{id}/lessons:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Lesson'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение уроков курса
+      tags:
+      - course
   /admin/employee:
     post:
       parameters:
@@ -641,91 +656,7 @@ paths:
       summary: Получить пригласительную ссылку
       tags:
       - admin
-  /lesson:
-    delete:
-      parameters:
-      - description: Lesson ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Удаление урока
-      tags:
-      - lesson
-    get:
-      parameters:
-      - description: Lesson ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Получение урока
-      tags:
-      - lesson
-    patch:
-      parameters:
-      - description: Lesson Update
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/model.LessonUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Lesson'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Обновление урока
-      tags:
-      - lesson
+  /lessons:
     post:
       parameters:
       - description: Lesson Create
@@ -733,7 +664,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.LessonCreate'
+          $ref: '#/definitions/model.Lesson'
       produces:
       - application/json
       responses:
@@ -755,7 +686,86 @@ paths:
             $ref: '#/definitions/rest.sErr'
       summary: Создание урока
       tags:
-      - lesson
+      - lessons
+  /lessons/{id}:
+    get:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение урока
+      tags:
+      - lessons
+    patch:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lesson Update
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.LessonUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Обновление урока
+      tags:
+      - lessons
   /login:
     post:
       parameters:

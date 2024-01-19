@@ -62,6 +62,7 @@ func (suite *storeTestSuite) TestCreateUser() {
 			data: func() model.UserCreate {
 				u := model.NewTestUserCreate()
 				u.CompanyID = randomseq.RandomTestInt()
+				u.PositionID = position.ID
 
 				return u
 			},
