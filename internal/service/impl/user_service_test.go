@@ -501,6 +501,26 @@ func Test_uService_EditUser(t *testing.T) {
 			true,
 		},
 		{
+			"Edit user company id",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+			},
+			args{
+				nil,
+				&model.UserEdit{
+					ID:        1,
+					CompanyID: p[int](2),
+				},
+				1,
+			},
+			nil,
+			true,
+		},
+		{
 			"Can edit user",
 			func(f *fields) {
 				u := &model.User{
@@ -1715,4 +1735,8 @@ func mockUCPStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUs
 	storages.EXPECT().PositionStorage().Return(pStore).AnyTimes()
 	return storages
 
+}
+
+func p[T any](i T) *T {
+	return &i
 }
