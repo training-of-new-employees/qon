@@ -55,6 +55,7 @@ func (s *RestServer) InitRoutes() {
 
 	invitationLinkGroup := mvp.Group("/invitation-link")
 	invitationLinkGroup.Use(s.IsAuthenticated(), s.IsAdmin())
+	invitationLinkGroup.GET("/:email", s.handlerGetInvitationLink)
 	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
 
 	lesson := mvp.Group("/admin/lessons")

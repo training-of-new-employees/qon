@@ -11,7 +11,7 @@ import (
 	mock_store "github.com/training-of-new-employees/qon/mocks/store"
 	mock_cache "github.com/training-of-new-employees/qon/mocks/store/cache"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 )
 
 type serviceTestSuite struct {

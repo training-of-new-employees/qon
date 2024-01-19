@@ -8,7 +8,7 @@ import (
 	mock_service "github.com/training-of-new-employees/qon/mocks/service"
 	mock_cache "github.com/training-of-new-employees/qon/mocks/store/cache"
 
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 )
 
 type handlerTestSuite struct {
