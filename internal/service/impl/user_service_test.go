@@ -508,6 +508,7 @@ func Test_uService_EditUser(t *testing.T) {
 					CompanyID: 1,
 				}
 				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().EditUser(nil, gomock.Any()).Return(nil, errs.ErrUserNotFound)
 			},
 			args{
 				nil,
