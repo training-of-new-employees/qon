@@ -4,14 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/training-of-new-employees/qon/internal/errs"
-	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
-	"go.uber.org/zap"
 )
 
 var _ store.RepositoryLesson = (*lessonStorage)(nil)
@@ -155,28 +152,6 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 	}
 
 	return &updatedLesson, nil
-}
-
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func (l *lessonStorage) tx(f func(*sqlx.Tx) error) error {
-	// открываем транзакцию
-	tx, err := l.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
-		return err
-	}
-
-	// фиксация транзакции
-	return tx.Commit()
 }
 
 // GetLessonsListDB - получить список уроков курса.

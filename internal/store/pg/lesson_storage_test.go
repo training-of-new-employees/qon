@@ -2,6 +2,7 @@ package pg
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -57,19 +58,18 @@ func (suite *storeTestSuite) TestGetLesson() {
 	suite.NoError(err)
 	suite.NotEmpty(course)
 
-	lesson := func() model.Lesson {
-		l := model.Lesson{
+	lesson, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{
 			CourseID:   course.ID,
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}
-		return l
-	}
-	newLesson, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
-		lesson(), user.ID)
+		}, 
+		user.ID,
+	)
 	suite.NoError(err)
-	suite.NotEmpty(newLesson)
+	suite.NotEmpty(lesson)
 
 	testCases := []struct {
 		name           string
@@ -79,8 +79,8 @@ func (suite *storeTestSuite) TestGetLesson() {
 	}{
 		{
 			name:           "success",
-			lessonID:       newLesson.ID,
-			expectedLesson: newLesson,
+			lessonID:       lesson.ID,
+			expectedLesson: lesson,
 			err:            nil,
 		},
 		{
@@ -197,55 +197,67 @@ func (suite *storeTestSuite) TestUpdateLesson() {
 	suite.NoError(err)
 	suite.NotEmpty(course)
 
-	lesson := func() model.Lesson {
-		l := model.Lesson{
+	lesson, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{
 			CourseID:   course.ID,
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}
-		return l
-	}
-	newLesson, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
-		lesson(), user.ID)
+		}, 
+		user.ID,
+	)
 	suite.NoError(err)
-	suite.NotEmpty(newLesson)
-
-	changedName := randomseq.RandomName(10)
-	changedContent := randomseq.RandomString(20)
+	suite.NotEmpty(lesson)
 
 	testCases := []struct {
 		name     string
-		lesson   func() model.LessonUpdate
-		expected model.LessonUpdate
+		prepare func() (model.LessonUpdate, model.Lesson) // возвращает данные для редактирования и ожидаемый результат для проверки тест-кейса
 		err      error
 	}{
 		{
 			name: "success",
-			lesson: func() model.LessonUpdate {
-				l := model.LessonUpdate{
-					ID:      newLesson.ID,
-					Name:    changedName,
-					Content: changedContent,
+			prepare: func() (model.LessonUpdate, model.Lesson) {
+				editField := model.LessonUpdate{ID: lesson.ID}
+				
+				// ожидаемые данные урока
+				expected := *lesson
+				// определение случайным образом полей для редактирования:
+				//
+				// изменение имени урока
+				if randomseq.RandomBool() {
+					 name := randomseq.RandomName(10)
+					 editField.Name = name
+					 expected.Name = name
 				}
-				return l
-			},
-			expected: model.LessonUpdate{
-				Name:       changedName,
-				Content:    changedContent,
-				URLPicture: newLesson.URLPicture,
+				// изменение содержания урока
+				if randomseq.RandomBool() {
+					 content := randomseq.RandomString(20)
+					 editField.Content = content
+					 expected.Content = content
+				}
+				// изменение ссылки картинки
+				if randomseq.RandomBool() {
+					url := fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5))
+					editField.URLPicture = url
+					expected.URLPicture = url
+				}
+
+				return editField, expected
 			},
 			err: nil,
 		},
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			updLesson, err := suite.store.LessonStorage().UpdateLesson(context.TODO(),
-				tc.lesson())
+			edit, expected := tc.prepare()
+			updLesson, err := suite.store.LessonStorage().UpdateLesson(context.TODO(), edit)
+
 			suite.Equal(tc.err, err)
-			suite.Equal(tc.expected.Name, updLesson.Name)
-			suite.Equal(tc.expected.Content, updLesson.Content)
-			suite.Equal(tc.expected.URLPicture, updLesson.URLPicture)
+
+			if err != nil {
+				suite.Equal(expected, *updLesson)
+			}
 		})
 	}
 }
@@ -256,31 +268,29 @@ func (suite *storeTestSuite) TestGetLessonList() {
 	suite.NoError(err)
 	suite.NotEmpty(course)
 
-	lesson := func() model.Lesson {
-		l := model.Lesson{
+	lesson1, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{
 			CourseID:   course.ID,
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}
-		return l
-	}
-	lesson1, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
-		lesson(), user.ID)
+		}, 
+		user.ID,
+	)
 	suite.NoError(err)
 	suite.NotEmpty(lesson1)
 
-	lesson = func() model.Lesson {
-		l := model.Lesson{
+	lesson2, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{
 			CourseID:   course.ID,
 			Name:       randomseq.RandomName(10),
 			Content:    randomseq.RandomString(20),
 			URLPicture: randomseq.RandomString(30),
-		}
-		return l
-	}
-	lesson2, err := suite.store.LessonStorage().CreateLesson(context.TODO(),
-		lesson(), user.ID)
+		}, 
+		user.ID,
+	)
 	suite.NoError(err)
 	suite.NotEmpty(lesson2)
 
