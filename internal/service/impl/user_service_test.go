@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
@@ -1693,7 +1694,6 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 			}
 
 			got, err := u.RegenerationInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
-			fmt.Println(err)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.RegenerationInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -1701,6 +1701,78 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 
 			if len(tt.want) > 0 {
 				assert.Regexp(t, tt.want, got.Link)
+			}
+		})
+	}
+}
+
+func (suite *serviceTestSuite) Test_uService_GetInvitationLinkUser() {
+	email := "user@mail.com"
+	code := randomseq.RandomString(20)
+	userID := 2
+	companyID := 1
+
+	type args struct {
+		ctx       context.Context
+		email     string
+		companyID int
+	}
+	tests := []struct {
+		name    string
+		prepare func()
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Regeneration Invite Link User Error",
+			func() {
+				suite.userStorage.EXPECT().GetUserByEmail(nil, "user@mail.com").Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				ctx:       nil,
+				email:     email,
+				companyID: companyID,
+			},
+			"",
+			true,
+		},
+		{
+			name: "Regeneration Invite Link User success",
+			prepare: func() {
+				u := &model.User{
+					ID:        userID,
+					Email:     email,
+					CompanyID: companyID,
+					IsActive:  false,
+				}
+
+				suite.cache.EXPECT().GetInviteCode(nil, gomock.Any()).Return(code, nil)
+				suite.userStorage.EXPECT().GetUserByEmail(nil, email).Return(u, nil)
+				suite.userService.host = "http://localhost"
+			},
+			args: args{
+				ctx:       nil,
+				email:     email,
+				companyID: companyID,
+			},
+			want:    fmt.Sprintf("http://localhost/first-login?email=%s&invite=%s", email, code),
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			tt.prepare()
+			got, err := suite.userService.GetInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
+			fmt.Println(err)
+			if (err != nil) != tt.wantErr {
+				suite.Errorf(err, fmt.Sprintf("uService.GetInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr))
+				return
+			}
+
+			if len(tt.want) > 0 {
+				suite.Equal(got.Link, tt.want)
 			}
 		})
 	}
