@@ -136,14 +136,17 @@ CREATE TABLE IF NOT EXISTS position_course (
 CREATE TABLE IF NOT EXISTS course_assign (
     user_id INTEGER,
     course_id INTEGER,
-    pass_course BOOLEAN NOT NULL DEFAULT false,
+    status VARCHAR(16) NOT NULL DEFAULT 'not-started',
     started_at TIMESTAMP NOT NULL DEFAULT now(),
     finished_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_courseassign_user_not_empty CHECK ( user_id IS NOT NULL ),
     CONSTRAINT fk_courseassign_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chck_courseassign_course_not_empty CHECK ( course_id IS NOT NULL ),
     CONSTRAINT fk_courseassign_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-    CONSTRAINT unq_assigncourse UNIQUE (course_id, user_id)
+    CONSTRAINT unq_assigncourse UNIQUE (course_id, user_id),
+    CONSTRAINT chck_course_status_type CHECK (
+        status IN ('not-started', 'in-process', 'done')
+    )
 );
 
 -- Прогресс сотрудников по урокам
@@ -151,14 +154,17 @@ CREATE TABLE IF NOT EXISTS lesson_results (
     user_id   INTEGER,
     course_id INTEGER,
     lesson_id INTEGER,
-    pass_lesson BOOLEAN NOT NULL DEFAULT false,
+    status VARCHAR(16) NOT NULL DEFAULT 'not-started',
     CONSTRAINT chck_lessonresult_course_not_empty CHECK ( course_id IS NOT NULL ),
     CONSTRAINT fk_lessonresult_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     CONSTRAINT chck_lessonresult_lesson_not_empty CHECK ( lesson_id IS NOT NULL ),
     CONSTRAINT fk_lessonresult_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
     CONSTRAINT chck_lessonresult_user_not_empty CHECK ( user_id IS NOT NULL ),
     CONSTRAINT fk_lessonresult_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT unq_assignlesson UNIQUE (course_id, lesson_id, user_id)  
+    CONSTRAINT unq_assignlesson UNIQUE (course_id, lesson_id, user_id),
+    CONSTRAINT chck_lesson_status_type CHECK (
+        status IN ('not-started', 'in-process', 'done')
+    )
 );
 
 CREATE INDEX IF NOT EXISTS position_course_idx ON position_course (position_id, course_id);
