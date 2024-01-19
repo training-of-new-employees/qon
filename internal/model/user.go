@@ -114,6 +114,33 @@ func (u *UserCreate) Validation() error {
 	return nil
 }
 
+func (ue *UserEdit) Validation() error {
+	// проверка емейла на корректность
+	if err := validation.Validate(&ue.Email, is.Email); err != nil {
+		return errs.ErrInvalidEmail
+	}
+	// проверка требований к имени
+	if ue.Name != nil {
+		if err := validation.Validate(&ue.Name, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Name))); err != nil {
+			return errs.ErrInvalidUserName
+		}
+	}
+	if ue.Surname != nil {
+		// проверка требований к фамилии
+		if err := validation.Validate(&ue.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Surname))); err != nil {
+			return errs.ErrInvalidUserSurname
+		}
+	}
+
+	if ue.Patronymic != nil {
+		// проверка требований к отчеству
+		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Patronymic))); err != nil {
+			return errs.ErrInvalidUserPatronymic
+		}
+	}
+	return nil
+}
+
 func (u *UserCreate) SetPassword() error {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)

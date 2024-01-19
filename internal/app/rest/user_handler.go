@@ -179,6 +179,11 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		r.handleError(c, errs.ErrNoAccess)
 		return
 	}
+	err = edit.Validation()
+	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
 
 	edited, err := r.services.User().EditUser(ctx, edit, session.OrgID)
 	if err != nil {
