@@ -181,7 +181,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 	}
 	err = edit.Validation()
 	if err != nil {
-		r.handleError(c, errs.ErrBadRequest)
+		r.handleError(c, err)
 		return
 	}
 

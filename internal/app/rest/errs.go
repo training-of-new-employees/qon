@@ -42,6 +42,7 @@ var errorToCode = map[string]int{
 	errs.ErrUserSurnameNotEmpty.Error():      http.StatusBadRequest,
 	errs.ErrInvalidUserSurname.Error():       http.StatusBadRequest,
 	errs.ErrInvalidUserPatronymic.Error():    http.StatusBadRequest,
+	errs.ErrUserPatronymicNotEmpty.Error():   http.StatusBadRequest,
 	errs.ErrCourseNameInvalid.Error():        http.StatusBadRequest,
 	errs.ErrCourseNameIsEmpty.Error():        http.StatusBadRequest,
 	errs.ErrCourseDescriptionInvalid.Error(): http.StatusBadRequest,
