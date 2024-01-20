@@ -78,7 +78,10 @@ func validateCourseName(str string) validation.RuleFunc {
 			return errSpaceEmpty
 		}
 		for _, c := range str {
-			if !unicode.IsGraphic(c) || c == '#' || c == '*' {
+			if !unicode.IsLetter(c) && !unicode.IsDigit(c) && !unicode.IsPunct(c) &&
+				c != '!' && c != '№' && c != ':' && c != '"' && c != '\'' && c != '&' &&
+				c != '-' && c != '+' && c != ' ' ||
+				c == '*' || c == '#' {
 				return errors.New("string may only contain unicode characters and not contain '#' and '*'")
 			}
 		}
