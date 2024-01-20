@@ -102,10 +102,6 @@ func (u *UserCreate) Validation() error {
 	if err := validation.Validate(&u.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(u.Surname))); err != nil {
 		return errs.ErrInvalidUserSurname
 	}
-	// проверка на пустоту отчества пользователя
-	if err := validation.Validate(&u.Patronymic, validation.Required); err != nil {
-		return errs.ErrUserPatronymicNotEmpty
-	}
 	// проверка требований к отчеству
 	if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(u.Patronymic))); err != nil {
 		return errs.ErrInvalidUserPatronymic
@@ -145,9 +141,6 @@ func (ue *UserEdit) Validation() error {
 	}
 
 	if ue.Patronymic != nil {
-		if err := validation.Validate(&ue.Patronymic, validation.Required); err != nil {
-			return errs.ErrUserPatronymicNotEmpty
-		}
 		// проверка требований к отчеству
 		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Patronymic))); err != nil {
 			return errs.ErrInvalidUserPatronymic
