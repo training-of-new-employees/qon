@@ -5,18 +5,20 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
-// @Summary	Создание урока
-// @Tags		lessons
-// @Produce	json
-// @Param		object	body		model.Lesson	true	"Lesson Create"
-// @Success	201		{object}	model.Lesson
-// @Failure	400		{object}	sErr
-// @Failure	404		{object}	sErr
-// @Failure	500		{object}	sErr
-// @Router		/lessons [post]
+//	@Summary	Создание урока
+//	@Tags		lessons
+//	@Produce	json
+//	@Param		object	body		model.Lesson	true	"Lesson Create"
+//	@Success	201		{object}	model.Lesson
+//	@Failure	400		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
+//	@Router		/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	lessonCreate := &model.Lesson{}
 
@@ -38,17 +40,17 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	c.JSON(http.StatusCreated, lesson)
 }
 
-// @Summary	Получение урока
-// @Tags		lessons
-// @Produce	json
-// @Param		id	path	int	true	"Lesson ID"
-// @Success	200
-// @Failure	400	{object}	sErr
-// @Failure	401	{object}	sErr
-// @Failure	403	{object}	sErr
-// @Failure	404	{object}	sErr
-// @Failure	500	{object}	sErr
-// @Router		/lessons/{id} [get]
+//	@Summary	Получение урока
+//	@Tags		lessons
+//	@Produce	json
+//	@Param		id	path	int	true	"Lesson ID"
+//	@Success	200
+//	@Failure	400	{object}	sErr
+//	@Failure	401	{object}	sErr
+//	@Failure	403	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	val := c.Param("id")
 
@@ -67,18 +69,18 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	c.JSON(http.StatusOK, lesson)
 }
 
-// @Summary	Обновление урока
-// @Tags		lessons
-// @Produce	json
-// @Param		id		path		int					true	"Lesson ID"
-// @Param		object	body		model.LessonUpdate	true	"Lesson Update"
-// @Success	200		{object}	model.Lesson
-// @Failure	400		{object}	sErr
-// @Failure	401		{object}	sErr
-// @Failure	403		{object}	sErr
-// @Failure	404		{object}	sErr
-// @Failure	500		{object}	sErr
-// @Router		/lessons/{id} [patch]
+//	@Summary	Обновление урока
+//	@Tags		lessons
+//	@Produce	json
+//	@Param		id		path		int					true	"Lesson ID"
+//	@Param		object	body		model.LessonUpdate	true	"Lesson Update"
+//	@Success	200		{object}	model.Lesson
+//	@Failure	400		{object}	sErr
+//	@Failure	401		{object}	sErr
+//	@Failure	403		{object}	sErr
+//	@Failure	404		{object}	sErr
+//	@Failure	500		{object}	sErr
+//	@Router		/lessons/{id} [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	var err error
 	lessonUpdate := model.LessonUpdate{}
@@ -134,4 +136,50 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, lessonsList)
 
+}
+
+// UpdateLessonStatus godoc
+//
+//	@Summary	Обновление статуса прогресса у урока
+//	@Tags		lessons
+//	@Param		id		path	int							true	"Lesson ID"
+//	@Param		object	body	model.LessonStatusUpdate	true	"Lesson Status Update"
+//	@Produce	json
+//	@Success	200	{array}		updateLessonStatusResponse
+//	@Failure	400	{object}	sErr
+//	@Failure	401	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/lessons/{id} [patch]
+func (r *RestServer) handlerUpdateLessonStatus(c *gin.Context) {
+	val := c.Param("id")
+
+	lessonID, err := strconv.Atoi(val)
+	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
+
+	var body model.LessonStatusUpdate
+	if err := c.BindJSON(&body); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+
+	userSession := r.getUserSession(c)
+	err = r.services.Lesson().UpdateLessonStatus(c.Request.Context(), userSession.UserID, lessonID, body.Status)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, updateLessonStatusResponse{
+		LessonID: lessonID,
+		Status:   body.Status,
+	})
+}
+
+type updateLessonStatusResponse struct {
+	LessonID int    `json:"lesson_id"`
+	Status   string `json:"status"`
 }

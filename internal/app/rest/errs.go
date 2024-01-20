@@ -17,6 +17,7 @@ var errorToCode = map[string]int{
 	errs.ErrNoAccess.Error(): http.StatusForbidden,
 
 	errs.ErrNotFound.Error():          http.StatusNotFound,
+	errs.ErrLessonNotFound.Error():    http.StatusNotFound,
 	errs.ErrUserNotFound.Error():      http.StatusNotFound,
 	errs.ErrCompanyNotFound.Error():   http.StatusNotFound,
 	errs.ErrPositionNotFound.Error():  http.StatusNotFound,

@@ -658,7 +658,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Обновление урока",
+                "summary": "Обновление статуса прогресса у урока",
                 "parameters": [
                     {
                         "type": "integer",
@@ -668,12 +668,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Lesson Update",
+                        "description": "Lesson Status Update",
                         "name": "object",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.LessonUpdate"
+                            "$ref": "#/definitions/model.LessonStatusUpdate"
                         }
                     }
                 ],
@@ -681,7 +681,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Lesson"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/rest.updateLessonStatusResponse"
+                            }
                         }
                     },
                     "400": {
@@ -692,12 +695,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/rest.sErr"
                         }
@@ -1245,32 +1242,87 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Course"
+                                "$ref": "#/definitions/model.CoursePreview"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
+                            "$ref": "#/definitions/rest.sErr"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
+                            "$ref": "#/definitions/rest.sErr"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
+                            "$ref": "#/definitions/rest.sErr"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/courses/{id}/lessons": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course"
+                ],
+                "summary": "Получение данных о уроках курса",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.LessonPreview"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.sErr"
                         }
                     }
                 }
@@ -1550,7 +1602,27 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CoursePreview": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -1628,7 +1700,35 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "url_picture": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LessonPreview": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer"
+                },
+                "lesson_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LessonStatusUpdate": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }
@@ -1951,6 +2051,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.updateLessonStatusResponse": {
+            "type": "object",
+            "properties": {
+                "lesson_id": {
+                    "type": "integer"
+                },
+                "status": {
                     "type": "string"
                 }
             }

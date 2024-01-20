@@ -366,3 +366,81 @@ func (suite *handlerTestSuite) TestEditCourse() {
 		})
 	}
 }
+
+func (suite *handlerTestSuite) GetUserCourseLessons() {
+	userID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() string
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() string {
+				courseID := "8"
+
+				suite.courseService.
+					EXPECT().
+					GetUserCourseLessons(gomock.Any(), userID, 8).
+					Return([]model.Lesson{}, nil)
+
+				return courseID
+			},
+		},
+		{
+			name:         "invalid course id",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				return "invalid"
+			},
+		},
+		{
+			name:         "course not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				courseID := "8"
+
+				suite.courseService.
+					EXPECT().
+					GetUserCourseLessons(gomock.Any(), userID, 8).
+					Return(nil, errs.ErrCourseNotFound)
+
+				return courseID
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				courseID := "8"
+
+				suite.courseService.
+					EXPECT().
+					GetUserCourseLessons(gomock.Any(), userID, 8).
+					Return(nil, errs.ErrInternal)
+
+				return courseID
+			},
+		},
+	}
+
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, true)
+	suite.NoError(err)
+	suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			courseID := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/users/courses/%s/lessons", courseID), nil)
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}

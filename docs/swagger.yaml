@@ -36,7 +36,20 @@ definitions:
         type: integer
       name:
         type: string
+      status:
+        type: string
       updated_at:
+        type: string
+    type: object
+  model.CoursePreview:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      status:
         type: string
     type: object
   model.CourseSet:
@@ -86,7 +99,25 @@ definitions:
         type: integer
       name:
         type: string
+      status:
+        type: string
       url_picture:
+        type: string
+    type: object
+  model.LessonPreview:
+    properties:
+      course_id:
+        type: integer
+      lesson_id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  model.LessonStatusUpdate:
+    properties:
+      status:
         type: string
     type: object
   model.LessonUpdate:
@@ -296,6 +327,13 @@ definitions:
   rest.sToken:
     properties:
       token:
+        type: string
+    type: object
+  rest.updateLessonStatusResponse:
+    properties:
+      lesson_id:
+        type: integer
+      status:
         type: string
     type: object
 externalDocs:
@@ -730,29 +768,27 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Lesson Update
+      - description: Lesson Status Update
         in: body
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.LessonUpdate'
+          $ref: '#/definitions/model.LessonStatusUpdate'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Lesson'
+            items:
+              $ref: '#/definitions/rest.updateLessonStatusResponse'
+            type: array
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/rest.sErr'
         "401":
           description: Unauthorized
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "403":
-          description: Forbidden
           schema:
             $ref: '#/definitions/rest.sErr'
         "404":
@@ -763,7 +799,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
-      summary: Обновление урока
+      summary: Обновление статуса прогресса у урока
       tags:
       - lessons
   /login:
@@ -1177,25 +1213,61 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Course'
+              $ref: '#/definitions/model.CoursePreview'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.errResponse'
+            $ref: '#/definitions/rest.sErr'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.errResponse'
+            $ref: '#/definitions/rest.sErr'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.errResponse'
+            $ref: '#/definitions/rest.sErr'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.errResponse'
+            $ref: '#/definitions/rest.sErr'
       summary: Получение данных о курсах пользователем
+      tags:
+      - course
+  /users/courses/{id}/lessons:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.LessonPreview'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      summary: Получение данных о уроках курса
       tags:
       - course
   /users/info:
