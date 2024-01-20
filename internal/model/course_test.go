@@ -62,18 +62,25 @@ func TestCourse_Validation(t *testing.T) {
 			errs.ErrCourseNameInvalid,
 		},
 		{
+			"Название со спец символами",
+			fields{
+				Name: randomseq.RandomString(minNameL) + "!№():,-?%'\";@",
+			},
+			nil,
+		},
+		{
 			"Название со знаками препинания",
 			fields{
 				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, ","),
 			},
-			errs.ErrCourseNameInvalid,
+			nil,
 		},
 		{
 			"Название со знаками препинания",
 			fields{
 				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, ";"),
 			},
-			errs.ErrCourseNameInvalid,
+			nil,
 		},
 		{
 			"Название с пробелом",
@@ -83,7 +90,7 @@ func TestCourse_Validation(t *testing.T) {
 			nil,
 		},
 		{
-			"Название с плохим символом",
+			"Название со смайлом",
 			fields{
 				Name: randomseq.RandomString(minNameL) + "☺",
 			},
