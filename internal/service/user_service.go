@@ -19,10 +19,11 @@ type ServiceUser interface {
 	GenerateTokenPair(ctx context.Context, userId int, isAdmin bool, companyID int) (*model.Tokens, error)
 	GetAdminFromCache(context.Context, string) (*model.CreateAdmin, error)
 	DeleteAdminFromCache(ctx context.Context, key string) error
-	UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error
+	UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) (*model.User, error)
 	ResetPassword(ctx context.Context, email string) error
 	GetUserInviteCodeFromCache(ctx context.Context, email string) (string, error)
 	GenerateInvitationLinkUser(ctx context.Context, email string) (string, error)
 	RegenerationInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error)
+	GetInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error)
 	ClearSession(ctx context.Context, hashedRefreshToken string) error
 }

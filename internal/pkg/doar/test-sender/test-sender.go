@@ -3,8 +3,6 @@ package testsender
 
 import (
 	"fmt"
-
-	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 // TestSender - test-sender.
@@ -18,7 +16,5 @@ func NewTestSender() *TestSender {
 
 // SendEmail - вывод содержания письма пользователю.
 func (s *TestSender) SendEmail(email string, title string, body string) error {
-	errs.ErrNotSendEmail = fmt.Errorf("email: %s; subject: %s; body: %s", email, title, body)
-
-	return errs.ErrNotSendEmail
+	return fmt.Errorf("<mock-sender>: email: %s; subject: %s; body: %s", email, title, body)
 }

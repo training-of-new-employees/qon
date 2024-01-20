@@ -187,6 +187,21 @@ func (mr *MockServiceUserMockRecorder) GetAdminFromCache(arg0, arg1 any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminFromCache", reflect.TypeOf((*MockServiceUser)(nil).GetAdminFromCache), arg0, arg1)
 }
 
+// GetInvitationLinkUser mocks base method.
+func (m *MockServiceUser) GetInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInvitationLinkUser", ctx, email, companyID)
+	ret0, _ := ret[0].(*model.InvitationLinkResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInvitationLinkUser indicates an expected call of GetInvitationLinkUser.
+func (mr *MockServiceUserMockRecorder) GetInvitationLinkUser(ctx, email, companyID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInvitationLinkUser", reflect.TypeOf((*MockServiceUser)(nil).GetInvitationLinkUser), ctx, email, companyID)
+}
+
 // GetUserByEmail mocks base method.
 func (m *MockServiceUser) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	m.ctrl.T.Helper()
@@ -277,11 +292,12 @@ func (mr *MockServiceUserMockRecorder) ResetPassword(ctx, email any) *gomock.Cal
 }
 
 // UpdatePasswordAndActivateUser mocks base method.
-func (m *MockServiceUser) UpdatePasswordAndActivateUser(ctx context.Context, email, password string) error {
+func (m *MockServiceUser) UpdatePasswordAndActivateUser(ctx context.Context, email, password string) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePasswordAndActivateUser", ctx, email, password)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*model.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdatePasswordAndActivateUser indicates an expected call of UpdatePasswordAndActivateUser.

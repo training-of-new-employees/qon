@@ -33,6 +33,8 @@ var (
 	ErrOnlyAdmin = errors.New("you aren't admin")
 	// ErrNoAccess - нет доступа
 	ErrNoAccess = errors.New("no access")
+	// ErrIncorrectEmailOrPassword - неправильный емейл или пароль
+	ErrIncorrectEmailOrPassword = errors.New("incorrect email or password")
 )
 
 var (
@@ -116,6 +118,9 @@ var (
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
 
+	// ErrInviteNotEmpty - code invite не может быть пустым
+	ErrInviteNotEmpty = errors.New("invite cannot be empty")
+
 	// ErrInvalidPassword - невалидный пароль
 	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")
 
@@ -159,7 +164,7 @@ var (
 
 	// -- Ошибки картинок --
 
-	ErrPictureLinkNotEmpty = errors.New("picture (link) cannot be empty")
+	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 
@@ -171,4 +176,10 @@ var (
 
 	// ErrAssignLessonUsed - прогресс пользователя по уроку должен быть уникальным
 	ErrAssignLessonUsed = errors.New("Course progress already has the same lesson progress")
+
+	// ErrInvalidCourseStatus - невалидный статус сотрудника по курсу
+	ErrInvalidCourseStatus = errors.New("user course status can be 'not-started', 'in-process', 'done'")
+
+	// ErrInvalidLessonStatus - невалидный статус сотрудника по уроку
+	ErrInvalidLessonStatus = errors.New("user lesson status can be 'not-started', 'in-process', 'done'")
 )
