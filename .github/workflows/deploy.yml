@@ -6,7 +6,6 @@ on:
     branches:
       - 'main'
       - 'develop'
-      - 'deploy'
     tags:
       - 'v*'
 
@@ -33,7 +32,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push Docker image
@@ -50,16 +49,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Upload repo
+      uses: actions/checkout@v4
+    - name: Upload deploy dir
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        source: "*"
+        source: "docker-compose/deploy/"
         target: "~"
+        strip_components: 1
     - name: (Re)Generate certificates
       uses: appleboy/ssh-action@v1.0.0
       env:
@@ -72,7 +72,7 @@ jobs:
         port: ${{ secrets.PORT }}
         envs: DOMAIN,MAIL
         script: |
-          docker compose --file docker-compose/deploy/gen-certs.yml up --abort-on-container-exit
+          docker compose --file deploy/gen-certs.yml up --abort-on-container-exit
           
     - name: Rerun server
       uses: appleboy/ssh-action@v1.0.0
@@ -90,4 +90,4 @@ jobs:
         envs: DOMAIN,SENDER_API_KEY,FRONT_TAG,BACK_TAG,SENDER_EMAIL
         script: |
           echo "FRONT:${FRONT_TAG} BACK:${BACK_TAG}"
-          docker compose --file docker-compose/deploy/docker-compose.yml up --pull always -d --remove-orphans
+          docker compose --file deploy/docker-compose.yml up --pull always -d --remove-orphans

@@ -9,11 +9,10 @@ services:
       JWT_SECRET_KEY: simtahtonim
       REDIS_DSN: redis:6379
       SENDER_EMAIL: ivan.frontoff42@gmail.com
-      SENDER_PASSWORD: "ahlb bhnf zvsl pxya"
-      SENDER_MODE: "test"
-      DOMAIN: "http://localhost:8080"
+      SENDER_MODE: test
+      DOMAIN: http://localhost:8080
     ports:
-      - "8081:8081"
+      - 8081:8081
     restart: always
     depends_on:
       postgres:
@@ -26,7 +25,7 @@ services:
     container_name: app_db_qon
     image: postgres:14.3-alpine
     ports:
-      - "15432:5432"
+      - 15432:5432
     environment:
       POSTGRES_DB: qon_app
       PGDATABASE: qon_app
@@ -43,16 +42,16 @@ services:
     restart: always
 
   redis:
-    image: "redis:alpine"
+    image: redis:alpine
     restart: always
     ports:
       - 16379:6379
 
   frontend:
-    container_name: frontend
-    build: ../../frontend/.
+    image: ghcr.io/training-of-new-employees/frontend:develop
+    pull_policy: always
     ports:
-      - "8080:8080"
+      - 8080:8080
     environment:
       LISTEN_PORT: 8080
       SERVER_NAME: localhost:8080
