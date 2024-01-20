@@ -272,8 +272,6 @@ func (suite *storeTestSuite) GetUserCoursesStatus() {
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), uc2)
 	suite.NoError(err)
 
-	courses := make([]model.Course, 0, testCoursesLen)
-
 	for i := 0; i < testCoursesLen; i++ {
 		c := model.NewTestCourseSet()
 		c.ID = i + 1
@@ -282,7 +280,6 @@ func (suite *storeTestSuite) GetUserCoursesStatus() {
 		suite.NoError(err)
 		err = suite.store.PositionStorage().AssignCourse(context.TODO(), pos.ID, created.ID)
 		suite.NoError(err)
-		courses = append(courses, *created)
 	}
 
 	lesson, err := suite.store.LessonStorage().CreateLesson(
@@ -347,8 +344,6 @@ func (suite *storeTestSuite) GetUserCourse() {
 	user, err := suite.store.UserStorage().CreateUser(context.TODO(), uc2)
 	suite.NoError(err)
 
-	courses := make([]model.Course, 0, testCoursesLen)
-
 	for i := 0; i < testCoursesLen; i++ {
 		c := model.NewTestCourseSet()
 		c.ID = i + 1
@@ -357,7 +352,6 @@ func (suite *storeTestSuite) GetUserCourse() {
 		suite.NoError(err)
 		err = suite.store.PositionStorage().AssignCourse(context.TODO(), pos.ID, created.ID)
 		suite.NoError(err)
-		courses = append(courses, *created)
 	}
 
 	testCases := []struct {
