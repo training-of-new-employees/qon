@@ -64,7 +64,7 @@ func TestCourse_Validation(t *testing.T) {
 		{
 			"Название со спец символами",
 			fields{
-				Name: randomseq.RandomString(minNameL) + "!№():,-?%'\";",
+				Name: randomseq.RandomString(minNameL) + "!№():,-?%'\";@",
 			},
 			nil,
 		},
