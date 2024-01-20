@@ -40,61 +40,62 @@ func (m *MockRepositoryLesson) EXPECT() *MockRepositoryLessonMockRecorder {
 	return m.recorder
 }
 
-// CreateLessonDB mocks base method.
-func (m *MockRepositoryLesson) CreateLessonDB(ctx context.Context, lesson model.LessonCreate, user_id int) (*model.Lesson, error) {
+// CreateLesson mocks base method.
+func (m *MockRepositoryLesson) CreateLesson(ctx context.Context, lesson model.Lesson, userID int) (*model.Lesson, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateLessonDB", ctx, lesson, user_id)
+	ret := m.ctrl.Call(m, "CreateLesson", ctx, lesson, userID)
 	ret0, _ := ret[0].(*model.Lesson)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateLessonDB indicates an expected call of CreateLessonDB.
-func (mr *MockRepositoryLessonMockRecorder) CreateLessonDB(ctx, lesson, user_id any) *gomock.Call {
+// CreateLesson indicates an expected call of CreateLesson.
+func (mr *MockRepositoryLessonMockRecorder) CreateLesson(ctx, lesson, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLessonDB", reflect.TypeOf((*MockRepositoryLesson)(nil).CreateLessonDB), ctx, lesson, user_id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLesson", reflect.TypeOf((*MockRepositoryLesson)(nil).CreateLesson), ctx, lesson, userID)
 }
 
-// DeleteLessonDB mocks base method.
-func (m *MockRepositoryLesson) DeleteLessonDB(ctx context.Context, lessonID int) error {
+// GetLesson mocks base method.
+func (m *MockRepositoryLesson) GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteLessonDB", ctx, lessonID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteLessonDB indicates an expected call of DeleteLessonDB.
-func (mr *MockRepositoryLessonMockRecorder) DeleteLessonDB(ctx, lessonID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLessonDB", reflect.TypeOf((*MockRepositoryLesson)(nil).DeleteLessonDB), ctx, lessonID)
-}
-
-// GetLessonDB mocks base method.
-func (m *MockRepositoryLesson) GetLessonDB(ctx context.Context, lessonID int) (*model.Lesson, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLessonDB", ctx, lessonID)
+	ret := m.ctrl.Call(m, "GetLesson", ctx, lessonID)
 	ret0, _ := ret[0].(*model.Lesson)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetLessonDB indicates an expected call of GetLessonDB.
-func (mr *MockRepositoryLessonMockRecorder) GetLessonDB(ctx, lessonID any) *gomock.Call {
+// GetLesson indicates an expected call of GetLesson.
+func (mr *MockRepositoryLessonMockRecorder) GetLesson(ctx, lessonID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLessonDB", reflect.TypeOf((*MockRepositoryLesson)(nil).GetLessonDB), ctx, lessonID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLesson", reflect.TypeOf((*MockRepositoryLesson)(nil).GetLesson), ctx, lessonID)
 }
 
-// UpdateLessonDB mocks base method.
-func (m *MockRepositoryLesson) UpdateLessonDB(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error) {
+// GetLessonsList mocks base method.
+func (m *MockRepositoryLesson) GetLessonsList(ctx context.Context, courseID int) ([]model.Lesson, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateLessonDB", ctx, lesson)
+	ret := m.ctrl.Call(m, "GetLessonsList", ctx, courseID)
+	ret0, _ := ret[0].([]model.Lesson)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLessonsList indicates an expected call of GetLessonsList.
+func (mr *MockRepositoryLessonMockRecorder) GetLessonsList(ctx, courseID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLessonsList", reflect.TypeOf((*MockRepositoryLesson)(nil).GetLessonsList), ctx, courseID)
+}
+
+// UpdateLesson mocks base method.
+func (m *MockRepositoryLesson) UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLesson", ctx, lesson)
 	ret0, _ := ret[0].(*model.Lesson)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UpdateLessonDB indicates an expected call of UpdateLessonDB.
-func (mr *MockRepositoryLessonMockRecorder) UpdateLessonDB(ctx, lesson any) *gomock.Call {
+// UpdateLesson indicates an expected call of UpdateLesson.
+func (mr *MockRepositoryLessonMockRecorder) UpdateLesson(ctx, lesson any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLessonDB", reflect.TypeOf((*MockRepositoryLesson)(nil).UpdateLessonDB), ctx, lesson)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLesson", reflect.TypeOf((*MockRepositoryLesson)(nil).UpdateLesson), ctx, lesson)
 }

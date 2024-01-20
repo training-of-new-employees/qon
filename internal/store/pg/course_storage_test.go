@@ -35,6 +35,7 @@ func (suite *storeTestSuite) TestCreateCourse() {
 			name: "empty name",
 			prepare: func() model.CourseSet {
 				course := model.NewTestCourseSet()
+				course.CreatedBy = admin.ID
 				course.Name = ""
 				return course
 

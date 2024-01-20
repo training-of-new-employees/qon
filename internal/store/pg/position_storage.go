@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -162,4 +163,57 @@ func (p *positionStorage) AssignCourse(ctx context.Context, positionID int, cour
 	}
 
 	return nil
+}
+
+// AssignCourses - назначение нескольких курсов на должность.
+func (p *positionStorage) AssignCourses(ctx context.Context, positionID int, courseIDs []int) error {
+	err := p.tx(func(tx *sqlx.Tx) error {
+		query := `DELETE FROM position_course WHERE position_id = $1`
+		_, err := tx.ExecContext(ctx, query, positionID)
+		if err != nil {
+			return err
+		}
+
+		if len(courseIDs) == 0 {
+			return nil
+		}
+
+		return p.assignCoursesTx(ctx, tx, positionID, courseIDs)
+	})
+
+	if err != nil {
+		return handleError(err)
+	}
+
+	return nil
+}
+
+func (p *positionStorage) GetCourseForPosition(ctx context.Context, positionID int) ([]int, error) {
+	query := `
+		SELECT course_id
+		FROM position_course
+		WHERE position_id = $1
+	`
+
+	rows, err := p.db.QueryContext(ctx, query, positionID)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	ids := make([]int, 0)
+
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+
+		ids = append(ids, id)
+	}
+
+	return ids, nil
 }

@@ -54,7 +54,7 @@ var constraintToAppError = map[string]error{
 	"fk_picture_lesson":              errs.ErrLessonReference,
 	"chck_picture_creater_not_empty": errs.ErrCreaterNotEmpty,
 	"fk_picture_creater":             errs.ErrCreaterNotFound,
-	"chck_link_not_empty":            errs.ErrPictureLinkNotEmpty,
+	"chck_url_picture_not_empty":     errs.ErrURLPictureNotEmpty,
 
 	// position_course
 	"chck_positioncourse_position_not_empty": errs.ErrPositionIDNotEmpty,
@@ -69,6 +69,7 @@ var constraintToAppError = map[string]error{
 	"chck_courseassign_user_not_empty":   errs.ErrUserIDNotEmpty,
 	"fk_courseassign_user":               errs.ErrUserReference,
 	"unq_usercourse":                     errs.ErrUserCourseUsed,
+	"chck_course_status_type":            errs.ErrInvalidCourseStatus,
 
 	// lesson_results
 	"chck_lessonresult_course_not_empty": errs.ErrCourseIDNotEmpty,
@@ -77,6 +78,7 @@ var constraintToAppError = map[string]error{
 	"fk_lessonresult_lesson":             errs.ErrLessonReference,
 	"chck_lessonresult_user_not_empty":   errs.ErrUserIDNotEmpty,
 	"fk_lessonresult_user":               errs.ErrUserReference,
+	"chck_lesson_status_type":            errs.ErrInvalidLessonStatus,
 
 	"unq_assignlesson": errs.ErrAssignLessonUsed,
 }

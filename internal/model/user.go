@@ -33,6 +33,12 @@ type (
 		Password string `json:"password" db:"password"`
 	}
 
+	UserActivation struct {
+		Email    string `json:"email"    db:"email"`
+		Password string `json:"password" db:"password"`
+		Invite   string `json:"invite"`
+	}
+
 	UserCreate struct {
 		CompanyID  int    `json:"company_id" db:"company_id"`
 		PositionID int    `json:"position_id" db:"position_id"`
@@ -193,6 +199,39 @@ func (u *UserSignIn) Validation() error {
 
 	if u.Password == "" || u.Email == "" {
 		return fmt.Errorf("error password or email is empty")
+	}
+
+	return nil
+}
+
+func (u *UserActivation) Validation() error {
+
+	if u.Password == "" || u.Email == "" {
+		return fmt.Errorf("error password or email is empty")
+	}
+
+	if err := validation.Validate(&u.Email, validation.Required); err != nil {
+		return errs.ErrEmailNotEmpty
+	}
+
+	if err := validation.Validate(&u.Email, is.Email); err != nil {
+		return errs.ErrInvalidEmail
+	}
+
+	if err := validation.Validate(&u.Password, validation.Required); err != nil {
+		return errs.ErrPasswordNotEmpty
+	}
+
+	if err := validation.Validate(&u.Password, validation.Length(6, 30)); err != nil {
+		return errs.ErrInvalidPassword
+	}
+
+	if err := validation.Validate(&u.Password, validation.By(validatePassword(u.Password))); err != nil {
+		return errs.ErrInvalidPassword
+	}
+
+	if err := validation.Validate(&u.Invite, validation.Required); err != nil {
+		return errs.ErrInviteNotEmpty
 	}
 
 	return nil

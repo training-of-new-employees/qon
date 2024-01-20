@@ -2,13 +2,13 @@ package pg
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	"errors"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/training-of-new-employees/qon/internal/logger"
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
-	"go.uber.org/zap"
 )
 
 var _ store.RepositoryLesson = (*lessonStorage)(nil)
@@ -25,49 +25,77 @@ func newLessonStorage(db *sqlx.DB) *lessonStorage {
 	}
 }
 
-func (l *lessonStorage) CreateLessonDB(ctx context.Context,
-	lesson model.LessonCreate, user_id int) (*model.Lesson, error) {
+func (l *lessonStorage) CreateLesson(ctx context.Context,
+	lesson model.Lesson, userID int) (*model.Lesson, error) {
+	var createdLesson *model.Lesson
+	var err error
 
-	query := `INSERT INTO lessons (course_id, created_by, name, description)
-	VALUES ($1, $2, $3, $4)
-	RETURNING id, number, name, description, created_at`
+	err = l.tx(func(tx *sqlx.Tx) error {
+		createdLesson, err = l.createLessonTx(ctx, tx, lesson, userID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 
-	var createdLesson model.Lesson
-
-	err := l.db.GetContext(ctx, &createdLesson, query,
-		lesson.CourseID, user_id, lesson.Name, lesson.Description)
 	if err != nil {
 		return nil, handleError(err)
 	}
 
+	return createdLesson, nil
+}
+
+// updateLessonTx - обновление урока.
+// ВAЖНО: использовать только внутри транзакции.
+func (l *lessonStorage) createLessonTx(ctx context.Context,
+	tx *sqlx.Tx, lesson model.Lesson, userId int) (*model.Lesson, error) {
+
+	query := `INSERT INTO lessons (course_id, created_by, name )
+			  VALUES ($1, $2, $3)
+		      RETURNING id, course_id, name`
+
+	var createdLesson model.Lesson
+
+	err := tx.GetContext(ctx, &createdLesson, query,
+		lesson.CourseID, userId, lesson.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	createdLesson.Content, err = l.insertTextsTx(ctx, tx, createdLesson.ID,
+		lesson.Content, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	createdLesson.URLPicture, err = l.insertPicturesTx(ctx, tx, createdLesson.ID,
+		lesson.URLPicture, userId)
+	if err != nil {
+		return nil, err
+	}
 	return &createdLesson, nil
 }
 
-func (l *lessonStorage) DeleteLessonDB(ctx context.Context, lessonID int) error {
-	query := `UPDATE lessons SET archived = true WHERE id = $1`
-
-	if _, err := l.db.ExecContext(ctx, query, lessonID); err != nil {
-		return handleError(err)
-	}
-
-	return nil
-}
-
-func (l *lessonStorage) GetLessonDB(ctx context.Context,
+func (l *lessonStorage) GetLesson(ctx context.Context,
 	lessonID int) (*model.Lesson, error) {
-	query := `SELECT id, course_id, created_by, number, name, 
-			         description, created_at, updated_at
-			  FROM lessons
-		      WHERE id = $1 AND archived = false`
+	query := `SELECT l.id, l.course_id, l.name, t.content,
+					 p.url_picture, l.archived
+			  FROM lessons l
+			  JOIN texts t ON l.id = t.lesson_id
+			  JOIN pictures p ON  l.id = p.lesson_id
+		      WHERE l.id = $1`
 	var lesson model.Lesson
 	err := l.db.GetContext(ctx, &lesson, query, lessonID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrLessonNotFound
+		}
 		return nil, handleError(err)
 	}
 	return &lesson, nil
 }
 
-func (l *lessonStorage) UpdateLessonDB(ctx context.Context,
+func (l *lessonStorage) UpdateLesson(ctx context.Context,
 	lesson model.LessonUpdate) (*model.Lesson, error) {
 	var updatedLesson *model.Lesson
 	var err error
@@ -95,51 +123,55 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 
 	query := `SELECT id
 				FROM lessons
-				WHERE id = $1 AND course_id = $2 AND archived = false`
-	_, err := tx.ExecContext(ctx, query, lesson.ID, lesson.CourseID)
+				WHERE id = $1 AND archived = false`
+	_, err := tx.ExecContext(ctx, query, lesson.ID)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, err
 	}
+
+	content, err := l.updateTextsTx(ctx, tx, lesson.ID, lesson.Content)
+	if err != nil {
+		return nil, err
+	}
+	updatedLesson.Content = content
+
+	urlPicture, err := l.updatePicturesTx(ctx, tx, lesson.ID, lesson.URLPicture)
+	if err != nil {
+		return nil, err
+	}
+	updatedLesson.URLPicture = urlPicture
 
 	query = `UPDATE lessons
-			  	SET name = COALESCE($1, name), description = COALESCE($2, description),
-				path = COALESCE($3, path)
-				WHERE id = $4 AND course_id = $4 `
-	_, err = tx.ExecContext(ctx, query, lesson.Name, lesson.Description,
-		lesson.Path, lesson.ID, lesson.CourseID)
+			  	SET name = COALESCE(NULLIF($1, ''), name)
+				WHERE id = $2
+				RETURNING name, archived`
+	err = tx.GetContext(ctx, &updatedLesson,
+		query, lesson.Name, lesson.ID)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, err
 	}
 
-	query = `SELECT id, course_id, created_by, number, name, 
-			        description, created_at, updated_at
-			  FROM lessons
-		      WHERE id = $1 AND course_id = $2`
-	err = tx.GetContext(ctx, &updatedLesson, query, lesson.ID, lesson.CourseID)
-	if err != nil {
-		return nil, handleError(err)
-	}
 	return &updatedLesson, nil
 }
 
-// tx - обёртка для простого использования транзакций без дублирования кода.
-func (l *lessonStorage) tx(f func(*sqlx.Tx) error) error {
-	// открываем транзакцию
-	tx, err := l.db.Beginx()
+// GetLessonsListDB - получить список уроков курса.
+func (l *lessonStorage) GetLessonsList(ctx context.Context, courseID int) ([]model.Lesson, error) {
+	lessonsList := []model.Lesson{}
+
+	if courseID == 0 {
+		return nil, errs.ErrCourseIDNotEmpty
+	}
+	query := `SELECT l.id, l.course_id, l.name, t.content,
+					 p.url_picture, l.archived
+			  FROM lessons l
+			  JOIN texts t ON l.id = t.lesson_id
+			  JOIN pictures p ON  l.id = p.lesson_id
+			  WHERE l.course_id = $1`
+
+	err := l.db.SelectContext(ctx, &lessonsList, query, courseID)
 	if err != nil {
-		return fmt.Errorf("beginning tx: %w", err)
-	}
-	// отмена транзакции
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			logger.Log.Warn("err during tx rollback %v", zap.Error(err))
-		}
-	}()
-
-	if err = f(tx); err != nil {
-		return err
+		return nil, handleError(err)
 	}
 
-	// фиксация транзакции
-	return tx.Commit()
+	return lessonsList, nil
 }

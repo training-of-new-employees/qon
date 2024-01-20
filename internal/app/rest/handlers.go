@@ -26,6 +26,7 @@ import (
 
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
+	s.router.Use(s.CORS())
 
 	s.router.Use(s.LoggerMiddleware())
 	allRoutes := s.router.Group("/api")
@@ -50,23 +51,24 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.GET("", s.handlerGetAdminCourses)
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
+	adminCourses.GET("/:id/lessons", s.handlerGetLessonsList)
 
 	invitationLinkGroup := mvp.Group("/invitation-link")
 	invitationLinkGroup.Use(s.IsAuthenticated(), s.IsAdmin())
+	invitationLinkGroup.GET("/:email", s.handlerGetInvitationLink)
 	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
 
-	lessons := mvp.Group("/lesson")
-	lessons.POST("/", s.handlerLessonCreate)
-	lessons.DELETE("/", s.handlerLessonDelete)
-	lessons.GET("/", s.handlerLessonGet)
-	lessons.PATCH("/", s.handlerLessonUpdate)
+	lesson := mvp.Group("/admin/lessons")
+	lesson.POST("/", s.handlerLessonCreate)
+	lesson.GET("/:id", s.handlerLessonGet)
+	lesson.PATCH("/:id", s.handlerLessonUpdate)
 
 	userGroup := mvp.Group("/users")
+	userGroup.POST("/set-password", s.handlerSetPassword)
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("", s.handlerGetUsers)
 	userGroup.GET("/:id", s.handlerGetUser)
 	userGroup.PATCH("/:id", s.handlerEditUser)
-	userGroup.POST("/set-password", s.handlerSetPassword)
 	userGroup.PATCH("/archive/:id", s.handlerArchiveUser)
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("/info", s.handlerUserInfo)
@@ -79,6 +81,8 @@ func (s *RestServer) InitRoutes() {
 	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
 	position.Any("/", s.NotFound(errs.ErrPositionNotFound))
+	position.GET("/:id/courses", s.handlerGetPositionCourses)
+	position.PATCH("/:id/courses", s.handlerAssignCourses)
 	position.GET("/:id", s.handlerGetPosition)
 	position.PATCH("/update/:id", s.handlerUpdatePosition)
 

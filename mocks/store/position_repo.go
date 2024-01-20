@@ -54,6 +54,20 @@ func (mr *MockRepositoryPositionMockRecorder) AssignCourse(ctx, positionID, cour
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourse", reflect.TypeOf((*MockRepositoryPosition)(nil).AssignCourse), ctx, positionID, courseID)
 }
 
+// AssignCourses mocks base method.
+func (m *MockRepositoryPosition) AssignCourses(ctx context.Context, positionID int, courseIDs []int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssignCourses", ctx, positionID, courseIDs)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AssignCourses indicates an expected call of AssignCourses.
+func (mr *MockRepositoryPositionMockRecorder) AssignCourses(ctx, positionID, courseIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssignCourses", reflect.TypeOf((*MockRepositoryPosition)(nil).AssignCourses), ctx, positionID, courseIDs)
+}
+
 // CreatePosition mocks base method.
 func (m *MockRepositoryPosition) CreatePosition(ctx context.Context, position model.PositionSet) (*model.Position, error) {
 	m.ctrl.T.Helper()
@@ -67,6 +81,21 @@ func (m *MockRepositoryPosition) CreatePosition(ctx context.Context, position mo
 func (mr *MockRepositoryPositionMockRecorder) CreatePosition(ctx, position any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePosition", reflect.TypeOf((*MockRepositoryPosition)(nil).CreatePosition), ctx, position)
+}
+
+// GetCourseForPosition mocks base method.
+func (m *MockRepositoryPosition) GetCourseForPosition(ctx context.Context, positionID int) ([]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCourseForPosition", ctx, positionID)
+	ret0, _ := ret[0].([]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCourseForPosition indicates an expected call of GetCourseForPosition.
+func (mr *MockRepositoryPositionMockRecorder) GetCourseForPosition(ctx, positionID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCourseForPosition", reflect.TypeOf((*MockRepositoryPosition)(nil).GetCourseForPosition), ctx, positionID)
 }
 
 // GetPositionByID mocks base method.

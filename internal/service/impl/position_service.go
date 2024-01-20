@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
@@ -24,7 +23,7 @@ func (p *positionService) CreatePosition(ctx context.Context, val model.Position
 
 	position, err := p.db.PositionStorage().CreatePosition(ctx, val)
 	if err != nil {
-		return nil, fmt.Errorf("failed CreatePositionDB: %w", err)
+		return nil, err
 	}
 
 	return position, nil
@@ -33,16 +32,30 @@ func (p *positionService) CreatePosition(ctx context.Context, val model.Position
 func (p *positionService) GetPosition(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position, err := p.db.PositionStorage().GetPositionInCompany(ctx, companyID, positionID)
 	if err != nil {
-		return nil, fmt.Errorf("failed GetPositionDB: %w", err)
+		return nil, err
 	}
 
 	return position, nil
 }
 
+func (p *positionService) GetPositionCourses(ctx context.Context, companyID int, positionID int) ([]int, error) {
+	_, err := p.db.PositionStorage().GetPositionInCompany(ctx, companyID, positionID)
+	if err != nil {
+		return nil, err
+	}
+
+	courseIDs, err := p.db.PositionStorage().GetCourseForPosition(ctx, positionID)
+	if err != nil {
+		return nil, err
+	}
+
+	return courseIDs, nil
+}
+
 func (p *positionService) GetPositions(ctx context.Context, id int) ([]*model.Position, error) {
 	positions, err := p.db.PositionStorage().ListPositions(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed GetPositionsDB: %w", err)
+		return nil, err
 	}
 
 	return positions, nil
@@ -51,7 +64,7 @@ func (p *positionService) GetPositions(ctx context.Context, id int) ([]*model.Po
 func (p *positionService) UpdatePosition(ctx context.Context, id int, val model.PositionSet) (*model.Position, error) {
 	position, err := p.db.PositionStorage().UpdatePosition(ctx, id, val)
 	if err != nil {
-		return nil, fmt.Errorf("failed UpdatePositionDB: %w", err)
+		return nil, err
 	}
 
 	return position, nil
@@ -72,6 +85,26 @@ func (p *positionService) AssignCourse(ctx context.Context, positionID int, cour
 	}
 
 	if err := p.db.PositionStorage().AssignCourse(ctx, positionID, courseID); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *positionService) AssignCourses(ctx context.Context, positionID int, courseIDs []int, userID int) error {
+	user, err := p.db.UserStorage().GetUserByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	position, err := p.db.PositionStorage().GetPositionByID(ctx, positionID)
+	if err != nil {
+		return err
+	}
+
+	if user.CompanyID != position.CompanyID {
+		return errs.ErrUnauthorized
+	}
+
+	if err := p.db.PositionStorage().AssignCourses(ctx, positionID, courseIDs); err != nil {
 		return err
 	}
 	return nil

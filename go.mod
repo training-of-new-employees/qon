@@ -3,6 +3,7 @@ module github.com/training-of-new-employees/qon
 go 1.21.4
 
 require (
+	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-resty/resty/v2 v2.10.0
