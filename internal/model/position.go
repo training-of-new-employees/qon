@@ -68,5 +68,5 @@ func (p *PositionSet) ValidationEdit() error {
 }
 
 func (p *PositionAssignCourses) Validation() error {
-  return nil
+	return nil
 }
