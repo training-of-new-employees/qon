@@ -180,7 +180,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 		return
 	}
 
-	if err = positionReq.Validation(); err != nil {
+	if err := positionReq.ValidationEdit(); err != nil {
 		r.handleError(c, err)
 		return
 	}
