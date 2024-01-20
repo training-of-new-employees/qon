@@ -361,7 +361,8 @@ func (suite *storeTestSuite) TestGetUserLessonsStatus() {
 		user.ID,
 	)
 	suite.NoError(err)
-	suite.store.LessonStorage().UpdateUserLessonStatus(context.TODO(), user.ID, course.ID, lesson.ID, "done")
+	err = suite.store.LessonStorage().UpdateUserLessonStatus(context.TODO(), user.ID, course.ID, lesson.ID, "done")
+	suite.NoError(err)
 
 	lesson2, err := suite.store.LessonStorage().CreateLesson(
 		context.TODO(),

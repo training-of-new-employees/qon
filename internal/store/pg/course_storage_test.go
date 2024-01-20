@@ -291,7 +291,8 @@ func (suite *storeTestSuite) GetUserCoursesStatus() {
 		user.ID,
 	)
 	suite.NoError(err)
-	suite.store.LessonStorage().UpdateUserLessonStatus(context.TODO(), user.ID, 4, lesson.ID, "done")
+	err = suite.store.LessonStorage().UpdateUserLessonStatus(context.TODO(), user.ID, 4, lesson.ID, "done")
+	suite.NoError(err)
 
 	testCases := []struct {
 		name      string

@@ -348,7 +348,7 @@ func (suite *serviceTestSuite) TestGetUserCourseLessons() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			courseID, userID := tc.prepare()
-			_, err := suite.courseService.GetUserCourseLessons(nil, userID, courseID)
+			_, err := suite.courseService.GetUserCourseLessons(context.TODO(), userID, courseID)
 			suite.Equal(tc.err, err)
 		})
 	}
@@ -417,7 +417,7 @@ func (suite *serviceTestSuite) TestGetUserCourses() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			userID := tc.prepare()
-			_, err := suite.courseService.GetUserCourses(nil, userID)
+			_, err := suite.courseService.GetUserCourses(context.TODO(), userID)
 			suite.Equal(tc.err, err)
 		})
 	}
