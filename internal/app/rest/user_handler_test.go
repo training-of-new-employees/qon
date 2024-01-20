@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"go.uber.org/mock/gomock"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
-	"go.uber.org/mock/gomock"
 )
 
 func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
@@ -399,6 +400,51 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 
 				body, _ := json.Marshal("invalid")
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "invalid email",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Email = p[string]("№testuser@.yandex.ru")
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "invalid email",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Email = p[string]("y.ru")
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "empty name",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Name = p[string]("")
+
+				body, _ := json.Marshal(editField)
 
 				return fmt.Sprint(userID), body
 			},
@@ -1070,4 +1116,8 @@ func (suite *handlerTestSuite) TestRestServer_handlerGetInvitationLink() {
 			suite.Equal(tt.expectedCode, w.Code)
 		})
 	}
+}
+
+func p[T any](i T) *T {
+	return &i
 }

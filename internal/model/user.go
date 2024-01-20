@@ -108,15 +108,50 @@ func (u *UserCreate) Validation() error {
 	if err := validation.Validate(&u.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(u.Surname))); err != nil {
 		return errs.ErrInvalidUserSurname
 	}
-
 	// проверка требований к отчеству
-	if u.Patronymic != "" {
-		// проверка требований к отчеству
-		if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(u.Patronymic))); err != nil {
-			return errs.ErrInvalidUserPatronymic
+	if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(u.Patronymic))); err != nil {
+		return errs.ErrInvalidUserPatronymic
+	}
+
+	return nil
+}
+
+func (ue *UserEdit) Validation() error {
+	if ue.Email != nil {
+		// проверка на пустоту поля емейл
+		if err := validation.Validate(&ue.Email, validation.Required); err != nil {
+			return errs.ErrEmailNotEmpty
+		}
+		// проверка емейла на корректность
+		if err := validation.Validate(&ue.Email, is.Email); err != nil {
+			return errs.ErrInvalidEmail
+		}
+	}
+	// проверка требований к имени
+	if ue.Name != nil {
+		if err := validation.Validate(&ue.Name, validation.Required); err != nil {
+			return errs.ErrUserNameNotEmpty
+		}
+		if err := validation.Validate(&ue.Name, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Name))); err != nil {
+			return errs.ErrInvalidUserName
+		}
+	}
+	if ue.Surname != nil {
+		if err := validation.Validate(&ue.Surname, validation.Required); err != nil {
+			return errs.ErrUserSurnameNotEmpty
+		}
+		// проверка требований к фамилии
+		if err := validation.Validate(&ue.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Surname))); err != nil {
+			return errs.ErrInvalidUserSurname
 		}
 	}
 
+	if ue.Patronymic != nil {
+		// проверка требований к отчеству
+		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Patronymic))); err != nil {
+			return errs.ErrInvalidUserPatronymic
+		}
+	}
 	return nil
 }
 

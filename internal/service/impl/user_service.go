@@ -149,6 +149,7 @@ func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, editorComp
 	if err != nil {
 		return nil, err
 	}
+	val.CompanyID = &user.CompanyID
 	if user.CompanyID != editorCompanyID {
 		return nil, errs.ErrUserNotFound
 	}
