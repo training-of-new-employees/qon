@@ -71,6 +71,18 @@ func validateCompanyPositionName(str string) validation.RuleFunc {
 // validateCourseName - проверка имени и описания курсов на состав.
 // ВАЖНО: используется при валидации с методами пакета ozzo-validation.
 func validateCourseName(str string) validation.RuleFunc {
-	return validateCompanyPositionName(str)
+	return func(value interface{}) error {
+		// случай когда строка состоит только из пробелов
+		trimmed := strings.Trim(str, " ")
+		if trimmed == "" {
+			return errSpaceEmpty
+		}
+		for _, c := range str {
+			if !unicode.IsGraphic(c) || c == '#' || c == '*' {
+				return errors.New("string may only contain unicode characters and not contain '#' and '*'")
+			}
+		}
 
+		return nil
+	}
 }
