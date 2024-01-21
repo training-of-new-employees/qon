@@ -48,7 +48,7 @@ func Test_courseService_GetAdminCourses(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Получение курсов админом",
+			"Получение пустого списка курсов админом",
 			func(f *fields) {
 				f.coursedb.EXPECT().CompanyCourses(gomock.Any(), 10).Return([]model.Course{}, nil)
 			},
@@ -56,7 +56,25 @@ func Test_courseService_GetAdminCourses(t *testing.T) {
 				nil,
 				10,
 			},
-			[]model.Course{},
+			nil,
+			true,
+		},
+		{
+			"Получение курсов админом",
+			func(f *fields) {
+				courses := []model.Course{
+					{},
+				}
+				f.coursedb.EXPECT().CompanyCourses(gomock.Any(), 10).Return(courses, nil)
+			},
+			args{
+				nil,
+				10,
+			},
+			[]model.Course{
+				{},
+			},
+
 			false,
 		},
 	}
