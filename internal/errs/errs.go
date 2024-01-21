@@ -35,6 +35,12 @@ var (
 	ErrNoAccess = errors.New("no access")
 	// ErrIncorrectEmailOrPassword - неправильный емейл или пароль
 	ErrIncorrectEmailOrPassword = errors.New("incorrect email or password")
+	// ErrEmailOrPasswordEmpty - пустой емейл или пароль
+	ErrEmailOrPasswordEmpty = errors.New("email address and password must be filled in")
+	// ErrVerifyCodeNotEmpty - пустой код верификации
+	ErrVerifyCodeNotEmpty = errors.New("code cannot be empty")
+	// ErrIncorrectVerifyCode - невалидный код верификации
+	ErrIncorrectVerifyCode = errors.New("invalid verify code")
 )
 
 var (
@@ -95,14 +101,14 @@ var (
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
 	// ErrIncorrectCompanyName - некорректное имя компании
-	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, '-', '&'")
+	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
 
 	// -- Ошибки должности --
 
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
 	ErrPositionNameNotEmpty = errors.New("position name cannot be empty")
 
-	ErrInvalidPositionName = errors.New("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, '-', '&'")
+	ErrInvalidPositionName = errors.New("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
 
 	// -- Ошибки пользователя --
 
@@ -113,7 +119,7 @@ var (
 	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
 	// ErrInvalidEmail - некорректный email
-	ErrInvalidEmail = errors.New("invalid email")
+	ErrInvalidEmail = errors.New("invalid email or incorrect length (email length should be 7-50 symbols)")
 
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
@@ -148,10 +154,10 @@ var (
 	ErrCourseNameIsEmpty = errors.New("course name cannot be empty")
 
 	// ErrCourseNameInvalid - имя курса не соответствует требованиям
-	ErrCourseNameInvalid = errors.New("course name is invalid")
+	ErrCourseNameInvalid = errors.New("course name is invalid: course name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
 
 	// ErrCourseDescriptionInvalid - описание курса не соответствует требованиям
-	ErrCourseDescriptionInvalid = errors.New("course description is invalid")
+	ErrCourseDescriptionInvalid = errors.New("course description is invalid: course name is invalid: course description must have length of 10-512 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
 
 	// -- Ошибки уроков --
 

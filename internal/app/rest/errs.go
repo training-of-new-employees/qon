@@ -28,6 +28,9 @@ var errorToCode = map[string]int{
 	errs.ErrCompanyReference.Error():  http.StatusNotFound,
 	errs.ErrLessonReference.Error():   http.StatusNotFound,
 
+	errs.ErrVerifyCodeNotEmpty.Error():       http.StatusBadRequest,
+	errs.ErrIncorrectVerifyCode.Error():      http.StatusBadRequest,
+	errs.ErrEmailOrPasswordEmpty.Error():     http.StatusBadRequest,
 	errs.ErrBadRequest.Error():               http.StatusBadRequest,
 	errs.ErrInvalidRequest.Error():           http.StatusBadRequest,
 	errs.ErrEmailNotEmpty.Error():            http.StatusBadRequest,

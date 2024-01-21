@@ -24,9 +24,11 @@ func validatePassword(password string) validation.RuleFunc {
 		// Минимум 1 буква в верхнем регистре
 		uppercase := regexp.MustCompile(`[A-Z]`).MatchString(password)
 		// Минимум 1 специальный символ
-		special := strings.ContainsAny(password, "!@#$%^&*()_+")
+		special := strings.ContainsAny(password, "!@#$%^&*()_.+")
 
-		if !(numeric && lowercase && uppercase && special) {
+		only := regexp.MustCompile(`^[0-9a-zA-Z!@#$%^&*()_.+]+$`).MatchString(password)
+
+		if !(numeric && lowercase && uppercase && special && only) {
 			return errs.ErrInvalidPassword
 		}
 
@@ -47,30 +49,9 @@ func validateUserName(str string) validation.RuleFunc {
 	}
 }
 
-// validateCompanyPositionName - проверка имени компании и должности на состав.
+// validateNameDescription - проверка имени и описания объектов на состав (компания, должность, курс, урок).
 // ВАЖНО: используется при валидации с методами пакета ozzo-validation.
-func validateCompanyPositionName(str string) validation.RuleFunc {
-	return func(value interface{}) error {
-
-		// случай когда строка состоит только из пробелов
-		trimmed := strings.Trim(str, " ")
-		if trimmed == "" {
-			return errSpaceEmpty
-		}
-
-		for _, c := range str {
-			if !unicode.IsLetter(c) && !unicode.IsDigit(c) && c != '-' && c != '&' && c != ' ' {
-				return errors.New("string may only contain unicode characters, '-', '&', space")
-			}
-		}
-
-		return nil
-	}
-}
-
-// validateCourseName - проверка имени и описания курсов на состав.
-// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
-func validateCourseName(str string) validation.RuleFunc {
+func validateNameDescription(str string) validation.RuleFunc {
 	return func(value interface{}) error {
 		// случай когда строка состоит только из пробелов
 		trimmed := strings.Trim(str, " ")
