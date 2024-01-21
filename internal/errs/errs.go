@@ -119,7 +119,7 @@ var (
 	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
 	// ErrInvalidEmail - некорректный email
-	ErrInvalidEmail = errors.New("invalid email or incorrect length (length should be 6-50 symbols)")
+	ErrInvalidEmail = errors.New("invalid email or incorrect length (email length should be 7-50 symbols)")
 
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")

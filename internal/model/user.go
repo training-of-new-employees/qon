@@ -81,7 +81,7 @@ func (u *UserCreate) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 	// проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.Length(6, 50), is.Email); err != nil {
+	if err := validation.Validate(&u.Email, validation.Length(7, 50), is.Email); err != nil {
 		return errs.ErrInvalidEmail
 	}
 	// проверка на пустоту id компании
@@ -123,7 +123,7 @@ func (ue *UserEdit) Validation() error {
 			return errs.ErrEmailNotEmpty
 		}
 		// проверка емейла на корректность
-		if err := validation.Validate(&ue.Email, validation.Length(6, 50), is.Email); err != nil {
+		if err := validation.Validate(&ue.Email, validation.Length(7, 50), is.Email); err != nil {
 			return errs.ErrInvalidEmail
 		}
 	}
@@ -205,7 +205,7 @@ func (u *UserActivation) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 
-	if err := validation.Validate(&u.Email, validation.Length(6, 50), is.Email); err != nil {
+	if err := validation.Validate(&u.Email, validation.Length(7, 50), is.Email); err != nil {
 		return errs.ErrInvalidEmail
 	}
 
@@ -267,7 +267,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 	// Проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.Length(6, 50), is.Email); err != nil {
+	if err := validation.Validate(&u.Email, validation.Length(7, 50), is.Email); err != nil {
 		return errs.ErrInvalidEmail
 	}
 	// Проверка на пустоту пароля
@@ -314,7 +314,7 @@ func (ae *AdminEdit) Validation() error {
 			return errs.ErrEmailNotEmpty
 		}
 		// проверка емейла на корректность
-		if err := validation.Validate(&ae.Email, validation.Length(6, 50), is.Email); err != nil {
+		if err := validation.Validate(&ae.Email, validation.Length(7, 50), is.Email); err != nil {
 			return errs.ErrInvalidEmail
 		}
 	}
