@@ -37,6 +37,10 @@ var (
 	ErrIncorrectEmailOrPassword = errors.New("incorrect email or password")
 	// ErrEmailOrPasswordEmpty - пустой емейл или пароль
 	ErrEmailOrPasswordEmpty = errors.New("email address and password must be filled in")
+	// ErrVerifyCodeNotEmpty - пустой код верификации
+	ErrVerifyCodeNotEmpty = errors.New("code cannot be empty")
+	// ErrIncorrectVerifyCode - невалидный код верификации
+	ErrIncorrectVerifyCode = errors.New("invalid verify code")
 )
 
 var (
