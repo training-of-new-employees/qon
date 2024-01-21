@@ -182,7 +182,7 @@ func (l *lessonStorage) GetUserLessonsStatus(ctx context.Context, userID int, co
 
 	err := l.tx(func(tx *sqlx.Tx) error {
 		var errInTx error
-		statuses, errInTx = l.transaction.getUserLessonsStatus(ctx, tx, userID, courseID, lessonsIds)
+		statuses, errInTx = l.transaction.getUserLessonsStatusTx(ctx, tx, userID, courseID, lessonsIds)
 		if errInTx != nil {
 			return errInTx
 		}
@@ -209,7 +209,7 @@ func (l *lessonStorage) UpdateUserLessonStatus(ctx context.Context, userID, cour
 			return err
 		}
 
-		return l.transaction.syncUserCourseProgress(ctx, tx, userID, courseID)
+		return l.transaction.syncUserCourseProgressTx(ctx, tx, userID, courseID)
 	})
 
 	if err != nil {

@@ -8,7 +8,7 @@ type (
 		Content    string `db:"content"     json:"content"`
 		URLPicture string `db:"url_picture" json:"url_picture"`
 		Archived   bool   `db:"archived"    json:"archived"`
-		Status     string `json:"status"`
+		Status     string `json:"status,omitempty"`
 	}
 
 	LessonPreview struct {

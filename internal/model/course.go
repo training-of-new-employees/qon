@@ -24,7 +24,7 @@ type Course struct {
 	Description string    `db:"description" json:"description"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
-	Status      string    `json:"status"`
+	Status      string    `json:"status,omitempty"`
 }
 
 type CoursePreview struct {

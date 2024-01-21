@@ -316,7 +316,7 @@ func (tn *transaction) assignCoursesTx(ctx context.Context, tx *sqlx.Tx, positio
 	return nil
 }
 
-func (tn *transaction) syncUserCourseProgress(ctx context.Context, tx *sqlx.Tx, userID int, courseID int) error {
+func (tn *transaction) syncUserCourseProgressTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int) error {
 	getCourseLessonsQuery := `
 		SELECT id FROM lessons WHERE course_id = $1
 	`
@@ -336,7 +336,7 @@ func (tn *transaction) syncUserCourseProgress(ctx context.Context, tx *sqlx.Tx, 
 		lessonIds = append(lessonIds, id)
 	}
 
-	statuses, err := tn.getUserLessonsStatus(ctx, tx, userID, courseID, lessonIds)
+	statuses, err := tn.getUserLessonsStatusTx(ctx, tx, userID, courseID, lessonIds)
 	if err != nil {
 		return err
 	}
@@ -365,10 +365,10 @@ func (tn *transaction) syncUserCourseProgress(ctx context.Context, tx *sqlx.Tx, 
 		newCourseStatus = "in-process"
 	}
 
-	return tn.updateUserCourseStatus(ctx, tx, userID, courseID, newCourseStatus)
+	return tn.updateUserCourseStatusTx(ctx, tx, userID, courseID, newCourseStatus)
 }
 
-func (tn *transaction) updateUserCourseStatus(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, status string) error {
+func (tn *transaction) updateUserCourseStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, status string) error {
 	updateStatusQuery := `
 			INSERT INTO course_assign (user_id, course_id, status)
 			VALUES ($1, $2, $3)
@@ -383,7 +383,7 @@ func (tn *transaction) updateUserCourseStatus(ctx context.Context, tx *sqlx.Tx, 
 	return nil
 }
 
-func (tn *transaction) getUserLessonsStatus(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, lessonsIds []int) (map[int]string, error) {
+func (tn *transaction) getUserLessonsStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, lessonsIds []int) (map[int]string, error) {
 	query := strings.Builder{}
 	query.WriteString(`INSERT INTO lesson_results (user_id, course_id, lesson_id) VALUES `)
 
