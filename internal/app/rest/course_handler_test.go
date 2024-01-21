@@ -48,6 +48,31 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			},
 		},
 		{
+			name:         "success punctuation name",
+			expectedCode: http.StatusCreated,
+			prepare: func() []byte {
+				courseSet := model.NewTestCourseSet()
+				courseSet.CreatedBy = creatorID
+				courseSet.ID = 0
+				courseSet.Name = courseSet.Name + ",!№:;"
+
+				course := &model.Course{
+					ID:          courseID,
+					Name:        courseSet.Name,
+					Description: courseSet.Description,
+					CreatedBy:   creatorID,
+					IsActive:    true,
+					IsArchived:  false,
+				}
+
+				suite.courseService.EXPECT().CreateCourse(gomock.Any(), courseSet).Return(course, nil)
+
+				body, _ := json.Marshal(courseSet)
+
+				return body
+			},
+		},
+		{
 			name:         "invalid request body",
 			expectedCode: http.StatusBadRequest,
 			prepare: func() []byte {
@@ -61,7 +86,19 @@ func (suite *handlerTestSuite) TestCreateCourse() {
 			expectedCode: http.StatusBadRequest,
 			prepare: func() []byte {
 				courseSet := model.NewTestCourseSet()
-				courseSet.Name = "invalid-name-#$%!"
+				courseSet.Name = "invalid-name-*"
+
+				body, _ := json.Marshal(courseSet)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid course name",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() []byte {
+				courseSet := model.NewTestCourseSet()
+				courseSet.Name = "invalid-name-#"
 
 				body, _ := json.Marshal(courseSet)
 

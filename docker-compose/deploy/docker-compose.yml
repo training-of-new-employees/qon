@@ -7,7 +7,7 @@ services:
       LOG_LEVEL: INFO
       DATABASE_DSN: postgres://quickon:quickon@postgres:5432/qon_app
       REDIS_DSN: redis:6379
-      SENDER_MODE: "api"
+      SENDER_MODE: api
       SENDER_API_KEY: ${SENDER_API_KEY}
       SENDER_EMAIL: ${SENDER_EMAIL}
       DOMAIN: https://${DOMAIN}
@@ -38,7 +38,7 @@ services:
     restart: always
 
   redis:
-    image: "redis:alpine"
+    image: redis:alpine
     restart: always
 
   frontend:
