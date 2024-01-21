@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/store/course_repo.go -destination=mocks/store/course_repo.go
 //
-
 // Package mock_store is a generated GoMock package.
 package mock_store
 
@@ -83,6 +82,36 @@ func (m *MockRepositoryCourse) EditCourse(ctx context.Context, course model.Cour
 func (mr *MockRepositoryCourseMockRecorder) EditCourse(ctx, course, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).EditCourse), ctx, course, companyID)
+}
+
+// GetUserCourse mocks base method.
+func (m *MockRepositoryCourse) GetUserCourse(ctx context.Context, userID, courseID int) (*model.Course, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCourse", ctx, userID, courseID)
+	ret0, _ := ret[0].(*model.Course)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCourse indicates an expected call of GetUserCourse.
+func (mr *MockRepositoryCourseMockRecorder) GetUserCourse(ctx, userID, courseID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).GetUserCourse), ctx, userID, courseID)
+}
+
+// GetUserCoursesStatus mocks base method.
+func (m *MockRepositoryCourse) GetUserCoursesStatus(ctx context.Context, userID int, coursesIds []int) (map[int]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCoursesStatus", ctx, userID, coursesIds)
+	ret0, _ := ret[0].(map[int]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCoursesStatus indicates an expected call of GetUserCoursesStatus.
+func (mr *MockRepositoryCourseMockRecorder) GetUserCoursesStatus(ctx, userID, coursesIds any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCoursesStatus", reflect.TypeOf((*MockRepositoryCourse)(nil).GetUserCoursesStatus), ctx, userID, coursesIds)
 }
 
 // UserCourses mocks base method.

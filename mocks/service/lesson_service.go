@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/service/lesson_service.go -destination=mocks/service/lesson_service.go
 //
-
 // Package mock_service is a generated GoMock package.
 package mock_service
 
@@ -98,4 +97,18 @@ func (m *MockServiceLesson) UpdateLesson(ctx context.Context, lesson model.Lesso
 func (mr *MockServiceLessonMockRecorder) UpdateLesson(ctx, lesson any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLesson", reflect.TypeOf((*MockServiceLesson)(nil).UpdateLesson), ctx, lesson)
+}
+
+// UpdateLessonStatus mocks base method.
+func (m *MockServiceLesson) UpdateLessonStatus(ctx context.Context, userID, lessonID int, status string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLessonStatus", ctx, userID, lessonID, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateLessonStatus indicates an expected call of UpdateLessonStatus.
+func (mr *MockServiceLessonMockRecorder) UpdateLessonStatus(ctx, userID, lessonID, status any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLessonStatus", reflect.TypeOf((*MockServiceLesson)(nil).UpdateLessonStatus), ctx, userID, lessonID, status)
 }

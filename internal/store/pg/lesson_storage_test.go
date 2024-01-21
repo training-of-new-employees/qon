@@ -325,3 +325,86 @@ func (suite *storeTestSuite) TestGetLessonList() {
 		})
 	}
 }
+
+func (suite *storeTestSuite) TestGetUserLessonsStatus() {
+	suite.NotNil(suite.store)
+
+	ca1 := model.NewTestCreateAdmin()
+	uc1 := model.NewTestUserCreate()
+	admin, err := suite.store.UserStorage().CreateAdmin(context.TODO(), uc1, ca1.Company)
+	suite.NoError(err)
+
+	p := model.NewTestPositionSet()
+	p.CompanyID = admin.CompanyID
+	pos, err := suite.store.PositionStorage().CreatePosition(context.TODO(), p)
+	suite.NoError(err)
+
+	uc2 := model.NewTestUserCreate()
+	uc2.CompanyID = admin.CompanyID
+	uc2.PositionID = pos.ID
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), uc2)
+	suite.NoError(err)
+
+	course, err := suite.store.CourseStorage().CreateCourse(
+		context.TODO(),
+		model.CourseSet{
+			Name:        "Test Name",
+			Description: "Test DESCRIPTION",
+			CreatedBy:   user.ID,
+		},
+	)
+	suite.NoError(err)
+
+	lesson, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{CourseID: course.ID, Name: "Test Lesson", Content: "Test content", URLPicture: "Test picture"},
+		user.ID,
+	)
+	suite.NoError(err)
+	err = suite.store.LessonStorage().UpdateUserLessonStatus(context.TODO(), user.ID, course.ID, lesson.ID, "done")
+	suite.NoError(err)
+
+	lesson2, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{CourseID: course.ID, Name: "Test Lesson", Content: "Test content", URLPicture: "Test picture"},
+		user.ID,
+	)
+	suite.NoError(err)
+
+	testCases := []struct {
+		name     string
+		err      error
+		ids      []int
+		statuses map[int]string
+	}{
+		{
+			name: "success",
+			err:  nil,
+			ids:  []int{lesson.ID},
+			statuses: map[int]string{
+				lesson.ID: "done",
+			},
+		},
+		{
+			name: "generated not-started status",
+			err:  nil,
+			ids:  []int{lesson2.ID},
+			statuses: map[int]string{
+				lesson2.ID: "not-started",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			statuses, err := suite.store.LessonStorage().GetUserLessonsStatus(context.TODO(), user.ID, course.ID, tc.ids)
+			suite.Equal(tc.err, err)
+
+			if err == nil {
+				for id := range statuses {
+					suite.Equal(statuses[id], tc.statuses[id])
+				}
+			}
+		})
+	}
+}

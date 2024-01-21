@@ -315,3 +315,110 @@ func (tn *transaction) assignCoursesTx(ctx context.Context, tx *sqlx.Tx, positio
 
 	return nil
 }
+
+func (tn *transaction) syncUserCourseProgressTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int) error {
+	getCourseLessonsQuery := `
+		SELECT id FROM lessons WHERE course_id = $1
+	`
+
+	rows, err := tx.QueryContext(ctx, getCourseLessonsQuery, courseID)
+	if err != nil {
+		return err
+	}
+
+	lessonIds := make([]int, 0)
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return err
+		}
+
+		lessonIds = append(lessonIds, id)
+	}
+
+	statuses, err := tn.getUserLessonsStatusTx(ctx, tx, userID, courseID, lessonIds)
+	if err != nil {
+		return err
+	}
+
+	allLessonsDone := true
+	allLessonsNotStarted := true
+
+	for _, lessonStatus := range statuses {
+		switch lessonStatus {
+		case "done":
+			allLessonsNotStarted = false
+		case "in-process":
+			allLessonsDone = false
+			allLessonsNotStarted = false
+		case "not-started":
+			allLessonsDone = false
+		}
+	}
+
+	var newCourseStatus string
+	if allLessonsDone {
+		newCourseStatus = "done"
+	} else if allLessonsNotStarted {
+		newCourseStatus = "not-started"
+	} else {
+		newCourseStatus = "in-process"
+	}
+
+	return tn.updateUserCourseStatusTx(ctx, tx, userID, courseID, newCourseStatus)
+}
+
+func (tn *transaction) updateUserCourseStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, status string) error {
+	updateStatusQuery := `
+			INSERT INTO course_assign (user_id, course_id, status)
+			VALUES ($1, $2, $3)
+			ON CONFLICT (course_id, user_id) DO UPDATE SET status = EXCLUDED.status
+		`
+
+	_, err := tx.ExecContext(ctx, updateStatusQuery, userID, courseID, status)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tn *transaction) getUserLessonsStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, lessonsIds []int) (map[int]string, error) {
+	query := strings.Builder{}
+	query.WriteString(`INSERT INTO lesson_results (user_id, course_id, lesson_id) VALUES `)
+
+	var params []interface{}
+
+	for i, lessonID := range lessonsIds {
+		position := i * 3
+		query.WriteString(fmt.Sprintf("($%d,$%d,$%d)", position+1, position+2, position+3))
+		params = append(params, userID, courseID, lessonID)
+
+		if i+1 < len(lessonsIds) {
+			query.WriteString(",")
+		}
+	}
+
+	query.WriteString(" ON CONFLICT (course_id, lesson_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id RETURNING lesson_id, status")
+	queryStr := query.String()
+
+	rows, err := tx.QueryContext(ctx, queryStr, params...)
+	if err != nil {
+		return nil, err
+	}
+
+	statuses := make(map[int]string)
+
+	for rows.Next() {
+		var lessonID int
+		var status string
+
+		if err := rows.Scan(&lessonID, &status); err != nil {
+			return nil, err
+		}
+
+		statuses[lessonID] = status
+	}
+
+	return statuses, nil
+}
