@@ -38,11 +38,11 @@ func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 //	@Summary	Получение данных о курсах пользователем
 //	@Tags		course
 //	@Produce	json
-//	@Success	200	{array}		model.Course
-//	@Failure	400	{object}	errResponse
-//	@Failure	401	{object}	errResponse
-//	@Failure	404	{object}	errResponse
-//	@Failure	500	{object}	errResponse
+//	@Success	200	{array}		model.CoursePreview
+//	@Failure	400	{object}	sErr
+//	@Failure	401	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
 //	@Router		/users/courses [get]
 func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -52,7 +52,18 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 		r.handleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, courses)
+
+	previews := make([]model.CoursePreview, 0, len(courses))
+	for _, course := range courses {
+		previews = append(previews, model.CoursePreview{
+			CourseID:    course.ID,
+			Name:        course.Name,
+			Description: course.Description,
+			Status:      course.Status,
+		})
+	}
+
+	c.JSON(http.StatusOK, previews)
 }
 
 // CreateCourse godoc
@@ -141,4 +152,45 @@ func (r *RestServer) handlerEditCourse(c *gin.Context) {
 type courseResp struct {
 	ID int `json:"id"`
 	model.CourseSet
+}
+
+// GetUserCourseLessons godoc
+//
+//	@Summary	Получение данных о уроках курса
+//	@Tags		course
+//	@Param		id	path	int	true	"Course ID"
+//	@Produce	json
+//	@Success	200	{array}		model.LessonPreview
+//	@Failure	400	{object}	sErr
+//	@Failure	401	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Router		/users/courses/{id}/lessons [get]
+func (r *RestServer) handlerGetUserCourseLessons(c *gin.Context) {
+	ctx := c.Request.Context()
+	us := r.getUserSession(c)
+	courseIDStr := c.Param("id")
+	courseID, err := strconv.Atoi(courseIDStr)
+	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
+
+	lessons, err := r.services.Course().GetUserCourseLessons(ctx, us.UserID, courseID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	previews := make([]model.LessonPreview, 0, len(lessons))
+	for _, lesson := range lessons {
+		previews = append(previews, model.LessonPreview{
+			CourseID: lesson.CourseID,
+			Name:     lesson.Name,
+			LessonID: lesson.ID,
+			Status:   lesson.Status,
+		})
+	}
+
+	c.JSON(http.StatusOK, previews)
 }

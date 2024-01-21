@@ -2,9 +2,12 @@ package pg
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
 )
@@ -38,6 +41,66 @@ func (c *courseStorage) UserCourses(ctx context.Context, userID int) ([]model.Co
 	}
 
 	return courses, nil
+}
+
+func (c *courseStorage) GetUserCourse(ctx context.Context, userID int, courseID int) (*model.Course, error) {
+	courses := make([]model.Course, 0, 1)
+	qCourses := `SELECT c.id, c.created_by, c.active, c.archived, c.name, c.description, c.created_at, c.updated_at 
+	FROM users u
+	JOIN position_course pc ON u.position_id = pc.position_id
+	JOIN courses c ON pc.course_id = c.id
+	WHERE u.id = $1 and c.id = $2`
+	err := c.tx(func(tx *sqlx.Tx) error {
+		return tx.SelectContext(ctx, &courses, qCourses, &userID, &courseID)
+	})
+	if err != nil {
+		return nil, handleError(err)
+	}
+	if len(courses) == 0 {
+		return nil, errs.ErrCourseNotFound
+	}
+
+	return &courses[0], nil
+}
+
+func (c *courseStorage) GetUserCoursesStatus(ctx context.Context, userID int, coursesIds []int) (map[int]string, error) {
+	query := strings.Builder{}
+	query.WriteString(`INSERT INTO course_assign (user_id, course_id) VALUES `)
+
+	var params []interface{}
+
+	for i, courseID := range coursesIds {
+		position := i * 2
+		query.WriteString(fmt.Sprintf("($%d,$%d)", position+1, position+2))
+		params = append(params, userID, courseID)
+
+		if i+1 < len(coursesIds) {
+			query.WriteString(",")
+		}
+	}
+
+	query.WriteString(" ON CONFLICT (user_id, course_id) DO UPDATE SET user_id = EXCLUDED.user_id RETURNING course_id, status")
+	queryStr := query.String()
+
+	rows, err := c.db.QueryContext(ctx, queryStr, params...)
+	if err != nil {
+		return nil, err
+	}
+
+	statuses := make(map[int]string)
+
+	for rows.Next() {
+		var courseID int
+		var status string
+
+		if err := rows.Scan(&courseID, &status); err != nil {
+			return nil, err
+		}
+
+		statuses[courseID] = status
+	}
+
+	return statuses, nil
 }
 
 func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {

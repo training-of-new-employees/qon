@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/store/lesson_repo.go -destination=mocks/store/lesson_repo.go
 //
-
 // Package mock_store is a generated GoMock package.
 package mock_store
 
@@ -85,6 +84,21 @@ func (mr *MockRepositoryLessonMockRecorder) GetLessonsList(ctx, courseID any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLessonsList", reflect.TypeOf((*MockRepositoryLesson)(nil).GetLessonsList), ctx, courseID)
 }
 
+// GetUserLessonsStatus mocks base method.
+func (m *MockRepositoryLesson) GetUserLessonsStatus(ctx context.Context, userID, courseID int, lessonsIds []int) (map[int]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserLessonsStatus", ctx, userID, courseID, lessonsIds)
+	ret0, _ := ret[0].(map[int]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserLessonsStatus indicates an expected call of GetUserLessonsStatus.
+func (mr *MockRepositoryLessonMockRecorder) GetUserLessonsStatus(ctx, userID, courseID, lessonsIds any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserLessonsStatus", reflect.TypeOf((*MockRepositoryLesson)(nil).GetUserLessonsStatus), ctx, userID, courseID, lessonsIds)
+}
+
 // UpdateLesson mocks base method.
 func (m *MockRepositoryLesson) UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error) {
 	m.ctrl.T.Helper()
@@ -98,4 +112,18 @@ func (m *MockRepositoryLesson) UpdateLesson(ctx context.Context, lesson model.Le
 func (mr *MockRepositoryLessonMockRecorder) UpdateLesson(ctx, lesson any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLesson", reflect.TypeOf((*MockRepositoryLesson)(nil).UpdateLesson), ctx, lesson)
+}
+
+// UpdateUserLessonStatus mocks base method.
+func (m *MockRepositoryLesson) UpdateUserLessonStatus(ctx context.Context, userID, courseID, lessonID int, status string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserLessonStatus", ctx, userID, courseID, lessonID, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserLessonStatus indicates an expected call of UpdateUserLessonStatus.
+func (mr *MockRepositoryLessonMockRecorder) UpdateUserLessonStatus(ctx, userID, courseID, lessonID, status any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserLessonStatus", reflect.TypeOf((*MockRepositoryLesson)(nil).UpdateUserLessonStatus), ctx, userID, courseID, lessonID, status)
 }

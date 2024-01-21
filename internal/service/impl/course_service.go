@@ -23,15 +23,56 @@ func newCourseService(db store.Storages) *courseService {
 }
 
 func (cs *courseService) GetUserCourses(ctx context.Context, userID int) ([]model.Course, error) {
-	crs, err := cs.db.CourseStorage().UserCourses(ctx, userID)
+	courses, err := cs.db.CourseStorage().UserCourses(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	if len(crs) == 0 {
-		return nil, errs.ErrCourseNotFound
+
+	coursesIds := make([]int, 0, len(courses))
+	for _, course := range courses {
+		coursesIds = append(coursesIds, course.ID)
 	}
-	return crs, nil
+
+	statuses, err := cs.db.CourseStorage().GetUserCoursesStatus(ctx, userID, coursesIds)
+	if err != nil {
+		return nil, err
+	}
+
+	for idx, course := range courses {
+		courses[idx].Status = statuses[course.ID]
+	}
+
+	return courses, nil
 }
+
+func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, courseID int) ([]model.Lesson, error) {
+	course, err := cs.db.CourseStorage().GetUserCourse(ctx, userID, courseID)
+	if err != nil {
+		return nil, err
+	}
+
+	lessons, err := cs.db.LessonStorage().GetLessonsList(ctx, course.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	lessonsIds := make([]int, 0, len(lessons))
+	for _, lesson := range lessons {
+		lessonsIds = append(lessonsIds, lesson.ID)
+	}
+
+	statuses, err := cs.db.LessonStorage().GetUserLessonsStatus(ctx, userID, course.ID, lessonsIds)
+	if err != nil {
+		return nil, err
+	}
+
+	for idx, lesson := range lessons {
+		lessons[idx].Status = statuses[lesson.ID]
+	}
+
+	return lessons, nil
+}
+
 func (cs *courseService) GetCompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
 	crs, err := cs.db.CourseStorage().CompanyCourses(ctx, companyID)
 	if err != nil {
