@@ -41,13 +41,13 @@ func (c *Course) Validation() error {
 	}
 	err = validation.Validate(c.Name,
 		validation.RuneLength(minNameL, maxNameL),
-		validation.By(validateCourseName(c.Name)))
+		validation.By(validateNameDescription(c.Name)))
 	if err != nil {
 		return errs.ErrCourseNameInvalid
 	}
 	err = validation.Validate(c.Description,
 		validation.RuneLength(minDescL, maxDescL),
-		validation.By(validateCourseName(c.Description)))
+		validation.By(validateNameDescription(c.Description)))
 	if err != nil && err != errSpaceEmpty {
 		return errs.ErrCourseDescriptionInvalid
 	}

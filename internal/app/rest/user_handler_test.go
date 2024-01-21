@@ -825,7 +825,7 @@ func (suite *handlerTestSuite) TestRestServer_handlerSetPassword() {
 	userID := 2
 	companyID := 1
 	email := "user@mail.com"
-	password := "user@maiL2.com"
+	password := randomseq.RandomPassword()
 	code := randomseq.RandomString(20)
 
 	tests := []struct {
