@@ -11,4 +11,6 @@ type RepositoryLesson interface {
 	GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error)
 	UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error)
 	GetLessonsList(ctx context.Context, courseID int) ([]model.Lesson, error)
+	GetUserLessonsStatus(ctx context.Context, userID int, courseID int, lessonsIds []int) (map[int]string, error)
+	UpdateUserLessonStatus(ctx context.Context, userID, courseID, lessonID int, status string) error
 }

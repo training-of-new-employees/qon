@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/service"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -49,4 +50,31 @@ func (l *lessonService) GetLessonsList(ctx context.Context, courseID int) ([]mod
 		return nil, err
 	}
 	return lessonsList, nil
+}
+
+func (l *lessonService) UpdateLessonStatus(ctx context.Context, userID int, lessonID int, status string) error {
+	lesson, err := l.db.LessonStorage().GetLesson(ctx, lessonID)
+	if err != nil {
+		return err
+	}
+
+	courses, err := l.db.CourseStorage().UserCourses(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	isUserHasCourse := false
+
+	for _, course := range courses {
+		if course.ID == lesson.CourseID {
+			isUserHasCourse = true
+			break
+		}
+	}
+
+	if !isUserHasCourse {
+		return errs.ErrCourseNotFound
+	}
+
+	return l.db.LessonStorage().UpdateUserLessonStatus(ctx, userID, lesson.CourseID, lesson.ID, status)
 }

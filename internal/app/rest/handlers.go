@@ -59,6 +59,7 @@ func (s *RestServer) InitRoutes() {
 	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
 
 	lesson := mvp.Group("/admin/lessons")
+	lesson.Use(s.IsAuthenticated())
 	lesson.POST("/", s.handlerLessonCreate)
 	lesson.GET("/:id", s.handlerLessonGet)
 	lesson.PATCH("/:id", s.handlerLessonUpdate)
@@ -73,6 +74,8 @@ func (s *RestServer) InitRoutes() {
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("/info", s.handlerUserInfo)
 	userGroup.GET("/courses", s.handlerGetUserCourses)
+	userGroup.GET("/courses/:id/lessons", s.handlerGetUserCourseLessons)
+	userGroup.PATCH("/lessons/:id", s.handlerUpdateLessonStatus)
 
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())

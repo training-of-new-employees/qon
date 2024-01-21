@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
@@ -174,4 +175,46 @@ func (l *lessonStorage) GetLessonsList(ctx context.Context, courseID int) ([]mod
 	}
 
 	return lessonsList, nil
+}
+
+func (l *lessonStorage) GetUserLessonsStatus(ctx context.Context, userID int, courseID int, lessonsIds []int) (map[int]string, error) {
+	statuses := make(map[int]string)
+
+	err := l.tx(func(tx *sqlx.Tx) error {
+		var errInTx error
+		statuses, errInTx = l.transaction.getUserLessonsStatusTx(ctx, tx, userID, courseID, lessonsIds)
+		if errInTx != nil {
+			return errInTx
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return statuses, nil
+}
+
+func (l *lessonStorage) UpdateUserLessonStatus(ctx context.Context, userID, courseID, lessonID int, status string) error {
+	err := l.tx(func(tx *sqlx.Tx) error {
+		updateStatusQuery := `
+			INSERT INTO lesson_results (user_id, lesson_id, course_id, status)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (course_id, lesson_id, user_id) DO UPDATE SET status = EXCLUDED.status
+		`
+
+		_, err := tx.ExecContext(ctx, updateStatusQuery, userID, lessonID, courseID, status)
+		if err != nil {
+			return err
+		}
+
+		return l.transaction.syncUserCourseProgressTx(ctx, tx, userID, courseID)
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

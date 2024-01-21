@@ -24,6 +24,14 @@ type Course struct {
 	Description string    `db:"description" json:"description"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+	Status      string    `json:"status,omitempty"`
+}
+
+type CoursePreview struct {
+	CourseID    int    `json:"course_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
 }
 
 type CourseSet struct {
