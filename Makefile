@@ -40,7 +40,7 @@ swag:
 	swag init -g ./internal/app/rest/handlers.go
 
 build: swag
-	go build -v -o qon ./cmd/main.go
+	go build -v -o qon ./cmd/app
 
 ## Test:
 test: ## Run tests
