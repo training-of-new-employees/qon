@@ -59,6 +59,10 @@ test-coverage: ## run test and show coverage
 	@timeout 5 echo
 	@rm coverage.out
 
+.PHONY: test-data
+test-data:
+	@go run ./cmd/test-data
+
 ## Info:
 info: ## Show help information
 	@echo 'Usage:'
