@@ -18,6 +18,9 @@ func upTestEnv(c *cfg) error {
 	if err != nil {
 		return err
 	}
+	if len(a) == 0 {
+		return errors.New("can't create admin: rerun docker app")
+	}
 
 	// создаём все должности для самой первой компании
 	pos, err := positions(c, api, a[0].CompanyID)

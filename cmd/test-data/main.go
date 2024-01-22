@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"go.uber.org/zap"
 
 	"github.com/training-of-new-employees/qon/internal/logger"
@@ -9,12 +11,12 @@ import (
 func main() {
 	err := logger.InitLogger("debug")
 	if err != nil {
-		logger.Log.Error("Error", zap.Error(err))
+		log.Fatal(err)
 	}
 	cfg := InitFlags()
 	logger.Log.Info("Config", zap.Any("config", cfg))
 	err = upTestEnv(cfg)
 	if err != nil {
-		logger.Log.Error("Error", zap.Error(err))
+		log.Fatal(err)
 	}
 }
