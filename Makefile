@@ -40,7 +40,7 @@ swag:
 	swag init -g ./internal/app/rest/handlers.go
 
 build: swag
-	go build -v -o qon ./cmd/main.go
+	go build -v -o qon ./cmd/app
 
 ## Test:
 test: ## Run tests
@@ -58,6 +58,10 @@ test-coverage: ## run test and show coverage
 	@docker compose --file docker-compose/test/docker-compose.yml down
 	@timeout 5 echo
 	@rm coverage.out
+
+.PHONY: test-data
+test-data:
+	@go run ./cmd/test-data
 
 ## Info:
 info: ## Show help information
