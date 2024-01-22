@@ -1,14 +1,14 @@
 [
   {
     "active": true,
-    "admin": true,
-    "archived": true,
-    "company_id": 0,
-    "email": "string",
-    "name": "string",
-    "password": "string",
-    "patronymic": "string",
-    "position_id": 0,
+    "admin": false,
+    "archived": false,
+    "company_id": 1,
+    "email": "user1@mail.ru",
+    "name": "User",
+    "password": "Qw!2qwe",
+    "patronymic": "",
+    "position_id": 1,
     "surname": "string"
   }
 ]

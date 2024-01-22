@@ -10,5 +10,8 @@ func main() {
 	logger.InitLogger("debug")
 	cfg := InitFlags()
 	logger.Log.Info("Config", zap.Any("config", cfg))
-	upTestEnv(cfg)
+	err := upTestEnv(cfg)
+	if err != nil {
+		logger.Log.Error("Error", zap.Error(err))
+	}
 }
