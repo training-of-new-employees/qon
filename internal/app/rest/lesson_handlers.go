@@ -20,18 +20,19 @@ import (
 // @Failure	500		{object}	sErr
 // @Router		/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
-	lessonCreate := &model.Lesson{}
-
+	ctx := c.Request.Context()
+	lessonCreate := model.Lesson{}
 	if err := c.ShouldBindJSON(&lessonCreate); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
-	ctx := c.Request.Context()
 	us := r.getUserSession(c)
-
-	lesson, err := r.services.Lesson().CreateLesson(ctx, *lessonCreate,
-		us.UserID)
+	if err := lessonCreate.Validation(); err != nil {
+		r.handleError(c, err)
+		return
+	}
+	lesson, err := r.services.Lesson().CreateLesson(ctx, lessonCreate, us.UserID)
 	if err != nil {
 		r.handleError(c, err)
 		return
@@ -52,9 +53,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 // @Failure	500	{object}	sErr
 // @Router		/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
-	val := c.Param("id")
-
-	lessonID, err := strconv.Atoi(val)
+	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, s().SetError(err))
 		return
@@ -86,15 +85,18 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	lessonUpdate := model.LessonUpdate{}
 
 	if err = c.ShouldBindJSON(&lessonUpdate); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
-	val := c.Param("id")
-
-	lessonUpdate.ID, err = strconv.Atoi(val)
+	lessonUpdate.ID, err = strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
+
+	if err := lessonUpdate.Validation(); err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -120,11 +122,9 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 //	@Failure	500	{object}	sErr
 //	@Router		/admin/courses/{id}/lessons [get]
 func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
-	val := c.Param("id")
-
-	courseID, err := strconv.Atoi(val)
+	courseID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
@@ -152,9 +152,7 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 //	@Failure	500	{object}	sErr
 //	@Router		/lessons/{id} [patch]
 func (r *RestServer) handlerUpdateLessonStatus(c *gin.Context) {
-	val := c.Param("id")
-
-	lessonID, err := strconv.Atoi(val)
+	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return

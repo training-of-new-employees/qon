@@ -22,13 +22,13 @@ type (
 		Name     string `json:"name"`
 		Status   string `json:"status"`
 	}
-	/*	LessonCreate struct {
+	LessonCreate struct {
 		ID         int    `db:"id"          json:"id"`
 		CourseID   int    `db:"course_id"   json:"course_id"`
 		Name       string `db:"name"        json:"name"`
 		Content    string `db:"content"     json:"content"`
 		URLPicture string `db:"url_picture" json:"url_picture"`
-	}*/
+	}
 	LessonUpdate struct {
 		ID         int    `db:"id"          json:"-"`
 		Name       string `db:"name"        json:"name"`
@@ -48,7 +48,7 @@ func (l *Lesson) Validation() error {
 	}
 
 	if err := validation.Validate(&l.Name, validation.RuneLength(5, 256), validation.By(validateNameDescription(l.Name))); err != nil {
-		return errs.ErrLessonNameInvalid
+		return errs.ErrInvalidLessonName
 	}
 
 	if err := validation.Validate(&l.Content, validation.Required); err != nil {
@@ -56,30 +56,36 @@ func (l *Lesson) Validation() error {
 	}
 
 	if err := validation.Validate(&l.Content, validation.RuneLength(20, 65000), validation.By(validateNameDescription(l.Content))); err != nil {
-		return errs.ErrTextContentInvalid
+		return errs.ErrInvalidTextContent
 	}
 
-	if err := validation.Validate(&l.URLPicture, validation.RuneLength(5, 1024)); err != nil {
-		return errs.ErrURLPictureLength
+	if l.URLPicture != "" {
+		if err := validation.Validate(&l.URLPicture, validation.RuneLength(5, 1024)); err != nil {
+			return errs.ErrURLPictureLength
+		}
 	}
+
 	return nil
 }
 
-func (l *LessonUpdate) ValidationUpdate() error {
-	if err := validation.Validate(&l.Name, validation.Required); err != nil {
-		return errs.ErrLessonNameNotEmpty
+func (l *LessonUpdate) Validation() error {
+	if l.Name != "" {
+		if err := validation.Validate(&l.Name, validation.RuneLength(5, 256), validation.By(validateNameDescription(l.Name))); err != nil {
+			return errs.ErrInvalidLessonName
+		}
 	}
 
-	if err := validation.Validate(&l.Name, validation.RuneLength(5, 256), validation.By(validateNameDescription(l.Name))); err != nil {
-		return errs.ErrLessonNameInvalid
+	if l.Content != "" {
+		if err := validation.Validate(&l.Content, validation.RuneLength(20, 65000), validation.By(validateNameDescription(l.Content))); err != nil {
+			return errs.ErrInvalidTextContent
+		}
 	}
 
-	if err := validation.Validate(&l.Content, validation.RuneLength(20, 65000), validation.By(validateNameDescription(l.Content))); err != nil {
-		return errs.ErrTextContentInvalid
+	if l.URLPicture != "" {
+		if err := validation.Validate(&l.URLPicture, validation.RuneLength(5, 1024)); err != nil {
+			return errs.ErrURLPictureLength
+		}
 	}
 
-	if err := validation.Validate(&l.URLPicture, validation.RuneLength(5, 1024)); err != nil {
-		return errs.ErrURLPictureLength
-	}
 	return nil
 }

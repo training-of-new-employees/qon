@@ -25,7 +25,7 @@ func validatePassword(password string) validation.RuleFunc {
 		uppercase := regexp.MustCompile(`[A-Z]`).MatchString(password)
 		// Минимум 1 специальный символ
 		special := strings.ContainsAny(password, "!@#$%^&*()_.+")
-
+		// Только символы 0-9a-zA-Z!@#$%^&*()_.+
 		only := regexp.MustCompile(`^[0-9a-zA-Z!@#$%^&*()_.+]+$`).MatchString(password)
 
 		if !(numeric && lowercase && uppercase && special && only) {
@@ -59,9 +59,10 @@ func validateNameDescription(str string) validation.RuleFunc {
 			return errSpaceEmpty
 		}
 		for _, c := range str {
+			// only (),?!№:"\&-_%';@
 			if !unicode.IsLetter(c) && !unicode.IsDigit(c) && !unicode.IsPunct(c) &&
 				c != '!' && c != '№' && c != ':' && c != '"' && c != '\'' && c != '&' &&
-				c != '-' && c != '+' && c != ' ' ||
+				c != '-' && c != '_' && c != '+' && c != ' ' ||
 				c == '*' || c == '#' {
 				return errors.New("string may only contain unicode characters and not contain '#' and '*'")
 			}
