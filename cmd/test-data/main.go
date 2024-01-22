@@ -7,10 +7,13 @@ import (
 )
 
 func main() {
-	logger.InitLogger("debug")
+	err := logger.InitLogger("debug")
+	if err != nil {
+		logger.Log.Error("Error", zap.Error(err))
+	}
 	cfg := InitFlags()
 	logger.Log.Info("Config", zap.Any("config", cfg))
-	err := upTestEnv(cfg)
+	err = upTestEnv(cfg)
 	if err != nil {
 		logger.Log.Error("Error", zap.Error(err))
 	}

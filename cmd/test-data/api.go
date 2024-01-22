@@ -44,7 +44,10 @@ func (a *Api) createAdmins(admins []model.CreateAdmin) ([]model.User, error) {
 			return nil, err
 		}
 		msg := errResp{}
-		json.Unmarshal(r.Body(), &msg)
+		err = json.Unmarshal(r.Body(), &msg)
+		if err != nil {
+			return nil, err
+		}
 		s := strings.Split(msg.Message, "Код верификации: ")
 		if len(s) != 2 {
 			logger.Log.Sugar().Debugf("can't create admin: %s", msg.Message)
@@ -58,7 +61,10 @@ func (a *Api) createAdmins(admins []model.CreateAdmin) ([]model.User, error) {
 			return nil, err
 		}
 		user := model.User{}
-		json.Unmarshal(r.Body(), &user)
+		err = json.Unmarshal(r.Body(), &user)
+		if err != nil {
+			return nil, err
+		}
 		created = append(created, user)
 	}
 	return created, nil
@@ -75,7 +81,10 @@ func (a *Api) createUsers(users []model.UserCreate) ([]model.User, error) {
 			return nil, err
 		}
 		msg := errResp{}
-		json.Unmarshal(r.Body(), &msg)
+		err = json.Unmarshal(r.Body(), &msg)
+		if err != nil {
+			return nil, err
+		}
 		s := strings.Split(msg.Message, "Пригласительная cсылка: ")
 		if len(s) != 2 {
 			logger.Log.Sugar().Debugf("can't create user: %s", msg.Message)
@@ -88,7 +97,10 @@ func (a *Api) createUsers(users []model.UserCreate) ([]model.User, error) {
 			return nil, err
 		}
 		user := model.User{}
-		json.Unmarshal(r.Body(), &user)
+		err = json.Unmarshal(r.Body(), &user)
+		if err != nil {
+			return nil, err
+		}
 		created = append(created, user)
 	}
 	return created, nil
@@ -106,7 +118,10 @@ func (a *Api) createPositions(positions []model.PositionSet) ([]model.Position, 
 			return nil, err
 		}
 		msg := errResp{}
-		json.Unmarshal(r.Body(), &msg)
+		err = json.Unmarshal(r.Body(), &msg)
+		if err != nil {
+			return nil, err
+		}
 		if msg.Message != "" {
 			logger.Log.Sugar().Debugf("can't create position: %s", msg.Message)
 			continue
@@ -115,7 +130,10 @@ func (a *Api) createPositions(positions []model.PositionSet) ([]model.Position, 
 			return nil, err
 		}
 		pos := model.Position{}
-		json.Unmarshal(r.Body(), &pos)
+		err = json.Unmarshal(r.Body(), &pos)
+		if err != nil {
+			return nil, err
+		}
 		created = append(created, pos)
 	}
 	return created, nil
@@ -158,7 +176,10 @@ func (a *Api) assignCourses(coursesID []int, posID int) error {
 		return err
 	}
 	msg := errResp{}
-	json.Unmarshal(r.Body(), &msg)
+	err = json.Unmarshal(r.Body(), &msg)
+	if err != nil {
+		return err
+	}
 	if msg.Message != "" {
 		logger.Log.Sugar().Debugf("can't assign course: %s", msg.Message)
 	}
@@ -177,13 +198,19 @@ func (a *Api) createLessons(lessons []model.Lesson, courseID int) ([]model.Lesso
 			return nil, err
 		}
 		msg := errResp{}
-		json.Unmarshal(r.Body(), &msg)
+		err = json.Unmarshal(r.Body(), &msg)
+		if err != nil {
+			return nil, err
+		}
 		if msg.Message != "" {
 			logger.Log.Sugar().Debugf("can't create lesson: %s", msg.Message)
 			continue
 		}
 		lesson := model.Lesson{}
-		json.Unmarshal(r.Body(), &lesson)
+		err = json.Unmarshal(r.Body(), &lesson)
+		if err != nil {
+			return nil, err
+		}
 
 		created = append(created, lesson)
 	}
