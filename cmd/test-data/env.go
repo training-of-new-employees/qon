@@ -66,7 +66,7 @@ func admins(c *cfg, api *Api) ([]model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Log.Info("Admins created")
+	logger.Log.Info("Admins created", zap.Any("admins", a))
 	err = login(api, admins[0])
 	return a, err
 }
@@ -95,7 +95,7 @@ func positions(c *cfg, api *Api, companyID int) ([]model.Position, error) {
 		return nil, err
 	}
 	sumPos = append(sumPos, p...)
-	logger.Log.Info("Positions created")
+	logger.Log.Info("Positions created", zap.Any("positions", sumPos))
 	return sumPos, nil
 }
 
@@ -114,7 +114,7 @@ func users(c *cfg, api *Api, posID, companyID int) ([]model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Log.Info("Users created")
+	logger.Log.Info("Users created", zap.Any("users", u))
 	return u, nil
 }
 
@@ -129,7 +129,7 @@ func courses(c *cfg, api *Api, posID, companyID int) ([]model.Course, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Log.Info("Courses created")
+	logger.Log.Info("Courses created", zap.Any("courses", crs))
 	coursesID := make([]int, 0, len(courses))
 	for _, c := range crs {
 		coursesID = append(coursesID, c.ID)
@@ -152,6 +152,6 @@ func lessons(c *cfg, api *Api, courseID int) ([]model.Lesson, error) {
 		return nil, err
 	}
 	created, err := api.createLessons(lessons, courseID)
-	logger.Log.Info("Lessons created")
+	logger.Log.Info("Lessons created", zap.Any("lessons", created))
 	return created, err
 }
