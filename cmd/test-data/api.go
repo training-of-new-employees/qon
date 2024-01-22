@@ -151,13 +151,19 @@ func (a *Api) createCourses(courses []model.CourseSet) ([]model.Course, error) {
 		}
 		logger.Log.Sugar().Debugf("Course created:%s", r.String())
 		msg := errResp{}
-		json.Unmarshal(r.Body(), &msg)
+		err = json.Unmarshal(r.Body(), &msg)
+		if err != nil {
+			return nil, err
+		}
 		if msg.Message != "" {
 			logger.Log.Sugar().Debugf("can't create course: %s", msg.Message)
 			continue
 		}
 		course := model.Course{}
-		json.Unmarshal(r.Body(), &course)
+		err = json.Unmarshal(r.Body(), &course)
+		if err != nil {
+			return nil, err
+		}
 
 		created = append(created, course)
 	}
