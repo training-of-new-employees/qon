@@ -164,7 +164,7 @@ var (
 	// ErrLessonNameNotEmpty - название урока не может быть пустым
 	ErrLessonNameNotEmpty = errors.New("lesson name cannot be empty")
 
-	// ErrInvalidLessonName - имя урока не соответствует требованиям
+	// ErrLessonNameInvalid - имя урока не соответствует требованиям
 	ErrLessonNameInvalid = errors.New("invalid lesson name: lesson name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
 
 	// -- Ошибки текстов --
@@ -177,7 +177,7 @@ var (
 
 	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
 
-	ErrURLPictureLength = errors.New("picture's url cannot be empty must have length of 5-1024")
+	ErrURLPictureLength = errors.New("picture's url must have length of 5-1024")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 
