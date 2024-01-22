@@ -164,13 +164,20 @@ var (
 	// ErrLessonNameNotEmpty - название урока не может быть пустым
 	ErrLessonNameNotEmpty = errors.New("lesson name cannot be empty")
 
+	// ErrInvalidLessonName - имя урока не соответствует требованиям
+	ErrLessonNameInvalid = errors.New("invalid lesson name: lesson name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
+
 	// -- Ошибки текстов --
 
 	ErrTextContentNotEmpty = errors.New("text (content) cannot be empty")
 
+	ErrTextContentInvalid = errors.New("invalid lesson content: lesson content must have length of 20-65000 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
+
 	// -- Ошибки картинок --
 
 	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
+
+	ErrURLPictureLength = errors.New("picture's url cannot be empty must have length of 5-1024")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 

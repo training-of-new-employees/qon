@@ -55,6 +55,9 @@ var errorToCode = map[string]int{
 	errs.ErrCourseDescriptionInvalid.Error(): http.StatusBadRequest,
 	errs.ErrInvalidCourseStatus.Error():      http.StatusBadRequest,
 	errs.ErrInvalidLessonStatus.Error():      http.StatusBadRequest,
+	errs.ErrLessonNameInvalid.Error():        http.StatusBadRequest,
+	errs.ErrTextContentInvalid.Error():       http.StatusBadRequest,
+	errs.ErrURLPictureLength.Error():         http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
 	errs.ErrUserActivated.Error():      http.StatusConflict,
