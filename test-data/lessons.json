@@ -1,10 +1,7 @@
 [
   {
-    "archived": true,
+    "archived": false,
     "content": "string",
-    "course_id": 0,
-    "id": 0,
-    "name": "string",
-    "url_picture": "string"
+    "name": "string"
   }
 ]

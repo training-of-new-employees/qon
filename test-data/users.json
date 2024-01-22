@@ -3,12 +3,10 @@
     "active": true,
     "admin": false,
     "archived": false,
-    "company_id": 1,
     "email": "user1@mail.ru",
     "name": "User",
     "password": "Qw!2qwe",
     "patronymic": "",
-    "position_id": 1,
     "surname": "string"
   }
 ]

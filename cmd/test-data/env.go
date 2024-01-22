@@ -19,10 +19,6 @@ func upTestEnv(c *cfg) error {
 		return err
 	}
 
-	err = login(api, a[0])
-	if err != nil {
-		return err
-	}
 	// создаём все должности для самой первой компании
 	pos, err := positions(c, api, a[0].CompanyID)
 	if err != nil {
@@ -30,17 +26,18 @@ func upTestEnv(c *cfg) error {
 	}
 
 	// назначаем всех пользователей на самую первую должность
-	u, err := users(c, api, pos[0].ID, pos[0].CompanyID)
+	_, err = users(c, api, pos[0].ID, pos[0].CompanyID)
 	if err != nil {
 		return err
 	}
-	_ = u
 
-	crsFN := path.Join(c.Env, c.Courses)
-	logger.Log.Debug("Fetch courses", zap.String("file", crsFN))
-	lesFN := path.Join(c.Env, c.Lessons)
-	logger.Log.Debug("Fetch lessons", zap.String("file", lesFN))
-	return nil
+	crs, err := courses(c, api, pos[0].ID, pos[0].CompanyID)
+	if err != nil {
+		return err
+	}
+	_, err = lessons(c, api, crs[0].ID)
+
+	return err
 
 }
 
@@ -70,15 +67,16 @@ func admins(c *cfg, api *Api) ([]model.User, error) {
 		return nil, err
 	}
 	logger.Log.Info("Admins created")
-	return a, nil
+	err = login(api, admins[0])
+	return a, err
 }
 
-func login(api *Api, admin model.User) error {
+func login(api *Api, admin model.CreateAdmin) error {
 	signIn := model.UserSignIn{
 		Email:    admin.Email,
 		Password: admin.Password,
 	}
-	return api.Login(signIn)
+	return api.login(signIn)
 }
 
 func positions(c *cfg, api *Api, companyID int) ([]model.Position, error) {
@@ -97,6 +95,7 @@ func positions(c *cfg, api *Api, companyID int) ([]model.Position, error) {
 		return nil, err
 	}
 	sumPos = append(sumPos, p...)
+	logger.Log.Info("Positions created")
 	return sumPos, nil
 }
 
@@ -117,4 +116,42 @@ func users(c *cfg, api *Api, posID, companyID int) ([]model.User, error) {
 	}
 	logger.Log.Info("Users created")
 	return u, nil
+}
+
+func courses(c *cfg, api *Api, posID, companyID int) ([]model.Course, error) {
+	crsFN := path.Join(c.Env, c.Courses)
+	logger.Log.Debug("Fetch courses", zap.String("file", crsFN))
+	courses, err := fetchEntities[model.CourseSet](crsFN)
+	if err != nil {
+		return nil, err
+	}
+	crs, err := api.createCourses(courses)
+	if err != nil {
+		return nil, err
+	}
+	logger.Log.Info("Courses created")
+	coursesID := make([]int, 0, len(courses))
+	for _, c := range crs {
+		coursesID = append(coursesID, c.ID)
+	}
+	err = api.assignCourses(coursesID, posID)
+	if err != nil {
+		return nil, err
+	}
+	logger.Log.Info("Courses assigned")
+
+	return crs, nil
+
+}
+
+func lessons(c *cfg, api *Api, courseID int) ([]model.Lesson, error) {
+	lesFN := path.Join(c.Env, c.Lessons)
+	logger.Log.Debug("Fetch lessons", zap.String("file", lesFN))
+	lessons, err := fetchEntities[model.Lesson](lesFN)
+	if err != nil {
+		return nil, err
+	}
+	created, err := api.createLessons(lessons, courseID)
+	logger.Log.Info("Lessons created")
+	return created, err
 }

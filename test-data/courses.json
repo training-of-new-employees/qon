@@ -1,7 +1,7 @@
 [
   {
-    "archived": true,
-    "description": "string",
+    "archived": false,
+    "description": "something about course",
     "name": "string"
   }
 ]
