@@ -12,6 +12,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
+// Создает на сервере из конфига все необходимые сущности
 func upTestEnv(c *cfg) error {
 	api := NewApi(c)
 	a, err := admins(c, api)
@@ -34,16 +35,19 @@ func upTestEnv(c *cfg) error {
 		return err
 	}
 
+	// создаём курсы для первой должности
 	crs, err := courses(c, api, pos[0].ID, pos[0].CompanyID)
 	if err != nil {
 		return err
 	}
+	// добавляем уроки для первого курса
 	_, err = lessons(c, api, crs[0].ID)
 
 	return err
 
 }
 
+// fetchEntities - извлекает список заданных сущностей из json-файла
 func fetchEntities[T any](n string) ([]T, error) {
 	f, err := os.Open(n)
 	if err != nil {
@@ -70,6 +74,8 @@ func admins(c *cfg, api *Api) ([]model.User, error) {
 		return nil, err
 	}
 	logger.Log.Info("Admins created", zap.Any("admins", a))
+
+	// после создания админа входим с его данными для дальнейшей работы с api
 	err = login(api, admins[0])
 	return a, err
 }
