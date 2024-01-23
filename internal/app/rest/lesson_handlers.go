@@ -23,7 +23,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	ctx := c.Request.Context()
 	lessonCreate := model.Lesson{}
 	if err := c.ShouldBindJSON(&lessonCreate); err != nil {
-		r.handleError(c, err)
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
@@ -55,7 +55,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
@@ -84,14 +84,14 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	var err error
 	lessonUpdate := model.LessonUpdate{}
 
-	if err = c.ShouldBindJSON(&lessonUpdate); err != nil {
+	lessonUpdate.ID, err = strconv.Atoi(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
-	lessonUpdate.ID, err = strconv.Atoi(c.Param("id"))
-	if err != nil {
-		r.handleError(c, errs.ErrBadRequest)
+	if err = c.ShouldBindJSON(&lessonUpdate); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
