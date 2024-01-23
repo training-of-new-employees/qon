@@ -5,6 +5,13 @@ import (
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
+const (
+	minContentL    = 20
+	maxContentL    = 65000
+	minURLPictureL = 5
+	maxURLPictureL = 1024
+)
+
 type (
 	Lesson struct {
 		ID         int    `db:"id"          json:"id"`
