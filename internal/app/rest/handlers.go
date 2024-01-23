@@ -58,11 +58,11 @@ func (s *RestServer) InitRoutes() {
 	invitationLinkGroup.GET("/:email", s.handlerGetInvitationLink)
 	invitationLinkGroup.PATCH("", s.handlerRegenerationInvitationLink)
 
-	lesson := mvp.Group("/admin/lessons")
-	lesson.Use(s.IsAuthenticated())
-	lesson.POST("/", s.handlerLessonCreate)
-	lesson.GET("/:id", s.handlerLessonGet)
-	lesson.PATCH("/:id", s.handlerLessonUpdate)
+	adminLessons := restrictedAdmin.Group("/lessons")
+	adminLessons.Use(s.IsAuthenticated())
+	adminLessons.POST("", s.handlerLessonCreate)
+	adminLessons.GET("/:id", s.handlerLessonGet)
+	adminLessons.PATCH("/:id", s.handlerLessonUpdate)
 
 	userGroup := mvp.Group("/users")
 	userGroup.POST("/set-password", s.handlerSetPassword)
