@@ -18,7 +18,7 @@ import (
 // @Failure	400		{object}	errResponse
 // @Failure	404		{object}	errResponse
 // @Failure	500		{object}	errResponse
-// @Router		/lessons [post]
+// @Router		/admin/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	ctx := c.Request.Context()
 	lessonCreate := model.Lesson{}
@@ -51,7 +51,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 // @Failure	403	{object}	errResponse
 // @Failure	404	{object}	errResponse
 // @Failure	500	{object}	errResponse
-// @Router		/lessons/{id} [get]
+// @Router		/admin/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -79,7 +79,7 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 // @Failure	403		{object}	errResponse
 // @Failure	404		{object}	errResponse
 // @Failure	500		{object}	errResponse
-// @Router		/lessons/{id} [patch]
+// @Router		/admin/lessons/{id} [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	var err error
 	lessonUpdate := model.LessonUpdate{}
@@ -150,7 +150,7 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
 //	@Failure	500	{object}	errResponse
-//	@Router		/lessons/{id} [patch]
+//	@Router		/users/lessons/{id} [patch]
 func (r *RestServer) handlerUpdateLessonStatus(c *gin.Context) {
 	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

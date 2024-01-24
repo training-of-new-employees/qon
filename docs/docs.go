@@ -325,6 +325,174 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/lessons": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Создание урока",
+                "parameters": [
+                    {
+                        "description": "Lesson Create",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Lesson"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Lesson"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/lessons/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Получение урока",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Обновление урока",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Lesson Update",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LessonUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Lesson"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/register": {
             "post": {
                 "produces": [
@@ -530,171 +698,6 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/lessons": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "lessons"
-                ],
-                "summary": "Создание урока",
-                "parameters": [
-                    {
-                        "description": "Lesson Create",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Lesson"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.Lesson"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/lessons/{id}": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "lessons"
-                ],
-                "summary": "Получение урока",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lesson ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "lessons"
-                ],
-                "summary": "Обновление статуса прогресса у урока",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Lesson ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Lesson Status Update",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.LessonStatusUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/rest.updateLessonStatusResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.errResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/rest.errResponse"
                         }
@@ -1373,6 +1376,70 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/rest.sErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/lessons/{id}": {
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Обновление статуса прогресса у урока",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Lesson Status Update",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LessonStatusUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/rest.updateLessonStatusResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
