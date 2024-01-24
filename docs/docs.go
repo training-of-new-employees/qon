@@ -199,25 +199,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -579,19 +579,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -622,31 +622,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -690,25 +690,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
