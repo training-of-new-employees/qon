@@ -466,19 +466,19 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       summary: Получение уроков курса
       tags:
       - course
@@ -548,6 +548,116 @@ paths:
       summary: Изменение данных администратора
       tags:
       - admin
+  /admin/lessons:
+    post:
+      parameters:
+      - description: Lesson Create
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.Lesson'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Создание урока
+      tags:
+      - lessons
+  /admin/lessons/{id}:
+    get:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Получение урока
+      tags:
+      - lessons
+    patch:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lesson Update
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.LessonUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Обновление урока
+      tags:
+      - lessons
   /admin/register:
     post:
       parameters:
@@ -694,114 +804,6 @@ paths:
       summary: Получить пригласительную ссылку
       tags:
       - admin
-  /lessons:
-    post:
-      parameters:
-      - description: Lesson Create
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/model.Lesson'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.Lesson'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Создание урока
-      tags:
-      - lessons
-  /lessons/{id}:
-    get:
-      parameters:
-      - description: Lesson ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Получение урока
-      tags:
-      - lessons
-    patch:
-      parameters:
-      - description: Lesson ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Lesson Status Update
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/model.LessonStatusUpdate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/rest.updateLessonStatusResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Обновление статуса прогресса у урока
-      tags:
-      - lessons
   /login:
     post:
       parameters:
@@ -1303,6 +1305,48 @@ paths:
       summary: Получение данные авторизованного пользователя
       tags:
       - user
+  /users/lessons/{id}:
+    patch:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Lesson Status Update
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.LessonStatusUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rest.updateLessonStatusResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      summary: Обновление статуса прогресса у урока
+      tags:
+      - lessons
   /users/set-password:
     post:
       parameters:

@@ -142,10 +142,12 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 	}
 	updatedLesson.URLPicture = urlPicture
 
-	query = `UPDATE lessons
-			  	SET name = COALESCE(NULLIF($1, ''), name)
-				WHERE id = $2
-				RETURNING name, archived`
+	query = `
+		UPDATE lessons
+		SET name = COALESCE(NULLIF($1, ''), name)
+		WHERE id = $2
+		RETURNING id, course_id, name, archived
+	`
 	err = tx.GetContext(ctx, &updatedLesson,
 		query, lesson.Name, lesson.ID)
 	if err != nil {
