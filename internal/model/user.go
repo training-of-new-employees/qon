@@ -5,7 +5,6 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
@@ -80,8 +79,8 @@ func (u *UserCreate) Validation() error {
 	if err := validation.Validate(&u.Email, validation.Required); err != nil {
 		return errs.ErrEmailNotEmpty
 	}
-	// проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.Length(7, 50), is.Email); err != nil {
+	// Проверка емейла на корректность
+	if err := validation.Validate(&u.Email, validation.By(validateEmail(&u.Email))); err != nil {
 		return errs.ErrInvalidEmail
 	}
 	// проверка на пустоту id компании
@@ -122,8 +121,8 @@ func (ue *UserEdit) Validation() error {
 		if err := validation.Validate(&ue.Email, validation.Required); err != nil {
 			return errs.ErrEmailNotEmpty
 		}
-		// проверка емейла на корректность
-		if err := validation.Validate(&ue.Email, validation.Length(7, 50), is.Email); err != nil {
+		// Проверка емейла на корректность
+		if err := validation.Validate(&ue.Email, validation.By(validateEmail(ue.Email))); err != nil {
 			return errs.ErrInvalidEmail
 		}
 	}
@@ -193,6 +192,12 @@ func (u *UserSignIn) Validation() error {
 		return errs.ErrEmailOrPasswordEmpty
 	}
 
+	var err error
+	u.Email, err = modifyEmail(u.Email)
+	if err != nil {
+		return errs.ErrIncorrectEmailOrPassword
+	}
+
 	return nil
 }
 
@@ -205,7 +210,8 @@ func (u *UserActivation) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 
-	if err := validation.Validate(&u.Email, validation.Length(7, 50), is.Email); err != nil {
+	// Проверка емейла на корректность
+	if err := validation.Validate(&u.Email, validation.By(validateEmail(&u.Email))); err != nil {
 		return errs.ErrInvalidEmail
 	}
 
@@ -267,7 +273,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 	// Проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.Length(7, 50), is.Email); err != nil {
+	if err := validation.Validate(&u.Email, validation.By(validateEmail(&u.Email))); err != nil {
 		return errs.ErrInvalidEmail
 	}
 	// Проверка на пустоту пароля
@@ -313,8 +319,8 @@ func (ae *AdminEdit) Validation() error {
 		if err := validation.Validate(&ae.Email, validation.Required); err != nil {
 			return errs.ErrEmailNotEmpty
 		}
-		// проверка емейла на корректность
-		if err := validation.Validate(&ae.Email, validation.Length(7, 50), is.Email); err != nil {
+		// Проверка емейла на корректность
+		if err := validation.Validate(&ae.Email, validation.By(validateEmail(ae.Email))); err != nil {
 			return errs.ErrInvalidEmail
 		}
 	}

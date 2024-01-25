@@ -364,7 +364,16 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
-	c.JSON(http.StatusCreated, createdAdmin)
+	tokens, err := r.services.User().GenerateTokenPair(ctx, createdAdmin.ID, createdAdmin.IsAdmin, createdAdmin.CompanyID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
+
+	c.JSON(http.StatusCreated, s().SetToken(tokens.AccessToken))
+	// c.JSON(http.StatusCreated, createdAdmin)
 
 }
 

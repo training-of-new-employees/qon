@@ -12,6 +12,7 @@ require (
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/mcnijman/go-emailaddress v1.1.1
 	github.com/pressly/goose/v3 v3.16.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/stretchr/testify v1.8.4
@@ -20,7 +21,7 @@ require (
 	github.com/swaggo/swag v1.16.2
 	go.uber.org/mock v0.4.0
 	go.uber.org/zap v1.26.0
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.18.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
@@ -66,9 +67,9 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.6.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
