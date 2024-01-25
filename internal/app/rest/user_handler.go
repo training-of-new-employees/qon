@@ -301,6 +301,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 		return
 	}
 
+	// TODO: логику аутентификации нужно перенести на сервисный уровень
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
 	if err != nil {
 		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
@@ -308,6 +309,12 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 	}
 
 	if err = user.CheckPassword(userReq.Password); err != nil {
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
+		return
+	}
+
+	// учётная запись сотрудника не активирована или заархивирована
+	if !user.IsAdmin && (!user.IsActive || user.IsArchived) {
 		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
