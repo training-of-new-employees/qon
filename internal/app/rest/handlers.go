@@ -6,7 +6,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	_ "github.com/training-of-new-employees/qon/docs"
-	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
 //	@title			QuickOn
@@ -26,6 +25,8 @@ import (
 
 // InitRoutes - инициализация роутеров.
 func (s *RestServer) InitRoutes() {
+	s.router.NoRoute(s.invalidHandler)
+
 	s.router.Use(s.CORS())
 
 	s.router.Use(s.LoggerMiddleware())
@@ -36,6 +37,7 @@ func (s *RestServer) InitRoutes() {
 	logout := mvp.Group("/logout")
 	logout.Use(s.IsAuthenticated())
 	logout.POST("", s.handlerLogOut)
+
 	password := mvp.Group("/password")
 	password.POST("", s.handlerResetPassword)
 	adminGroup := mvp.Group("/admin")
@@ -49,7 +51,6 @@ func (s *RestServer) InitRoutes() {
 	restrictedAdmin.PATCH("/info", s.handlerEditAdmin)
 
 	adminCourses := restrictedAdmin.Group("/courses")
-	adminCourses.Any("/", s.NotFound(errs.ErrCourseNotFound))
 	adminCourses.GET("", s.handlerGetAdminCourses)
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
@@ -83,7 +84,6 @@ func (s *RestServer) InitRoutes() {
 	position.POST("", s.handlerCreatePosition)
 	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
-	position.Any("/", s.NotFound(errs.ErrPositionNotFound))
 	position.GET("/:id/courses", s.handlerGetPositionCourses)
 	position.PATCH("/:id/courses", s.handlerAssignCourses)
 	position.GET("/:id", s.handlerGetPosition)

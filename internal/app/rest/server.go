@@ -24,6 +24,7 @@ type RestServer struct {
 func New(secretKey string, services service.Service, cache cache.Cache) *RestServer {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+
 	router.RedirectTrailingSlash = false
 
 	s := &RestServer{

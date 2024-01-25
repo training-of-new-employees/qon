@@ -46,15 +46,16 @@ func (c *Course) Validation() error {
 	if err := validation.Validate(&c.Name, validation.Required); err != nil {
 		return errs.ErrCourseNameIsEmpty
 	}
-
-	if err := validation.Validate(c.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateNameDescription(c.Name))); err != nil {
+	err := validation.Validate(&c.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateNameDescription(&c.Name)))
+	if err != nil {
 		return errs.ErrInvalidCourseName
 	}
 
-	err := validation.Validate(c.Description, validation.RuneLength(minDescL, maxDescL), validation.By(validateNameDescription(c.Description)))
+	err = validation.Validate(&c.Description, validation.RuneLength(minDescL, maxDescL), validation.By(validateNameDescription(&c.Description)))
 	if err != nil && err != errSpaceEmpty {
 		return errs.ErrInvalidCourseDescription
 	}
+
 	return nil
 }
 
@@ -70,5 +71,13 @@ func (cs *CourseSet) Validation() error {
 		Name:        cs.Name,
 		Description: cs.Description,
 	}
-	return c.Validation()
+
+	if err := c.Validation(); err != nil {
+		return err
+	}
+
+	cs.Name = c.Name
+	cs.Description = c.Description
+
+	return nil
 }

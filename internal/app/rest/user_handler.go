@@ -220,7 +220,7 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 
 	code, err := r.services.User().GetUserInviteCodeFromCache(ctx, userActivate.Email)
 	if err != nil || code != userActivate.Invite {
-		r.handleError(c, errs.ErrUnauthorized)
+		r.handleError(c, errs.ErrInvalidInviteCode)
 		return
 	}
 
@@ -301,6 +301,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 		return
 	}
 
+	// TODO: логику аутентификации нужно перенести на сервисный уровень
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
 	if err != nil {
 		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
@@ -308,6 +309,12 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 	}
 
 	if err = user.CheckPassword(userReq.Password); err != nil {
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
+		return
+	}
+
+	// учётная запись сотрудника не активирована или заархивирована
+	if !user.IsAdmin && (!user.IsActive || user.IsArchived) {
 		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
@@ -329,7 +336,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
-//	@Success	201		{object}	model.User
+//	@Success	201		{object}	sToken
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -364,8 +371,15 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
-	c.JSON(http.StatusCreated, createdAdmin)
+	tokens, err := r.services.User().GenerateTokenPair(ctx, createdAdmin.ID, createdAdmin.IsAdmin, createdAdmin.CompanyID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
 
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
+
+	c.JSON(http.StatusCreated, s().SetToken(tokens.AccessToken))
 }
 
 // ResetPassword godoc
@@ -561,5 +575,5 @@ func (r *RestServer) handlerLogOut(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, bodyResponse{Message: "user successfully logged out"})
 }

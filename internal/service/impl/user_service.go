@@ -273,7 +273,7 @@ func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email stri
 	}
 
 	if user.IsActive {
-		return nil, errs.ErrUnauthorized
+		return nil, errs.ErrNotFirstLogin
 	}
 
 	encPassword, err := utils.EncryptPassword(password)
@@ -355,7 +355,9 @@ func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string)
 
 	code, err := u.cache.GetInviteCode(ctx, key)
 	if err != nil {
-		return "", fmt.Errorf("err GetUserInviteFromCache: %v", err)
+		logger.Log.Warn("err GetUserInviteFromCache: %v", zap.Error(err))
+
+		return "", errs.ErrInvalidInviteCode
 	}
 
 	return code, nil
