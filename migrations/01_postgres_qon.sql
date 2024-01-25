@@ -110,14 +110,14 @@ CREATE TABLE IF NOT EXISTS pictures (
     created_by INTEGER,
     number INTEGER,
     name VARCHAR(256) DEFAULT '',
-    url_picture VARCHAR(1024),
+    url_picture VARCHAR(1024) DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT chck_picture_lesson_not_empty CHECK ( NOT (lesson_id IS NULL OR lesson_id = 0) ),
     CONSTRAINT fk_picture_lesson FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
     CONSTRAINT chck_picture_creater_not_empty CHECK ( NOT (created_by IS NULL OR created_by = 0) ),
     CONSTRAINT fk_picture_creater FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chck_url_picture_not_empty CHECK ( NOT (url_picture IS NULL OR url_picture = '') )
+    CONSTRAINT chck_url_picture_not_empty CHECK ( url_picture IS NOT NULL )
 );
 
 -- Должности-Курсы (назначенные на должность курсы)

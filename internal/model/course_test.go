@@ -31,7 +31,7 @@ func TestCourse_Validation(t *testing.T) {
 			fields{
 				Name: randomseq.RandomString(minNameL - 1),
 			},
-			errs.ErrCourseNameInvalid,
+			errs.ErrInvalidCourseName,
 		},
 		{
 			"Максимально допустимая длина названия",
@@ -45,21 +45,21 @@ func TestCourse_Validation(t *testing.T) {
 			fields{
 				Name: randomseq.RandomString(maxNameL + 1),
 			},
-			errs.ErrCourseNameInvalid,
+			errs.ErrInvalidCourseName,
 		},
 		{
 			"Название с символом *",
 			fields{
 				Name: randomseq.RandomString(minNameL) + "*",
 			},
-			errs.ErrCourseNameInvalid,
+			errs.ErrInvalidCourseName,
 		},
 		{
 			"Название с символом #",
 			fields{
 				Name: randomseq.RandomString(minNameL) + "#",
 			},
-			errs.ErrCourseNameInvalid,
+			errs.ErrInvalidCourseName,
 		},
 		{
 			"Название со спец символами",
@@ -94,7 +94,7 @@ func TestCourse_Validation(t *testing.T) {
 			fields{
 				Name: randomseq.RandomString(minNameL) + "☺",
 			},
-			errs.ErrCourseNameInvalid,
+			errs.ErrInvalidCourseName,
 		},
 		{
 			"Пустое название",
@@ -106,7 +106,7 @@ func TestCourse_Validation(t *testing.T) {
 			fields{
 				Name: randomseq.RandomString(minDescL) + "#",
 			},
-			errs.ErrCourseNameInvalid,
+			errs.ErrInvalidCourseName,
 		},
 		{
 			"Слишком короткое описание",
@@ -114,7 +114,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: randomseq.RandomString(minDescL - 1),
 			},
-			errs.ErrCourseDescriptionInvalid,
+			errs.ErrInvalidCourseDescription,
 		},
 		{
 			"Максимально короткое описание",
@@ -138,7 +138,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: strings.Join([]string{randomseq.RandomString(maxDescL / 2), randomseq.RandomString(maxDescL/2 + 1)}, " "),
 			},
-			errs.ErrCourseDescriptionInvalid,
+			errs.ErrInvalidCourseDescription,
 		},
 		{
 			"Слишком длинное описание",
@@ -146,7 +146,7 @@ func TestCourse_Validation(t *testing.T) {
 				Name:        "validname",
 				Description: randomseq.RandomString(maxDescL + 1),
 			},
-			errs.ErrCourseDescriptionInvalid,
+			errs.ErrInvalidCourseDescription,
 		},
 	}
 	for _, tt := range tests {

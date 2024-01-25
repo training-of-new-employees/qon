@@ -43,21 +43,27 @@ type CourseSet struct {
 }
 
 func (c *Course) Validation() error {
-	err := validation.Validate(&c.Name, validation.Required)
-	if err != nil {
+	if err := validation.Validate(&c.Name, validation.Required); err != nil {
 		return errs.ErrCourseNameIsEmpty
 	}
-	err = validation.Validate(&c.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateNameDescription(&c.Name)))
+	err := validation.Validate(&c.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateNameDescription(&c.Name)))
 	if err != nil {
-		return errs.ErrCourseNameInvalid
+		return errs.ErrInvalidCourseName
 	}
 
 	err = validation.Validate(&c.Description, validation.RuneLength(minDescL, maxDescL), validation.By(validateNameDescription(&c.Description)))
 	if err != nil && err != errSpaceEmpty {
-		return errs.ErrCourseDescriptionInvalid
+		return errs.ErrInvalidCourseDescription
 	}
 
 	return nil
+}
+
+func NewCourseSet(id int, creator int) CourseSet {
+	return CourseSet{
+		ID:        id,
+		CreatedBy: creator,
+	}
 }
 
 func (cs *CourseSet) Validation() error {
@@ -74,10 +80,4 @@ func (cs *CourseSet) Validation() error {
 	cs.Description = c.Description
 
 	return nil
-}
-func NewCourseSet(id int, creator int) CourseSet {
-	return CourseSet{
-		ID:        id,
-		CreatedBy: creator,
-	}
 }

@@ -15,23 +15,24 @@ import (
 // @Produce	json
 // @Param		object	body		model.Lesson	true	"Lesson Create"
 // @Success	201		{object}	model.Lesson
-// @Failure	400		{object}	sErr
-// @Failure	404		{object}	sErr
-// @Failure	500		{object}	sErr
-// @Router		/lessons [post]
+// @Failure	400		{object}	errResponse
+// @Failure	404		{object}	errResponse
+// @Failure	500		{object}	errResponse
+// @Router		/admin/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
-	lessonCreate := &model.Lesson{}
-
+	ctx := c.Request.Context()
+	lessonCreate := model.Lesson{}
 	if err := c.ShouldBindJSON(&lessonCreate); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
-	ctx := c.Request.Context()
 	us := r.getUserSession(c)
-
-	lesson, err := r.services.Lesson().CreateLesson(ctx, *lessonCreate,
-		us.UserID)
+	if err := lessonCreate.Validation(); err != nil {
+		r.handleError(c, err)
+		return
+	}
+	lesson, err := r.services.Lesson().CreateLesson(ctx, lessonCreate, us.UserID)
 	if err != nil {
 		r.handleError(c, err)
 		return
@@ -45,18 +46,16 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 // @Produce	json
 // @Param		id	path	int	true	"Lesson ID"
 // @Success	200
-// @Failure	400	{object}	sErr
-// @Failure	401	{object}	sErr
-// @Failure	403	{object}	sErr
-// @Failure	404	{object}	sErr
-// @Failure	500	{object}	sErr
-// @Router		/lessons/{id} [get]
+// @Failure	400	{object}	errResponse
+// @Failure	401	{object}	errResponse
+// @Failure	403	{object}	errResponse
+// @Failure	404	{object}	errResponse
+// @Failure	500	{object}	errResponse
+// @Router		/admin/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
-	val := c.Param("id")
-
-	lessonID, err := strconv.Atoi(val)
+	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
@@ -75,26 +74,29 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 // @Param		id		path		int					true	"Lesson ID"
 // @Param		object	body		model.LessonUpdate	true	"Lesson Update"
 // @Success	200		{object}	model.Lesson
-// @Failure	400		{object}	sErr
-// @Failure	401		{object}	sErr
-// @Failure	403		{object}	sErr
-// @Failure	404		{object}	sErr
-// @Failure	500		{object}	sErr
-// @Router		/lessons/{id} [patch]
+// @Failure	400		{object}	errResponse
+// @Failure	401		{object}	errResponse
+// @Failure	403		{object}	errResponse
+// @Failure	404		{object}	errResponse
+// @Failure	500		{object}	errResponse
+// @Router		/admin/lessons/{id} [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	var err error
 	lessonUpdate := model.LessonUpdate{}
 
-	if err = c.ShouldBindJSON(&lessonUpdate); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+	lessonUpdate.ID, err = strconv.Atoi(c.Param("id"))
+	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
-	val := c.Param("id")
+	if err = c.ShouldBindJSON(&lessonUpdate); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
 
-	lessonUpdate.ID, err = strconv.Atoi(val)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+	if err := lessonUpdate.Validation(); err != nil {
+		r.handleError(c, err)
 		return
 	}
 
@@ -114,17 +116,15 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
 //	@Success	200	{object}	[]model.Lesson
-//	@Failure	404	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	404	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	403	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //	@Router		/admin/courses/{id}/lessons [get]
 func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
-	val := c.Param("id")
-
-	courseID, err := strconv.Atoi(val)
+	courseID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
@@ -146,15 +146,13 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 //	@Param		object	body	model.LessonStatusUpdate	true	"Lesson Status Update"
 //	@Produce	json
 //	@Success	200	{array}		updateLessonStatusResponse
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
-//	@Router		/lessons/{id} [patch]
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
+//	@Router		/users/lessons/{id} [patch]
 func (r *RestServer) handlerUpdateLessonStatus(c *gin.Context) {
-	val := c.Param("id")
-
-	lessonID, err := strconv.Atoi(val)
+	lessonID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return

@@ -3,7 +3,10 @@ package errs
 
 import (
 	"errors"
+	"fmt"
 )
+
+const specialSymbols = "(),?!№:\"\\&-_%';@"
 
 var (
 	// -- Базовые ошибки приложения --
@@ -103,14 +106,14 @@ var (
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
 	// ErrIncorrectCompanyName - некорректное имя компании
-	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
+	ErrInvalidCompanyName = fmt.Errorf("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
 	// -- Ошибки должности --
 
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
 	ErrPositionNameNotEmpty = errors.New("position name cannot be empty")
 
-	ErrInvalidPositionName = errors.New("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
+	ErrInvalidPositionName = fmt.Errorf("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
 	// -- Ошибки пользователя --
 
@@ -155,24 +158,31 @@ var (
 	// ErrCourseUserNotFound - имя курса не должно быть пустым
 	ErrCourseNameIsEmpty = errors.New("course name cannot be empty")
 
-	// ErrCourseNameInvalid - имя курса не соответствует требованиям
-	ErrCourseNameInvalid = errors.New("course name is invalid: course name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
+	// ErrInvalidCourseName - имя курса не соответствует требованиям
+	ErrInvalidCourseName = fmt.Errorf("course name is invalid: course name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
-	// ErrCourseDescriptionInvalid - описание курса не соответствует требованиям
-	ErrCourseDescriptionInvalid = errors.New("course description is invalid: course name is invalid: course description must have length of 10-512 and can contain characters of any alphabets, digits, spaces, special symbols (!№():,-?%'\";@)")
+	// ErrInvalidCourseDescription - описание курса не соответствует требованиям
+	ErrInvalidCourseDescription = fmt.Errorf("course description is invalid: course name is invalid: course description must have length of 10-512 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
 	// -- Ошибки уроков --
 
 	// ErrLessonNameNotEmpty - название урока не может быть пустым
 	ErrLessonNameNotEmpty = errors.New("lesson name cannot be empty")
 
+	// ErrInvalidLessonName - имя урока не соответствует требованиям
+	ErrInvalidLessonName = fmt.Errorf("invalid lesson name: lesson name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+
 	// -- Ошибки текстов --
 
 	ErrTextContentNotEmpty = errors.New("text (content) cannot be empty")
 
+	ErrInvalidTextContent = fmt.Errorf("invalid lesson content: lesson content must have length of 20-65000 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+
 	// -- Ошибки картинок --
 
 	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
+
+	ErrURLPictureLength = errors.New("picture's url must have length of 5-1024")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 
