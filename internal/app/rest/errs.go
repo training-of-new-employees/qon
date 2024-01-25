@@ -61,6 +61,7 @@ var errorToCode = map[string]int{
 
 	errs.ErrUnauthorized.Error():             http.StatusUnauthorized,
 	errs.ErrIncorrectEmailOrPassword.Error(): http.StatusUnauthorized,
+	errs.ErrInvalidInviteCode.Error():        http.StatusUnauthorized,
 	errs.ErrNotFirstLogin.Error():            http.StatusMethodNotAllowed,
 	errs.ErrOnlyAdmin.Error():                http.StatusMethodNotAllowed,
 

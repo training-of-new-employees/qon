@@ -178,7 +178,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 		return nil, handleError(err)
 	}
 
-	// TODO: позже нужно исправить, пока используем такое преобразование для совместимости с верхним уровнем
+	// TODO: позже нужно исправить, пока используем такой способ преобразования для совместимости с верхним уровнем
 	edit.ID = user.ID
 	edit.CompanyID = &user.CompanyID
 	edit.PositionID = &user.PositionID

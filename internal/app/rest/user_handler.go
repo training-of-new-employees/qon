@@ -220,7 +220,7 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 
 	code, err := r.services.User().GetUserInviteCodeFromCache(ctx, userActivate.Email)
 	if err != nil || code != userActivate.Invite {
-		r.handleError(c, errs.ErrUnauthorized)
+		r.handleError(c, errs.ErrInvalidInviteCode)
 		return
 	}
 

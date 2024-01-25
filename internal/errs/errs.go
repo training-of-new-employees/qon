@@ -41,6 +41,8 @@ var (
 	ErrVerifyCodeNotEmpty = errors.New("code cannot be empty")
 	// ErrIncorrectVerifyCode - невалидный код верификации
 	ErrIncorrectVerifyCode = errors.New("invalid verify code")
+	// ErrInvalidInviteCode - невалидный пригласительный код
+	ErrInvalidInviteCode = errors.New("something wrong with invite code: code is invalid or something else")
 )
 
 var (
