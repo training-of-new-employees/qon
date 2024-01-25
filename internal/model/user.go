@@ -96,7 +96,7 @@ func (u *UserCreate) Validation() error {
 		return errs.ErrUserNameNotEmpty
 	}
 	// проверка требований к имени
-	if err := validation.Validate(&u.Name, validation.RuneLength(2, 128), validation.By(validateUserName(u.Name))); err != nil {
+	if err := validation.Validate(&u.Name, validation.RuneLength(2, 128), validation.By(validateUserName(&u.Name))); err != nil {
 		return errs.ErrInvalidUserName
 	}
 	// проверка на пустоту фамилии пользователя
@@ -104,12 +104,14 @@ func (u *UserCreate) Validation() error {
 		return errs.ErrUserSurnameNotEmpty
 	}
 	// проверка требований к фамилии
-	if err := validation.Validate(&u.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(u.Surname))); err != nil {
+	if err := validation.Validate(&u.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(&u.Surname))); err != nil {
 		return errs.ErrInvalidUserSurname
 	}
-	// проверка требований к отчеству
-	if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(u.Patronymic))); err != nil {
-		return errs.ErrInvalidUserPatronymic
+	if u.Patronymic != "" {
+		// проверка требований к отчеству
+		if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(&u.Patronymic))); err != nil {
+			return errs.ErrInvalidUserPatronymic
+		}
 	}
 
 	return nil
@@ -131,7 +133,7 @@ func (ue *UserEdit) Validation() error {
 		if err := validation.Validate(&ue.Name, validation.Required); err != nil {
 			return errs.ErrUserNameNotEmpty
 		}
-		if err := validation.Validate(&ue.Name, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Name))); err != nil {
+		if err := validation.Validate(&ue.Name, validation.RuneLength(2, 128), validation.By(validateUserName(ue.Name))); err != nil {
 			return errs.ErrInvalidUserName
 		}
 	}
@@ -140,14 +142,14 @@ func (ue *UserEdit) Validation() error {
 			return errs.ErrUserSurnameNotEmpty
 		}
 		// проверка требований к фамилии
-		if err := validation.Validate(&ue.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Surname))); err != nil {
+		if err := validation.Validate(&ue.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(ue.Surname))); err != nil {
 			return errs.ErrInvalidUserSurname
 		}
 	}
 
 	if ue.Patronymic != nil {
 		// проверка требований к отчеству
-		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(*ue.Patronymic))); err != nil {
+		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(ue.Patronymic))); err != nil {
 			return errs.ErrInvalidUserPatronymic
 		}
 	}
@@ -293,7 +295,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrCompanyNameNotEmpty
 	}
 	// Проверка имени компании на состав
-	if err := validation.Validate(&u.Company, validation.Length(1, 256), validation.By(validateNameDescription(u.Company))); err != nil {
+	if err := validation.Validate(&u.Company, validation.Length(1, 256), validation.By(validateNameDescription(&u.Company))); err != nil {
 		return errs.ErrInvalidCompanyName
 	}
 
@@ -329,7 +331,7 @@ func (ae *AdminEdit) Validation() error {
 		if err := validation.Validate(&ae.Name, validation.Required); err != nil {
 			return errs.ErrUserNameNotEmpty
 		}
-		if err := validation.Validate(&ae.Name, validation.RuneLength(2, 128), validation.By(validateUserName(*ae.Name))); err != nil {
+		if err := validation.Validate(&ae.Name, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Name))); err != nil {
 			return errs.ErrInvalidUserName
 		}
 	}
@@ -338,21 +340,21 @@ func (ae *AdminEdit) Validation() error {
 			return errs.ErrUserSurnameNotEmpty
 		}
 		// проверка требований к фамилии
-		if err := validation.Validate(&ae.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(*ae.Surname))); err != nil {
+		if err := validation.Validate(&ae.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Surname))); err != nil {
 			return errs.ErrInvalidUserSurname
 		}
 	}
 
 	if ae.Patronymic != nil {
 		// проверка требований к отчеству
-		if err := validation.Validate(&ae.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(*ae.Patronymic))); err != nil {
+		if err := validation.Validate(&ae.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Patronymic))); err != nil {
 			return errs.ErrInvalidUserPatronymic
 		}
 	}
 
 	if ae.Company != nil {
 		// Проверка имени компании на состав
-		if err := validation.Validate(&ae.Company, validation.Length(1, 256), validation.By(validateNameDescription(*ae.Company))); err != nil {
+		if err := validation.Validate(&ae.Company, validation.Length(1, 256), validation.By(validateNameDescription(ae.Company))); err != nil {
 			return errs.ErrInvalidCompanyName
 		}
 	}
