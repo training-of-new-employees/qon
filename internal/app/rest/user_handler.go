@@ -575,5 +575,5 @@ func (r *RestServer) handlerLogOut(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, bodyResponse{Message: "user successfully logged out"})
 }
