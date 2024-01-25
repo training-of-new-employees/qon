@@ -53,6 +53,7 @@ func (s *RestServer) InitRoutes() {
 	adminCourses.GET("", s.handlerGetAdminCourses)
 	adminCourses.POST("", s.handlerCreateCourse)
 	adminCourses.PATCH("/:id", s.handlerEditCourse)
+	adminCourses.GET("/:id", s.handlerGetAdminCourse)
 	adminCourses.GET("/:id/lessons", s.handlerGetLessonsList)
 	adminLessons := restrictedAdmin.Group("/lessons")
 	adminLessons.POST("", s.handlerLessonCreate)
@@ -74,6 +75,7 @@ func (s *RestServer) InitRoutes() {
 	userGroup.Use(s.IsAuthenticated())
 	userGroup.GET("/info", s.handlerUserInfo)
 	userGroup.GET("/courses", s.handlerGetUserCourses)
+	userGroup.GET("/courses/:id", s.handlerGetUserCourse)
 	userGroup.GET("/courses/:id/lessons", s.handlerGetUserCourseLessons)
 	userGroup.PATCH("/lessons/:id", s.handlerUpdateLessonStatus)
 
