@@ -373,6 +373,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Получение данных о курсах администратором
       tags:
       - course
@@ -407,6 +409,41 @@ paths:
       tags:
       - course
   /admin/courses/{id}:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Course'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
+      summary: Получение данных курса администратором
+      tags:
+      - course
     patch:
       parameters:
       - description: Course ID
@@ -1234,6 +1271,42 @@ paths:
           schema:
             $ref: '#/definitions/rest.sErr'
       summary: Получение данных о курсах пользователем
+      tags:
+      - course
+  /users/courses/{id}:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Course'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
+      summary: Получение данных курса пользователем
       tags:
       - course
   /users/courses/{id}/lessons:

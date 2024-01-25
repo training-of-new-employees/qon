@@ -41,8 +41,8 @@ func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 //	@Summary	Получение данных курса администратором
 //	@Tags		course
 //	@Produce	json
-//	@Param		id		path		int				true	"Course ID"
-//	@Success	200	{object}		model.Course
+//	@Param		id	path		int	true	"Course ID"
+//	@Success	200	{object}	model.Course
 //	@Failure	400	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
@@ -72,8 +72,8 @@ func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 //	@Summary	Получение данных курса пользователем
 //	@Tags		course
 //	@Produce	json
-//	@Param		id		path		int				true	"Course ID"
-//	@Success	200	{object}		model.Course
+//	@Param		id	path		int	true	"Course ID"
+//	@Success	200	{object}	model.Course
 //	@Failure	400	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
