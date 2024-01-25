@@ -29,9 +29,6 @@ func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
 				// подготовка моков для выполнения тест-кейса
 				admin := model.NewTestCreateAdmin()
 
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				admin.Validation()
-
 				suite.userService.EXPECT().WriteAdminToCache(gomock.Any(), admin).Return(&admin, nil)
 
 				body, _ := json.Marshal(admin)
@@ -46,9 +43,6 @@ func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
 				// подготовка моков для выполнения тест-кейса
 				admin := model.NewTestCreateAdmin()
 
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				admin.Validation()
-
 				suite.userService.EXPECT().WriteAdminToCache(gomock.Any(), admin).Return(nil, errs.ErrEmailAlreadyExists)
 
 				body, _ := json.Marshal(admin)
@@ -62,9 +56,6 @@ func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
 			prepareMock: func() []byte {
 				// подготовка моков для выполнения тест-кейса
 				admin := model.NewTestCreateAdmin()
-
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				admin.Validation()
 
 				suite.userService.EXPECT().WriteAdminToCache(gomock.Any(), admin).Return(nil, errs.ErrNotSendEmail)
 
@@ -119,9 +110,6 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 
 				u.CompanyID = 1
 				u.PositionID = 2
-
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				u.Validation()
 
 				user := &model.User{
 					ID:         2,
@@ -186,9 +174,6 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 				u.CompanyID = 1
 				u.PositionID = 2
 
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				u.Validation()
-
 				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(nil, errs.ErrEmailAlreadyExists)
 
 				body, _ := json.Marshal(u)
@@ -205,9 +190,6 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 
 				u.CompanyID = 1
 				u.PositionID = 2
-
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				u.Validation()
 
 				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(nil, errs.ErrInternal)
 
@@ -394,10 +376,6 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				positionID := 2
 
 				editField, expected := model.NewTestEditUser(userID, companyID, positionID)
-
-				// Здесь Validation используется с целью преобразования емейла в нижний регистр
-				editField.Validation()
-				expected.Validation()
 
 				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(&expected, nil)
 

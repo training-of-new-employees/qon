@@ -329,7 +329,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
-//	@Success	201		{object}	model.User
+//	@Success	201		{object}	sToken
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -373,8 +373,6 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 	c.Header("Authorization", "Bearer "+tokens.AccessToken)
 
 	c.JSON(http.StatusCreated, s().SetToken(tokens.AccessToken))
-	// c.JSON(http.StatusCreated, createdAdmin)
-
 }
 
 // ResetPassword godoc

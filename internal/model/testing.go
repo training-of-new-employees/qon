@@ -10,7 +10,7 @@ func NewTestUserCreate() UserCreate {
 	hash, _ := GenerateHash(randomseq.RandomPassword())
 
 	return UserCreate{
-		Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
+		Email:      randomseq.RandomEmail(),
 		Password:   hash,
 		Name:       fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
@@ -22,7 +22,7 @@ func NewTestUserCreate() UserCreate {
 
 func NewTestCreateAdmin() CreateAdmin {
 	return CreateAdmin{
-		Email:    fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+		Email:    randomseq.RandomEmail(),
 		Password: randomseq.RandomPassword(),
 		Company:  fmt.Sprintf("test-%s", randomseq.RandomName(10)),
 	}
@@ -59,7 +59,7 @@ func NewTestListUsers(companyID int) []User {
 		users[i] = User{
 			ID: i + 1, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: randomseq.RandomTestInt() - 99,
-			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+			Email:      randomseq.RandomEmail(),
 			Name:       randomseq.RandomName(10),
 			Surname:    randomseq.RandomName(10),
 			Patronymic: randomseq.RandomName(10),
@@ -74,7 +74,7 @@ func NewTestUser(userID int, companyID int, positionID int) *UserInfo {
 		User: User{
 			ID: userID, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: positionID,
-			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+			Email:      randomseq.RandomEmail(),
 			Name:       randomseq.RandomName(10),
 			Surname:    randomseq.RandomName(10),
 			Patronymic: randomseq.RandomName(10),
@@ -111,7 +111,7 @@ func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserE
 	//
 	// изменение емейла
 	if randomseq.RandomBool() {
-		email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
+		email := randomseq.RandomEmail()
 
 		editField.Email = &email
 
@@ -179,7 +179,7 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 	//
 	// изменение емейла
 	if randomseq.RandomBool() {
-		email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
+		email := randomseq.RandomEmail()
 
 		editField.Email = &email
 		expected.Email = &email
@@ -219,7 +219,7 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 
 func NewTestResetPassword() EmailReset {
 	return EmailReset{
-		Email: fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
+		Email: randomseq.RandomEmail(),
 	}
 }
 
