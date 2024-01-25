@@ -400,7 +400,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/rest.sToken"
                         }
                     },
                     "400": {
