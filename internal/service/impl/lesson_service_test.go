@@ -3,10 +3,11 @@ package impl
 import (
 	"context"
 
+	"go.uber.org/mock/gomock"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
-	"go.uber.org/mock/gomock"
 )
 
 func (suite *serviceTestSuite) TestCreateLesson() {
@@ -128,6 +129,111 @@ func (suite *serviceTestSuite) TestUpdateLesson() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			_, err := suite.lessonService.UpdateLesson(context.TODO(), tc.prepare())
+			suite.Equal(tc.err, err)
+		})
+	}
+}
+
+func (suite *serviceTestSuite) TestGetUserLesson() {
+	testCases := []struct {
+		name    string
+		err     error
+		prepare func() (int, int)
+	}{
+		{
+			name: "success",
+			err:  nil,
+			prepare: func() (int, int) {
+				userID := 1
+				lessonID := 1
+				courseID := 1
+
+				suite.lessonStorage.
+					EXPECT().
+					GetLesson(gomock.Any(), lessonID).
+					Return(&model.Lesson{ID: lessonID, CourseID: courseID}, nil)
+
+				suite.courseStorage.
+					EXPECT().
+					UserCourses(gomock.Any(), userID).
+					Return([]model.Course{{ID: courseID}}, nil)
+
+				suite.lessonStorage.
+					EXPECT().
+					GetUserLessonsStatus(gomock.Any(), userID, courseID, []int{lessonID}).
+					Return(map[int]string{lessonID: "not-started"}, nil)
+
+				return userID, lessonID
+			},
+		},
+		{
+			name: "lesson not found",
+			err:  errs.ErrLessonNotFound,
+			prepare: func() (int, int) {
+				userID := 1
+				lessonID := 1
+
+				suite.lessonStorage.
+					EXPECT().
+					GetLesson(gomock.Any(), lessonID).
+					Return(nil, errs.ErrLessonNotFound)
+
+				return userID, lessonID
+			},
+		},
+		{
+			name: "course not found",
+			err:  errs.ErrCourseNotFound,
+			prepare: func() (int, int) {
+				userID := 1
+				lessonID := 1
+				courseID := 1
+
+				suite.lessonStorage.
+					EXPECT().
+					GetLesson(gomock.Any(), lessonID).
+					Return(&model.Lesson{ID: lessonID, CourseID: courseID}, nil)
+
+				suite.courseStorage.
+					EXPECT().
+					UserCourses(gomock.Any(), userID).
+					Return([]model.Course{{ID: 2}}, nil)
+
+				return userID, lessonID
+			},
+		},
+		{
+			name: "error receive status",
+			err:  errs.ErrInternal,
+			prepare: func() (int, int) {
+				userID := 1
+				lessonID := 1
+				courseID := 1
+
+				suite.lessonStorage.
+					EXPECT().
+					GetLesson(gomock.Any(), lessonID).
+					Return(&model.Lesson{ID: lessonID, CourseID: courseID}, nil)
+
+				suite.courseStorage.
+					EXPECT().
+					UserCourses(gomock.Any(), userID).
+					Return([]model.Course{{ID: courseID}}, nil)
+
+				suite.lessonStorage.
+					EXPECT().
+					GetUserLessonsStatus(gomock.Any(), userID, courseID, []int{lessonID}).
+					Return(nil, errs.ErrInternal)
+
+				return userID, lessonID
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			userID, lessonID := tc.prepare()
+			_, err := suite.lessonService.GetUserLesson(context.TODO(), userID, lessonID)
 			suite.Equal(tc.err, err)
 		})
 	}

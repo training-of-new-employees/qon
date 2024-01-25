@@ -75,6 +75,7 @@ func (s *RestServer) InitRoutes() {
 	userGroup.GET("/info", s.handlerUserInfo)
 	userGroup.GET("/courses", s.handlerGetUserCourses)
 	userGroup.GET("/courses/:id/lessons", s.handlerGetUserCourseLessons)
+	userGroup.GET("/lessons/:id", s.handlerGetLesson)
 	userGroup.PATCH("/lessons/:id", s.handlerUpdateLessonStatus)
 
 	position := mvp.Group("/positions")

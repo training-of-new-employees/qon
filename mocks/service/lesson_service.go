@@ -84,6 +84,21 @@ func (mr *MockServiceLessonMockRecorder) GetLessonsList(ctx, courseID any) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLessonsList", reflect.TypeOf((*MockServiceLesson)(nil).GetLessonsList), ctx, courseID)
 }
 
+// GetUserLesson mocks base method.
+func (m *MockServiceLesson) GetUserLesson(ctx context.Context, userID, lessonID int) (*model.Lesson, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserLesson", ctx, userID, lessonID)
+	ret0, _ := ret[0].(*model.Lesson)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserLesson indicates an expected call of GetUserLesson.
+func (mr *MockServiceLessonMockRecorder) GetUserLesson(ctx, userID, lessonID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserLesson", reflect.TypeOf((*MockServiceLesson)(nil).GetUserLesson), ctx, userID, lessonID)
+}
+
 // UpdateLesson mocks base method.
 func (m *MockServiceLesson) UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error) {
 	m.ctrl.T.Helper()

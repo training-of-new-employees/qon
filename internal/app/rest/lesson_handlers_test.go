@@ -117,3 +117,97 @@ func (suite *handlerTestSuite) TestUpdateLessonStatus() {
 		})
 	}
 }
+
+func (suite *handlerTestSuite) TestGetUserLesson() {
+	userID := 1
+
+	testCases := []struct {
+		name         string
+		expectedCode int
+		prepare      func() string
+	}{
+		{
+			name:         "success",
+			expectedCode: http.StatusOK,
+			prepare: func() string {
+				lessonID := "1"
+
+				suite.lessonService.
+					EXPECT().
+					GetUserLesson(gomock.Any(), userID, 1).
+					Return(&model.Lesson{}, nil)
+
+				return lessonID
+			},
+		},
+		{
+			name:         "invalid lesson id",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				lessonID := "hello"
+
+				return lessonID
+			},
+		},
+		{
+			name:         "lesson not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				lessonID := "1"
+
+				suite.lessonService.
+					EXPECT().
+					GetUserLesson(gomock.Any(), userID, 1).
+					Return(nil, errs.ErrLessonNotFound)
+
+				return lessonID
+			},
+		},
+		{
+			name:         "course not found",
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				lessonID := "1"
+
+				suite.lessonService.
+					EXPECT().
+					GetUserLesson(gomock.Any(), userID, 1).
+					Return(nil, errs.ErrCourseNotFound)
+
+				return lessonID
+			},
+		},
+		{
+			name:         "internal error",
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() string {
+				lessonID := "1"
+
+				suite.lessonService.
+					EXPECT().
+					GetUserLesson(gomock.Any(), userID, 1).
+					Return(nil, errs.ErrInternal)
+
+				return lessonID
+			},
+		},
+	}
+
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, true)
+	suite.NoError(err)
+	suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			lessonID := tc.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/users/lessons/%s", lessonID), nil)
+			req.Header.Set("Authorization", accessToken)
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tc.expectedCode, w.Code)
+		})
+	}
+}

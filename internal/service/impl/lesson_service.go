@@ -52,6 +52,41 @@ func (l *lessonService) GetLessonsList(ctx context.Context, courseID int) ([]mod
 	return lessonsList, nil
 }
 
+func (l *lessonService) GetUserLesson(ctx context.Context, userID int, lessonID int) (*model.Lesson, error) {
+	lesson, err := l.db.LessonStorage().GetLesson(ctx, lessonID)
+	if err != nil {
+		return nil, err
+	}
+
+	courses, err := l.db.CourseStorage().UserCourses(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	isUserHasCourse := false
+	courseID := 0
+
+	for _, course := range courses {
+		if course.ID == lesson.CourseID {
+			isUserHasCourse = true
+			courseID = course.ID
+			break
+		}
+	}
+
+	if !isUserHasCourse {
+		return nil, errs.ErrCourseNotFound
+	}
+
+	statuses, err := l.db.LessonStorage().GetUserLessonsStatus(ctx, userID, courseID, []int{lessonID})
+	if err != nil {
+		return nil, err
+	}
+
+	lesson.Status = statuses[lessonID]
+	return lesson, nil
+}
+
 func (l *lessonService) UpdateLessonStatus(ctx context.Context, userID int, lessonID int, status string) error {
 	lesson, err := l.db.LessonStorage().GetLesson(ctx, lessonID)
 	if err != nil {
