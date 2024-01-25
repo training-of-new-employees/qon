@@ -107,3 +107,8 @@ func (r *RestServer) CORS() gin.HandlerFunc {
 		AllowCredentials: true,
 	})
 }
+
+// Обработчик для запросов, не соответствующих ни одному маршруту
+func (r *RestServer) invalidHandler(c *gin.Context) {
+	r.handleError(c, errs.ErrInvalidRoute)
+}
