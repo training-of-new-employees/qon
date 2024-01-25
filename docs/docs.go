@@ -66,6 +66,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -169,6 +174,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1292,6 +1302,11 @@ const docTemplate = `{
         },
         "/users/courses": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1395,6 +1410,11 @@ const docTemplate = `{
         },
         "/users/courses/{id}/lessons": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],

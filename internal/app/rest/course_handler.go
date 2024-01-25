@@ -108,6 +108,9 @@ func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 //	@Failure	401	{object}	sErr
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router		/users/courses [get]
 func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -141,6 +144,9 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 //	@Failure	400		{object}	errResponse
 //	@Failure	401		{object}	errResponse
 //	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/admin/courses [post]
 func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -176,6 +182,9 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 //	@Failure	401		{object}	errResponse
 //	@Failure	404		{object}	errResponse
 //	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/admin/courses/{id} [patch]
 func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -230,6 +239,9 @@ type courseResp struct {
 //	@Failure	401	{object}	sErr
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router		/users/courses/{id}/lessons [get]
 func (r *RestServer) handlerGetUserCourseLessons(c *gin.Context) {
 	ctx := c.Request.Context()

@@ -60,6 +60,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -163,6 +168,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1286,6 +1296,11 @@
         },
         "/users/courses": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1389,6 +1404,11 @@
         },
         "/users/courses/{id}/lessons": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],

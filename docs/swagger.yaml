@@ -405,6 +405,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Создание нового курса
       tags:
       - course
@@ -480,6 +482,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Изменение данных курса
       tags:
       - course
@@ -1270,6 +1274,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение данных о курсах пользователем
       tags:
       - course
@@ -1342,6 +1348,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение данных о уроках курса
       tags:
       - course
