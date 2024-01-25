@@ -27,6 +27,7 @@ var errorToCode = map[string]int{
 	errs.ErrCourseReference.Error():   http.StatusNotFound,
 	errs.ErrCompanyReference.Error():  http.StatusNotFound,
 	errs.ErrLessonReference.Error():   http.StatusNotFound,
+	errs.ErrInvalidRoute.Error():      http.StatusNotFound,
 
 	errs.ErrVerifyCodeNotEmpty.Error():       http.StatusBadRequest,
 	errs.ErrIncorrectVerifyCode.Error():      http.StatusBadRequest,
@@ -64,6 +65,7 @@ var errorToCode = map[string]int{
 
 	errs.ErrUnauthorized.Error():             http.StatusUnauthorized,
 	errs.ErrIncorrectEmailOrPassword.Error(): http.StatusUnauthorized,
+	errs.ErrInvalidInviteCode.Error():        http.StatusUnauthorized,
 	errs.ErrNotFirstLogin.Error():            http.StatusMethodNotAllowed,
 	errs.ErrOnlyAdmin.Error():                http.StatusMethodNotAllowed,
 

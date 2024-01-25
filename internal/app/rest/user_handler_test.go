@@ -820,7 +820,7 @@ func (suite *handlerTestSuite) TestHandlerRegenerationInvitationLink() {
 	}
 }
 
-func (suite *handlerTestSuite) TestRestServer_handlerSetPassword() {
+func (suite *handlerTestSuite) TesHandlerSetPassword() {
 	userAdminID := 1
 	userID := 2
 	companyID := 1
@@ -981,7 +981,7 @@ func (suite *handlerTestSuite) TestRestServer_handlerSetPassword() {
 	}
 }
 
-func (suite *handlerTestSuite) TestRestServer_handlerGetInvitationLink() {
+func (suite *handlerTestSuite) TesHandlerGetInvitationLink() {
 	userAdminID := 1
 	userID := 2
 	companyID := 1

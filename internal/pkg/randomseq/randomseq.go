@@ -4,8 +4,10 @@ package randomseq
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	mrand "math/rand"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -79,6 +81,11 @@ func RandomName(n int) string {
 // RandomBool - генерирует случайное булево значение.
 func RandomBool() bool {
 	return rnd.Intn(2) == 1
+}
+
+// RandomEmail - генерирует случайный емейл.
+func RandomEmail() string {
+	return fmt.Sprintf("%s@example.org", strings.ToLower(RandomString(16)))
 }
 
 // RandomPassword - генерирует случайный пароль.
