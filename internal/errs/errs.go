@@ -57,8 +57,8 @@ var (
 	ErrCompanyNotFound = errors.New("company not found")
 	// ErrPositionNotFound - должность не найдена
 	ErrPositionNotFound = errors.New("position not found")
-	// ErrCompanyNoPosition - компания и должность не могут быть связаны
-	ErrCompanyNoPosition = errors.New("position and company cannot be related")
+	// ErrCompanyNoPosition - компания и должность не имеют связи
+	ErrCompanyNoPosition = errors.New("position and company are not related")
 	// ErrLessonNotFound - урок не найден
 	ErrLessonNotFound = errors.New("lesson not found")
 

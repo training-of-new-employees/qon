@@ -95,7 +95,7 @@ func handleError(err error) error {
 		return errs.ErrNotFound
 	}
 
-	// компания и должности не могут быть связаны
+	// компания и должность не имеют связи
 	if errors.Is(err, errs.ErrCompanyNoPosition) {
 		return errs.ErrCompanyNoPosition
 	}
