@@ -189,6 +189,25 @@ func (tn *transaction) createPositionTx(ctx context.Context, tx *sqlx.Tx, compan
 	return &position, nil
 }
 
+// getPositionInCompanyTx - получение должности в рамках компании.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) getPositionInCompanyTx(ctx context.Context, tx *sqlx.Tx, companyID int, positionID int) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `
+		SELECT
+			id, company_id, name, active, archived, created_at, updated_at
+        FROM positions
+        WHERE company_id = $1 AND id = $2 AND archived = false
+	`
+
+	if err := tx.GetContext(ctx, &position, query, companyID, positionID); err != nil {
+		return nil, err
+	}
+
+	return &position, nil
+}
+
 // updatePasswordTx обновляет пароль пользователя.
 // ВAЖНО: использовать только только внутри транзакции.
 func (tn *transaction) updatePasswordTx(ctx context.Context, tx *sqlx.Tx, userID int, encPassword string) error {

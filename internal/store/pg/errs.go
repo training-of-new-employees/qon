@@ -95,6 +95,11 @@ func handleError(err error) error {
 		return errs.ErrNotFound
 	}
 
+	// компания и должности не могут быть связаны
+	if errors.Is(err, errs.ErrCompanyNoPosition) {
+		return errs.ErrCompanyNoPosition
+	}
+
 	// проверка, является ли ошибка нарушением ограничения СУБД
 	if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.ConstraintName != "" {
 		// Если ограничение известно, то возвращаем соответствующую ошибку

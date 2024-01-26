@@ -48,17 +48,16 @@ func (l *lessonStorage) CreateLesson(ctx context.Context,
 
 // updateLessonTx - обновление урока.
 // ВAЖНО: использовать только внутри транзакции.
-func (l *lessonStorage) createLessonTx(ctx context.Context,
-	tx *sqlx.Tx, lesson model.Lesson, userId int) (*model.Lesson, error) {
-
-	query := `INSERT INTO lessons (course_id, created_by, name )
-			  VALUES ($1, $2, $3)
-		      RETURNING id, course_id, name`
+func (l *lessonStorage) createLessonTx(ctx context.Context, tx *sqlx.Tx, lesson model.Lesson, userId int) (*model.Lesson, error) {
+	query := `
+		INSERT INTO lessons (course_id, created_by, name )
+		VALUES ($1, $2, $3)
+		RETURNING id, course_id, name
+	`
 
 	var createdLesson model.Lesson
 
-	err := tx.GetContext(ctx, &createdLesson, query,
-		lesson.CourseID, userId, lesson.Name)
+	err := tx.GetContext(ctx, &createdLesson, query, lesson.CourseID, userId, lesson.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +78,14 @@ func (l *lessonStorage) createLessonTx(ctx context.Context,
 
 func (l *lessonStorage) GetLesson(ctx context.Context,
 	lessonID int) (*model.Lesson, error) {
-	query := `SELECT l.id, l.course_id, l.name, t.content,
-					 p.url_picture, l.archived
-			  FROM lessons l
-			  JOIN texts t ON l.id = t.lesson_id
-			  JOIN pictures p ON  l.id = p.lesson_id
-		      WHERE l.id = $1`
+	query := `
+		SELECT
+			l.id, l.course_id, l.name, t.content, p.url_picture, l.archived
+		FROM lessons l
+		JOIN texts t ON l.id = t.lesson_id
+		JOIN pictures p ON  l.id = p.lesson_id
+		WHERE l.id = $1
+	`
 	var lesson model.Lesson
 	err := l.db.GetContext(ctx, &lesson, query, lessonID)
 	if err != nil {
@@ -96,8 +97,7 @@ func (l *lessonStorage) GetLesson(ctx context.Context,
 	return &lesson, nil
 }
 
-func (l *lessonStorage) UpdateLesson(ctx context.Context,
-	lesson model.LessonUpdate) (*model.Lesson, error) {
+func (l *lessonStorage) UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error) {
 	var updatedLesson *model.Lesson
 	var err error
 
@@ -122,9 +122,11 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 
 	updatedLesson := model.Lesson{}
 
-	query := `SELECT id
-				FROM lessons
-				WHERE id = $1 AND archived = false`
+	query := `
+		SELECT id
+		FROM lessons
+		WHERE id = $1 AND archived = false
+	`
 	_, err := tx.ExecContext(ctx, query, lesson.ID)
 	if err != nil {
 		return nil, err
@@ -164,13 +166,15 @@ func (l *lessonStorage) GetLessonsList(ctx context.Context, courseID int) ([]mod
 	if courseID == 0 {
 		return nil, errs.ErrCourseIDNotEmpty
 	}
-	query := `SELECT l.id, l.course_id, l.name, t.content,
-					 p.url_picture, l.archived
-			  FROM lessons l
-			  JOIN texts t ON l.id = t.lesson_id
-			  JOIN pictures p ON  l.id = p.lesson_id
-			  WHERE l.course_id = $1`
 
+	query := `
+		SELECT
+			l.id, l.course_id, l.name, t.content, p.url_picture, l.archived
+		FROM lessons l
+		JOIN texts t ON l.id = t.lesson_id
+		JOIN pictures p ON  l.id = p.lesson_id
+		WHERE l.course_id = $1
+	`
 	err := l.db.SelectContext(ctx, &lessonsList, query, courseID)
 	if err != nil {
 		return nil, handleError(err)
@@ -205,7 +209,6 @@ func (l *lessonStorage) UpdateUserLessonStatus(ctx context.Context, userID, cour
 			VALUES ($1, $2, $3, $4)
 			ON CONFLICT (course_id, lesson_id, user_id) DO UPDATE SET status = EXCLUDED.status
 		`
-
 		_, err := tx.ExecContext(ctx, updateStatusQuery, userID, lessonID, courseID, status)
 		if err != nil {
 			return err
