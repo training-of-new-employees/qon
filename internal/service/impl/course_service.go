@@ -60,6 +60,10 @@ func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, c
 		return nil, err
 	}
 
+	if len(lessons) == 0 {
+		return lessons, nil
+	}
+
 	lessonsIds := make([]int, 0, len(lessons))
 	for _, lesson := range lessons {
 		lessonsIds = append(lessonsIds, lesson.ID)
