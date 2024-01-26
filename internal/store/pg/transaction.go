@@ -384,6 +384,10 @@ func (tn *transaction) updateUserCourseStatusTx(ctx context.Context, tx *sqlx.Tx
 }
 
 func (tn *transaction) getUserLessonsStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, lessonsIds []int) (map[int]string, error) {
+	if len(lessonsIds) == 0 {
+		return map[int]string{}, nil
+	}
+
 	query := strings.Builder{}
 	query.WriteString(`INSERT INTO lesson_results (user_id, course_id, lesson_id) VALUES `)
 

@@ -192,7 +192,7 @@ func (l *lessonStorage) GetUserLessonsStatus(ctx context.Context, userID int, co
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, handleError(err)
 	}
 
 	return statuses, nil
@@ -215,7 +215,7 @@ func (l *lessonStorage) UpdateUserLessonStatus(ctx context.Context, userID, cour
 	})
 
 	if err != nil {
-		return err
+		return handleError(err)
 	}
 
 	return nil

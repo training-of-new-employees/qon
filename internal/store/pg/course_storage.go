@@ -85,23 +85,41 @@ func (c *courseStorage) GetUserCoursesStatus(ctx context.Context, userID int, co
 
 	query.WriteString(" ON CONFLICT (user_id, course_id) DO UPDATE SET user_id = EXCLUDED.user_id RETURNING course_id, status")
 	queryStr := query.String()
-
-	rows, err := c.db.QueryContext(ctx, queryStr, params...)
-	if err != nil {
-		return nil, err
-	}
-
 	statuses := make(map[int]string)
 
-	for rows.Next() {
-		var courseID int
-		var status string
-
-		if err := rows.Scan(&courseID, &status); err != nil {
-			return nil, err
+	err := c.tx(func(tx *sqlx.Tx) error {
+		for _, courseID := range coursesIds {
+			if err := c.transaction.syncUserCourseProgressTx(
+				ctx,
+				tx,
+				userID,
+				courseID,
+			); err != nil {
+				return err
+			}
 		}
 
-		statuses[courseID] = status
+		rows, err := tx.QueryContext(ctx, queryStr, params...)
+		if err != nil {
+			return err
+		}
+
+		for rows.Next() {
+			var courseID int
+			var status string
+
+			if err := rows.Scan(&courseID, &status); err != nil {
+				return err
+			}
+
+			statuses[courseID] = status
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
 	return statuses, nil
