@@ -1336,6 +1336,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение данных урока пользователя
       tags:
       - lessons

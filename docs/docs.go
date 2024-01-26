@@ -1383,6 +1383,11 @@ const docTemplate = `{
         },
         "/users/lessons/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],

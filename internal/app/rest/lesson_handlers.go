@@ -144,12 +144,12 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 //	@Tags		lessons
 //	@Param		id	path	int	true	"Lesson ID"
 //	@Produce	json
-//	@Security	Bearer
 //	@Success	200	{object}	model.Lesson
 //	@Failure	400	{object}	sErr
 //	@Failure	401	{object}	sErr
 //	@Failure	404	{object}	sErr
 //	@Failure	500	{object}	sErr
+//	@Security	Bearer
 //	@Router		/users/lessons/{id} [get]
 func (r *RestServer) handlerGetLesson(c *gin.Context) {
 	lessonID, err := strconv.Atoi(c.Param("id"))
