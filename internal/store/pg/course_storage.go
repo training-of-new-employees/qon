@@ -119,7 +119,7 @@ func (c *courseStorage) GetUserCoursesStatus(ctx context.Context, userID int, co
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, handleError(err)
 	}
 
 	return statuses, nil
