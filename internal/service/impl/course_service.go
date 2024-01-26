@@ -46,16 +46,7 @@ func (cs *courseService) GetUserCourses(ctx context.Context, userID int) ([]mode
 }
 
 func (cs *courseService) GetUserCourse(ctx context.Context, courseID, userID int) (*model.Course, error) {
-	courses, err := cs.GetUserCourses(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-	for _, c := range courses {
-		if c.ID == courseID {
-			return &c, nil
-		}
-	}
-	return nil, errs.ErrCourseNotFound
+	return cs.db.CourseStorage().GetUserCourse(ctx, courseID, userID)
 }
 
 func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, courseID int) ([]model.Lesson, error) {
@@ -91,16 +82,7 @@ func (cs *courseService) GetCompanyCourses(ctx context.Context, companyID int) (
 }
 
 func (cs *courseService) GetCompanyCourse(ctx context.Context, courseID, companyID int) (*model.Course, error) {
-	courses, err := cs.GetCompanyCourses(ctx, companyID)
-	if err != nil {
-		return nil, err
-	}
-	for _, c := range courses {
-		if c.ID == courseID {
-			return &c, nil
-		}
-	}
-	return nil, errs.ErrCourseNotFound
+	return cs.db.CourseStorage().CompanyCourse(ctx, courseID, companyID)
 }
 
 func (cs *courseService) CreateCourse(ctx context.Context, c model.CourseSet) (*model.Course, error) {
