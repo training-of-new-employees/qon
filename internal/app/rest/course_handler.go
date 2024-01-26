@@ -90,7 +90,7 @@ func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 		return
 	}
 	us := r.getUserSession(c)
-	course, err := r.services.Course().GetUserCourse(ctx, courseID, us.OrgID)
+	course, err := r.services.Course().GetUserCourse(ctx, courseID, us.UserID)
 	if err != nil {
 		r.handleError(c, err)
 		return

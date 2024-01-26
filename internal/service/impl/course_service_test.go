@@ -380,6 +380,20 @@ func (suite *serviceTestSuite) TestGetUserCourses() {
 			},
 		},
 		{
+			name: "success (no courses)",
+			err:  nil,
+			prepare: func() int {
+				userID := 1
+
+				suite.courseStorage.
+					EXPECT().
+					UserCourses(gomock.Any(), userID).
+					Return([]model.Course{}, nil)
+
+				return userID
+			},
+		},
+		{
 			name: "course internal error",
 			err:  errs.ErrInternal,
 			prepare: func() int {

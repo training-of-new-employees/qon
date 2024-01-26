@@ -56,11 +56,11 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 	position := model.Position{}
 
 	query := `
-		SELECT id, company_id, name, active, archived, created_at, updated_at
+		SELECT
+			id, company_id, name, active, archived, created_at, updated_at
         FROM positions 
         WHERE id = $1 AND archived = false
 	`
-
 	err := p.db.GetContext(ctx, &position, query, positionID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -76,23 +76,18 @@ func (p *positionStorage) GetPositionByID(ctx context.Context, positionID int) (
 func (p *positionStorage) GetPositionInCompany(ctx context.Context, companyID int, positionID int) (*model.Position, error) {
 	position := &model.Position{}
 
-	query := `
-		SELECT id, company_id, name, active, archived, created_at, updated_at
-        FROM positions
-        WHERE company_id = $1 AND id = $2 AND archived = false
-	`
+	// открываем транзакцию
+	err := p.tx(func(tx *sqlx.Tx) error {
+		var err error
 
-	row := p.db.QueryRowContext(ctx, query, companyID, positionID)
+		// создание должности
+		position, err = p.getPositionInCompanyTx(ctx, tx, companyID, positionID)
+		if err != nil {
+			return err
+		}
 
-	err := row.Scan(
-		&position.ID,
-		&position.CompanyID,
-		&position.Name,
-		&position.IsActive,
-		&position.IsArchived,
-		&position.CreatedAt,
-		&position.UpdatedAt,
-	)
+		return nil
+	})
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -197,11 +192,11 @@ func (p *positionStorage) GetCourseForPosition(ctx context.Context, positionID i
 
 	rows, err := p.db.QueryContext(ctx, query, positionID)
 	if err != nil {
-		return nil, err
+		return nil, handleError(err)
 	}
 
 	if rows.Err() != nil {
-		return nil, rows.Err()
+		return nil, handleError(rows.Err())
 	}
 
 	ids := make([]int, 0)
@@ -209,7 +204,7 @@ func (p *positionStorage) GetCourseForPosition(ctx context.Context, positionID i
 	for rows.Next() {
 		var id int
 		if err := rows.Scan(&id); err != nil {
-			return nil, err
+			return nil, handleError(err)
 		}
 
 		ids = append(ids, id)

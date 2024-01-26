@@ -28,6 +28,8 @@ var errorToCode = map[string]int{
 	errs.ErrCompanyReference.Error():  http.StatusNotFound,
 	errs.ErrLessonReference.Error():   http.StatusNotFound,
 	errs.ErrInvalidRoute.Error():      http.StatusNotFound,
+	errs.ErrCreaterNotFound.Error():   http.StatusNotFound,
+	errs.ErrCompanyNoPosition.Error(): http.StatusNotFound,
 
 	errs.ErrVerifyCodeNotEmpty.Error():       http.StatusBadRequest,
 	errs.ErrIncorrectVerifyCode.Error():      http.StatusBadRequest,
@@ -59,6 +61,13 @@ var errorToCode = map[string]int{
 	errs.ErrInvalidLessonName.Error():        http.StatusBadRequest,
 	errs.ErrInvalidTextContent.Error():       http.StatusBadRequest,
 	errs.ErrURLPictureLength.Error():         http.StatusBadRequest,
+	errs.ErrCreaterNotEmpty.Error():          http.StatusBadRequest,
+	errs.ErrCourseIDNotEmpty.Error():         http.StatusBadRequest,
+	errs.ErrLessonNameNotEmpty.Error():       http.StatusBadRequest,
+	errs.ErrLessonIDNotEmpty.Error():         http.StatusBadRequest,
+	errs.ErrTextContentNotEmpty.Error():      http.StatusBadRequest,
+	errs.ErrURLPictureNotEmpty.Error():       http.StatusBadRequest,
+	errs.ErrUserIDNotEmpty.Error():           http.StatusBadRequest,
 
 	errs.ErrEmailAlreadyExists.Error(): http.StatusConflict,
 	errs.ErrUserActivated.Error():      http.StatusConflict,
@@ -70,6 +79,8 @@ var errorToCode = map[string]int{
 	errs.ErrOnlyAdmin.Error():                http.StatusMethodNotAllowed,
 
 	errs.ErrPositionCourseUsed.Error(): http.StatusConflict,
+	errs.ErrUserCourseUsed.Error():     http.StatusConflict,
+	errs.ErrAssignLessonUsed.Error():   http.StatusConflict,
 
 	errs.ErrNotSendEmail.Error(): http.StatusInternalServerError,
 	errs.ErrInternal.Error():     http.StatusInternalServerError,

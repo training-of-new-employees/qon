@@ -306,6 +306,13 @@ func (suite *storeTestSuite) GetUserCoursesStatus() {
 			statuses:  map[int]string{1: "not-started", 2: "not-started", 4: "done"},
 		},
 		{
+			name:      "success (len of ids is 0)",
+			uid:       user.ID,
+			err:       nil,
+			courseIDs: []int{},
+			statuses:  map[int]string{},
+		},
+		{
 			name: "internal error",
 			uid:  admin.ID,
 			err:  errs.ErrInternal,

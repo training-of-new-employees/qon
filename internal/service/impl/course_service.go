@@ -28,6 +28,10 @@ func (cs *courseService) GetUserCourses(ctx context.Context, userID int) ([]mode
 		return nil, err
 	}
 
+	if len(courses) == 0 {
+		return []model.Course{}, nil
+	}
+
 	coursesIds := make([]int, 0, len(courses))
 	for _, course := range courses {
 		coursesIds = append(coursesIds, course.ID)
@@ -58,6 +62,10 @@ func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, c
 	lessons, err := cs.db.LessonStorage().GetLessonsList(ctx, course.ID)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(lessons) == 0 {
+		return lessons, nil
 	}
 
 	lessonsIds := make([]int, 0, len(lessons))

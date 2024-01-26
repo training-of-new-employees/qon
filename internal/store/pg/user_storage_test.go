@@ -66,7 +66,7 @@ func (suite *storeTestSuite) TestCreateUser() {
 
 				return u
 			},
-			err: errs.ErrCompanyReference,
+			err: errs.ErrCompanyNoPosition,
 		},
 		{
 			name: "not reference position id",
@@ -77,7 +77,7 @@ func (suite *storeTestSuite) TestCreateUser() {
 
 				return u
 			},
-			err: errs.ErrPositionReference,
+			err: errs.ErrCompanyNoPosition,
 		},
 		{
 			name: "empty email",
@@ -293,7 +293,7 @@ func (suite *storeTestSuite) TestGetUsersByCompany() {
 
 	// поиск пользователей в пустой базе по id несуществующей компании
 	users, err := suite.store.UserStorage().GetUsersByCompany(context.TODO(), randomseq.RandomTestInt())
-	suite.Error(err)
+	suite.NoError(err)
 	suite.Empty(users)
 
 	// добавление компании

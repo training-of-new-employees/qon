@@ -1387,6 +1387,41 @@ paths:
       tags:
       - user
   /users/lessons/{id}:
+    get:
+      parameters:
+      - description: Lesson ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.sErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
+      summary: Получение данных урока пользователя
+      tags:
+      - lessons
     patch:
       parameters:
       - description: Lesson ID

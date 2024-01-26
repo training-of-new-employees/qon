@@ -138,6 +138,36 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 
 }
 
+// GetUserLesson godoc
+//
+//	@Summary	Получение данных урока пользователя
+//	@Tags		lessons
+//	@Param		id	path	int	true	"Lesson ID"
+//	@Produce	json
+//	@Success	200	{object}	model.Lesson
+//	@Failure	400	{object}	sErr
+//	@Failure	401	{object}	sErr
+//	@Failure	404	{object}	sErr
+//	@Failure	500	{object}	sErr
+//	@Security	Bearer
+//	@Router		/users/lessons/{id} [get]
+func (r *RestServer) handlerGetLesson(c *gin.Context) {
+	lessonID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		r.handleError(c, errs.ErrBadRequest)
+		return
+	}
+
+	userSession := r.getUserSession(c)
+	lesson, err := r.services.Lesson().GetUserLesson(c.Request.Context(), userSession.UserID, lessonID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, lesson)
+}
+
 // UpdateLessonStatus godoc
 //
 //	@Summary	Обновление статуса прогресса у урока
