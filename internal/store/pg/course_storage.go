@@ -119,6 +119,22 @@ func (c *courseStorage) CompanyCourses(ctx context.Context, companyID int) ([]mo
 	return courses, nil
 }
 
+func (c *courseStorage) CompanyCourse(ctx context.Context, courseID, companyID int) (*model.Course, error) {
+	qCourse := `SELECT c.id, c.created_by, c.active, c.archived, c.name, c.description, c.created_at, c.updated_at 
+	FROM courses c
+	JOIN users u ON u.id = c.created_by
+	WHERE u.company_id = $1 AND c.id=$2`
+	var course model.Course
+	err := c.tx(func(tx *sqlx.Tx) error {
+		return tx.SelectContext(ctx, &course, qCourse, &companyID, &courseID)
+	})
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return &course, nil
+}
+
 func (c *courseStorage) CreateCourse(ctx context.Context, course model.CourseSet) (*model.Course, error) {
 	var res model.Course
 	qCreate := `INSERT INTO courses (name, description, created_by)

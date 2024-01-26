@@ -69,6 +69,21 @@ func (mr *MockServiceCourseMockRecorder) EditCourse(ctx, c, companyID any) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCourse", reflect.TypeOf((*MockServiceCourse)(nil).EditCourse), ctx, c, companyID)
 }
 
+// GetCompanyCourse mocks base method.
+func (m *MockServiceCourse) GetCompanyCourse(ctx context.Context, courseID, companyID int) (*model.Course, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompanyCourse", ctx, courseID, companyID)
+	ret0, _ := ret[0].(*model.Course)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompanyCourse indicates an expected call of GetCompanyCourse.
+func (mr *MockServiceCourseMockRecorder) GetCompanyCourse(ctx, courseID, companyID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompanyCourse", reflect.TypeOf((*MockServiceCourse)(nil).GetCompanyCourse), ctx, courseID, companyID)
+}
+
 // GetCompanyCourses mocks base method.
 func (m *MockServiceCourse) GetCompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
 	m.ctrl.T.Helper()
@@ -82,6 +97,21 @@ func (m *MockServiceCourse) GetCompanyCourses(ctx context.Context, companyID int
 func (mr *MockServiceCourseMockRecorder) GetCompanyCourses(ctx, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompanyCourses", reflect.TypeOf((*MockServiceCourse)(nil).GetCompanyCourses), ctx, companyID)
+}
+
+// GetUserCourse mocks base method.
+func (m *MockServiceCourse) GetUserCourse(ctx context.Context, courseID, userID int) (*model.Course, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCourse", ctx, courseID, userID)
+	ret0, _ := ret[0].(*model.Course)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCourse indicates an expected call of GetUserCourse.
+func (mr *MockServiceCourseMockRecorder) GetUserCourse(ctx, courseID, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCourse", reflect.TypeOf((*MockServiceCourse)(nil).GetUserCourse), ctx, courseID, userID)
 }
 
 // GetUserCourseLessons mocks base method.

@@ -39,6 +39,21 @@ func (m *MockRepositoryCourse) EXPECT() *MockRepositoryCourseMockRecorder {
 	return m.recorder
 }
 
+// CompanyCourse mocks base method.
+func (m *MockRepositoryCourse) CompanyCourse(ctx context.Context, companyID, courseID int) (*model.Course, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CompanyCourse", ctx, companyID, courseID)
+	ret0, _ := ret[0].(*model.Course)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CompanyCourse indicates an expected call of CompanyCourse.
+func (mr *MockRepositoryCourseMockRecorder) CompanyCourse(ctx, companyID, courseID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompanyCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).CompanyCourse), ctx, companyID, courseID)
+}
+
 // CompanyCourses mocks base method.
 func (m *MockRepositoryCourse) CompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {
 	m.ctrl.T.Helper()
