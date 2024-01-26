@@ -64,6 +64,10 @@ func (c *courseStorage) GetUserCourse(ctx context.Context, userID int, courseID 
 }
 
 func (c *courseStorage) GetUserCoursesStatus(ctx context.Context, userID int, coursesIds []int) (map[int]string, error) {
+	if len(coursesIds) == 0 {
+		return map[int]string{}, nil
+	}
+
 	query := strings.Builder{}
 	query.WriteString(`INSERT INTO course_assign (user_id, course_id) VALUES `)
 

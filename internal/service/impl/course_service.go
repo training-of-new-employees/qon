@@ -28,6 +28,10 @@ func (cs *courseService) GetUserCourses(ctx context.Context, userID int) ([]mode
 		return nil, err
 	}
 
+	if len(courses) == 0 {
+		return []model.Course{}, nil
+	}
+
 	coursesIds := make([]int, 0, len(courses))
 	for _, course := range courses {
 		coursesIds = append(coursesIds, course.ID)
