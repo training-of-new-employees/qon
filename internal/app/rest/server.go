@@ -23,9 +23,12 @@ type RestServer struct {
 // New - конструктор для RestServer.
 func New(secretKey string, services service.Service, cache cache.Cache) *RestServer {
 	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+
+	router.RedirectTrailingSlash = false
 
 	s := &RestServer{
-		router:    gin.New(),
+		router:    router,
 		secretKey: secretKey,
 		tokenVal:  jwttoken.NewTokenValidator(secretKey),
 		cache:     cache,

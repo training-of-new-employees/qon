@@ -179,6 +179,11 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		r.handleError(c, errs.ErrNoAccess)
 		return
 	}
+	err = edit.Validation()
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
 
 	edited, err := r.services.User().EditUser(ctx, edit, session.OrgID)
 	if err != nil {
@@ -194,7 +199,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Summary	Активация пользователя и установка ему пароля
 //	@Tags		user
 //	@Produce	json
-//	@Param		object	body		model.UserSignIn	true	"User Set Password"
+//	@Param		object	body		model.UserActivation	true	"User Set Password"
 //	@Success	200		{object}	sToken
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
@@ -203,41 +208,31 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Router		/users/set-password [post]
 func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
-	userReq := model.UserSignIn{}
-
-	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+	userActivate := model.UserActivation{}
+	if err := c.ShouldBindJSON(&userActivate); err != nil {
+		r.handleError(c, errs.ErrInvalidRequest)
+		return
+	}
+	if err := userActivate.Validation(); err != nil {
+		r.handleError(c, err)
 		return
 	}
 
-	if err := userReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+	code, err := r.services.User().GetUserInviteCodeFromCache(ctx, userActivate.Email)
+	if err != nil || code != userActivate.Invite {
+		r.handleError(c, errs.ErrInvalidInviteCode)
 		return
 	}
 
-	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		return
-	}
-
-	if user.IsActive {
-		c.JSON(http.StatusUnauthorized, s().SetError(errs.ErrNotFirstLogin))
-		return
-	}
-
-	if err := r.services.User().UpdatePasswordAndActivateUser(ctx, userReq.Email, userReq.Password); err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+	user, err := r.services.User().UpdatePasswordAndActivateUser(ctx, userActivate.Email, userActivate.Password)
+	if err != nil {
+		r.handleError(c, err)
 		return
 	}
 
 	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
@@ -297,28 +292,36 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 	userReq := model.UserSignIn{}
 
 	if err := c.ShouldBindJSON(&userReq); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
 
 	if err := userReq.Validation(); err != nil {
-		c.JSON(http.StatusBadRequest, s().SetError(err))
+		r.handleError(c, err)
+		return
 	}
 
+	// TODO: логику аутентификации нужно перенести на сервисный уровень
 	user, err := r.services.User().GetUserByEmail(ctx, userReq.Email)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
 
 	if err = user.CheckPassword(userReq.Password); err != nil {
-		c.JSON(http.StatusUnauthorized, s().SetError(err))
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
+		return
+	}
+
+	// учётная запись сотрудника не активирована или заархивирована
+	if !user.IsAdmin && (!user.IsActive || user.IsArchived) {
+		r.handleError(c, errs.ErrIncorrectEmailOrPassword)
 		return
 	}
 
 	tokens, err := r.services.User().GenerateTokenPair(ctx, user.ID, user.IsAdmin, user.CompanyID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
+		r.handleError(c, err)
 		return
 	}
 
@@ -333,7 +336,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
-//	@Success	201		{object}	model.User
+//	@Success	201		{object}	sToken
 //	@Failure	400		{object}	sErr
 //	@Failure	401		{object}	sErr
 //	@Failure	500		{object}	sErr
@@ -368,8 +371,15 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 	_ = r.services.User().DeleteAdminFromCache(ctx, code.Code)
 
-	c.JSON(http.StatusCreated, createdAdmin)
+	tokens, err := r.services.User().GenerateTokenPair(ctx, createdAdmin.ID, createdAdmin.IsAdmin, createdAdmin.CompanyID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
 
+	c.Header("Authorization", "Bearer "+tokens.AccessToken)
+
+	c.JSON(http.StatusCreated, s().SetToken(tokens.AccessToken))
 }
 
 // ResetPassword godoc
@@ -469,6 +479,40 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetInvitationLink godoc
+//
+//	@Summary	Получить пригласительную ссылку
+//	@Tags		admin
+//	@Produce	json
+//	@Param		email	path		string	true	"User email"
+//	@Success	200		{object}	model.InvitationLinkResponse
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	403		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//	@Router		/invitation-link/{email}  [get]
+func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
+	ctx := c.Request.Context()
+	email := c.Param("email")
+	invitationLinkRequest := model.InvitationLinkRequest{Email: email}
+
+	if err := invitationLinkRequest.Validate(); err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	session := r.getUserSession(c)
+
+	response, err := r.services.User().GetInvitationLinkUser(ctx, invitationLinkRequest.Email, session.OrgID)
+	if err != nil {
+		r.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 // GetUser godoc
 //
 //	@Summary		Получение данные авторизованного пользователя
@@ -531,5 +575,5 @@ func (r *RestServer) handlerLogOut(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, bodyResponse{Message: "user successfully logged out"})
 }

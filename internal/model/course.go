@@ -24,6 +24,14 @@ type Course struct {
 	Description string    `db:"description" json:"description"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+	Status      string    `json:"status,omitempty"`
+}
+
+type CoursePreview struct {
+	CourseID    int    `json:"course_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
 }
 
 type CourseSet struct {
@@ -35,23 +43,27 @@ type CourseSet struct {
 }
 
 func (c *Course) Validation() error {
-	err := validation.Validate(&c.Name, validation.Required)
-	if err != nil {
+	if err := validation.Validate(&c.Name, validation.Required); err != nil {
 		return errs.ErrCourseNameIsEmpty
 	}
-	err = validation.Validate(c.Name,
-		validation.RuneLength(minNameL, maxNameL),
-		validation.By(validateCourseName(c.Name)))
+	err := validation.Validate(&c.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateNameDescription(&c.Name)))
 	if err != nil {
-		return errs.ErrCourseNameInvalid
+		return errs.ErrInvalidCourseName
 	}
-	err = validation.Validate(c.Description,
-		validation.RuneLength(minDescL, maxDescL),
-		validation.By(validateCourseName(c.Description)))
+
+	err = validation.Validate(&c.Description, validation.RuneLength(minDescL, maxDescL), validation.By(validateNameDescription(&c.Description)))
 	if err != nil && err != errSpaceEmpty {
-		return errs.ErrCourseDescriptionInvalid
+		return errs.ErrInvalidCourseDescription
 	}
+
 	return nil
+}
+
+func NewCourseSet(id int, creator int) CourseSet {
+	return CourseSet{
+		ID:        id,
+		CreatedBy: creator,
+	}
 }
 
 func (cs *CourseSet) Validation() error {
@@ -59,11 +71,13 @@ func (cs *CourseSet) Validation() error {
 		Name:        cs.Name,
 		Description: cs.Description,
 	}
-	return c.Validation()
-}
-func NewCourseSet(id int, creator int) CourseSet {
-	return CourseSet{
-		ID:        id,
-		CreatedBy: creator,
+
+	if err := c.Validation(); err != nil {
+		return err
 	}
+
+	cs.Name = c.Name
+	cs.Description = c.Description
+
+	return nil
 }

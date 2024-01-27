@@ -5,13 +5,13 @@
 //
 //	mockgen -source=internal/pkg/doar/doar.go -destination=mocks/pkg/doar/doar.go
 //
-
 // Package mock_doar is a generated GoMock package.
 package mock_doar
 
 import (
 	reflect "reflect"
 
+	doar "github.com/training-of-new-employees/qon/internal/pkg/doar"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -53,10 +53,10 @@ func (mr *MockEmailSenderMockRecorder) InviteUser(email, invitationLink any) *go
 }
 
 // Mode mocks base method.
-func (m *MockEmailSender) Mode() string {
+func (m *MockEmailSender) Mode() doar.SenderMode {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Mode")
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].(doar.SenderMode)
 	return ret0
 }
 

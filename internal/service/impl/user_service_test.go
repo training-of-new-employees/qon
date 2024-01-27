@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 	"go.uber.org/mock/gomock"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
@@ -117,6 +118,7 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 				email := "email@mail.com"
 				f.userdb.EXPECT().GetUserByEmail(nil, email).Return(nil, errs.ErrUserNotFound)
 				f.cache.EXPECT().Set(nil, gomock.Any(), gomock.Any()).Return(nil)
+				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 				f.sender.EXPECT().SendCode(email, gomock.Any()).Return(errs.ErrInternal)
 			},
 			args{
@@ -125,8 +127,10 @@ func Test_uService_WriteAdminToCache(t *testing.T) {
 					Email: "email@mail.com",
 				},
 			},
-			nil,
-			true,
+			&model.CreateAdmin{
+				Email: "email@mail.com",
+			},
+			false,
 		},
 		{
 			"Success write cache",
@@ -501,6 +505,27 @@ func Test_uService_EditUser(t *testing.T) {
 			true,
 		},
 		{
+			"Edit user company id",
+			func(f *fields) {
+				u := &model.User{
+					ID:        1,
+					CompanyID: 1,
+				}
+				f.userdb.EXPECT().GetUserByID(nil, 1).Return(u, nil)
+				f.userdb.EXPECT().EditUser(nil, gomock.Any()).Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				nil,
+				&model.UserEdit{
+					ID:        1,
+					CompanyID: p[int](2),
+				},
+				1,
+			},
+			nil,
+			true,
+		},
+		{
 			"Can edit user",
 			func(f *fields) {
 				u := &model.User{
@@ -813,7 +838,7 @@ func Test_uService_CreateUser(t *testing.T) {
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
 				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
-				f.sender.EXPECT().Mode().Return("api")
+				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 			},
 			args{
 				nil,
@@ -1276,9 +1301,12 @@ func Test_uService_UpdatePasswordAndActivateUser(t *testing.T) {
 				tokenVal:   f.tokenVal,
 				sender:     f.sender,
 			}
-			if err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password); (err != nil) != tt.wantErr {
+
+			_, err := u.UpdatePasswordAndActivateUser(tt.args.ctx, tt.args.email, tt.args.password)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.UpdatePasswordAndActivateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 		})
 	}
 }
@@ -1687,7 +1715,6 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 			}
 
 			got, err := u.RegenerationInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
-			fmt.Println(err)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("uService.RegenerationInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -1695,6 +1722,78 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 
 			if len(tt.want) > 0 {
 				assert.Regexp(t, tt.want, got.Link)
+			}
+		})
+	}
+}
+
+func (suite *serviceTestSuite) Test_uService_GetInvitationLinkUser() {
+	email := "user@mail.com"
+	code := randomseq.RandomString(20)
+	userID := 2
+	companyID := 1
+
+	type args struct {
+		ctx       context.Context
+		email     string
+		companyID int
+	}
+	tests := []struct {
+		name    string
+		prepare func()
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Regeneration Invite Link User Error",
+			func() {
+				suite.userStorage.EXPECT().GetUserByEmail(nil, "user@mail.com").Return(nil, errs.ErrUserNotFound)
+			},
+			args{
+				ctx:       nil,
+				email:     email,
+				companyID: companyID,
+			},
+			"",
+			true,
+		},
+		{
+			name: "Regeneration Invite Link User success",
+			prepare: func() {
+				u := &model.User{
+					ID:        userID,
+					Email:     email,
+					CompanyID: companyID,
+					IsActive:  false,
+				}
+
+				suite.cache.EXPECT().GetInviteCode(nil, gomock.Any()).Return(code, nil)
+				suite.userStorage.EXPECT().GetUserByEmail(nil, email).Return(u, nil)
+				suite.userService.host = "http://localhost"
+			},
+			args: args{
+				ctx:       nil,
+				email:     email,
+				companyID: companyID,
+			},
+			want:    fmt.Sprintf("http://localhost/first-login?email=%s&invite=%s", email, code),
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			tt.prepare()
+			got, err := suite.userService.GetInvitationLinkUser(tt.args.ctx, tt.args.email, tt.args.companyID)
+			fmt.Println(err)
+			if (err != nil) != tt.wantErr {
+				suite.Errorf(err, fmt.Sprintf("uService.GetInvitationLinkUser() error = %v, wantErr %v", err, tt.wantErr))
+				return
+			}
+
+			if len(tt.want) > 0 {
+				suite.Equal(got.Link, tt.want)
 			}
 		})
 	}
@@ -1715,4 +1814,8 @@ func mockUCPStorage(ctrl *gomock.Controller, uStore *mock_store.MockRepositoryUs
 	storages.EXPECT().PositionStorage().Return(pStore).AnyTimes()
 	return storages
 
+}
+
+func p[T any](i T) *T {
+	return &i
 }

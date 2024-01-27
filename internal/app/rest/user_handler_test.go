@@ -2,17 +2,18 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 
+	"go.uber.org/mock/gomock"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/jwttoken"
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
-
-	"go.uber.org/mock/gomock"
 )
 
 func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
@@ -404,6 +405,51 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 			},
 		},
 		{
+			name:         "invalid email",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Email = p[string]("№testuser@.yandex.ru")
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "invalid email",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Email = p[string]("y.ru")
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
+			name:         "empty name",
+			expectedCode: http.StatusBadRequest,
+			prepare: func() (string, []byte) {
+				userID := 2
+				positionID := 2
+
+				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				editField.Name = p[string]("")
+
+				body, _ := json.Marshal(editField)
+
+				return fmt.Sprint(userID), body
+			},
+		},
+		{
 			name:         "not found",
 			expectedCode: http.StatusNotFound,
 			prepare: func() (string, []byte) {
@@ -772,4 +818,306 @@ func (suite *handlerTestSuite) TestHandlerRegenerationInvitationLink() {
 			suite.Equal(tt.expectedCode, w.Code)
 		})
 	}
+}
+
+func (suite *handlerTestSuite) TesHandlerSetPassword() {
+	userAdminID := 1
+	userID := 2
+	companyID := 1
+	email := "user@mail.com"
+	password := randomseq.RandomPassword()
+	code := randomseq.RandomString(20)
+
+	tests := []struct {
+		name         string
+		userID       int
+		userAdminID  int
+		isAdmin      bool
+		companyID    int
+		prepare      func() []byte
+		expectedCode int
+	}{
+		{
+			name:         "success",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusOK,
+			prepare: func() []byte {
+
+				user := &model.User{
+					ID:        1,
+					Email:     email,
+					CompanyID: companyID,
+					IsAdmin:   false,
+				}
+
+				userActivate := model.UserActivation{
+					Email:    email,
+					Password: password,
+					Invite:   code,
+				}
+
+				accessToken, err := jwttoken.TestAuthorizateUser(user.ID, user.CompanyID, user.IsAdmin)
+				suite.NoError(err)
+				token := &model.Tokens{
+					AccessToken: accessToken,
+				}
+
+				suite.userService.EXPECT().GetUserInviteCodeFromCache(context.Background(), email).Return(code, nil)
+				suite.userService.EXPECT().GenerateTokenPair(context.Background(), user.ID, user.IsAdmin, user.CompanyID).Return(token, nil)
+				suite.userService.EXPECT().UpdatePasswordAndActivateUser(context.Background(), email, password).Return(user, nil)
+
+				body, _ := json.Marshal(userActivate)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid request body",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusBadRequest,
+			prepare: func() []byte {
+
+				body, _ := json.Marshal("invalid")
+
+				return body
+			},
+		},
+		{
+			name:         "not found",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusNotFound,
+			prepare: func() []byte {
+
+				userActivate := model.UserActivation{
+					Email:    email,
+					Password: password,
+					Invite:   code,
+				}
+
+				suite.userService.EXPECT().GetUserInviteCodeFromCache(context.Background(), email).Return(code, nil)
+				suite.userService.EXPECT().UpdatePasswordAndActivateUser(context.Background(), email, password).Return(nil, errs.ErrUserNotFound)
+
+				body, _ := json.Marshal(userActivate)
+
+				return body
+			},
+		},
+		{
+			name:         "invalid registration and authentication process could not be completed the invitation code does not match",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusUnauthorized,
+			prepare: func() []byte {
+
+				userActivate := model.UserActivation{
+					Email:    email,
+					Password: password,
+					Invite:   code,
+				}
+
+				suite.userService.EXPECT().GetUserInviteCodeFromCache(context.Background(), email).Return("test", nil)
+
+				body, _ := json.Marshal(userActivate)
+
+				return body
+			},
+		},
+
+		{
+			name:         "invalid registration and authentication process could not be completed user active",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusUnauthorized,
+			prepare: func() []byte {
+
+				user := &model.User{
+					ID:        1,
+					Email:     email,
+					CompanyID: companyID,
+					IsAdmin:   false,
+					IsActive:  true,
+				}
+
+				userActivate := model.UserActivation{
+					Email:    email,
+					Password: password,
+					Invite:   code,
+				}
+
+				suite.userService.EXPECT().GetUserInviteCodeFromCache(context.Background(), email).Return(code, nil)
+				suite.userService.EXPECT().UpdatePasswordAndActivateUser(context.Background(), email, password).Return(user, errs.ErrUnauthorized)
+
+				body, _ := json.Marshal(userActivate)
+
+				return body
+			},
+		},
+	}
+	for _, tt := range tests {
+
+		suite.Run(tt.name, func() {
+			body := tt.prepare()
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodPost, "/api/v1/users/set-password", bytes.NewBuffer(body))
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tt.expectedCode, w.Code)
+		})
+	}
+}
+
+func (suite *handlerTestSuite) TesHandlerGetInvitationLink() {
+	userAdminID := 1
+	userID := 2
+	companyID := 1
+	email := "user@mail.com"
+	link := fmt.Sprintf("http://localhost/first-login?email=%s&invite=%s", email, randomseq.RandomString(20))
+
+	tests := []struct {
+		name         string
+		userID       int
+		userAdminID  int
+		isAdmin      bool
+		companyID    int
+		prepare      func() string
+		expectedCode int
+	}{
+		{
+			name:         "success",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			companyID:    companyID,
+			isAdmin:      true,
+			expectedCode: http.StatusOK,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+				suite.userService.EXPECT().GetInvitationLinkUser(context.Background(), email, companyID).Return(&response, nil)
+
+				return email
+			},
+		},
+		{
+			name:         "invalid request body",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusBadRequest,
+			prepare: func() string {
+				return "ddd"
+			},
+		},
+		{
+			name:         "not found",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusNotFound,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+
+				suite.userService.EXPECT().GetInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrUserNotFound)
+
+				return email
+			},
+		},
+		{
+			name:         "internal error",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusInternalServerError,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+
+				suite.userService.EXPECT().GetInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrInternal)
+
+				return email
+			},
+		},
+		{
+			name:         "error the user is activated in the system",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusConflict,
+			prepare: func() string {
+				response := model.NewInvitationLinkResponse(email, link)
+
+				suite.userService.EXPECT().GetInvitationLinkUser(gomock.Any(), email, companyID).Return(&response, errs.ErrUserActivated)
+
+				return email
+			},
+		},
+		{
+			name:         "error the user does not have access to the handler",
+			userID:       userID,
+			userAdminID:  userAdminID,
+			isAdmin:      false,
+			companyID:    companyID,
+			expectedCode: http.StatusForbidden,
+			prepare: func() string {
+
+				return email
+			},
+		},
+		{
+			name:         "user is not authorized",
+			userID:       userID,
+			isAdmin:      true,
+			companyID:    companyID,
+			expectedCode: http.StatusUnauthorized,
+			prepare: func() string {
+
+				return email
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		// получение тестового токена для авторизации админа
+		var accessToken string
+		var err error
+		if tt.userAdminID > 0 {
+			accessToken, err = jwttoken.TestAuthorizateUser(tt.userAdminID, tt.companyID, tt.isAdmin)
+			suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil)
+			suite.NoError(err)
+		}
+
+		suite.Run(tt.name, func() {
+
+			w := httptest.NewRecorder()
+
+			req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/invitation-link/%s", tt.prepare()), nil)
+
+			if len(accessToken) > 0 {
+				req.Header.Set("Authorization", accessToken)
+			}
+
+			suite.srv.ServeHTTP(w, req)
+			suite.Equal(tt.expectedCode, w.Code)
+		})
+	}
+}
+
+func p[T any](i T) *T {
+	return &i
 }

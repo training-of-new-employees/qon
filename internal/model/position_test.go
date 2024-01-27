@@ -71,7 +71,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 				CompanyID: 1,
 				Name:      "position,some",
 			},
-			errs.ErrInvalidPositionName,
+			nil,
 		},
 		{
 			"Space position",

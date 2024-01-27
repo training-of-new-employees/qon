@@ -1,0 +1,12 @@
+[
+  {
+    "active": true,
+    "admin": false,
+    "archived": false,
+    "email": "user1@mail.ru",
+    "name": "User",
+    "password": "Qw!2qwe",
+    "patronymic": "",
+    "surname": "string"
+  }
+]

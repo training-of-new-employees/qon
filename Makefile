@@ -9,7 +9,6 @@ MOCKS_DESTINATION=mocks
 
 ## Docker:
 docker-app-up: ## Create and run app containers
-	git clone -b develop https://github.com/training-of-new-employees/frontend.git || true `cd frontend && git checkout develop && git pull`
 	docker compose --file docker-compose/app/docker-compose.yml up -d --force-recreate --build
 
 docker-app-down: ## Stop and remove app containers
@@ -41,7 +40,7 @@ swag:
 	swag init -g ./internal/app/rest/handlers.go
 
 build: swag
-	go build -v -o qon ./cmd/main.go
+	go build -v -o qon ./cmd/app
 
 ## Test:
 test: ## Run tests
@@ -59,6 +58,10 @@ test-coverage: ## run test and show coverage
 	@docker compose --file docker-compose/test/docker-compose.yml down
 	@timeout 5 echo
 	@rm coverage.out
+
+.PHONY: test-data
+test-data:
+	@go run ./cmd/test-data
 
 ## Info:
 info: ## Show help information

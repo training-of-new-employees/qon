@@ -7,9 +7,10 @@ import (
 )
 
 type RepositoryLesson interface {
-	// TODO: Не совсем понятно, зачем в методах используется окончание 'DB', возможно, его следует потом убрать.
-	CreateLessonDB(ctx context.Context, lesson model.LessonCreate, user_id int) (*model.Lesson, error)
-	DeleteLessonDB(ctx context.Context, lessonID int) error
-	GetLessonDB(ctx context.Context, lessonID int) (*model.Lesson, error)
-	UpdateLessonDB(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error)
+	CreateLesson(ctx context.Context, lesson model.Lesson, userID int) (*model.Lesson, error)
+	GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error)
+	UpdateLesson(ctx context.Context, lesson model.LessonUpdate) (*model.Lesson, error)
+	GetLessonsList(ctx context.Context, courseID int) ([]model.Lesson, error)
+	GetUserLessonsStatus(ctx context.Context, userID int, courseID int, lessonsIds []int) (map[int]string, error)
+	UpdateUserLessonStatus(ctx context.Context, userID, courseID, lessonID int, status string) error
 }

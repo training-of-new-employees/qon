@@ -29,6 +29,10 @@ type (
 		CourseID   int `json:"course_id"`
 		PositionID int `json:"position_id"`
 	}
+
+	PositionAssignCourses struct {
+		CourseID []int `json:"course_id"`
+	}
 )
 
 func (p *PositionSet) Validation() error {
@@ -37,7 +41,7 @@ func (p *PositionSet) Validation() error {
 		return errs.ErrPositionNameNotEmpty
 	}
 	// проверка на корректность имени компании
-	if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateCompanyPositionName(p.Name))); err != nil {
+	if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateNameDescription(&p.Name))); err != nil {
 		return errs.ErrInvalidPositionName
 	}
 	// проверка на наличие id компании
@@ -51,7 +55,7 @@ func (p *PositionSet) Validation() error {
 func (p *PositionSet) ValidationEdit() error {
 	// проверка на корректность имени компании
 	if p.Name != "" {
-		if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateCompanyPositionName(p.Name))); err != nil {
+		if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateNameDescription(&p.Name))); err != nil {
 			return errs.ErrInvalidPositionName
 		}
 	}
@@ -61,5 +65,8 @@ func (p *PositionSet) ValidationEdit() error {
 	}
 
 	return nil
+}
 
+func (p *PositionAssignCourses) Validation() error {
+	return nil
 }

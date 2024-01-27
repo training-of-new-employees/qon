@@ -36,6 +36,11 @@ func (u *uStorage) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	err := u.tx(func(tx *sqlx.Tx) error {
 		var err error
 
+		// проверка связи должности и компании
+		if _, err := u.getPositionInCompanyTx(ctx, tx, val.CompanyID, val.PositionID); err != nil {
+			return errs.ErrCompanyNoPosition
+		}
+
 		// создание пользователя
 		createdUser, err = u.createUserTx(ctx, tx, val)
 
@@ -151,9 +156,6 @@ func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 	if err != nil {
 		return nil, handleError(err)
 	}
-	if len(users) == 0 {
-		return nil, errs.ErrUserNotFound
-	}
 
 	return users, nil
 }
@@ -178,7 +180,7 @@ func (u *uStorage) EditUser(ctx context.Context, edit *model.UserEdit) (*model.U
 		return nil, handleError(err)
 	}
 
-	// TODO: позже нужно исправить, пока используем такое преобразование для совместимости с верхним уровнем
+	// TODO: позже нужно исправить, пока используем такой способ преобразования для совместимости с верхним уровнем
 	edit.ID = user.ID
 	edit.CompanyID = &user.CompanyID
 	edit.PositionID = &user.PositionID

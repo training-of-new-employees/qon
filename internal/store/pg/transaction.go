@@ -3,11 +3,13 @@ package pg
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
+	"go.uber.org/zap"
+
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
-	"go.uber.org/zap"
 )
 
 // transaction - структура для встраивания в репозитории (companyStorage, positionStorage, uStorage,...).
@@ -187,6 +189,25 @@ func (tn *transaction) createPositionTx(ctx context.Context, tx *sqlx.Tx, compan
 	return &position, nil
 }
 
+// getPositionInCompanyTx - получение должности в рамках компании.
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) getPositionInCompanyTx(ctx context.Context, tx *sqlx.Tx, companyID int, positionID int) (*model.Position, error) {
+	position := model.Position{}
+
+	query := `
+		SELECT
+			id, company_id, name, active, archived, created_at, updated_at
+        FROM positions
+        WHERE company_id = $1 AND id = $2 AND archived = false
+	`
+
+	if err := tx.GetContext(ctx, &position, query, companyID, positionID); err != nil {
+		return nil, err
+	}
+
+	return &position, nil
+}
+
 // updatePasswordTx обновляет пароль пользователя.
 // ВAЖНО: использовать только только внутри транзакции.
 func (tn *transaction) updatePasswordTx(ctx context.Context, tx *sqlx.Tx, userID int, encPassword string) error {
@@ -213,11 +234,214 @@ func (tn *transaction) activateUserTx(ctx context.Context, tx *sqlx.Tx, userID i
 // createCompanyTx - назначение курса на должность.
 // ВAЖНО: использовать только внутри транзакции.
 func (tn *transaction) assignCourseTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseID int) error {
-	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2) RETURNING id`
+	query := `INSERT INTO position_course (position_id, course_id) VALUES ($1, $2)`
 
 	if err := tx.QueryRowxContext(ctx, query, positionID, courseID).Err(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// insertTextsTx - добавление новой строки в таблицу texts
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) insertTextsTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, content string, userId int) (string, error) {
+	var contentIns string
+	query := `INSERT INTO 
+			  texts (lesson_id, created_by, content)
+			  VALUES ($1, $2, $3)
+			  RETURNING content`
+
+	err := tx.GetContext(ctx, &contentIns, query, lessonID,
+		userId, content)
+	if err != nil {
+		return "", err
+	}
+	return contentIns, nil
+}
+
+// updateTextsTx - обновление таблицы texts
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) updateTextsTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, content string) (string, error) {
+	var contentUpd string
+	query := `UPDATE texts
+			  SET content    = COALESCE(NULLIF($1, ''), content)
+			  WHERE lesson_id = $2
+			  RETURNING content`
+	err := tx.GetContext(ctx, &contentUpd, query, content, lessonID)
+	if err != nil {
+		return "", err
+	}
+	return contentUpd, nil
+}
+
+// insertPicturesTx - добавление новой строки в таблицу pictures
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) insertPicturesTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, urlPicture string, userId int) (string, error) {
+	var urlPictureIns string
+	query := `INSERT INTO
+			  pictures (lesson_id, created_by, url_picture)
+			  VALUES ($1, $2, $3)
+			  RETURNING url_picture`
+
+	err := tx.GetContext(ctx, &urlPictureIns, query,
+		lessonID, userId, urlPicture)
+	if err != nil {
+		return "", err
+	}
+	return urlPictureIns, nil
+}
+
+// updatePicturesTx - обновление таблицы pictures
+// ВAЖНО: использовать только внутри транзакции.
+func (tn *transaction) updatePicturesTx(ctx context.Context,
+	tx *sqlx.Tx, lessonID int, urlPicture string) (string, error) {
+	var urlPictureUpd string
+	query := `UPDATE pictures
+		      SET url_picture = COALESCE(NULLIF($1, ''), url_picture)
+		      WHERE lesson_id = $2
+			  RETURNING url_picture`
+	err := tx.GetContext(ctx, &urlPictureUpd, query, urlPicture, lessonID)
+	if err != nil {
+		return "", err
+	}
+	return urlPictureUpd, nil
+}
+
+func (tn *transaction) assignCoursesTx(ctx context.Context, tx *sqlx.Tx, positionID int, courseIDs []int) error {
+	query := strings.Builder{}
+	query.WriteString(`INSERT INTO position_course (position_id, course_id) VALUES `)
+
+	var params []interface{}
+
+	for i, courseID := range courseIDs {
+		position := i * 2
+
+		query.WriteString(fmt.Sprintf("($%d,$%d),", position+1, position+2))
+
+		params = append(params, positionID, courseID)
+	}
+
+	queryStr := query.String()
+	queryStr = queryStr[:len(queryStr)-1]
+	_, err := tx.ExecContext(ctx, queryStr, params...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tn *transaction) syncUserCourseProgressTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int) error {
+	getCourseLessonsQuery := `
+		SELECT id FROM lessons WHERE course_id = $1
+	`
+
+	rows, err := tx.QueryContext(ctx, getCourseLessonsQuery, courseID)
+	if err != nil {
+		return err
+	}
+
+	lessonIds := make([]int, 0)
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return err
+		}
+
+		lessonIds = append(lessonIds, id)
+	}
+
+	statuses, err := tn.getUserLessonsStatusTx(ctx, tx, userID, courseID, lessonIds)
+	if err != nil {
+		return err
+	}
+
+	allLessonsDone := true
+	allLessonsNotStarted := true
+
+	for _, lessonStatus := range statuses {
+		switch lessonStatus {
+		case "done":
+			allLessonsNotStarted = false
+		case "in-process":
+			allLessonsDone = false
+			allLessonsNotStarted = false
+		case "not-started":
+			allLessonsDone = false
+		}
+	}
+
+	var newCourseStatus string
+	if allLessonsDone {
+		newCourseStatus = "done"
+	} else if allLessonsNotStarted {
+		newCourseStatus = "not-started"
+	} else {
+		newCourseStatus = "in-process"
+	}
+
+	return tn.updateUserCourseStatusTx(ctx, tx, userID, courseID, newCourseStatus)
+}
+
+func (tn *transaction) updateUserCourseStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, status string) error {
+	updateStatusQuery := `
+			INSERT INTO course_assign (user_id, course_id, status)
+			VALUES ($1, $2, $3)
+			ON CONFLICT (course_id, user_id) DO UPDATE SET status = EXCLUDED.status
+		`
+
+	_, err := tx.ExecContext(ctx, updateStatusQuery, userID, courseID, status)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tn *transaction) getUserLessonsStatusTx(ctx context.Context, tx *sqlx.Tx, userID int, courseID int, lessonsIds []int) (map[int]string, error) {
+	if len(lessonsIds) == 0 {
+		return map[int]string{}, nil
+	}
+
+	query := strings.Builder{}
+	query.WriteString(`INSERT INTO lesson_results (user_id, course_id, lesson_id) VALUES `)
+
+	var params []interface{}
+
+	for i, lessonID := range lessonsIds {
+		position := i * 3
+		query.WriteString(fmt.Sprintf("($%d,$%d,$%d)", position+1, position+2, position+3))
+		params = append(params, userID, courseID, lessonID)
+
+		if i+1 < len(lessonsIds) {
+			query.WriteString(",")
+		}
+	}
+
+	query.WriteString(" ON CONFLICT (course_id, lesson_id, user_id) DO UPDATE SET user_id = EXCLUDED.user_id RETURNING lesson_id, status")
+	queryStr := query.String()
+
+	rows, err := tx.QueryContext(ctx, queryStr, params...)
+	if err != nil {
+		return nil, err
+	}
+
+	statuses := make(map[int]string)
+
+	for rows.Next() {
+		var lessonID int
+		var status string
+
+		if err := rows.Scan(&lessonID, &status); err != nil {
+			return nil, err
+		}
+
+		statuses[lessonID] = status
+	}
+
+	return statuses, nil
 }

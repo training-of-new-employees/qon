@@ -62,10 +62,7 @@ func newUserService(
 	}
 }
 
-func (u *uService) WriteAdminToCache(
-	ctx context.Context,
-	val model.CreateAdmin,
-) (*model.CreateAdmin, error) {
+func (u *uService) WriteAdminToCache(ctx context.Context, val model.CreateAdmin) (*model.CreateAdmin, error) {
 	if err := val.SetPassword(); err != nil {
 		return nil, fmt.Errorf("error SetPassword: %v", err)
 	}
@@ -89,7 +86,11 @@ func (u *uService) WriteAdminToCache(
 
 	if err = u.sender.SendCode(val.Email, code); err != nil {
 		logger.Log.Error("service error", zap.Error(err))
-		return nil, errs.ErrNotSendEmail
+
+		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
+		if u.sender.Mode() == doar.TestMode {
+			return nil, err
+		}
 	}
 
 	return &val, nil
@@ -108,15 +109,15 @@ func (u *uService) GetUserByEmail(ctx context.Context, email string) (*model.Use
 func (u *uService) GetUserByID(ctx context.Context, id int) (*model.UserInfo, error) {
 	user, err := u.db.UserStorage().GetUserByID(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("can't get user by service: %w", err)
+		return nil, err
 	}
 	company, err := u.db.CompanyStorage().GetCompany(ctx, user.CompanyID)
 	if err != nil {
-		return nil, fmt.Errorf("can't get user by service: %w", err)
+		return nil, err
 	}
 	position, err := u.db.PositionStorage().GetPositionInCompany(ctx, user.CompanyID, user.PositionID)
 	if err != nil {
-		return nil, fmt.Errorf("can't get user by service: %w", err)
+		return nil, err
 	}
 	info := &model.UserInfo{
 		User:         *user,
@@ -148,6 +149,7 @@ func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, editorComp
 	if err != nil {
 		return nil, err
 	}
+	val.CompanyID = &user.CompanyID
 	if user.CompanyID != editorCompanyID {
 		return nil, errs.ErrUserNotFound
 	}
@@ -214,8 +216,8 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
-		if u.sender.Mode() == "test" {
-			return nil, errs.ErrNotSendEmail
+		if u.sender.Mode() == doar.TestMode {
+			return nil, err
 		}
 	}
 
@@ -264,22 +266,26 @@ func (u *uService) CreateAdmin(ctx context.Context, val model.CreateAdmin) (*mod
 }
 
 // UpdatePasswordAndActivateUser устанавливает пароль и активирует учётную запись пользователя.
-func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) error {
+func (u *uService) UpdatePasswordAndActivateUser(ctx context.Context, email string, password string) (*model.User, error) {
 	user, err := u.GetUserByEmail(ctx, email)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	if user.IsActive {
+		return nil, errs.ErrNotFirstLogin
 	}
 
 	encPassword, err := utils.EncryptPassword(password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err = u.db.UserStorage().SetPasswordAndActivateUser(ctx, user.ID, encPassword); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return user, nil
 }
 
 // ResetPassword сбрасывает пользовательский пароль и устанавливает новый.
@@ -349,7 +355,9 @@ func (u *uService) GetUserInviteCodeFromCache(ctx context.Context, email string)
 
 	code, err := u.cache.GetInviteCode(ctx, key)
 	if err != nil {
-		return "", fmt.Errorf("err GetUserInviteFromCache: %v", err)
+		logger.Log.Warn("err GetUserInviteFromCache: %v", zap.Error(err))
+
+		return "", errs.ErrInvalidInviteCode
 	}
 
 	return code, nil
@@ -383,7 +391,40 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	// Отправление пригласительной ссылки сотруднику
 	if err = u.sender.InviteUser(email, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
+
+		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
+		if u.sender.Mode() == doar.TestMode {
+			return nil, err
+		}
 	}
+
+	return invitationLinkResponse, nil
+}
+
+func (u *uService) GetInvitationLinkUser(ctx context.Context, email string, companyID int) (*model.InvitationLinkResponse, error) {
+	invitationLinkResponse := &model.InvitationLinkResponse{}
+
+	employee, err := u.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	if employee.IsActive {
+
+		return nil, errs.ErrUserActivated
+	}
+
+	if employee.CompanyID != companyID {
+		return nil, errs.ErrNoAccess
+	}
+
+	code, err := u.GetUserInviteCodeFromCache(ctx, employee.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	invitationLinkResponse.Link = fmt.Sprintf("%s/first-login?email=%s&invite=%s", u.host, email, code)
+	invitationLinkResponse.Email = email
 
 	return invitationLinkResponse, nil
 }

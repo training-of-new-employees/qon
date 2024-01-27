@@ -3,7 +3,10 @@ package errs
 
 import (
 	"errors"
+	"fmt"
 )
+
+const specialSymbols = "(),?!№:\"\\&-_%';@"
 
 var (
 	// -- Базовые ошибки приложения --
@@ -33,6 +36,18 @@ var (
 	ErrOnlyAdmin = errors.New("you aren't admin")
 	// ErrNoAccess - нет доступа
 	ErrNoAccess = errors.New("no access")
+	// ErrIncorrectEmailOrPassword - неправильный емейл или пароль
+	ErrIncorrectEmailOrPassword = errors.New("incorrect email or password")
+	// ErrEmailOrPasswordEmpty - пустой емейл или пароль
+	ErrEmailOrPasswordEmpty = errors.New("email address and password must be filled in")
+	// ErrVerifyCodeNotEmpty - пустой код верификации
+	ErrVerifyCodeNotEmpty = errors.New("code cannot be empty")
+	// ErrIncorrectVerifyCode - невалидный код верификации
+	ErrIncorrectVerifyCode = errors.New("invalid verify code")
+	// ErrInvalidInviteCode - невалидный пригласительный код
+	ErrInvalidInviteCode = errors.New("something wrong with invite code: code is invalid or something else")
+	// ErrInvalidRoute - не найденный маршрут
+	ErrInvalidRoute = errors.New("route not found")
 )
 
 var (
@@ -42,7 +57,8 @@ var (
 	ErrCompanyNotFound = errors.New("company not found")
 	// ErrPositionNotFound - должность не найдена
 	ErrPositionNotFound = errors.New("position not found")
-
+	// ErrCompanyNoPosition - компания и должность не имеют связи
+	ErrCompanyNoPosition = errors.New("position and company are not related")
 	// ErrLessonNotFound - урок не найден
 	ErrLessonNotFound = errors.New("lesson not found")
 
@@ -93,14 +109,14 @@ var (
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
 	// ErrIncorrectCompanyName - некорректное имя компании
-	ErrInvalidCompanyName = errors.New("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, '-', '&'")
+	ErrInvalidCompanyName = fmt.Errorf("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
 	// -- Ошибки должности --
 
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
 	ErrPositionNameNotEmpty = errors.New("position name cannot be empty")
 
-	ErrInvalidPositionName = errors.New("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, '-', '&'")
+	ErrInvalidPositionName = fmt.Errorf("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
 	// -- Ошибки пользователя --
 
@@ -111,10 +127,13 @@ var (
 	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
 	// ErrInvalidEmail - некорректный email
-	ErrInvalidEmail = errors.New("invalid email")
+	ErrInvalidEmail = errors.New("invalid email or incorrect length (email length should be 7-50 symbols)")
 
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
+
+	// ErrInviteNotEmpty - code invite не может быть пустым
+	ErrInviteNotEmpty = errors.New("invite cannot be empty")
 
 	// ErrInvalidPassword - невалидный пароль
 	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")
@@ -131,6 +150,9 @@ var (
 	// ErrInvalidUserSurname - некорректная фамилия пользователя
 	ErrInvalidUserSurname = errors.New("invalid user surname: surname must have length of 2-128 and can contain characters of any alphabets, dash")
 
+	// ErrUserPatronymicNotEmpty - отчество сотрудника не должна быть пустой
+	ErrUserPatronymicNotEmpty = errors.New("user patronymic cannot be empty")
+
 	// ErrInvalidUserPatronymic - некорректное отчество пользователя
 	ErrInvalidUserPatronymic = errors.New("invalid user patronymic: patronymic must have length of 2-128 and can contain characters of any alphabets, dash")
 
@@ -139,24 +161,31 @@ var (
 	// ErrCourseUserNotFound - имя курса не должно быть пустым
 	ErrCourseNameIsEmpty = errors.New("course name cannot be empty")
 
-	// ErrCourseNameInvalid - имя курса не соответствует требованиям
-	ErrCourseNameInvalid = errors.New("course name is invalid")
+	// ErrInvalidCourseName - имя курса не соответствует требованиям
+	ErrInvalidCourseName = fmt.Errorf("course name is invalid: course name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
-	// ErrCourseDescriptionInvalid - описание курса не соответствует требованиям
-	ErrCourseDescriptionInvalid = errors.New("course description is invalid")
+	// ErrInvalidCourseDescription - описание курса не соответствует требованиям
+	ErrInvalidCourseDescription = fmt.Errorf("course description is invalid: course name is invalid: course description must have length of 10-512 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
 
 	// -- Ошибки уроков --
 
 	// ErrLessonNameNotEmpty - название урока не может быть пустым
 	ErrLessonNameNotEmpty = errors.New("lesson name cannot be empty")
 
+	// ErrInvalidLessonName - имя урока не соответствует требованиям
+	ErrInvalidLessonName = fmt.Errorf("invalid lesson name: lesson name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+
 	// -- Ошибки текстов --
 
 	ErrTextContentNotEmpty = errors.New("text (content) cannot be empty")
 
+	ErrInvalidTextContent = fmt.Errorf("invalid lesson content: lesson content must have length of 20-65000 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+
 	// -- Ошибки картинок --
 
-	ErrPictureLinkNotEmpty = errors.New("picture (link) cannot be empty")
+	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
+
+	ErrURLPictureLength = errors.New("picture's url must have length of 5-1024")
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 
@@ -168,4 +197,10 @@ var (
 
 	// ErrAssignLessonUsed - прогресс пользователя по уроку должен быть уникальным
 	ErrAssignLessonUsed = errors.New("Course progress already has the same lesson progress")
+
+	// ErrInvalidCourseStatus - невалидный статус сотрудника по курсу
+	ErrInvalidCourseStatus = errors.New("user course status can be 'not-started', 'in-process', 'done'")
+
+	// ErrInvalidLessonStatus - невалидный статус сотрудника по уроку
+	ErrInvalidLessonStatus = errors.New("user lesson status can be 'not-started', 'in-process', 'done'")
 )

@@ -10,7 +10,7 @@ func NewTestUserCreate() UserCreate {
 	hash, _ := GenerateHash(randomseq.RandomPassword())
 
 	return UserCreate{
-		Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
+		Email:      randomseq.RandomEmail(),
 		Password:   hash,
 		Name:       fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
@@ -22,7 +22,7 @@ func NewTestUserCreate() UserCreate {
 
 func NewTestCreateAdmin() CreateAdmin {
 	return CreateAdmin{
-		Email:    fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+		Email:    randomseq.RandomEmail(),
 		Password: randomseq.RandomPassword(),
 		Company:  fmt.Sprintf("test-%s", randomseq.RandomName(10)),
 	}
@@ -31,6 +31,12 @@ func NewTestCreateAdmin() CreateAdmin {
 func NewTestPositionSet() PositionSet {
 	return PositionSet{
 		Name: fmt.Sprintf("test-%s", randomseq.RandomName(10)),
+	}
+}
+
+func NewTestPositionAssignCourses() PositionAssignCourses {
+	return PositionAssignCourses{
+		CourseID: []int{1, 2, 3},
 	}
 }
 
@@ -53,7 +59,7 @@ func NewTestListUsers(companyID int) []User {
 		users[i] = User{
 			ID: i + 1, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: randomseq.RandomTestInt() - 99,
-			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+			Email:      randomseq.RandomEmail(),
 			Name:       randomseq.RandomName(10),
 			Surname:    randomseq.RandomName(10),
 			Patronymic: randomseq.RandomName(10),
@@ -68,7 +74,7 @@ func NewTestUser(userID int, companyID int, positionID int) *UserInfo {
 		User: User{
 			ID: userID, IsActive: true, IsArchived: false,
 			CompanyID: companyID, PositionID: positionID,
-			Email:      fmt.Sprintf("%s@example.org", randomseq.RandomString(10)),
+			Email:      randomseq.RandomEmail(),
 			Name:       randomseq.RandomName(10),
 			Surname:    randomseq.RandomName(10),
 			Patronymic: randomseq.RandomName(10),
@@ -105,7 +111,7 @@ func NewTestEditUser(userID int, companyID int, positionID int) (UserEdit, UserE
 	//
 	// изменение емейла
 	if randomseq.RandomBool() {
-		email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
+		email := randomseq.RandomEmail()
 
 		editField.Email = &email
 
@@ -173,7 +179,7 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 	//
 	// изменение емейла
 	if randomseq.RandomBool() {
-		email := fmt.Sprintf("%s@example.org", randomseq.RandomString(5))
+		email := randomseq.RandomEmail()
 
 		editField.Email = &email
 		expected.Email = &email
@@ -213,7 +219,7 @@ func NewTestAdminEdit(userID int, companyID int, positionID int) (AdminEdit, Adm
 
 func NewTestResetPassword() EmailReset {
 	return EmailReset{
-		Email: fmt.Sprintf("%s@example.org", randomseq.RandomString(16)),
+		Email: randomseq.RandomEmail(),
 	}
 }
 
@@ -230,4 +236,51 @@ func NewInvitationLinkResponse(email, link string) InvitationLinkResponse {
 		Email: email,
 		Link:  link,
 	}
+}
+
+func NewTestLesson(courseID int) Lesson {
+	return Lesson{
+		CourseID:   courseID,
+		Name:       randomseq.RandomName(10),
+		Content:    randomseq.RandomString(20),
+		URLPicture: fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5)),
+	}
+}
+
+func NewTestEditLesson(id int) LessonUpdate {
+	editField := LessonUpdate{ID: id}
+	// изменение имени урока
+	if randomseq.RandomBool() {
+		name := randomseq.RandomName(10)
+		editField.Name = name
+	}
+	// изменение содержания урока
+	if randomseq.RandomBool() {
+		content := randomseq.RandomString(20)
+		editField.Content = content
+	}
+	// изменение ссылки картинки
+	if randomseq.RandomBool() {
+		url := fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5))
+		editField.URLPicture = url
+	}
+
+	return editField
+}
+
+func NewTestListLessons(courseID int) []Lesson {
+	number := randomseq.RandomTestInt()
+	lessons := make([]Lesson, number)
+
+	for i := 0; i < number; i++ {
+		lessons[i] = Lesson{
+			ID:         i + 1,
+			CourseID:   courseID,
+			Name:       randomseq.RandomName(10),
+			Content:    randomseq.RandomString(20),
+			URLPicture: fmt.Sprintf("https://%sexample.com/%s.png", randomseq.RandomString(10), randomseq.RandomString(5)),
+		}
+	}
+
+	return lessons
 }

@@ -35,6 +35,7 @@ func (suite *storeTestSuite) TestCreateCourse() {
 			name: "empty name",
 			prepare: func() model.CourseSet {
 				course := model.NewTestCourseSet()
+				course.CreatedBy = admin.ID
 				course.Name = ""
 				return course
 
@@ -248,6 +249,190 @@ func (suite *storeTestSuite) TestEditCourse() {
 				suite.Equal(c.Description, prepared.Description)
 			}
 			suite.Equal(c.IsArchived, prepared.IsArchived)
+		})
+	}
+}
+
+func (suite *storeTestSuite) GetUserCoursesStatus() {
+	suite.NotNil(suite.store)
+
+	ca1 := model.NewTestCreateAdmin()
+	uc1 := model.NewTestUserCreate()
+	admin, err := suite.store.UserStorage().CreateAdmin(context.TODO(), uc1, ca1.Company)
+	suite.NoError(err)
+
+	p := model.NewTestPositionSet()
+	p.CompanyID = admin.CompanyID
+	pos, err := suite.store.PositionStorage().CreatePosition(context.TODO(), p)
+	suite.NoError(err)
+
+	uc2 := model.NewTestUserCreate()
+	uc2.CompanyID = admin.CompanyID
+	uc2.PositionID = pos.ID
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), uc2)
+	suite.NoError(err)
+
+	for i := 0; i < testCoursesLen; i++ {
+		c := model.NewTestCourseSet()
+		c.ID = i + 1
+		c.CreatedBy = admin.ID
+		created, err := suite.store.CourseStorage().CreateCourse(context.TODO(), c)
+		suite.NoError(err)
+		err = suite.store.PositionStorage().AssignCourse(context.TODO(), pos.ID, created.ID)
+		suite.NoError(err)
+	}
+
+	lesson, err := suite.store.LessonStorage().CreateLesson(
+		context.TODO(),
+		model.Lesson{CourseID: 4, Name: "Test Lesson", Content: "Test content", URLPicture: "Test picture"},
+		user.ID,
+	)
+	suite.NoError(err)
+	err = suite.store.LessonStorage().UpdateUserLessonStatus(context.TODO(), user.ID, 4, lesson.ID, "done")
+	suite.NoError(err)
+
+	testCases := []struct {
+		name      string
+		uid       int
+		err       error
+		courseIDs []int
+		statuses  map[int]string
+	}{
+		{
+			name:      "success",
+			uid:       user.ID,
+			err:       nil,
+			courseIDs: []int{1, 2, 4},
+			statuses:  map[int]string{1: "not-started", 2: "not-started", 4: "done"},
+		},
+		{
+			name:      "success (len of ids is 0)",
+			uid:       user.ID,
+			err:       nil,
+			courseIDs: []int{},
+			statuses:  map[int]string{},
+		},
+		{
+			name: "internal error",
+			uid:  admin.ID,
+			err:  errs.ErrInternal,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			statuses, err := suite.store.CourseStorage().GetUserCoursesStatus(context.TODO(), tc.uid, tc.courseIDs)
+			suite.Equal(tc.err, err)
+			if err == nil {
+				for id := range statuses {
+					suite.Equal(statuses[id], tc.statuses[id])
+				}
+			}
+		})
+	}
+}
+
+func (suite *storeTestSuite) GetUserCourse() {
+	suite.NotNil(suite.store)
+
+	ca1 := model.NewTestCreateAdmin()
+	uc1 := model.NewTestUserCreate()
+	admin, err := suite.store.UserStorage().CreateAdmin(context.TODO(), uc1, ca1.Company)
+	suite.NoError(err)
+
+	p := model.NewTestPositionSet()
+	p.CompanyID = admin.CompanyID
+	pos, err := suite.store.PositionStorage().CreatePosition(context.TODO(), p)
+	suite.NoError(err)
+
+	uc2 := model.NewTestUserCreate()
+	uc2.CompanyID = admin.CompanyID
+	uc2.PositionID = pos.ID
+	user, err := suite.store.UserStorage().CreateUser(context.TODO(), uc2)
+	suite.NoError(err)
+
+	for i := 0; i < testCoursesLen; i++ {
+		c := model.NewTestCourseSet()
+		c.ID = i + 1
+		c.CreatedBy = admin.ID
+		created, err := suite.store.CourseStorage().CreateCourse(context.TODO(), c)
+		suite.NoError(err)
+		err = suite.store.PositionStorage().AssignCourse(context.TODO(), pos.ID, created.ID)
+		suite.NoError(err)
+	}
+
+	testCases := []struct {
+		name     string
+		uid      int
+		err      error
+		courseID int
+	}{
+		{
+			name:     "success",
+			uid:      user.ID,
+			err:      nil,
+			courseID: 1,
+		},
+		{
+			name: "not found",
+			uid:  admin.ID,
+			err:  errs.ErrCourseNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			course, err := suite.store.CourseStorage().GetUserCourse(context.TODO(), tc.uid, tc.courseID)
+			suite.Equal(tc.err, err)
+			if err == nil {
+				suite.Equal(tc.courseID, course.ID)
+			}
+		})
+	}
+}
+
+func (suite *storeTestSuite) GetCompanyCourse() {
+	suite.NotNil(suite.store)
+
+	ca1 := model.NewTestCreateAdmin()
+	uc1 := model.NewTestUserCreate()
+	admin, err := suite.store.UserStorage().CreateAdmin(context.TODO(), uc1, ca1.Company)
+	suite.NoError(err)
+
+	for i := 0; i < testCoursesLen; i++ {
+		c := model.NewTestCourseSet()
+		c.ID = i + 1
+		c.CreatedBy = admin.ID
+		_, err := suite.store.CourseStorage().CreateCourse(context.TODO(), c)
+		suite.NoError(err)
+	}
+
+	testCases := []struct {
+		name     string
+		cid      int
+		err      error
+		courseID int
+	}{
+		{
+			name:     "success",
+			cid:      admin.CompanyID,
+			err:      nil,
+			courseID: 1,
+		},
+		{
+			name: "not found",
+			cid:  admin.CompanyID,
+			err:  errs.ErrCourseNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			course, err := suite.store.CourseStorage().CompanyCourse(context.TODO(), tc.cid, tc.courseID)
+			suite.Equal(tc.err, err)
+			if err == nil {
+				suite.Equal(tc.courseID, course.ID)
+			}
 		})
 	}
 }
