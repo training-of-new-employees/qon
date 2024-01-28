@@ -156,6 +156,9 @@ var (
 	// ErrInvalidUserPatronymic - некорректное отчество пользователя
 	ErrInvalidUserPatronymic = errors.New("invalid user patronymic: patronymic must have length of 2-128 and can contain characters of any alphabets, dash")
 
+	// ErrInvalidUserPatronymic - сотрудник имеет отличную от админа компанию
+	ErrEmployeeHasAnotherCompany = errors.New("no access - employee has another company")
+
 	// -- Ошибки курсов --
 
 	// ErrCourseUserNotFound - имя курса не должно быть пустым

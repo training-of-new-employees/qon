@@ -1,0 +1,128 @@
+{{define "base"}}
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office" lang="ru">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickOn</title>
+
+    <style type="text/css">
+
+      @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap');
+
+      table {
+        border-spacing: 0;
+        mso-cellspacing: 0;
+        mso-padding-alt: 0;
+      }
+
+      td {
+        padding: 0;
+      }
+
+      #outlook a {
+        padding: 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: #1885EB;
+        font-size: 14px;
+      }
+
+    </style>
+
+    <!--[if (gte mso 9)|(IE)]>
+      <style type="text/css">
+        table {border-collapse: collapse !important;}
+      </style>
+    <![endif]-->
+
+    <!--[if (gte mso 9)|(IE)]>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+  </head>
+
+  <body style="Margin:0;padding:0;background-color:#E9E9E9;min-width: 100%;">
+
+    <!--[if (gte mso 9)|(IE)]>
+        <style type="text/css">
+          body {background-color: #E9E9E9!important;}
+          body, table, td, p, a {font-family: sans-serif, Arial, Helvetica!important;}
+        </style>
+    <![endif]-->
+
+    <center style="width: 100%;table-layout:fixed;background-color: #E9E9E9;padding: 80px 0 80px 0">
+      <div style="background-color: #E9E9E9;">
+
+        <!-- Preheader (remove comment) -->
+        <div
+          style="font-size: 0px;color: #fafdfe;line-height: 1px;mso-line-height-rule:exactly;display: none;max-width: 0px;max-height: 0px;opacity: 0;overflow: hidden;mso-hide:all;">
+          Восстановление пароля
+        </div>
+        <!-- End Preheader (remove comment) -->
+
+        <!--[if (gte mso 9)|(IE)]>
+          <table width="600" align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"
+            style="color:#1C1E23;">
+          <tr>
+          <td>
+        <![endif]-->
+
+        <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"
+          style="font-family: 'Rubik',sans-serif, Arial, Helvetica !important;background-color: #E9E9E9;Margin:0;padding:0 42px 0 42px;width: 100%;max-width: 600px;"
+          >
+            <tr>
+              <td style="padding: 0 0 0 0;background-color: #ffffff;border-radius: 24px;">
+                <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation" style="margin: 0;">
+                  <tr>
+                    <td align="center" style="max-width: 516px;padding: 40px 40px 20px 40px;">
+                      <!--- TODO Лого надо залить в интернет (в Я диск например) и добавить ссылку вместо локального файла иначе может не работать --->
+                      <img src="https://downloader.disk.yandex.ru/preview/bfc778f8221d47064c828764231cf2a8b8d67056ebdbfd18a994c72a20488b7c/65b69a8b/tfefYSBkpXc-JgMTUiVWIr2qkUft43Y1l2kD2BK-ajVVRkdVf4W9dz1VbhpFzg3jybnH6Pv-mK3U6b-390pYVw%3D%3D?uid=0&filename=Logo.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v2&size=2048x2048" alt="Logo" border="0" width="134">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="max-width: 516px;">
+                      <div style="height: 1px;width: 516px;background-color: #D1D3CE;"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                        {{template "main" .}}
+                        <tr>
+                        <td style="padding: 20px 0 40px 0;">
+                            <!--- TODO Добавить ссылку --->
+                            <p style="margin: 0;padding: 0 0 0 40px;color: #2F302E;font-size: 14px;font-style: normal;font-weight: 400;line-height: 150%;;">Нужна помощь? <a href="#" target="_blank" style="text-decoration: underline;">Свяжитесь с командой поддержки</a></p>
+                        </td>
+                        </tr>
+                    </table>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+           
+            {{template "footer" .}}
+        </table>
+
+        <!--[if (gte mso 9)|(IE)]>
+          </td>
+          </tr>
+          </table>
+        <![endif]-->
+
+      </div>
+    </center>
+
+  </body>
+
+</html>
+{{end}}

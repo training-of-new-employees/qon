@@ -5,6 +5,7 @@
 //
 //	mockgen -source=internal/pkg/doar/doar.go -destination=mocks/pkg/doar/doar.go
 //
+
 // Package mock_doar is a generated GoMock package.
 package mock_doar
 
@@ -39,17 +40,17 @@ func (m *MockEmailSender) EXPECT() *MockEmailSenderMockRecorder {
 }
 
 // InviteUser mocks base method.
-func (m *MockEmailSender) InviteUser(email, invitationLink string) error {
+func (m *MockEmailSender) InviteUser(email, name, invitationLink string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InviteUser", email, invitationLink)
+	ret := m.ctrl.Call(m, "InviteUser", email, name, invitationLink)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // InviteUser indicates an expected call of InviteUser.
-func (mr *MockEmailSenderMockRecorder) InviteUser(email, invitationLink any) *gomock.Call {
+func (mr *MockEmailSenderMockRecorder) InviteUser(email, name, invitationLink any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InviteUser", reflect.TypeOf((*MockEmailSender)(nil).InviteUser), email, invitationLink)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InviteUser", reflect.TypeOf((*MockEmailSender)(nil).InviteUser), email, name, invitationLink)
 }
 
 // Mode mocks base method.
@@ -81,17 +82,17 @@ func (mr *MockEmailSenderMockRecorder) SendCode(email, code any) *gomock.Call {
 }
 
 // SendPassword mocks base method.
-func (m *MockEmailSender) SendPassword(email, password string) error {
+func (m *MockEmailSender) SendPassword(email, name, password, linkLogin string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendPassword", email, password)
+	ret := m.ctrl.Call(m, "SendPassword", email, name, password, linkLogin)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendPassword indicates an expected call of SendPassword.
-func (mr *MockEmailSenderMockRecorder) SendPassword(email, password any) *gomock.Call {
+func (mr *MockEmailSenderMockRecorder) SendPassword(email, name, password, linkLogin any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPassword", reflect.TypeOf((*MockEmailSender)(nil).SendPassword), email, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPassword", reflect.TypeOf((*MockEmailSender)(nil).SendPassword), email, name, password, linkLogin)
 }
 
 // MockMailer is a mock of Mailer interface.

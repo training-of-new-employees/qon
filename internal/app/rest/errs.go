@@ -14,7 +14,8 @@ import (
 
 // errorToCode - преобразование ошибки приложения в http-код.
 var errorToCode = map[string]int{
-	errs.ErrNoAccess.Error(): http.StatusForbidden,
+	errs.ErrNoAccess.Error():                  http.StatusForbidden,
+	errs.ErrEmployeeHasAnotherCompany.Error(): http.StatusForbidden,
 
 	errs.ErrNotFound.Error():          http.StatusNotFound,
 	errs.ErrLessonNotFound.Error():    http.StatusNotFound,
@@ -98,6 +99,7 @@ func (r RestServer) handleError(c *gin.Context, err error) {
 	httpCode, exists := errorToCode[err.Error()]
 	if !exists {
 		httpCode = http.StatusInternalServerError
+		err = errs.ErrInternal
 	}
 
 	// mock-рассылка
