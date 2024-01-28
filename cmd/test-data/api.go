@@ -48,7 +48,7 @@ func (a *Api) createAdmins(admins []model.CreateAdmin) ([]model.User, error) {
 		_ = err
 		s := strings.Split(msg.Message, "Код верификации: ")
 		if len(s) != 2 {
-			logger.Log.Sugar().Debugf("can't create admin: %s", msg.Message)
+			logger.Log.Sugar().Debugf("can't create admin: %s\n\t%v", msg.Message, adm)
 			continue
 		}
 		code := model.Code{Code: strings.TrimSpace(s[1])}
@@ -58,11 +58,22 @@ func (a *Api) createAdmins(admins []model.CreateAdmin) ([]model.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		user := model.User{}
-		err = json.Unmarshal(r.Body(), &user)
-		_ = err
-		created = append(created, user)
 	}
+	err := a.login(
+		model.UserSignIn{
+			Email:    admins[0].Email,
+			Password: admins[0].Password,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	u, err := a.getInfo()
+	if err != nil {
+		return nil, err
+	}
+	created = append(created, u)
+
 	return created, nil
 }
 func (a *Api) createUsers(users []model.UserCreate) ([]model.User, error) {
@@ -81,7 +92,7 @@ func (a *Api) createUsers(users []model.UserCreate) ([]model.User, error) {
 		_ = err
 		s := strings.Split(msg.Message, "Пригласительная cсылка: ")
 		if len(s) != 2 {
-			logger.Log.Sugar().Debugf("can't create user: %s", msg.Message)
+			logger.Log.Sugar().Debugf("can't create user: %s\n\t%v", msg.Message, u)
 			continue
 		}
 		link := s[1]
@@ -113,7 +124,7 @@ func (a *Api) createPositions(positions []model.PositionSet) ([]model.Position, 
 		err = json.Unmarshal(r.Body(), &msg)
 		_ = err
 		if msg.Message != "" {
-			logger.Log.Sugar().Debugf("can't create position: %s", msg.Message)
+			logger.Log.Sugar().Debugf("can't create position: %s\n\t%v", msg.Message, p)
 			continue
 		}
 		if err != nil {
@@ -142,7 +153,7 @@ func (a *Api) createCourses(courses []model.CourseSet) ([]model.Course, error) {
 		err = json.Unmarshal(r.Body(), &msg)
 		_ = err
 		if msg.Message != "" {
-			logger.Log.Sugar().Debugf("can't create course: %s", msg.Message)
+			logger.Log.Sugar().Debugf("can't create course: %s\n\t%v", msg.Message, c)
 			continue
 		}
 		course := model.Course{}
@@ -188,7 +199,7 @@ func (a *Api) createLessons(lessons []model.Lesson, courseID int) ([]model.Lesso
 		msg := errResp{}
 		err = json.Unmarshal(r.Body(), &msg)
 		if err == nil && msg.Message != "" {
-			logger.Log.Sugar().Debugf("can't create lesson: %s", msg.Message)
+			logger.Log.Sugar().Debugf("can't create lesson: %s\n\t%v", msg.Message, l)
 		}
 		lesson := model.Lesson{}
 		err = json.Unmarshal(r.Body(), &lesson)
@@ -209,5 +220,17 @@ func (a *Api) login(signIn model.UserSignIn) error {
 	a.r.SetHeader("Authorization", resp.Header().Get("Authorization"))
 
 	return err
+
+}
+
+func (a *Api) getInfo() (model.User, error) {
+	infoURL, _ := url.JoinPath(a.Server, apiv1, "users/info")
+	resp, err := a.r.R().
+		Get(infoURL)
+	logger.Log.Info("Get user info", zap.String("msg", resp.String()))
+	var u model.User
+	err = json.Unmarshal(resp.Body(), &u)
+
+	return u, err
 
 }
