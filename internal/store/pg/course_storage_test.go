@@ -3,6 +3,8 @@ package pg
 import (
 	"context"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 )
@@ -332,7 +334,7 @@ func (suite *storeTestSuite) GetUserCoursesStatus() {
 	}
 }
 
-func (suite *storeTestSuite) GetUserCourse() {
+func (suite *storeTestSuite) TestGetUserCourse() {
 	suite.NotNil(suite.store)
 
 	ca1 := model.NewTestCreateAdmin()
@@ -374,15 +376,16 @@ func (suite *storeTestSuite) GetUserCourse() {
 			courseID: 1,
 		},
 		{
-			name: "not found",
-			uid:  admin.ID,
-			err:  errs.ErrCourseNotFound,
+			name:     "not found",
+			uid:      admin.ID,
+			err:      errs.ErrNotFound,
+			courseID: testCoursesLen + 2,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			course, err := suite.store.CourseStorage().GetUserCourse(context.TODO(), tc.uid, tc.courseID)
+			course, err := suite.store.CourseStorage().GetUserCourse(context.TODO(), tc.courseID, tc.uid)
 			suite.Equal(tc.err, err)
 			if err == nil {
 				suite.Equal(tc.courseID, course.ID)
@@ -391,7 +394,7 @@ func (suite *storeTestSuite) GetUserCourse() {
 	}
 }
 
-func (suite *storeTestSuite) GetCompanyCourse() {
+func (suite *storeTestSuite) TestGetCompanyCourse() {
 	suite.NotNil(suite.store)
 
 	ca1 := model.NewTestCreateAdmin()
@@ -420,18 +423,19 @@ func (suite *storeTestSuite) GetCompanyCourse() {
 			courseID: 1,
 		},
 		{
-			name: "not found",
-			cid:  admin.CompanyID,
-			err:  errs.ErrCourseNotFound,
+			name:     "not found",
+			cid:      admin.CompanyID,
+			err:      errs.ErrNotFound,
+			courseID: testCoursesLen + 2,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			course, err := suite.store.CourseStorage().CompanyCourse(context.TODO(), tc.cid, tc.courseID)
-			suite.Equal(tc.err, err)
-			if err == nil {
-				suite.Equal(tc.courseID, course.ID)
+			course, err := suite.store.CourseStorage().CompanyCourse(context.TODO(), tc.courseID, tc.cid)
+			require.Equal(suite.T(), tc.err, err)
+			if tc.err == nil {
+				require.Equal(suite.T(), tc.courseID, course.ID)
 			}
 		})
 	}
