@@ -52,7 +52,7 @@ func (a *Api) createAdmins(admins []model.CreateAdmin) ([]model.User, error) {
 			continue
 		}
 		code := model.Code{Code: strings.TrimSpace(s[1])}
-		r, err = a.r.R().
+		_, err = a.r.R().
 			SetBody(code).
 			Post(verifyURL)
 		if err != nil {
@@ -228,6 +228,7 @@ func (a *Api) getInfo() (model.User, error) {
 	resp, err := a.r.R().
 		Get(infoURL)
 	logger.Log.Info("Get user info", zap.String("msg", resp.String()))
+	_ = err
 	var u model.User
 	err = json.Unmarshal(resp.Body(), &u)
 
