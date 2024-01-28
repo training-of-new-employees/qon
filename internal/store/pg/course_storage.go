@@ -2,11 +2,14 @@ package pg
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
 
+	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/store"
 )
@@ -59,6 +62,9 @@ func (c *courseStorage) GetUserCourse(ctx context.Context, courseID, userID int)
 		return tx.GetContext(ctx, &course, qCourse, &userID, &courseID)
 	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrCourseNotFound
+		}
 		return nil, handleError(err)
 	}
 
@@ -156,6 +162,9 @@ func (c *courseStorage) CompanyCourse(ctx context.Context, courseID, companyID i
 		return tx.GetContext(ctx, &course, qCourse, &companyID, &courseID)
 	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errs.ErrCourseNotFound
+		}
 		return nil, handleError(err)
 	}
 

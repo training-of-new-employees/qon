@@ -378,7 +378,7 @@ func (suite *storeTestSuite) TestGetUserCourse() {
 		{
 			name:     "not found",
 			uid:      admin.ID,
-			err:      errs.ErrNotFound,
+			err:      errs.ErrCourseNotFound,
 			courseID: testCoursesLen + 2,
 		},
 	}
@@ -425,7 +425,7 @@ func (suite *storeTestSuite) TestGetCompanyCourse() {
 		{
 			name:     "not found",
 			cid:      admin.CompanyID,
-			err:      errs.ErrNotFound,
+			err:      errs.ErrCourseNotFound,
 			courseID: testCoursesLen + 2,
 		},
 	}
