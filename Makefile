@@ -36,8 +36,8 @@ mocks: $(shell grep -lrP --include='*.go' --exclude='*test.go' 'type\s+\w+\s+int
 	@for file in $^; do mockgen -source=$$file -destination=$(MOCKS_DESTINATION)/`echo $${file#*internal/}`; done
 
 swag:
-	swag fmt
-	swag init -g ./internal/app/rest/handlers.go
+	~/go/bin/swag fmt
+	~/go/bin/swag init -g ./internal/app/rest/handlers.go
 
 build: swag
 	go build -v -o qon ./cmd/app
