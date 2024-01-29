@@ -127,6 +127,11 @@ func (u *uService) ArchiveUser(ctx context.Context, id int, editorCompanyID int)
 	if err != nil {
 		return err
 	}
+	// нельзя архивировать учётную запись админа
+	if user.IsAdmin {
+		return errs.ErrArchiveAdmin
+	}
+	// указанный пользователь не является сотрудником компании
 	if user.CompanyID != editorCompanyID {
 		return errs.ErrUserNotFound
 	}
@@ -144,10 +149,15 @@ func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, editorComp
 	if err != nil {
 		return nil, err
 	}
+	// нельзя архивировать админа
+	if user.IsAdmin && *val.IsArchived {
+		return nil, errs.ErrArchiveAdmin
+	}
 	val.CompanyID = &user.CompanyID
 	if user.CompanyID != editorCompanyID {
 		return nil, errs.ErrUserNotFound
 	}
+
 	return u.db.UserStorage().EditUser(ctx, val)
 }
 
@@ -325,10 +335,7 @@ func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.A
 
 }
 
-func (u *uService) GenerateInvitationLinkUser(
-	ctx context.Context,
-	email string,
-) (string, error) {
+func (u *uService) GenerateInvitationLinkUser(ctx context.Context, email string) (string, error) {
 	code := randomseq.RandomString(20)
 	key := strings.Join([]string{"register", "user", email}, ":")
 

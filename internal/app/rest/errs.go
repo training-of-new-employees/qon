@@ -16,6 +16,7 @@ import (
 var errorToCode = map[string]int{
 	errs.ErrNoAccess.Error():                  http.StatusForbidden,
 	errs.ErrEmployeeHasAnotherCompany.Error(): http.StatusForbidden,
+	errs.ErrArchiveAdmin.Error():              http.StatusForbidden,
 
 	errs.ErrNotFound.Error():          http.StatusNotFound,
 	errs.ErrLessonNotFound.Error():    http.StatusNotFound,

@@ -314,7 +314,6 @@ func (suite *storeTestSuite) TestGetUsersByCompany() {
 
 	// добавление случайного кол-ва пользователей (от 100 до 356)
 	for i := 0; i < countUsers; i++ {
-
 		u := model.NewTestUserCreate()
 		u.CompanyID = company.ID
 		u.PositionID = position.ID
