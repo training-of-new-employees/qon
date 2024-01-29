@@ -39,15 +39,10 @@ type uService struct {
 }
 
 func newUserService(
-	db store.Storages,
-	secretKey string,
-	aTokenTime time.Duration,
-	rTokenTime time.Duration,
-	cache cache.Cache,
-	jwtGen jwttoken.JWTGenerator,
-	jwtVal jwttoken.JWTValidator,
-	sender doar.EmailSender,
-	host string,
+	db store.Storages, secretKey string,
+	aTokenTime time.Duration, rTokenTime time.Duration,
+	cache cache.Cache, jwtGen jwttoken.JWTGenerator, jwtVal jwttoken.JWTValidator,
+	sender doar.EmailSender, host string,
 ) *uService {
 	return &uService{
 		db:         db,
@@ -212,7 +207,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	}
 
 	// Отправление пригласительной ссылки сотруднику
-	if err = u.sender.InviteUser(val.Email, link); err != nil {
+	if err = u.sender.InviteUser(val.Email, val.Name, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
@@ -308,7 +303,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	}
 
 	// Отправление пароля пользователю
-	if err = u.sender.SendPassword(email, password); err != nil {
+	if err = u.sender.SendPassword(email, user.Name, password, fmt.Sprintf("%s/login", u.host)); err != nil {
 		return err
 	}
 
@@ -377,7 +372,7 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	}
 
 	if employee.CompanyID != companyID {
-		return nil, errs.ErrNoAccess
+		return nil, errs.ErrEmployeeHasAnotherCompany
 	}
 
 	link, err := u.GenerateInvitationLinkUser(ctx, email)
@@ -389,7 +384,7 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	invitationLinkResponse.Email = email
 
 	// Отправление пригласительной ссылки сотруднику
-	if err = u.sender.InviteUser(email, link); err != nil {
+	if err = u.sender.InviteUser(email, employee.Name, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю

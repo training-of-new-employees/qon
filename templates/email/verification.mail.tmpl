@@ -1,0 +1,43 @@
+{{template "base" .}}
+
+{{define "main"}}
+<tr>
+    <td>
+        <h1 style="color:#2F302E;margin: 0;padding: 20px 0 16px 0;text-align: center;font-size: 24px;font-style: normal;font-weight: 600;line-height: 130%;">Подтверждение e-mail</h1>
+    </td>
+</tr>
+<tr>
+    <td>
+        <p style="color: #2F302E;margin: 0;font-size: 16px;font-style: normal;font-weight: 400;line-height: 150%;width: 376px;padding: 0 40px 16px 40px;">Ваш аккаунт почти готов к работе.</p>
+    </td>
+</tr>
+<tr>
+    <td style="padding: 0 0 20px 0;">
+        <p style="color: #2F302E;margin: 0;font-size: 16px;font-style: normal;font-weight: 400;line-height: 150%;width: 450px;padding: 0 0 0 40px;">Прежде чем начать, подтвердите ваш e-mail для входа. Для подтверждения используйте этот код:</p>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="font-size: 0; padding: 0 0 20px 0;" class="four-columns">
+        <table align="center" border="0" cellspacing="0" cellpadding="0" role="presentation">
+            <tr>
+                {{ range .VerificationCode }}
+                <td>
+                    <table border="0" cellspacing="0" cellpadding="0" role="presentation" style="vertical-align: top; width: 100%; max-width: 60px; display: inline-block;" class="column">
+                        <tr>
+                            <td>
+                            <p style="margin: 0; padding: 16px 23px 16px 23px;border-width: 2px;border-radius: 12px;border-color: #D1D3CE;font-size: 16px;font-style: normal;font-weight: 400;line-height: 150%;width: 10px;text-align: center;border-style: solid;">{{ . }}</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                {{end}}
+            </tr>
+        </table>
+    </td>
+</tr>
+<tr>
+    <td style="max-width: 516px;">
+        <div style="height: 1px;width: 516px;background-color: #D1D3CE;"></div>
+    </td>
+</tr>
+{{end}}
