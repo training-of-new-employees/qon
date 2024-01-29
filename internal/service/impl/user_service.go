@@ -39,15 +39,10 @@ type uService struct {
 }
 
 func newUserService(
-	db store.Storages,
-	secretKey string,
-	aTokenTime time.Duration,
-	rTokenTime time.Duration,
-	cache cache.Cache,
-	jwtGen jwttoken.JWTGenerator,
-	jwtVal jwttoken.JWTValidator,
-	sender doar.EmailSender,
-	host string,
+	db store.Storages, secretKey string,
+	aTokenTime time.Duration, rTokenTime time.Duration,
+	cache cache.Cache, jwtGen jwttoken.JWTGenerator, jwtVal jwttoken.JWTValidator,
+	sender doar.EmailSender, host string,
 ) *uService {
 	return &uService{
 		db:         db,
@@ -132,6 +127,11 @@ func (u *uService) ArchiveUser(ctx context.Context, id int, editorCompanyID int)
 	if err != nil {
 		return err
 	}
+	// нельзя архивировать учётную запись админа
+	if user.IsAdmin {
+		return errs.ErrArchiveAdmin
+	}
+	// указанный пользователь не является сотрудником компании
 	if user.CompanyID != editorCompanyID {
 		return errs.ErrUserNotFound
 	}
@@ -149,10 +149,15 @@ func (u *uService) EditUser(ctx context.Context, val *model.UserEdit, editorComp
 	if err != nil {
 		return nil, err
 	}
+	// нельзя архивировать админа
+	if user.IsAdmin && *val.IsArchived {
+		return nil, errs.ErrArchiveAdmin
+	}
 	val.CompanyID = &user.CompanyID
 	if user.CompanyID != editorCompanyID {
 		return nil, errs.ErrUserNotFound
 	}
+
 	return u.db.UserStorage().EditUser(ctx, val)
 }
 
@@ -212,7 +217,7 @@ func (u *uService) CreateUser(ctx context.Context, val model.UserCreate) (*model
 	}
 
 	// Отправление пригласительной ссылки сотруднику
-	if err = u.sender.InviteUser(val.Email, link); err != nil {
+	if err = u.sender.InviteUser(val.Email, val.Name, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", val.Email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю
@@ -308,7 +313,7 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 	}
 
 	// Отправление пароля пользователю
-	if err = u.sender.SendPassword(email, password); err != nil {
+	if err = u.sender.SendPassword(email, user.Name, password, fmt.Sprintf("%s/login", u.host)); err != nil {
 		return err
 	}
 
@@ -330,10 +335,7 @@ func (u *uService) EditAdmin(ctx context.Context, val model.AdminEdit) (*model.A
 
 }
 
-func (u *uService) GenerateInvitationLinkUser(
-	ctx context.Context,
-	email string,
-) (string, error) {
+func (u *uService) GenerateInvitationLinkUser(ctx context.Context, email string) (string, error) {
 	code := randomseq.RandomString(20)
 	key := strings.Join([]string{"register", "user", email}, ":")
 
@@ -377,7 +379,7 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	}
 
 	if employee.CompanyID != companyID {
-		return nil, errs.ErrNoAccess
+		return nil, errs.ErrEmployeeHasAnotherCompany
 	}
 
 	link, err := u.GenerateInvitationLinkUser(ctx, email)
@@ -389,7 +391,7 @@ func (u *uService) RegenerationInvitationLinkUser(ctx context.Context, email str
 	invitationLinkResponse.Email = email
 
 	// Отправление пригласительной ссылки сотруднику
-	if err = u.sender.InviteUser(email, link); err != nil {
+	if err = u.sender.InviteUser(email, employee.Name, link); err != nil {
 		logger.Log.Warn(fmt.Sprintf("Не удалось отправить пригласительную ссылку сотруднику с емейлом %s", email))
 
 		// режим мок-рассылки писем, при котором содержание письма выводится в теле пользователю

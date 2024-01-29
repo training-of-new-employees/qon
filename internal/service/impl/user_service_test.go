@@ -836,7 +836,7 @@ func Test_uService_CreateUser(t *testing.T) {
 					Email: "user@mail.com",
 				}
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
-				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(errs.ErrInternal)
+				f.sender.EXPECT().InviteUser(u.Email, u.Name, gomock.Any()).Return(errs.ErrInternal)
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
 				f.sender.EXPECT().Mode().Return(doar.ApiMode)
 			},
@@ -861,7 +861,7 @@ func Test_uService_CreateUser(t *testing.T) {
 					Email: "user@mail.com",
 				}
 				f.userdb.EXPECT().CreateUser(nil, gomock.Any()).Return(u, nil)
-				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(nil)
+				f.sender.EXPECT().InviteUser(u.Email, u.Name, gomock.Any()).Return(nil)
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args{
@@ -1379,7 +1379,7 @@ func Test_uService_ResetPassword(t *testing.T) {
 				}
 				f.userdb.EXPECT().GetUserByEmail(nil, "valid@mail.com").Return(u, nil)
 				f.userdb.EXPECT().UpdateUserPassword(nil, 3, gomock.Any()).Return(nil)
-				f.sender.EXPECT().SendPassword("valid@mail.com", gomock.Any()).Return(errs.ErrInternal)
+				f.sender.EXPECT().SendPassword("valid@mail.com", gomock.Any(), gomock.Any(), gomock.Any()).Return(errs.ErrInternal)
 			},
 			args{
 				nil,
@@ -1396,7 +1396,7 @@ func Test_uService_ResetPassword(t *testing.T) {
 				}
 				f.userdb.EXPECT().GetUserByEmail(nil, "valid@mail.com").Return(u, nil)
 				f.userdb.EXPECT().UpdateUserPassword(nil, 3, gomock.Any()).Return(nil)
-				f.sender.EXPECT().SendPassword("valid@mail.com", gomock.Any()).Return(nil)
+				f.sender.EXPECT().SendPassword("valid@mail.com", gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args{
 				nil,
@@ -1677,7 +1677,7 @@ func Test_uService_RegenerationInvitationLinkUser(t *testing.T) {
 
 				f.cache.EXPECT().SetInviteCode(nil, gomock.Any(), gomock.Any()).Return(nil)
 				f.userDB.EXPECT().GetUserByEmail(nil, "user@mail.com").Return(u, nil)
-				f.sender.EXPECT().InviteUser(u.Email, gomock.Any()).Return(nil)
+				f.sender.EXPECT().InviteUser(u.Email, u.Name, gomock.Any()).Return(nil)
 
 				f.host = "http://localhost"
 			},

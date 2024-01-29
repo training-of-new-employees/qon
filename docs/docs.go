@@ -2093,6 +2093,9 @@ const docTemplate = `{
                 "position_id": {
                     "type": "integer"
                 },
+                "position_name": {
+                    "type": "string"
+                },
                 "surname": {
                     "type": "string"
                 },

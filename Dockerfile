@@ -10,5 +10,6 @@ RUN make build
 FROM alpine:3.16
 COPY --from=builder /qon/qon /
 COPY --from=builder /qon/migrations /migrations
+COPY --from=builder /qon/templates  /templates
 USER nobody
 CMD ["/qon"]

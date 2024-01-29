@@ -5,6 +5,7 @@
 //
 //	mockgen -source=internal/store/course_repo.go -destination=mocks/store/course_repo.go
 //
+
 // Package mock_store is a generated GoMock package.
 package mock_store
 
@@ -40,18 +41,18 @@ func (m *MockRepositoryCourse) EXPECT() *MockRepositoryCourseMockRecorder {
 }
 
 // CompanyCourse mocks base method.
-func (m *MockRepositoryCourse) CompanyCourse(ctx context.Context, companyID, courseID int) (*model.Course, error) {
+func (m *MockRepositoryCourse) CompanyCourse(ctx context.Context, courseID, companyID int) (*model.Course, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CompanyCourse", ctx, companyID, courseID)
+	ret := m.ctrl.Call(m, "CompanyCourse", ctx, courseID, companyID)
 	ret0, _ := ret[0].(*model.Course)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CompanyCourse indicates an expected call of CompanyCourse.
-func (mr *MockRepositoryCourseMockRecorder) CompanyCourse(ctx, companyID, courseID any) *gomock.Call {
+func (mr *MockRepositoryCourseMockRecorder) CompanyCourse(ctx, courseID, companyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompanyCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).CompanyCourse), ctx, companyID, courseID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompanyCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).CompanyCourse), ctx, courseID, companyID)
 }
 
 // CompanyCourses mocks base method.
@@ -100,18 +101,18 @@ func (mr *MockRepositoryCourseMockRecorder) EditCourse(ctx, course, companyID an
 }
 
 // GetUserCourse mocks base method.
-func (m *MockRepositoryCourse) GetUserCourse(ctx context.Context, userID, courseID int) (*model.Course, error) {
+func (m *MockRepositoryCourse) GetUserCourse(ctx context.Context, courseID, userID int) (*model.Course, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserCourse", ctx, userID, courseID)
+	ret := m.ctrl.Call(m, "GetUserCourse", ctx, courseID, userID)
 	ret0, _ := ret[0].(*model.Course)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserCourse indicates an expected call of GetUserCourse.
-func (mr *MockRepositoryCourseMockRecorder) GetUserCourse(ctx, userID, courseID any) *gomock.Call {
+func (mr *MockRepositoryCourseMockRecorder) GetUserCourse(ctx, courseID, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).GetUserCourse), ctx, userID, courseID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCourse", reflect.TypeOf((*MockRepositoryCourse)(nil).GetUserCourse), ctx, courseID, userID)
 }
 
 // GetUserCoursesStatus mocks base method.

@@ -5,6 +5,7 @@
 //
 //	mockgen -source=internal/store/cache/interface.go -destination=mocks/store/cache/interface.go
 //
+
 // Package mock_cache is a generated GoMock package.
 package mock_cache
 
