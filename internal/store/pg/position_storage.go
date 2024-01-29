@@ -108,7 +108,7 @@ func (p *positionStorage) ListPositions(ctx context.Context, companyID int) ([]*
 			p.id, p.company_id, p.name, p.active, p.archived, p.created_at, p.updated_at
 		FROM positions p
 		JOIN companies c ON p.company_id = c.id
-		WHERE p.company_id = $1 AND c.active = true AND p.archived = false
+		WHERE p.company_id = $1 AND c.active = true AND p.archived = false AND p.name != 'admin'
 	`
 
 	err := p.db.SelectContext(ctx, &positions, query, companyID)

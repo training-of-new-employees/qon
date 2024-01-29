@@ -150,7 +150,16 @@ func (u *uStorage) GetUsersByCompany(ctx context.Context, companyID int) ([]mode
 
 	// открываем транзакцию
 	err := u.tx(func(tx *sqlx.Tx) error {
-		query := `SELECT * FROM users WHERE company_id = $1`
+		query := `
+			SELECT
+				u.id, u.company_id, u.position_id,
+				u.active, u.archived, u.admin,
+				u.email, u.name, u.patronymic, u.surname,
+				p.name AS position_name
+			FROM users u
+			JOIN positions p ON p.id = u.position_id
+			WHERE u.company_id = $1 AND p.name != 'admin'
+		`
 		return tx.SelectContext(ctx, &users, query, companyID)
 	})
 	if err != nil {

@@ -12,19 +12,20 @@ import (
 
 type (
 	User struct {
-		ID         int       `db:"id"           json:"id"`
-		CompanyID  int       `db:"company_id"   json:"company_id"`
-		PositionID int       `db:"position_id"  json:"position_id"`
-		Email      string    `db:"email"        json:"email"`
-		Password   string    `db:"enc_password" json:"-"`
-		IsActive   bool      `db:"active"       json:"active"`
-		IsArchived bool      `db:"archived"     json:"archived"`
-		IsAdmin    bool      `db:"admin"        json:"admin"`
-		Name       string    `db:"name"         json:"name"`
-		Surname    string    `db:"surname"      json:"surname"`
-		Patronymic string    `db:"patronymic"   json:"patronymic"`
-		CreatedAt  time.Time `db:"created_at"   json:"created_at"`
-		UpdatedAt  time.Time `db:"updated_at"   json:"updated_at"`
+		ID           int       `db:"id"           json:"id"`
+		CompanyID    int       `db:"company_id"   json:"company_id"`
+		PositionID   int       `db:"position_id"  json:"position_id"`
+		PositionName string    `db:"position_name"  json:"position_name"`
+		Email        string    `db:"email"        json:"email"`
+		Password     string    `db:"enc_password" json:"-"`
+		IsActive     bool      `db:"active"       json:"active"`
+		IsArchived   bool      `db:"archived"     json:"archived"`
+		IsAdmin      bool      `db:"admin"        json:"admin"`
+		Name         string    `db:"name"         json:"name"`
+		Surname      string    `db:"surname"      json:"surname"`
+		Patronymic   string    `db:"patronymic"   json:"patronymic"`
+		CreatedAt    time.Time `db:"created_at"   json:"created_at"`
+		UpdatedAt    time.Time `db:"updated_at"   json:"updated_at"`
 	}
 
 	UserSignIn struct {
