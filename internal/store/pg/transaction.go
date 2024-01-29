@@ -198,7 +198,7 @@ func (tn *transaction) getPositionInCompanyTx(ctx context.Context, tx *sqlx.Tx, 
 		SELECT
 			id, company_id, name, active, archived, created_at, updated_at
         FROM positions
-        WHERE company_id = $1 AND id = $2 AND archived = false AND name != 'admin'
+        WHERE company_id = $1 AND id = $2 AND archived = false
 	`
 
 	if err := tx.GetContext(ctx, &position, query, companyID, positionID); err != nil {
