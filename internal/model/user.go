@@ -332,7 +332,7 @@ func (ae *AdminEdit) Validation() error {
 		if err := validation.Validate(&ae.Name, validation.Required); err != nil {
 			return errs.ErrUserNameNotEmpty
 		}
-		if err := validation.Validate(&ae.Name, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Name))); err != nil {
+		if err := validation.Validate(&ae.Name, validation.RuneLength(1, 128), validation.By(validateUserName(ae.Name))); err != nil {
 			return errs.ErrInvalidUserName
 		}
 	}
@@ -341,7 +341,7 @@ func (ae *AdminEdit) Validation() error {
 			return errs.ErrUserSurnameNotEmpty
 		}
 		// проверка требований к фамилии
-		if err := validation.Validate(&ae.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Surname))); err != nil {
+		if err := validation.Validate(&ae.Surname, validation.RuneLength(1, 128), validation.By(validateUserName(ae.Surname))); err != nil {
 			return errs.ErrInvalidUserSurname
 		}
 	}
