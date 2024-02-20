@@ -254,7 +254,7 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 
 				suite.courseStorage.
 					EXPECT().
-					GetUserCourse(gomock.Any(), userID, courseID).
+					GetUserCourse(gomock.Any(), courseID, userID).
 					Return(&model.Course{ID: courseID}, nil)
 
 				suite.lessonStorage.
@@ -274,7 +274,7 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 
 				suite.courseStorage.
 					EXPECT().
-					GetUserCourse(gomock.Any(), userID, courseID).
+					GetUserCourse(gomock.Any(), courseID, userID).
 					Return(&model.Course{ID: courseID}, nil)
 
 				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(nil, nil)
@@ -291,7 +291,7 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 
 				suite.courseStorage.
 					EXPECT().
-					GetUserCourse(gomock.Any(), userID, courseID).
+					GetUserCourse(gomock.Any(), courseID, userID).
 					Return(&model.Course{ID: courseID}, nil)
 
 				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(nil, errs.ErrInternal)
