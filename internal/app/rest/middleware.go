@@ -74,6 +74,29 @@ func (r *RestServer) IsAdmin() gin.HandlerFunc {
 
 }
 
+// IsEmployee - middleware для проверки, что пользователь является сотрудником.
+func (r *RestServer) IsEmployee() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := jwttoken.GetToken(c)
+
+		claims, err := r.tokenVal.ValidateToken(token)
+		if err != nil {
+			logger.Log.Warn("error  invalid token: %v", zap.Error(err))
+			r.handleError(c, errs.ErrUnauthorized)
+			return
+		}
+
+		if claims.IsAdmin {
+			logger.Log.Warn("error permission denied: %v", zap.Error(err))
+			r.handleError(c, errs.ErrNoAccess)
+			return
+		}
+
+		c.Next()
+	}
+
+}
+
 func (r *RestServer) LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		logger.Log.Info(

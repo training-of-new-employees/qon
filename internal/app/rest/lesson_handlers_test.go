@@ -99,7 +99,7 @@ func (suite *handlerTestSuite) TestUpdateLessonStatus() {
 		},
 	}
 
-	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, true)
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, false)
 	suite.NoError(err)
 	suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
 
@@ -193,7 +193,7 @@ func (suite *handlerTestSuite) TestGetUserLesson() {
 		},
 	}
 
-	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, true)
+	accessToken, err := jwttoken.TestAuthorizateUser(userID, 1, false)
 	suite.NoError(err)
 	suite.cache.EXPECT().GetRefreshToken(gomock.Any(), gomock.Any()).Return("", nil).AnyTimes()
 
