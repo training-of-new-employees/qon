@@ -300,6 +300,10 @@ func (u *uService) ResetPassword(ctx context.Context, email string) error {
 		return err
 	}
 
+	if user.IsArchived {
+		return errs.ErrUserNotFound
+	}
+
 	password := randomseq.RandomPassword()
 
 	encPassword, err := model.GenerateHash(password)
