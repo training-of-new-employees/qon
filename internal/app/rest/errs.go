@@ -97,18 +97,19 @@ type errResponse struct {
 func (r RestServer) handleError(c *gin.Context, err error) {
 	logger.Log.Error("handler error", zap.Error(err))
 
-	httpCode, exists := errorToCode[err.Error()]
-	if !exists {
-		httpCode = http.StatusInternalServerError
-		err = errs.ErrInternal
-	}
-
 	// mock-рассылка
 	// TODO: конструкция выглядит слишком громоздкой, нужно искать более элегантное решение
 	if strings.HasPrefix(err.Error(), "<mock-sender>: ") {
 		err = fmt.Errorf(strings.TrimPrefix(err.Error(), "<mock-sender>: "))
+		c.AbortWithStatusJSON(http.StatusOK, errResponse{Message: err.Error()})
 
-		httpCode = http.StatusOK
+		return
+	}
+
+	httpCode, exists := errorToCode[err.Error()]
+	if !exists {
+		httpCode = http.StatusInternalServerError
+		err = errs.ErrInternal
 	}
 
 	c.AbortWithStatusJSON(httpCode, errResponse{Message: err.Error()})

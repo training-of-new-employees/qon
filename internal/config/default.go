@@ -18,8 +18,8 @@ var (
 	defaultRedisDB       = 0
 	defaultDomain        = "http://localhost:8080"
 
-	defaultSenderMode     = "api"
-	defaultSenderEmail    = "ivan.frontoff42@gmail.com"
+	defaultSenderMode     = "test"
+	defaultSenderEmail    = ""
 	defaultSenderPassword = ""
 	defaultSenderApiKey   = ""
 )
