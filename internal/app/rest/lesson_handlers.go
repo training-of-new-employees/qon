@@ -130,7 +130,7 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 	us := r.getUserSession(c)
 
 	ctx := c.Request.Context()
-	lessonsList, err := r.services.Lesson().GetLessonsList(ctx, courseID, us.UserID)
+	lessonsList, err := r.services.Lesson().GetLessonsList(ctx, courseID, us.OrgID)
 	if err != nil {
 		r.handleError(c, err)
 		return

@@ -250,11 +250,11 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 			err:  nil,
 			prepare: func() (int, int) {
 				courseID := 1
-				userID := 1
+				companyID := 1
 
 				suite.courseStorage.
 					EXPECT().
-					GetUserCourse(gomock.Any(), courseID, userID).
+					CompanyCourse(gomock.Any(), courseID, companyID).
 					Return(&model.Course{ID: courseID}, nil)
 
 				suite.lessonStorage.
@@ -262,7 +262,7 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 					GetLessonsList(gomock.Any(), courseID).
 					Return(model.NewTestListLessons(courseID), nil)
 
-				return courseID, userID
+				return courseID, companyID
 			},
 		},
 		{
@@ -270,16 +270,16 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 			err:  nil,
 			prepare: func() (int, int) {
 				courseID := randomseq.RandomTestInt()
-				userID := 1
+				companyID := 1
 
 				suite.courseStorage.
 					EXPECT().
-					GetUserCourse(gomock.Any(), courseID, userID).
+					CompanyCourse(gomock.Any(), courseID, companyID).
 					Return(&model.Course{ID: courseID}, nil)
 
 				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(nil, nil)
 
-				return courseID, userID
+				return courseID, companyID
 			},
 		},
 		{
@@ -287,24 +287,24 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 			err:  errs.ErrInternal,
 			prepare: func() (int, int) {
 				courseID := randomseq.RandomTestInt()
-				userID := 1
+				companyID := 1
 
 				suite.courseStorage.
 					EXPECT().
-					GetUserCourse(gomock.Any(), courseID, userID).
+					CompanyCourse(gomock.Any(), courseID, companyID).
 					Return(&model.Course{ID: courseID}, nil)
 
 				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(nil, errs.ErrInternal)
 
-				return courseID, userID
+				return courseID, companyID
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			courseID, userID := tc.prepare()
-			_, err := suite.lessonService.GetLessonsList(context.TODO(), courseID, userID)
+			courseID, companyID := tc.prepare()
+			_, err := suite.lessonService.GetLessonsList(context.TODO(), courseID, companyID)
 			suite.Equal(tc.err, err)
 		})
 	}

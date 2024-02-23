@@ -44,8 +44,8 @@ func (l *lessonService) UpdateLesson(ctx context.Context, lesson model.LessonUpd
 	return updatedLesson, nil
 }
 
-func (l *lessonService) GetLessonsList(ctx context.Context, courseID int, userID int) ([]model.Lesson, error) {
-	_, err := l.db.CourseStorage().GetUserCourse(ctx, courseID, userID)
+func (l *lessonService) GetLessonsList(ctx context.Context, courseID int, companyID int) ([]model.Lesson, error) {
+	_, err := l.db.CourseStorage().CompanyCourse(ctx, courseID, companyID)
 	if err != nil {
 		return nil, err
 	}
