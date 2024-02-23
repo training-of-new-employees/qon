@@ -146,12 +146,12 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 
 	query = `
 		UPDATE lessons
-		SET name = COALESCE(NULLIF($1, ''), name)
-		WHERE id = $2
+		SET name = COALESCE(NULLIF($1, ''), name), archived = $2
+		WHERE id = $3
 		RETURNING id, course_id, name, archived
 	`
 	err = tx.GetContext(ctx, &updatedLesson,
-		query, lesson.Name, lesson.ID)
+		query, lesson.Name, lesson.Archived, lesson.ID)
 	if err != nil {
 		return nil, err
 	}

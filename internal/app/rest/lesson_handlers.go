@@ -59,8 +59,10 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 		return
 	}
 
+	userSession := r.getUserSession(c)
+
 	ctx := c.Request.Context()
-	lesson, err := r.services.Lesson().GetLesson(ctx, lessonID)
+	lesson, err := r.services.Lesson().GetLesson(ctx, lessonID, userSession.OrgID)
 	if err != nil {
 		r.handleError(c, err)
 		return

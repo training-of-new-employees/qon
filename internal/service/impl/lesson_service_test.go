@@ -60,35 +60,52 @@ func (suite *serviceTestSuite) TestGetLesson() {
 		name    string
 		err     error
 		result  *model.Lesson
-		prepare func() int
+		prepare func() (int, int)
 	}{
 		{
 			name:   "success",
 			err:    nil,
 			result: &model.Lesson{},
-			prepare: func() int {
+			prepare: func() (int, int) {
 				lessonID := 1
+				companyID := 1
 
-				suite.lessonStorage.EXPECT().GetLesson(gomock.Any(), lessonID).Return(&model.Lesson{}, nil)
-				return lessonID
+				suite.lessonStorage.EXPECT().GetLesson(gomock.Any(), lessonID).Return(&model.Lesson{CourseID: 1}, nil)
+				suite.courseStorage.EXPECT().CompanyCourse(gomock.Any(), 1, companyID).Return(&model.Course{}, nil)
+				return lessonID, companyID
 			},
 		},
 		{
 			name:   "not exist",
 			err:    errs.ErrLessonNotFound,
 			result: nil,
-			prepare: func() int {
+			prepare: func() (int, int) {
 				lessonID := 1
+				companyID := 1
 
 				suite.lessonStorage.EXPECT().GetLesson(gomock.Any(), lessonID).Return(nil, errs.ErrLessonNotFound)
-				return lessonID
+				return lessonID, companyID
+			},
+		},
+		{
+			name:   "company course not found",
+			err:    errs.ErrLessonNotFound,
+			result: nil,
+			prepare: func() (int, int) {
+				lessonID := 1
+				companyID := 1
+
+				suite.lessonStorage.EXPECT().GetLesson(gomock.Any(), lessonID).Return(&model.Lesson{CourseID: 1}, nil)
+				suite.courseStorage.EXPECT().CompanyCourse(gomock.Any(), 1, companyID).Return(nil, errs.ErrCourseNotFound)
+				return lessonID, companyID
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			lesson, err := suite.lessonService.GetLesson(context.Background(), tc.prepare())
+			lessonID, companyID := tc.prepare()
+			lesson, err := suite.lessonService.GetLesson(context.Background(), lessonID, companyID)
 			suite.Equal(tc.err, err)
 
 			if tc.err != nil {

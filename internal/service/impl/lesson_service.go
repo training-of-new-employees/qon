@@ -28,11 +28,17 @@ func (l *lessonService) CreateLesson(ctx context.Context, lesson model.Lesson, u
 	return createdLesson, nil
 }
 
-func (l *lessonService) GetLesson(ctx context.Context, lessonID int) (*model.Lesson, error) {
+func (l *lessonService) GetLesson(ctx context.Context, lessonID int, companyID int) (*model.Lesson, error) {
 	lesson, err := l.db.LessonStorage().GetLesson(ctx, lessonID)
 	if err != nil {
 		return nil, err
 	}
+
+	_, err = l.db.CourseStorage().CompanyCourse(ctx, lesson.CourseID, companyID)
+	if err != nil {
+		return nil, errs.ErrLessonNotFound
+	}
+
 	return lesson, nil
 }
 
