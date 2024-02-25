@@ -8,10 +8,9 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/mcnijman/go-emailaddress"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
-
-	"github.com/mcnijman/go-emailaddress"
 )
 
 var errSpaceEmpty = errors.New("string only contains spaces")
@@ -85,8 +84,8 @@ func validateUserName(str *string) validation.RuleFunc {
 			return errSpaceEmpty
 		}
 		for _, c := range *str {
-			if !unicode.IsLetter(c) && c != '-' {
-				return errors.New("string may only contain unicode characters and a dash")
+			if !unicode.IsLetter(c) && c != '-' && c != ' ' && c != '\'' {
+				return errors.New("string may only contain unicode characters, dash, space and apostrophe")
 			}
 		}
 		return nil
