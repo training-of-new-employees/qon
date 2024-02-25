@@ -142,19 +142,19 @@ var (
 	ErrUserNameNotEmpty = errors.New("user name cannot be empty")
 
 	// ErrIncorrectUserName - некорректное имя пользователя
-	ErrInvalidUserName = errors.New("invalid user name: name must have length of 2-128 and can contain characters of any alphabets, dash")
+	ErrInvalidUserName = errors.New("invalid user name: name  must have length of 1-128 and can contain characters of any alphabets, dash, space and apostrophe")
 
 	// ErrUserSurnameNotEmpty - фамилия сотрудника не должна быть пустой
 	ErrUserSurnameNotEmpty = errors.New("user surname cannot be empty")
 
 	// ErrInvalidUserSurname - некорректная фамилия пользователя
-	ErrInvalidUserSurname = errors.New("invalid user surname: surname must have length of 2-128 and can contain characters of any alphabets, dash")
+	ErrInvalidUserSurname = errors.New("invalid user surname: surname must have length of 1-128 and can contain characters of any alphabets, dash, space and apostrophe")
 
 	// ErrUserPatronymicNotEmpty - отчество сотрудника не должна быть пустой
 	ErrUserPatronymicNotEmpty = errors.New("user patronymic cannot be empty")
 
 	// ErrInvalidUserPatronymic - некорректное отчество пользователя
-	ErrInvalidUserPatronymic = errors.New("invalid user patronymic: patronymic must have length of 2-128 and can contain characters of any alphabets, dash")
+	ErrInvalidUserPatronymic = errors.New("invalid user patronymic: patronymic must have length of 2-128 and can contain characters of any alphabets, dash, space and apostrophe")
 
 	// ErrInvalidUserPatronymic - сотрудник имеет отличную от админа компанию
 	ErrEmployeeHasAnotherCompany = errors.New("no access: employee has another company")
