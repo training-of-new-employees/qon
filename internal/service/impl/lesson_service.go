@@ -59,6 +59,7 @@ func (l *lessonService) GetLessonsList(ctx context.Context, courseID int, compan
 	if err != nil {
 		return nil, err
 	}
+
 	return lessonsList, nil
 }
 
@@ -66,6 +67,10 @@ func (l *lessonService) GetUserLesson(ctx context.Context, userID int, lessonID 
 	lesson, err := l.db.LessonStorage().GetLesson(ctx, lessonID)
 	if err != nil {
 		return nil, err
+	}
+
+	if lesson.Archived {
+		return nil, errs.ErrLessonNotFound
 	}
 
 	courses, err := l.db.CourseStorage().UserCourses(ctx, userID)
@@ -101,6 +106,10 @@ func (l *lessonService) UpdateLessonStatus(ctx context.Context, userID int, less
 	lesson, err := l.db.LessonStorage().GetLesson(ctx, lessonID)
 	if err != nil {
 		return err
+	}
+
+	if lesson.Archived {
+		return errs.ErrLessonNotFound
 	}
 
 	courses, err := l.db.CourseStorage().UserCourses(ctx, userID)
