@@ -15,7 +15,7 @@ func TestLesson_Validation(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "успешная валидация",
+			name: "success",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10),
 				Content: randomseq.RandomString(30),
@@ -23,22 +23,14 @@ func TestLesson_Validation(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "пустое имя",
+			name: "empty lesson name",
 			l: &Lesson{
 				Content: randomseq.RandomString(30),
 			},
 			wantErr: errs.ErrLessonNameNotEmpty,
 		},
 		{
-			name: "слишком короткое имя",
-			l: &Lesson{
-				Name:    randomseq.RandomName(minNameL - 1),
-				Content: randomseq.RandomString(30),
-			},
-			wantErr: errs.ErrInvalidLessonName,
-		},
-		{
-			name: "смайл в имени",
+			name: "name contains smile",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10) + "☺",
 				Content: randomseq.RandomString(30),
@@ -46,7 +38,7 @@ func TestLesson_Validation(t *testing.T) {
 			wantErr: errs.ErrInvalidLessonName,
 		},
 		{
-			name: "* в имени",
+			name: "name contains *",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10) + "*",
 				Content: randomseq.RandomString(30),
@@ -54,7 +46,7 @@ func TestLesson_Validation(t *testing.T) {
 			wantErr: errs.ErrInvalidLessonName,
 		},
 		{
-			name: "Имя со спец символами",
+			name: "name contains special symbols",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10) + "!№():,-?%'\";@",
 				Content: randomseq.RandomString(30),
@@ -62,14 +54,14 @@ func TestLesson_Validation(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "Пустое поле content",
+			name: "empty content",
 			l: &Lesson{
 				Name: randomseq.RandomName(10),
 			},
 			wantErr: errs.ErrTextContentNotEmpty,
 		},
 		{
-			name: "Слишком короткое поле content",
+			name: "too short content",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10),
 				Content: randomseq.RandomString(minContentL - 1),
@@ -77,15 +69,15 @@ func TestLesson_Validation(t *testing.T) {
 			wantErr: errs.ErrInvalidTextContent,
 		},
 		{
-			name: "# в поле content",
+			name: "content contains special symbols",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10),
-				Content: randomseq.RandomString(minContentL) + "#",
+				Content: randomseq.RandomString(minContentL) + "!№():,-?%'\";@*#",
 			},
-			wantErr: errs.ErrInvalidTextContent,
+			wantErr: nil,
 		},
 		{
-			name: "Слишком длинное поле content",
+			name: "too long content",
 			l: &Lesson{
 				Name:    randomseq.RandomName(10),
 				Content: randomseq.RandomString(maxContentL + 1),
@@ -93,13 +85,31 @@ func TestLesson_Validation(t *testing.T) {
 			wantErr: errs.ErrInvalidTextContent,
 		},
 		{
-			name: "Слишком длинное поле url_picture",
+			name: "valid url-picture",
+			l: &Lesson{
+				Name:       randomseq.RandomName(10),
+				Content:    randomseq.RandomString(20),
+				URLPicture: randomseq.RandomURLPicture(),
+			},
+			wantErr: nil,
+		},
+		{
+			name: "invalid url-picture",
 			l: &Lesson{
 				Name:       randomseq.RandomName(10),
 				Content:    randomseq.RandomString(20),
 				URLPicture: randomseq.RandomString(maxURLPictureL + 1),
 			},
-			wantErr: errs.ErrURLPictureLength,
+			wantErr: errs.ErrInvalidURLPicture,
+		},
+		{
+			name: "some url as url-picture",
+			l: &Lesson{
+				Name:       randomseq.RandomName(10),
+				Content:    randomseq.RandomString(20),
+				URLPicture: randomseq.RandomURL(),
+			},
+			wantErr: errs.ErrInvalidURLPicture,
 		},
 	}
 	for _, tt := range tests {
@@ -119,37 +129,29 @@ func TestLessonUpdate_Validation(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "Пустое поле content",
+			name: "empty content",
 			l: &LessonUpdate{
 				Name: randomseq.RandomName(10),
 			},
 			wantErr: nil,
 		},
 		{
-			name: "слишком длинное имя",
+			name: "too long lesson name",
 			l: &LessonUpdate{
-				Name: randomseq.RandomName(maxNameL + 1),
+				Name: randomseq.RandomName(maxLessonNameL + 1),
 			},
 			wantErr: errs.ErrInvalidLessonName,
 		},
 		{
-			name: "* в поле content",
+			name: "content contains special symbols",
 			l: &LessonUpdate{
 				Name:    randomseq.RandomName(10),
-				Content: randomseq.RandomString(30) + "*",
-			},
-			wantErr: errs.ErrInvalidTextContent,
-		},
-		{
-			name: "Content со спец символами",
-			l: &LessonUpdate{
-				Name:    randomseq.RandomName(10),
-				Content: randomseq.RandomString(30) + "!№():,-?%'\";@",
+				Content: randomseq.RandomString(30) + "!№():,-?%'\";@*#",
 			},
 			wantErr: nil,
 		},
 		{
-			name: "смайл в поле content",
+			name: "content contains smile",
 			l: &LessonUpdate{
 				Name:    randomseq.RandomName(10),
 				Content: randomseq.RandomString(30) + "☺",
@@ -157,12 +159,28 @@ func TestLessonUpdate_Validation(t *testing.T) {
 			wantErr: errs.ErrInvalidTextContent,
 		},
 		{
-			name: "Слишком короткое поле url_picture",
+			name: "valid url-picture",
 			l: &LessonUpdate{
 				Name:       randomseq.RandomName(10),
-				URLPicture: randomseq.RandomString(minURLPictureL - 1),
+				URLPicture: randomseq.RandomURLPicture(),
 			},
-			wantErr: errs.ErrURLPictureLength,
+			wantErr: nil,
+		},
+		{
+			name: "invalid url-picture",
+			l: &LessonUpdate{
+				Name:       randomseq.RandomName(10),
+				URLPicture: randomseq.RandomString(minURLPictureL),
+			},
+			wantErr: errs.ErrInvalidURLPicture,
+		},
+		{
+			name: "some url as url-picture",
+			l: &LessonUpdate{
+				Name:       randomseq.RandomName(10),
+				URLPicture: randomseq.RandomURL(),
+			},
+			wantErr: errs.ErrInvalidURLPicture,
 		},
 	}
 	for _, tt := range tests {

@@ -19,30 +19,30 @@ func TestPositionEdit_Validation(t *testing.T) {
 		wantErr error
 	}{
 		{
-			"Bad company ID",
+			"bad company id",
 			fields{
 				Name: "valid",
 			},
 			errs.ErrCompanyIDNotEmpty,
 		},
 		{
-			"Short position",
+			"empty position name",
 			fields{
 				CompanyID: 1,
-				Name:      "s",
+				Name:      "",
+			},
+			errs.ErrPositionNameNotEmpty,
+		},
+		{
+			"too long position",
+			fields{
+				CompanyID: 1,
+				Name:      randomseq.RandomString(maxPositionNameL + 1),
 			},
 			errs.ErrInvalidPositionName,
 		},
 		{
-			"Long position",
-			fields{
-				CompanyID: 1,
-				Name:      randomseq.RandomString(257),
-			},
-			errs.ErrInvalidPositionName,
-		},
-		{
-			"Correct length position",
+			"max length position",
 			fields{
 				CompanyID: 1,
 				Name:      randomseq.RandomString(256),
@@ -50,7 +50,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 			nil,
 		},
 		{
-			"Bad symbols position",
+			"position name conatains *",
 			fields{
 				CompanyID: 1,
 				Name:      "*position",
@@ -58,7 +58,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 			errs.ErrInvalidPositionName,
 		},
 		{
-			"Bad symbols position",
+			"position name conatains #",
 			fields{
 				CompanyID: 1,
 				Name:      "#position",
@@ -66,7 +66,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 			errs.ErrInvalidPositionName,
 		},
 		{
-			"Punctuation position",
+			"punctuation position",
 			fields{
 				CompanyID: 1,
 				Name:      "position,some",
@@ -74,7 +74,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 			nil,
 		},
 		{
-			"Space position",
+			"space position",
 			fields{
 				CompanyID: 1,
 				Name:      "какая-то должность",
@@ -82,7 +82,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 			nil,
 		},
 		{
-			"Cyrillic position",
+			"cyrillic position",
 			fields{
 				CompanyID: 1,
 				Name:      "стажер",
@@ -90,7 +90,7 @@ func TestPositionEdit_Validation(t *testing.T) {
 			nil,
 		},
 		{
-			"Latin position",
+			"latin position",
 			fields{
 				CompanyID: 1,
 				Name:      "validposition",

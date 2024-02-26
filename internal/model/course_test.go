@@ -27,124 +27,118 @@ func TestCourse_Validation(t *testing.T) {
 		wantErr error
 	}{
 		{
-			"Короткое название",
+			"max length name",
 			fields{
-				Name: randomseq.RandomString(minNameL - 1),
-			},
-			errs.ErrInvalidCourseName,
-		},
-		{
-			"Максимально допустимая длина названия",
-			fields{
-				Name: randomseq.RandomString(maxNameL),
+				Name: randomseq.RandomString(maxCourseNameL),
 			},
 			nil,
 		},
 		{
-			"Слишком длинное название",
+			"too long name",
 			fields{
-				Name: randomseq.RandomString(maxNameL + 1),
+				Name: randomseq.RandomString(maxCourseNameL + 1),
 			},
 			errs.ErrInvalidCourseName,
 		},
 		{
-			"Название с символом *",
+			"name with *",
 			fields{
-				Name: randomseq.RandomString(minNameL) + "*",
+				Name: randomseq.RandomString(minCourseNameL) + "*",
 			},
 			errs.ErrInvalidCourseName,
 		},
 		{
-			"Название с символом #",
+			"name with #",
 			fields{
-				Name: randomseq.RandomString(minNameL) + "#",
+				Name: randomseq.RandomString(minCourseNameL) + "#",
 			},
 			errs.ErrInvalidCourseName,
 		},
 		{
-			"Название со спец символами",
+			"name with special symbols",
 			fields{
-				Name: randomseq.RandomString(minNameL) + "!№():,-?%'\";@",
+				Name: randomseq.RandomString(minCourseNameL) + "!№():,-?%'\";@",
 			},
 			nil,
 		},
 		{
-			"Название со знаками препинания",
+			"name with punctuation (,)",
 			fields{
-				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, ","),
+				Name: strings.Join([]string{randomseq.RandomString(minCourseNameL), randomseq.RandomString(minCourseNameL)}, ","),
 			},
 			nil,
 		},
 		{
-			"Название со знаками препинания",
+			"name with punctuation (;)",
 			fields{
-				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, ";"),
+				Name: strings.Join([]string{randomseq.RandomString(minCourseNameL), randomseq.RandomString(minCourseNameL)}, ";"),
 			},
 			nil,
 		},
 		{
-			"Название с пробелом",
+			"name contains space",
 			fields{
-				Name: strings.Join([]string{randomseq.RandomString(minNameL), randomseq.RandomString(minNameL)}, " "),
+				Name: strings.Join([]string{randomseq.RandomString(minCourseNameL), randomseq.RandomString(minCourseNameL)}, " "),
 			},
 			nil,
 		},
 		{
-			"Название со смайлом",
+			"name contains smile",
 			fields{
-				Name: randomseq.RandomString(minNameL) + "☺",
+				Name: randomseq.RandomString(minCourseNameL) + "☺",
 			},
 			errs.ErrInvalidCourseName,
 		},
 		{
-			"Пустое название",
+			"empty course name",
 			fields{},
 			errs.ErrCourseNameIsEmpty,
 		},
 		{
-			"Описание с символом #",
+			"description contains *#",
 			fields{
-				Name: randomseq.RandomString(minDescL) + "#",
-			},
-			errs.ErrInvalidCourseName,
-		},
-		{
-			"Слишком короткое описание",
-			fields{
-				Name:        "validname",
-				Description: randomseq.RandomString(minDescL - 1),
-			},
-			errs.ErrInvalidCourseDescription,
-		},
-		{
-			"Максимально короткое описание",
-			fields{
-				Name:        "validname",
-				Description: randomseq.RandomString(minDescL),
+				Name:        randomseq.RandomString(minCourseNameL),
+				Description: randomseq.RandomString(minCourseDescL) + "*#",
 			},
 			nil,
 		},
 		{
-			"Максимально длинное описание",
+			"too short description",
 			fields{
 				Name:        "validname",
-				Description: randomseq.RandomString(maxDescL),
-			},
-			nil,
-		},
-		{
-			"Максимально длинное описание с пробелом",
-			fields{
-				Name:        "validname",
-				Description: strings.Join([]string{randomseq.RandomString(maxDescL / 2), randomseq.RandomString(maxDescL/2 + 1)}, " "),
+				Description: randomseq.RandomString(minCourseDescL - 1),
 			},
 			errs.ErrInvalidCourseDescription,
 		},
 		{
-			"Слишком длинное описание",
+			"min length description",
 			fields{
 				Name:        "validname",
-				Description: randomseq.RandomString(maxDescL + 1),
+				Description: randomseq.RandomString(minCourseDescL),
+			},
+			nil,
+		},
+		{
+			"max length description",
+			fields{
+				Name:        "validname",
+				Description: randomseq.RandomString(maxCourseDescL),
+			},
+			nil,
+		},
+		{
+			"max description with space",
+			fields{
+				Name:        "validname",
+				Description: strings.Join([]string{randomseq.RandomString(maxCourseDescL / 2), randomseq.RandomString(maxCourseDescL/2 + 1)}, " "),
+			},
+			errs.ErrInvalidCourseDescription,
+		},
+		{
+			"too long description",
+			fields{
+				Name:        "validname",
+				Description: randomseq.RandomString(maxCourseDescL + 1),
 			},
 			errs.ErrInvalidCourseDescription,
 		},
@@ -182,11 +176,11 @@ func TestCourseSet_Validation(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Проверка вызова валидации курса",
-			fields{
+			name: "проверка вызова валидации курса",
+			fields: fields{
 				Name: randomseq.RandomString(4),
 			},
-			true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -216,9 +210,9 @@ func TestNewCourseSet(t *testing.T) {
 		want CourseSet
 	}{
 		{
-			"Создание курса",
-			args{0, 10},
-			CourseSet{
+			name: "creating course",
+			args: args{0, 10},
+			want: CourseSet{
 				ID:        0,
 				CreatedBy: 10,
 			},
