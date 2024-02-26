@@ -8,10 +8,9 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/mcnijman/go-emailaddress"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
-
-	"github.com/mcnijman/go-emailaddress"
 )
 
 var errSpaceEmpty = errors.New("string only contains spaces")
@@ -23,7 +22,7 @@ func validateEmail(email *string) validation.RuleFunc {
 		var err error
 
 		// проверка емейла на корректность
-		if err := validation.Validate(email, validation.Length(7, 50), is.Email); err != nil {
+		if err := validation.Validate(email, is.Email); err != nil {
 			return errs.ErrInvalidEmail
 		}
 
@@ -50,6 +49,24 @@ func modifyEmail(email string) (string, error) {
 	}
 
 	return email, nil
+}
+
+// validateURLPicture - проверка url-картинки.
+// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
+func validateURLPicture(url *string) validation.RuleFunc {
+	return func(value interface{}) error {
+		// проверка url на корректность
+		if err := validation.Validate(url, is.URL); err != nil {
+			return errs.ErrInvalidURLPicture
+		}
+
+		picture := regexp.MustCompile(`.(png|jpg|jpeg)$`).MatchString(*url)
+		if !picture {
+			return errs.ErrInvalidURLPicture
+		}
+
+		return nil
+	}
 }
 
 // validatePassword - проверка пароля на состав.
@@ -85,17 +102,17 @@ func validateUserName(str *string) validation.RuleFunc {
 			return errSpaceEmpty
 		}
 		for _, c := range *str {
-			if !unicode.IsLetter(c) && c != '-' {
-				return errors.New("string may only contain unicode characters and a dash")
+			if !unicode.IsLetter(c) && c != '-' && c != ' ' && c != '\'' {
+				return errors.New("string may only contain unicode characters, dash, space and apostrophe")
 			}
 		}
 		return nil
 	}
 }
 
-// validateNameDescription - проверка имени и описания объектов на состав (компания, должность, курс, урок).
+// validateObjName - проверка на состав название объекта (компания, должность, курс, урок).
 // ВАЖНО: используется при валидации с методами пакета ozzo-validation.
-func validateNameDescription(str *string) validation.RuleFunc {
+func validateObjName(str *string) validation.RuleFunc {
 	return func(value interface{}) error {
 		// случай когда строка состоит только из пробелов
 		*str = strings.TrimSpace(*str)
@@ -103,12 +120,33 @@ func validateNameDescription(str *string) validation.RuleFunc {
 			return errSpaceEmpty
 		}
 		for _, c := range *str {
-			// only (),?!№:"\&-_%';@
 			if !unicode.IsLetter(c) && !unicode.IsDigit(c) && !unicode.IsPunct(c) &&
 				c != '!' && c != '№' && c != ':' && c != '"' && c != '\'' && c != '&' &&
 				c != '-' && c != '_' && c != '+' && c != ' ' ||
 				c == '*' || c == '#' {
 				return errors.New("string may only contain unicode characters and not contain '#' and '*'")
+			}
+		}
+
+		return nil
+	}
+}
+
+// validateObjDescription - проверка на состав (компания, должность, курс, урок).
+// ВАЖНО: используется при валидации с методами пакета ozzo-validation.
+func validateObjDescription(str *string) validation.RuleFunc {
+	return func(value interface{}) error {
+		// случай когда строка состоит только из пробелов
+		*str = strings.TrimSpace(*str)
+		if *str == "" {
+			return errSpaceEmpty
+		}
+		for _, c := range *str {
+			if !unicode.IsLetter(c) && !unicode.IsDigit(c) && !unicode.IsPunct(c) &&
+				c != '!' && c != '№' && c != ':' && c != '"' && c != '\'' && c != '&' &&
+				c != '-' && c != '_' && c != '+' && c != ' ' &&
+				c != '*' && c != '#' {
+				return errors.New("string may only contain unicode characters and special symbols")
 			}
 		}
 

@@ -260,43 +260,68 @@ func (suite *serviceTestSuite) TestGetLessonsList() {
 	testCases := []struct {
 		name    string
 		err     error
-		prepare func() int
+		prepare func() (int, int)
 	}{
 		{
 			name: "success",
 			err:  nil,
-			prepare: func() int {
+			prepare: func() (int, int) {
 				courseID := 1
-				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(model.NewTestListLessons(courseID), nil)
+				companyID := 1
 
-				return courseID
+				suite.courseStorage.
+					EXPECT().
+					CompanyCourse(gomock.Any(), courseID, companyID).
+					Return(&model.Course{ID: courseID}, nil)
+
+				suite.lessonStorage.
+					EXPECT().
+					GetLessonsList(gomock.Any(), courseID).
+					Return(model.NewTestListLessons(courseID), nil)
+
+				return courseID, companyID
 			},
 		},
 		{
 			name: "success (empty)",
 			err:  nil,
-			prepare: func() int {
+			prepare: func() (int, int) {
 				courseID := randomseq.RandomTestInt()
+				companyID := 1
+
+				suite.courseStorage.
+					EXPECT().
+					CompanyCourse(gomock.Any(), courseID, companyID).
+					Return(&model.Course{ID: courseID}, nil)
+
 				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(nil, nil)
 
-				return courseID
+				return courseID, companyID
 			},
 		},
 		{
 			name: "internal error",
 			err:  errs.ErrInternal,
-			prepare: func() int {
+			prepare: func() (int, int) {
 				courseID := randomseq.RandomTestInt()
+				companyID := 1
+
+				suite.courseStorage.
+					EXPECT().
+					CompanyCourse(gomock.Any(), courseID, companyID).
+					Return(&model.Course{ID: courseID}, nil)
+
 				suite.lessonStorage.EXPECT().GetLessonsList(gomock.Any(), courseID).Return(nil, errs.ErrInternal)
 
-				return courseID
+				return courseID, companyID
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.lessonService.GetLessonsList(context.TODO(), tc.prepare())
+			courseID, companyID := tc.prepare()
+			_, err := suite.lessonService.GetLessonsList(context.TODO(), courseID, companyID)
 			suite.Equal(tc.err, err)
 		})
 	}

@@ -6,7 +6,29 @@ import (
 	"fmt"
 )
 
-const specialSymbols = "(),?!№:\"\\&-_%';@"
+const (
+	minCompanyNameL  = 1
+	maxCompanyNameL  = 256
+	minPositionNameL = 1
+	maxPositionNameL = 256
+
+	minPatronymicL = 1
+	minNameL       = 1
+	maxNameL       = 128
+	minPasswordL   = 6
+	maxPasswordL   = 30
+
+	minCourseNameL = 1
+	maxCourseNameL = 256
+	minCourseDescL = 10
+	maxCourseDescL = 1024
+	minLessonNameL = 1
+	maxLessonNameL = 256
+	minContentL    = 20
+	maxContentL    = 65000
+	minURLPictureL = 5
+	maxURLPictureL = 1024
+)
 
 var (
 	// -- Базовые ошибки приложения --
@@ -109,14 +131,14 @@ var (
 	ErrCompanyNameNotEmpty = errors.New("company name cannot be empty")
 
 	// ErrIncorrectCompanyName - некорректное имя компании
-	ErrInvalidCompanyName = fmt.Errorf("invalid company name: company name must have length of 1-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+	ErrInvalidCompanyName = fmt.Errorf("invalid company name: company name must have length of %d-%d and can contain characters of any alphabets, digits, spaces, special symbols except *, #", minCompanyNameL, maxCompanyNameL)
 
 	// -- Ошибки должности --
 
 	// ErrPositionNameNotEmpty - название должности не может быть пустым
 	ErrPositionNameNotEmpty = errors.New("position name cannot be empty")
 
-	ErrInvalidPositionName = fmt.Errorf("invalid position name: position name must have length of 2-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+	ErrInvalidPositionName = fmt.Errorf("invalid position name: position name must have length of %d-%d and can contain characters of any alphabets, digits, spaces, special symbols except *, #", minPositionNameL, maxPositionNameL)
 
 	// -- Ошибки пользователя --
 
@@ -127,7 +149,7 @@ var (
 	ErrEmailNotEmpty = errors.New("email cannot be empty")
 
 	// ErrInvalidEmail - некорректный email
-	ErrInvalidEmail = errors.New("invalid email or incorrect length (email length should be 7-50 symbols)")
+	ErrInvalidEmail = errors.New("invalid email or incorrect length (email length should be 6-50 symbols)")
 
 	// ErrPasswordNotEmpty - password не может быть пустым
 	ErrPasswordNotEmpty = errors.New("password cannot be empty")
@@ -136,25 +158,25 @@ var (
 	ErrInviteNotEmpty = errors.New("invite cannot be empty")
 
 	// ErrInvalidPassword - невалидный пароль
-	ErrInvalidPassword = errors.New("invalid password: password must have length of 6-30, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character")
+	ErrInvalidPassword = fmt.Errorf("invalid password: password must have length of %d-%d, contain 1 uppercase, 1 lowercase, 1 number, and 1 special character", minPasswordL, maxPasswordL)
 
 	// ErrUserNameNotEmpty - имя сотрудника не должно быть пустым
 	ErrUserNameNotEmpty = errors.New("user name cannot be empty")
 
 	// ErrIncorrectUserName - некорректное имя пользователя
-	ErrInvalidUserName = errors.New("invalid user name: name must have length of 2-128 and can contain characters of any alphabets, dash")
+	ErrInvalidUserName = fmt.Errorf("invalid user name: name  must have length of %d-%d and can contain characters of any alphabets, dash, space and apostrophe", minNameL, maxNameL)
 
 	// ErrUserSurnameNotEmpty - фамилия сотрудника не должна быть пустой
 	ErrUserSurnameNotEmpty = errors.New("user surname cannot be empty")
 
 	// ErrInvalidUserSurname - некорректная фамилия пользователя
-	ErrInvalidUserSurname = errors.New("invalid user surname: surname must have length of 2-128 and can contain characters of any alphabets, dash")
+	ErrInvalidUserSurname = fmt.Errorf("invalid user surname: surname must have length of %d-%d and can contain characters of any alphabets, dash, space and apostrophe", minNameL, maxNameL)
 
 	// ErrUserPatronymicNotEmpty - отчество сотрудника не должна быть пустой
 	ErrUserPatronymicNotEmpty = errors.New("user patronymic cannot be empty")
 
 	// ErrInvalidUserPatronymic - некорректное отчество пользователя
-	ErrInvalidUserPatronymic = errors.New("invalid user patronymic: patronymic must have length of 2-128 and can contain characters of any alphabets, dash")
+	ErrInvalidUserPatronymic = fmt.Errorf("invalid user patronymic: patronymic must have length of %d-%d and can contain characters of any alphabets, dash, space and apostrophe", minPatronymicL, maxNameL)
 
 	// ErrInvalidUserPatronymic - сотрудник имеет отличную от админа компанию
 	ErrEmployeeHasAnotherCompany = errors.New("no access: employee has another company")
@@ -167,10 +189,10 @@ var (
 	ErrCourseNameIsEmpty = errors.New("course name cannot be empty")
 
 	// ErrInvalidCourseName - имя курса не соответствует требованиям
-	ErrInvalidCourseName = fmt.Errorf("course name is invalid: course name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+	ErrInvalidCourseName = fmt.Errorf("course name is invalid: course name must have length of %d-%d and can contain characters of any alphabets, digits, spaces, special symbols except *, #", minCourseNameL, maxCourseNameL)
 
 	// ErrInvalidCourseDescription - описание курса не соответствует требованиям
-	ErrInvalidCourseDescription = fmt.Errorf("course description is invalid: course name is invalid: course description must have length of 10-512 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+	ErrInvalidCourseDescription = fmt.Errorf("course description is invalid: course name is invalid: course description must have length of %d-%d and can contain characters of any alphabets, digits, spaces, special symbols", minCourseDescL, maxCourseDescL)
 
 	// -- Ошибки уроков --
 
@@ -178,19 +200,19 @@ var (
 	ErrLessonNameNotEmpty = errors.New("lesson name cannot be empty")
 
 	// ErrInvalidLessonName - имя урока не соответствует требованиям
-	ErrInvalidLessonName = fmt.Errorf("invalid lesson name: lesson name must have length of 5-256 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+	ErrInvalidLessonName = fmt.Errorf("invalid lesson name: lesson name must have length of %d-%d and can contain characters of any alphabets, digits, spaces, special symbols except *, #", minLessonNameL, maxLessonNameL)
 
 	// -- Ошибки текстов --
 
 	ErrTextContentNotEmpty = errors.New("text (content) cannot be empty")
 
-	ErrInvalidTextContent = fmt.Errorf("invalid lesson content: lesson content must have length of 20-65000 and can contain characters of any alphabets, digits, spaces, special symbols %s", specialSymbols)
+	ErrInvalidTextContent = fmt.Errorf("invalid lesson content: lesson content must have length of %d-%d and can contain characters of any alphabets, digits, spaces, special symbols", minContentL, maxContentL)
 
 	// -- Ошибки картинок --
 
-	ErrURLPictureNotEmpty = errors.New("picture's url cannot be empty")
+	ErrURLPictureNotEmpty = errors.New("url picture cannot be empty")
 
-	ErrURLPictureLength = errors.New("picture's url must have length of 5-1024")
+	ErrInvalidURLPicture = fmt.Errorf("invalid url picure: url must have length of %d-%d and must be url for picture (png, jpg, jpeg)", minURLPictureL, maxURLPictureL)
 
 	// -- Ошибки назначений и прогресса по учебным материалам --
 
@@ -201,7 +223,7 @@ var (
 	ErrUserCourseUsed = errors.New("course already assigned to user")
 
 	// ErrAssignLessonUsed - прогресс пользователя по уроку должен быть уникальным
-	ErrAssignLessonUsed = errors.New("Course progress already has the same lesson progress")
+	ErrAssignLessonUsed = errors.New("course progress already has the same lesson progress")
 
 	// ErrInvalidCourseStatus - невалидный статус сотрудника по курсу
 	ErrInvalidCourseStatus = errors.New("user course status can be 'not-started', 'in-process', 'done'")

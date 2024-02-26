@@ -13,13 +13,11 @@ import (
 
 var rnd *mrand.Rand
 
-// alphabetRandomString - набор для генерации случайной строки
-var alphabetRandomString = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-// alphabetName - набор для генерации имён/названий
-var alphabetName = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 const (
+	// alphabetRandomString - набор для генерации случайной строки
+	alphabetRandomString = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	// alphabetName - набор для генерации имён/названий
+	alphabetName = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	// lowerLetters - набор символов английского алфавита в нижнем регистре
 	lowerLetters = "abcdefghijklmnopqrstuvwxyz"
 	// upperLetters - набор символов английского алфавита в верхнем регистре
@@ -36,7 +34,6 @@ func init() {
 
 // RandomDigitNumber - генерирует случайное n-значное число в виде строки.
 func RandomDigitNumber(n int) string {
-
 	// генерация случайного n-значного числа
 	number := ""
 	for i := 0; i < n; i++ {
@@ -53,6 +50,7 @@ func RandomHexString(n int) string {
 	if err != nil {
 		return RandomDigitNumber(n)
 	}
+
 	return hex.EncodeToString(b)
 }
 
@@ -64,6 +62,7 @@ func RandomString(n int) string {
 		seq = append(seq, byte(symb))
 
 	}
+
 	return string(seq)
 }
 
@@ -75,6 +74,7 @@ func RandomName(n int) string {
 		seq = append(seq, byte(symb))
 
 	}
+
 	return string(seq)
 }
 
@@ -124,4 +124,14 @@ func RandomPassword() string {
 // При тестировании преимущественно используются первые цифры.
 func RandomTestInt() int {
 	return 100 + rnd.Intn(256)
+}
+
+// RandomURLPicture - генерирует случайный url-картинки.
+func RandomURLPicture() string {
+	return fmt.Sprintf("https://%s.com/%s/%s.png", RandomString(8), RandomString(3), RandomString(3))
+}
+
+// RandomURL - генерирует случайный url.
+func RandomURL() string {
+	return fmt.Sprintf("https://%s.com/%s/%s", RandomString(8), RandomString(3), RandomString(3))
 }
