@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	minNameL = 5
-	maxNameL = 256
-	minDescL = 10
-	maxDescL = 512
+	minCourseNameL = 1
+	maxCourseNameL = 256
+	minCourseDescL = 10
+	maxCourseDescL = 1024
 )
 
 type Course struct {
@@ -42,18 +42,21 @@ type CourseSet struct {
 	IsArchived  bool   `db:"archived" json:"archived,omitempty"`
 }
 
+// Validation - валидация данных при создании курса.
 func (c *Course) Validation() error {
 	if err := validation.Validate(&c.Name, validation.Required); err != nil {
 		return errs.ErrCourseNameIsEmpty
 	}
-	err := validation.Validate(&c.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateNameDescription(&c.Name)))
+	err := validation.Validate(&c.Name, validation.RuneLength(minCourseNameL, maxCourseNameL), validation.By(validateObjName(&c.Name)))
 	if err != nil {
 		return errs.ErrInvalidCourseName
 	}
 
-	err = validation.Validate(&c.Description, validation.RuneLength(minDescL, maxDescL), validation.By(validateNameDescription(&c.Description)))
-	if err != nil && err != errSpaceEmpty {
-		return errs.ErrInvalidCourseDescription
+	if c.Description != "" {
+		err = validation.Validate(&c.Description, validation.RuneLength(minCourseDescL, maxCourseDescL), validation.By(validateObjDescription(&c.Description)))
+		if err != nil && err != errSpaceEmpty {
+			return errs.ErrInvalidCourseDescription
+		}
 	}
 
 	return nil
@@ -66,6 +69,7 @@ func NewCourseSet(id int, creator int) CourseSet {
 	}
 }
 
+// Validation - валидация данных курса при редактировании.
 func (cs *CourseSet) Validation() error {
 	c := Course{
 		Name:        cs.Name,

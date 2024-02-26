@@ -62,7 +62,7 @@ var errorToCode = map[string]int{
 	errs.ErrInvalidLessonStatus.Error():      http.StatusBadRequest,
 	errs.ErrInvalidLessonName.Error():        http.StatusBadRequest,
 	errs.ErrInvalidTextContent.Error():       http.StatusBadRequest,
-	errs.ErrURLPictureLength.Error():         http.StatusBadRequest,
+	errs.ErrInvalidURLPicture.Error():        http.StatusBadRequest,
 	errs.ErrCreaterNotEmpty.Error():          http.StatusBadRequest,
 	errs.ErrCourseIDNotEmpty.Error():         http.StatusBadRequest,
 	errs.ErrLessonNameNotEmpty.Error():       http.StatusBadRequest,
