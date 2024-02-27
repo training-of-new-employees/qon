@@ -2,7 +2,6 @@ package rest
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -254,42 +253,6 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.Header("Authorization", "Bearer "+tokens.AccessToken)
 
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
-}
-
-// ArchiveUser godoc
-//
-//	@Summary	Архивирование пользователя по id
-//	@Tags		user
-//	@Produce	json
-//	@Param		id	path	int	true	"User ID"
-//	@Success	200
-//	@Failure	400	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
-//	@Router		/users/archive/{id} [patch]
-func (r *RestServer) handlerArchiveUser(c *gin.Context) {
-	ctx := c.Request.Context()
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		msg := fmt.Errorf("got invalid user id: %s", idParam)
-		logger.Log.Warn("error", zap.Error(msg))
-		c.JSON(http.StatusBadRequest, s().SetError(msg))
-		return
-	}
-	us := r.getUserSession(c)
-	err = r.services.User().ArchiveUser(ctx, id, us.OrgID)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		return
-	}
-
-	c.Status(http.StatusOK)
 }
 
 // SignIn godoc

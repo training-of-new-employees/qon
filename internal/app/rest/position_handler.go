@@ -194,38 +194,6 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	c.JSON(http.StatusOK, position)
 }
 
-//	@Summary	Присвоение курса к должности
-//	@Accept		json
-//	@Tags		position
-//	@Produce	json
-//	@Success	200
-//	@Failure	400	{object}	error	"Неверный формат запроса"
-//	@Failure	401	{object}	error	"Пользователь не является сотрудником компании"
-//	@Failure	500	{object}	error	"Внутренняя ошибка сервера"
-//
-//	@Security	Bearer
-//
-//	@Router		/positions/course [post]
-
-func (r *RestServer) handlerAssignCourse(c *gin.Context) {
-	positionCourse := model.PositionCourse{}
-	if err := c.ShouldBindJSON(&positionCourse); err != nil {
-		r.handleError(c, errs.ErrInvalidRequest)
-		return
-	}
-
-	ctx := c.Request.Context()
-	us := r.getUserSession(c)
-
-	err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID, positionCourse.CourseID, us.UserID)
-	if err != nil {
-		r.handleError(c, err)
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
 // @Summary	Присвоение нескольких курсов к должности
 // @Accept		json
 // @Tags		position
