@@ -234,6 +234,11 @@
         },
         "/admin/courses/{id}/lessons": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -289,6 +294,11 @@
         },
         "/admin/employee": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -337,6 +347,11 @@
         },
         "/admin/info": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -391,6 +406,11 @@
         },
         "/admin/lessons": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -439,6 +459,11 @@
         },
         "/admin/lessons/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -492,6 +517,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -658,6 +688,11 @@
         },
         "/invitation-link": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Изменение по email сотрудника",
                 "produces": [
                     "application/json"
@@ -725,6 +760,11 @@
         },
         "/invitation-link/{email}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -828,6 +868,11 @@
         },
         "/logout": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "После выхода из сессии, авторизационный токен становится невалидным.",
                 "produces": [
                     "application/json"
@@ -854,6 +899,11 @@
         },
         "/password": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1206,6 +1256,11 @@
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Список сотрдуников в компании админа",
                 "produces": [
                     "application/json"
@@ -1222,55 +1277,6 @@
                             "items": {
                                 "$ref": "#/definitions/model.User"
                             }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/archive/{id}": {
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Архивирование пользователя по id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
                         }
                     },
                     "403": {
@@ -1464,7 +1470,12 @@
         },
         "/users/info": {
             "get": {
-                "description": "Получение по сесии авторизованного пользователя",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Получение по сессии авторизованного пользователя",
                 "produces": [
                     "application/json"
                 ],
@@ -1569,6 +1580,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1633,6 +1649,11 @@
         },
         "/users/set-password": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1687,6 +1708,11 @@
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Получение по id",
                 "produces": [
                     "application/json"
@@ -1738,6 +1764,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Изменение по id",
                 "produces": [
                     "application/json"

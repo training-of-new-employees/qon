@@ -240,6 +240,11 @@ const docTemplate = `{
         },
         "/admin/courses/{id}/lessons": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -295,6 +300,11 @@ const docTemplate = `{
         },
         "/admin/employee": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -343,6 +353,11 @@ const docTemplate = `{
         },
         "/admin/info": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -397,6 +412,11 @@ const docTemplate = `{
         },
         "/admin/lessons": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -445,6 +465,11 @@ const docTemplate = `{
         },
         "/admin/lessons/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -498,6 +523,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -664,6 +694,11 @@ const docTemplate = `{
         },
         "/invitation-link": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Изменение по email сотрудника",
                 "produces": [
                     "application/json"
@@ -731,6 +766,11 @@ const docTemplate = `{
         },
         "/invitation-link/{email}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -834,6 +874,11 @@ const docTemplate = `{
         },
         "/logout": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "После выхода из сессии, авторизационный токен становится невалидным.",
                 "produces": [
                     "application/json"
@@ -860,6 +905,11 @@ const docTemplate = `{
         },
         "/password": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1212,6 +1262,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Список сотрдуников в компании админа",
                 "produces": [
                     "application/json"
@@ -1228,55 +1283,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/model.User"
                             }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/archive/{id}": {
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Архивирование пользователя по id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
                         }
                     },
                     "403": {
@@ -1470,7 +1476,12 @@ const docTemplate = `{
         },
         "/users/info": {
             "get": {
-                "description": "Получение по сесии авторизованного пользователя",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Получение по сессии авторизованного пользователя",
                 "produces": [
                     "application/json"
                 ],
@@ -1575,6 +1586,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1639,6 +1655,11 @@ const docTemplate = `{
         },
         "/users/set-password": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1693,6 +1714,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Получение по id",
                 "produces": [
                     "application/json"
@@ -1744,6 +1770,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Изменение по id",
                 "produces": [
                     "application/json"

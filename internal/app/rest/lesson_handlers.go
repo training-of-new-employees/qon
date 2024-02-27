@@ -19,7 +19,7 @@ import (
 // @Failure	404		{object}	errResponse
 // @Failure	500		{object}	errResponse
 //
-//	@Security	Bearer
+// @Security	Bearer
 //
 // @Router		/admin/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
@@ -55,7 +55,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 // @Failure	404	{object}	errResponse
 // @Failure	500	{object}	errResponse
 //
-//	@Security	Bearer
+// @Security	Bearer
 //
 // @Router		/admin/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
@@ -86,7 +86,7 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 // @Failure	404		{object}	errResponse
 // @Failure	500		{object}	errResponse
 //
-//	@Security	Bearer
+// @Security	Bearer
 //
 // @Router		/admin/lessons/{id} [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
@@ -124,7 +124,7 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
-//	@Success	200	{array}	  model.Lesson
+//	@Success	200	{array}		model.Lesson
 //	@Failure	404	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	403	{object}	errResponse

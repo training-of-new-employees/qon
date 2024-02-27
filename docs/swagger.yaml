@@ -522,6 +522,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Получение уроков курса
       tags:
       - course
@@ -553,6 +555,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Создание пользователя
       tags:
       - admin
@@ -588,6 +592,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Изменение данных администратора
       tags:
       - admin
@@ -619,6 +625,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Создание урока
       tags:
       - lessons
@@ -655,6 +663,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Получение урока
       tags:
       - lessons
@@ -698,6 +708,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Обновление урока
       tags:
       - lessons
@@ -806,6 +818,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Регенерация пригласительной ссылки
       tags:
       - admin
@@ -844,6 +858,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Получить пригласительную ссылку
       tags:
       - admin
@@ -892,6 +908,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Выход из сессии
   /password:
     post:
@@ -921,6 +939,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Сброс пароля пользователя
   /positions:
     get:
@@ -1139,6 +1159,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение данных пользователей
       tags:
       - user
@@ -1174,6 +1196,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение данных пользователя
       tags:
       - user
@@ -1214,39 +1238,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Изменение данных пользователя
-      tags:
-      - user
-  /users/archive/{id}:
-    patch:
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/rest.sErr'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.sErr'
-      summary: Архивирование пользователя по id
       tags:
       - user
   /users/courses:
@@ -1357,7 +1351,7 @@ paths:
       - course
   /users/info:
     get:
-      description: Получение по сесии авторизованного пользователя
+      description: Получение по сессии авторизованного пользователя
       produces:
       - application/json
       responses:
@@ -1385,6 +1379,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Получение данные авторизованного пользователя
       tags:
       - user
@@ -1462,6 +1458,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.errResponse'
+      security:
+      - Bearer: []
       summary: Обновление статуса прогресса у урока
       tags:
       - lessons
@@ -1497,6 +1495,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
+      security:
+      - Bearer: []
       summary: Активация пользователя и установка ему пароля
       tags:
       - user

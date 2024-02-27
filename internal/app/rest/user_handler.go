@@ -97,7 +97,7 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
 //
-//	@Security	Bearer
+//	@Security		Bearer
 //
 //	@Router			/users [get]
 func (r *RestServer) handlerGetUsers(c *gin.Context) {
@@ -125,7 +125,7 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
 //
-//	@Security	Bearer
+//	@Security		Bearer
 //
 //	@Router			/users/{id} [get]
 func (r *RestServer) handlerGetUser(c *gin.Context) {
@@ -166,7 +166,7 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Failure		404		{object}	sErr
 //	@Failure		500		{object}	sErr
 //
-//	@Security	Bearer
+//	@Security		Bearer
 //
 //	@Router			/users/{id} [patch]
 func (r *RestServer) handlerEditUser(c *gin.Context) {
@@ -437,7 +437,7 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 // @Failure		409		{object}	sErr
 // @Failure		500		{object}	sErr
 //
-//	@Security	Bearer
+// @Security		Bearer
 //
 // @Router			/invitation-link [patch]
 func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
@@ -516,7 +516,7 @@ func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
 //
-//	@Security	Bearer
+//	@Security		Bearer
 //
 //	@Router			/users/info [get]
 func (r *RestServer) handlerUserInfo(c *gin.Context) {
@@ -556,7 +556,7 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 //	@Failure		401	{object}	sErr
 //	@Failure		500	{object}	sErr
 //
-//	@Security	Bearer
+//	@Security		Bearer
 //
 //	@Router			/logout [post]
 func (r *RestServer) handlerLogOut(c *gin.Context) {
