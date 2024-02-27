@@ -36,7 +36,7 @@ func NewTestPositionSet() PositionSet {
 
 func NewTestPositionAssignCourses() PositionAssignCourses {
 	return PositionAssignCourses{
-		CourseID: []int{1, 2, 3},
+		CoursesID: []int{1, 2, 3},
 	}
 }
 

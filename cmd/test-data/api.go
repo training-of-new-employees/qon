@@ -169,7 +169,7 @@ func (a *Api) createCourses(courses []model.CourseSet) ([]model.Course, error) {
 func (a *Api) assignCourses(coursesID []int, posID int) error {
 	assignURL, _ := url.JoinPath(a.Server, apiv1, fmt.Sprintf("positions/%d/courses", posID))
 	logger.Log.Sugar().Debugf("Courses ID: %v", coursesID)
-	courses := model.PositionAssignCourses{CourseID: coursesID}
+	courses := model.PositionAssignCourses{CoursesID: coursesID}
 	r, err := a.r.R().
 		SetBody(courses).
 		Patch(assignURL)

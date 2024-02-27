@@ -59,6 +59,9 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 //	@Failure	400		{object}	sErr
 //	@Failure	409		{object}	sErr
 //	@Failure	500		{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router		/admin/employee [post]
 func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -94,6 +97,9 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 //	@Failure		403	{object}	sErr
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router			/users [get]
 func (r *RestServer) handlerGetUsers(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -119,6 +125,9 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 //	@Failure		403	{object}	sErr
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router			/users/{id} [get]
 func (r *RestServer) handlerGetUser(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -157,6 +166,9 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Failure		403		{object}	sErr
 //	@Failure		404		{object}	sErr
 //	@Failure		500		{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router			/users/{id} [patch]
 func (r *RestServer) handlerEditUser(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -205,6 +217,9 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Failure	401		{object}	sErr
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router		/users/set-password [post]
 func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -391,6 +406,9 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 //	@Failure	400		{object}	sErr
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router		/password [post]
 func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -420,6 +438,9 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Failure	401		{object}	sErr
 //	@Failure	404		{object}	sErr
 //	@Failure	500		{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router		/admin/info [post]
 func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -452,6 +473,9 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 // @Failure		404		{object}	sErr
 // @Failure		409		{object}	sErr
 // @Failure		500		{object}	sErr
+//
+//	@Security	Bearer
+//
 // @Router			/invitation-link [patch]
 func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -491,6 +515,9 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 //	@Failure	403		{object}	errResponse
 //	@Failure	404		{object}	errResponse
 //	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/invitation-link/{email}  [get]
 func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -516,7 +543,7 @@ func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 // GetUser godoc
 //
 //	@Summary		Получение данные авторизованного пользователя
-//	@Description	Получение по сесии авторизованного пользователя
+//	@Description	Получение по сессии авторизованного пользователя
 //	@Tags			user
 //	@Produce		json
 //	@Success		200	{object}	model.UserInfo
@@ -525,6 +552,9 @@ func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 //	@Failure		403	{object}	sErr
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router			/users/info [get]
 func (r *RestServer) handlerUserInfo(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -562,6 +592,9 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 //	@Success		200
 //	@Failure		401	{object}	sErr
 //	@Failure		500	{object}	sErr
+//
+//	@Security	Bearer
+//
 //	@Router			/logout [post]
 func (r *RestServer) handlerLogOut(c *gin.Context) {
 	us := r.getUserSession(c)

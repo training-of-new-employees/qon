@@ -260,7 +260,7 @@ func (r *RestServer) handlerAssignCourses(c *gin.Context) {
 		return
 	}
 
-	err = r.services.Position().AssignCourses(ctx, id, body.CourseID, r.getUserSession(c).UserID)
+	err = r.services.Position().AssignCourses(ctx, id, body.CoursesID, r.getUserSession(c).UserID)
 	if err != nil {
 		fmt.Println(err)
 		r.handleError(c, err)
@@ -268,12 +268,12 @@ func (r *RestServer) handlerAssignCourses(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, assignCoursesResponse{
-		CourseID:   body.CourseID,
+		CoursesID:  body.CoursesID,
 		PositionID: id,
 	})
 }
 
 type assignCoursesResponse struct {
 	PositionID int   `json:"position_id"`
-	CourseID   []int `json:"course_id"`
+	CoursesID  []int `json:"course_id"`
 }
