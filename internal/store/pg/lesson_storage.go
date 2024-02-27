@@ -122,16 +122,6 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 
 	updatedLesson := model.Lesson{}
 
-	query := `
-		SELECT id
-		FROM lessons
-		WHERE id = $1 AND archived = false
-	`
-	_, err := tx.ExecContext(ctx, query, lesson.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	content, err := l.updateTextsTx(ctx, tx, lesson.ID, lesson.Content)
 	if err != nil {
 		return nil, err
@@ -144,14 +134,14 @@ func (l *lessonStorage) updateLessonTx(ctx context.Context,
 	}
 	updatedLesson.URLPicture = urlPicture
 
-	query = `
+	query := `
 		UPDATE lessons
-		SET name = COALESCE(NULLIF($1, ''), name)
-		WHERE id = $2
+		SET name = COALESCE(NULLIF($1, ''), name), archived = $2
+		WHERE id = $3
 		RETURNING id, course_id, name, archived
 	`
 	err = tx.GetContext(ctx, &updatedLesson,
-		query, lesson.Name, lesson.ID)
+		query, lesson.Name, lesson.Archived, lesson.ID)
 	if err != nil {
 		return nil, err
 	}
