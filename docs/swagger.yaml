@@ -377,7 +377,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Получение данных о курсах администратором
+      summary: Админ.Курсы.Получение всех курсов
       tags:
       - course
     post:
@@ -409,7 +409,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Создание нового курса
+      summary: Админ.Курсы.Создание курса
       tags:
       - course
   /admin/courses/{id}:
@@ -445,7 +445,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Получение данных курса администратором
+      summary: Админ.Курсы.Получение данных курса
       tags:
       - course
     patch:
@@ -486,7 +486,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Изменение данных курса
+      summary: Админ.Курсы.Редактирование/Архивирование курса
       tags:
       - course
   /admin/courses/{id}/lessons:
@@ -524,7 +524,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Получение уроков курса
+      summary: Админ.Уроки.Получение уроков в рамках курса.
       tags:
       - course
   /admin/employee:
@@ -557,7 +557,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Создание пользователя
+      summary: Админ. Сотрудники. Добавление сотрудника
       tags:
       - admin
   /admin/info:
@@ -594,7 +594,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Изменение данных администратора
+      summary: Админ. Профиль.Редактирование данных
       tags:
       - admin
   /admin/lessons:
@@ -627,7 +627,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Создание урока
+      summary: Админ.Урок.Создание урока в рамках курса
       tags:
       - lessons
   /admin/lessons/{id}:
@@ -665,7 +665,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Получение урока
+      summary: Админ.Урок.Получение урока курса
       tags:
       - lessons
     patch:
@@ -710,7 +710,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Обновление урока
+      summary: Админ.Урок.Редактирование/Архивирование урока курса
       tags:
       - lessons
   /admin/register:
@@ -743,7 +743,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
-      summary: Создание администратора
+      summary: Админ. Профиль. Регистрация администратора
       tags:
       - admin
   /admin/verify:
@@ -774,7 +774,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
-      summary: Верификация email'a пользователя
+      summary: Админ. Профиль. Верификация почты
       tags:
       - admin
   /invitation-link:
@@ -820,7 +820,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Регенерация пригласительной ссылки
+      summary: Админ.Сотрудники.Регенерация пригласительной ссылки
       tags:
       - admin
   /invitation-link/{email}:
@@ -860,7 +860,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Получить пригласительную ссылку
+      summary: Админ. Сотрудники. Получение пригласительной ссылки
       tags:
       - admin
   /login:
@@ -891,7 +891,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/rest.sErr'
-      summary: Вход пользователя
+      summary: Общие. Профиль. Аутентификация
   /logout:
     post:
       description: После выхода из сессии, авторизационный токен становится невалидным.
@@ -910,7 +910,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Выход из сессии
+      summary: Общие. Профиль. Выход из сессии
   /password:
     post:
       parameters:
@@ -941,7 +941,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Сброс пароля пользователя
+      summary: Общие. Профиль. Восстановление пароля
   /positions:
     get:
       produces:
@@ -963,7 +963,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение всех должностей
+      summary: Админ.Должности.Получение всех должностей
       tags:
       - position
     post:
@@ -991,7 +991,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Создание новой должности
+      summary: Админ.Должности.Создание должности
       tags:
       - position
   /positions/{id}:
@@ -1019,7 +1019,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение всех должностей
+      summary: Админ.Должности.Получение данных должности
       tags:
       - position
   /positions/{id}/courses:
@@ -1055,7 +1055,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение всех курсов привязанных к должности
+      summary: Админ.Должности.Получить список курсов для должности
       tags:
       - position
     patch:
@@ -1094,7 +1094,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Присвоение нескольких курсов к должности
+      summary: Админ.Должности. Редактировать список курсов для должности
       tags:
       - position
   /positions/update/{id}:
@@ -1132,7 +1132,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Обновление данных о должности
+      summary: Админ.Должности.Редактирование/ Архивирование должности
       tags:
       - position
   /users:
@@ -1161,7 +1161,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение данных пользователей
+      summary: Админ. Сотрудники. Получение всех сотрудников
       tags:
       - user
   /users/{id}:
@@ -1198,7 +1198,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение данных пользователя
+      summary: Админ.Сотрудники. Получение данных сотрудника
       tags:
       - user
     patch:
@@ -1240,7 +1240,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Изменение данных пользователя
+      summary: Админ.Сотрудники.Редактирование/ Архивирование сотрудника
       tags:
       - user
   /users/courses:
@@ -1272,7 +1272,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение данных о курсах пользователем
+      summary: Сотрудник. Курсы. Получение всех курсов + прогресс
       tags:
       - course
   /users/courses/{id}:
@@ -1308,7 +1308,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Получение данных курса пользователем
+      summary: Сотрудник.Курс.Получение данных курса по id
       tags:
       - course
   /users/courses/{id}/lessons:
@@ -1346,7 +1346,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение данных о уроках курса
+      summary: Сотрудник. Курс. Получение данных об уроках курса
       tags:
       - course
   /users/info:
@@ -1381,7 +1381,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение данные авторизованного пользователя
+      summary: Общие. Профиль. Получение данных авторизованного пользователя
       tags:
       - user
   /users/lessons/{id}:
@@ -1417,7 +1417,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Получение данных урока пользователя
+      summary: Сотрудник.Урок. Получение данных урока по id
       tags:
       - lessons
     patch:
@@ -1460,7 +1460,7 @@ paths:
             $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
-      summary: Обновление статуса прогресса у урока
+      summary: Сотрудник. Урок. Прогресс по уроку
       tags:
       - lessons
   /users/set-password:
@@ -1497,7 +1497,7 @@ paths:
             $ref: '#/definitions/rest.sErr'
       security:
       - Bearer: []
-      summary: Активация пользователя и установка ему пароля
+      summary: Сотрудник. Профиль. Активация пользователя и установка пароля
       tags:
       - user
 securityDefinitions:

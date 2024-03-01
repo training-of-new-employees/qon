@@ -28,7 +28,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных о курсах администратором",
+                "summary": "Админ.Курсы.Получение всех курсов",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -77,7 +77,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Создание нового курса",
+                "summary": "Админ.Курсы.Создание курса",
                 "parameters": [
                     {
                         "description": "Course Create",
@@ -130,7 +130,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных курса администратором",
+                "summary": "Админ.Курсы.Получение данных курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -185,7 +185,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Изменение данных курса",
+                "summary": "Админ.Курсы.Редактирование/Архивирование курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -251,7 +251,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение уроков курса",
+                "summary": "Админ.Уроки.Получение уроков в рамках курса.",
                 "parameters": [
                     {
                         "type": "integer",
@@ -311,7 +311,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Создание пользователя",
+                "summary": "Админ. Сотрудники. Добавление сотрудника",
                 "parameters": [
                     {
                         "description": "User Create",
@@ -364,7 +364,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Изменение данных администратора",
+                "summary": "Админ. Профиль.Редактирование данных",
                 "parameters": [
                     {
                         "description": "Admin Edit",
@@ -423,7 +423,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Создание урока",
+                "summary": "Админ.Урок.Создание урока в рамках курса",
                 "parameters": [
                     {
                         "description": "Lesson Create",
@@ -476,7 +476,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Получение урока",
+                "summary": "Админ.Урок.Получение урока курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -534,7 +534,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Обновление урока",
+                "summary": "Админ.Урок.Редактирование/Архивирование урока курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -601,7 +601,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Создание администратора",
+                "summary": "Админ. Профиль. Регистрация администратора",
                 "parameters": [
                     {
                         "description": "Create Admin",
@@ -652,7 +652,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Верификация email'a пользователя",
+                "summary": "Админ. Профиль. Верификация почты",
                 "parameters": [
                     {
                         "description": "User Email Verification",
@@ -706,7 +706,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Регенерация пригласительной ссылки",
+                "summary": "Админ.Сотрудники.Регенерация пригласительной ссылки",
                 "parameters": [
                     {
                         "description": "User email",
@@ -777,7 +777,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Получить пригласительную ссылку",
+                "summary": "Админ. Сотрудники. Получение пригласительной ссылки",
                 "parameters": [
                     {
                         "type": "string",
@@ -832,7 +832,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Вход пользователя",
+                "summary": "Общие. Профиль. Аутентификация",
                 "parameters": [
                     {
                         "description": "User SignIn",
@@ -883,7 +883,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Выход из сессии",
+                "summary": "Общие. Профиль. Выход из сессии",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -913,7 +913,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Сброс пароля пользователя",
+                "summary": "Общие. Профиль. Восстановление пароля",
                 "parameters": [
                     {
                         "description": "User Reset Password",
@@ -966,7 +966,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Получение всех должностей",
+                "summary": "Админ.Должности.Получение всех должностей",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1003,7 +1003,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Создание новой должности",
+                "summary": "Админ.Должности.Создание должности",
                 "parameters": [
                     {
                         "description": "Position Create",
@@ -1050,7 +1050,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Обновление данных о должности",
+                "summary": "Админ.Должности.Редактирование/ Архивирование должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1110,7 +1110,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Получение всех должностей",
+                "summary": "Админ.Должности.Получение данных должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1155,7 +1155,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Получение всех курсов привязанных к должности",
+                "summary": "Админ.Должности.Получить список курсов для должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1213,7 +1213,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Присвоение нескольких курсов к должности",
+                "summary": "Админ.Должности. Редактировать список курсов для должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1274,7 +1274,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Получение данных пользователей",
+                "summary": "Админ. Сотрудники. Получение всех сотрудников",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1319,7 +1319,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных о курсах пользователем",
+                "summary": "Сотрудник. Курсы. Получение всех курсов + прогресс",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1370,7 +1370,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных курса пользователем",
+                "summary": "Сотрудник.Курс.Получение данных курса по id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1427,7 +1427,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных о уроках курса",
+                "summary": "Сотрудник. Курс. Получение данных об уроках курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1488,7 +1488,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Получение данные авторизованного пользователя",
+                "summary": "Общие. Профиль. Получение данных авторизованного пользователя",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1542,7 +1542,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Получение данных урока пользователя",
+                "summary": "Сотрудник.Урок. Получение данных урока по id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1597,7 +1597,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Обновление статуса прогресса у урока",
+                "summary": "Сотрудник. Урок. Прогресс по уроку",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1666,7 +1666,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Активация пользователя и установка ему пароля",
+                "summary": "Сотрудник. Профиль. Активация пользователя и установка пароля",
                 "parameters": [
                     {
                         "description": "User Set Password",
@@ -1726,7 +1726,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Получение данных пользователя",
+                "summary": "Админ.Сотрудники. Получение данных сотрудника",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1782,7 +1782,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Изменение данных пользователя",
+                "summary": "Админ.Сотрудники.Редактирование/ Архивирование сотрудника",
                 "parameters": [
                     {
                         "type": "integer",
