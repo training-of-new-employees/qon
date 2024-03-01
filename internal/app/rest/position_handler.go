@@ -13,7 +13,7 @@ import (
 
 // CreatePosition godoc
 //
-//	@Summary	Создание новой должности
+//	@Summary	Админ.Должности.Создание должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		object	body		model.PositionSet	true	"Position Create"
@@ -56,7 +56,7 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 
 // GetPosition godoc
 //
-//	@Summary	Получение всех должностей
+//	@Summary	Админ.Должности.Получение данных должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
@@ -87,7 +87,7 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 
 // GetPositionCourses godoc
 //
-//	@Summary	Получение всех курсов привязанных к должности
+//	@Summary	Админ.Должности.Получить список курсов для должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
@@ -128,7 +128,7 @@ type getPositionCoursesResponse struct {
 
 // GetPositions godoc
 //
-//	@Summary	Получение всех должностей
+//	@Summary	Админ.Должности.Получение всех должностей
 //	@Tags		position
 //	@Produce	json
 //	@Success	200	{array}		model.Position
@@ -152,7 +152,7 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 
 // UpdatePosition godoc
 //
-//	@Summary	Обновление данных о должности
+//	@Summary	Админ.Должности.Редактирование/ Архивирование должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id		path		int					true	"Position ID"
@@ -194,7 +194,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	c.JSON(http.StatusOK, position)
 }
 
-// @Summary	Присвоение нескольких курсов к должности
+// @Summary	Админ.Должности. Редактировать список курсов для должности
 // @Accept		json
 // @Tags		position
 // @Produce	json

@@ -10,7 +10,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
-// @Summary	Создание урока
+// @Summary	Админ.Урок.Создание урока в рамках курса
 // @Tags		lessons
 // @Produce	json
 // @Param		object	body		model.Lesson	true	"Lesson Create"
@@ -44,7 +44,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	c.JSON(http.StatusCreated, lesson)
 }
 
-// @Summary	Получение урока
+// @Summary	Админ.Урок.Получение урока курса
 // @Tags		lessons
 // @Produce	json
 // @Param		id	path	int	true	"Lesson ID"
@@ -74,7 +74,7 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	c.JSON(http.StatusOK, lesson)
 }
 
-// @Summary	Обновление урока
+// @Summary	Админ.Урок.Редактирование/Архивирование урока курса
 // @Tags		lessons
 // @Produce	json
 // @Param		id		path		int					true	"Lesson ID"
@@ -120,7 +120,7 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 
 // GetLessonsList godoc
 //
-//	@Summary	Получение уроков курса
+//	@Summary	Админ.Уроки.Получение уроков в рамках курса.
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
@@ -153,7 +153,7 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 
 // GetUserLesson godoc
 //
-//	@Summary	Получение данных урока пользователя
+//	@Summary	Сотрудник.Урок. Получение данных урока по id
 //	@Tags		lessons
 //	@Param		id	path	int	true	"Lesson ID"
 //	@Produce	json
@@ -183,7 +183,7 @@ func (r *RestServer) handlerGetLesson(c *gin.Context) {
 
 // UpdateLessonStatus godoc
 //
-//	@Summary	Обновление статуса прогресса у урока
+//	@Summary	Сотрудник. Урок. Прогресс по уроку
 //	@Tags		lessons
 //	@Param		id		path	int							true	"Lesson ID"
 //	@Param		object	body	model.LessonStatusUpdate	true	"Lesson Status Update"

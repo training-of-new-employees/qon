@@ -13,7 +13,7 @@ import (
 
 // GetAdminCourses godoc
 //
-//	@Summary	Получение данных о курсах администратором
+//	@Summary	Админ.Курсы.Получение всех курсов
 //	@Tags		course
 //	@Produce	json
 //	@Success	200	{array}		model.Course
@@ -38,7 +38,7 @@ func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 
 // GetAdminCourse godoc
 //
-//	@Summary	Получение данных курса администратором
+//	@Summary	Админ.Курсы.Получение данных курса
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
@@ -69,7 +69,7 @@ func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 
 // GetUserCourse godoc
 //
-//	@Summary	Получение данных курса пользователем
+//	@Summary	Сотрудник.Курс.Получение данных курса по id
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
@@ -100,7 +100,7 @@ func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 
 // GetUserCourses godoc
 //
-//	@Summary	Получение данных о курсах пользователем
+//	@Summary	Сотрудник. Курсы. Получение всех курсов + прогресс
 //	@Tags		course
 //	@Produce	json
 //	@Success	200	{array}		model.CoursePreview
@@ -136,7 +136,7 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 
 // CreateCourse godoc
 //
-//	@Summary	Создание нового курса
+//	@Summary	Админ.Курсы.Создание курса
 //	@Tags		course
 //	@Produce	json
 //	@Param		object	body		model.CourseSet	true	"Course Create"
@@ -172,7 +172,7 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 
 // EditCourse godoc
 //
-//	@Summary	Изменение данных курса
+//	@Summary	Админ.Курсы.Редактирование/Архивирование курса
 //	@Tags		course
 //	@Produce	json
 //	@Param		id		path		int				true	"Course ID"
@@ -230,7 +230,7 @@ type courseResp struct {
 
 // GetUserCourseLessons godoc
 //
-//	@Summary	Получение данных о уроках курса
+//	@Summary	Сотрудник. Курс. Получение данных об уроках курса
 //	@Tags		course
 //	@Param		id	path	int	true	"Course ID"
 //	@Produce	json

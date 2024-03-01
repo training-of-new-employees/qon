@@ -16,7 +16,7 @@ import (
 
 // CreateAdmin godoc
 //
-//	@Summary	Создание администратора
+//	@Summary	Админ. Профиль. Регистрация администратора
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.CreateAdmin	true	"Create Admin"
@@ -50,7 +50,7 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 
 // CreateUser godoc
 //
-//	@Summary	Создание пользователя
+//	@Summary	Админ. Сотрудники. Добавление сотрудника
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.UserCreate	true	"User Create"
@@ -88,7 +88,7 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 
 // GetUsers godoc
 //
-//	@Summary		Получение данных пользователей
+//	@Summary		Админ. Сотрудники. Получение всех сотрудников
 //	@Description	Список сотрдуников в компании админа
 //	@Tags			user
 //	@Produce		json
@@ -114,7 +114,7 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 
 // GetUser godoc
 //
-//	@Summary		Получение данных пользователя
+//	@Summary		Админ.Сотрудники. Получение данных сотрудника
 //	@Description	Получение по id
 //	@Tags			user
 //	@Produce		json
@@ -154,7 +154,7 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 
 // EditUser godoc
 //
-//	@Summary		Изменение данных пользователя
+//	@Summary		Админ.Сотрудники.Редактирование/ Архивирование сотрудника
 //	@Description	Изменение по id
 //	@Tags			user
 //	@Produce		json
@@ -207,7 +207,7 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 
 // SetPassword godoc
 //
-//	@Summary	Активация пользователя и установка ему пароля
+//	@Summary	Сотрудник. Профиль. Активация пользователя и установка пароля
 //	@Tags		user
 //	@Produce	json
 //	@Param		object	body		model.UserActivation	true	"User Set Password"
@@ -257,7 +257,7 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 
 // SignIn godoc
 //
-//	@Summary	Вход пользователя
+//	@Summary	Общие. Профиль. Аутентификация
 //	@Produce	json
 //	@Param		object	body		model.UserSignIn	true	"User SignIn"
 //	@Success	200		{object}	sToken
@@ -310,7 +310,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 
 // EmailVerification godoc
 //
-//	@Summary	Верификация email'a пользователя
+//	@Summary	Админ. Профиль. Верификация почты
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
@@ -362,7 +362,7 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 // ResetPassword godoc
 //
-//	@Summary	Сброс пароля пользователя
+//	@Summary	Общие. Профиль. Восстановление пароля
 //	@Produce	json
 //	@Param		object	body		model.EmailReset	true	"User Reset Password"
 //	@Success	200		{object}	sEmail
@@ -392,7 +392,7 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 
 // AdminEdit godoc
 //
-//	@Summary	Изменение данных администратора
+//	@Summary	Админ. Профиль.Редактирование данных
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.AdminEdit	true	"Admin Edit"
@@ -424,7 +424,7 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, edited)
 }
 
-// @Summary		Регенерация пригласительной ссылки
+// @Summary		Админ.Сотрудники.Регенерация пригласительной ссылки
 // @Description	Изменение по email сотрудника
 // @Tags			admin
 // @Produce		json
@@ -468,7 +468,7 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 
 // GetInvitationLink godoc
 //
-//	@Summary	Получить пригласительную ссылку
+//	@Summary	Админ. Сотрудники. Получение пригласительной ссылки
 //	@Tags		admin
 //	@Produce	json
 //	@Param		email	path		string	true	"User email"
@@ -505,7 +505,7 @@ func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 
 // GetUser godoc
 //
-//	@Summary		Получение данные авторизованного пользователя
+//	@Summary		Общие. Профиль. Получение данных авторизованного пользователя
 //	@Description	Получение по сессии авторизованного пользователя
 //	@Tags			user
 //	@Produce		json
@@ -549,7 +549,7 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 
 // LogOut godoc
 //
-//	@Summary		Выход из сессии
+//	@Summary		Общие. Профиль. Выход из сессии
 //	@Description	После выхода из сессии, авторизационный токен становится невалидным.
 //	@Produce		json
 //	@Success		200
