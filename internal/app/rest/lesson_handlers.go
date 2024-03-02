@@ -13,7 +13,7 @@ import (
 // @Summary	Админ.Урок.Создание урока в рамках курса
 // @Tags		lessons
 // @Produce	json
-// @Param		object	body		model.Lesson	true	"Lesson Create"
+// @Param		object	body		reqCreateLesson	true	"Lesson Create"
 // @Success	201		{object}	model.Lesson
 // @Failure	400		{object}	errResponse
 // @Failure	404		{object}	errResponse
@@ -24,17 +24,24 @@ import (
 // @Router		/admin/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	ctx := c.Request.Context()
-	lessonCreate := model.Lesson{}
-	if err := c.ShouldBindJSON(&lessonCreate); err != nil {
+	reqLesson := reqCreateLesson{}
+	if err := c.ShouldBindJSON(&reqLesson); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
-	us := r.getUserSession(c)
+	lessonCreate := model.Lesson{
+		Name:       reqLesson.Name,
+		Content:    reqLesson.Content,
+		CourseID:   reqLesson.CourseID,
+		URLPicture: reqLesson.URLPicture,
+	}
+
 	if err := lessonCreate.Validation(); err != nil {
 		r.handleError(c, err)
 		return
 	}
+	us := r.getUserSession(c)
 	lesson, err := r.services.Lesson().CreateLesson(ctx, lessonCreate, us.UserID)
 	if err != nil {
 		r.handleError(c, err)
