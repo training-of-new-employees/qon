@@ -117,13 +117,13 @@ func (r *RestServer) handlerGetPositionCourses(c *gin.Context) {
 
 	c.JSON(http.StatusOK, getPositionCoursesResponse{
 		PositionID: id,
-		CourseID:   courses,
+		CoursesID:  courses,
 	})
 }
 
 type getPositionCoursesResponse struct {
 	PositionID int   `json:"position_id"`
-	CourseID   []int `json:"course_id"`
+	CoursesID  []int `json:"courses_id"`
 }
 
 // GetPositions godoc

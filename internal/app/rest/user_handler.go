@@ -167,7 +167,7 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Tags			user
 //	@Produce		json
 //	@Param			id		path		int				true	"User ID"
-//	@Param			object	body		model.UserEdit	true	"User info"
+//	@Param			object	body		reqEditUser true	"User info"
 //	@Success		200		{object}	model.UserEdit
 //	@Failure		400		{object}	errResponse
 //	@Failure		403		{object}	errResponse
@@ -186,12 +186,21 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		return
 	}
 
-	edit := &model.UserEdit{}
-	if err := c.ShouldBindJSON(&edit); err != nil {
+	reqEdit := reqEditUser{}
+	if err := c.ShouldBindJSON(&reqEdit); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
-	edit.ID = id
+	edit := &model.UserEdit{
+		ID:         id,
+		PositionID: reqEdit.PositionID,
+		IsActive:   reqEdit.IsActive,
+		IsArchived: reqEdit.IsArchived,
+		Email:      reqEdit.Email,
+		Name:       reqEdit.Name,
+		Patronymic: reqEdit.Patronymic,
+		Surname:    reqEdit.Surname,
+	}
 
 	session := r.getUserSession(c)
 	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, edit.ID, session.OrgID) {
@@ -404,7 +413,7 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.AdminEdit	true	"Admin Edit"
-//	@Success	200		{object}	model.AdminEdit
+//	@Success	200		{object}	reqEditAdmin
 //	@Failure	400		{object}	errResponse
 //	@Failure	401		{object}	errResponse
 //	@Failure	404		{object}	errResponse

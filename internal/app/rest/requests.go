@@ -8,6 +8,16 @@ type reqCreateUser struct {
 	Patronymic string `json:"patronymic" db:"patronymic"`
 }
 
+type reqEditUser struct {
+	PositionID *int    `json:"position_id,omitempty" db:"position_id"`
+	IsActive   *bool   `json:"active" db:"active"`
+	IsArchived *bool   `json:"archived" db:"archived"`
+	Email      *string `json:"email,omitempty" db:"email"`
+	Name       *string `json:"name,omitempty" db:"name"`
+	Patronymic *string `json:"patronymic,omitempty" db:"patronymic"`
+	Surname    *string `json:"surname,omitempty" db:"surname"`
+}
+
 type reqEditAdmin struct {
 	Email      *string `json:"email,omitempty"        db:"email"`
 	Company    *string `json:"company_name,omitempty" db:"company_name"`
