@@ -150,7 +150,7 @@ definitions:
     type: object
   model.PositionAssignCourses:
     properties:
-      course_id:
+      courses_id:
         items:
           type: integer
         type: array
@@ -200,29 +200,6 @@ definitions:
       invite:
         type: string
       password:
-        type: string
-    type: object
-  model.UserCreate:
-    properties:
-      active:
-        type: boolean
-      admin:
-        type: boolean
-      archived:
-        type: boolean
-      company_id:
-        type: integer
-      email:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-      patronymic:
-        type: string
-      position_id:
-        type: integer
-      surname:
         type: string
     type: object
   model.UserEdit:
@@ -291,6 +268,11 @@ definitions:
       position_id:
         type: integer
     type: object
+  rest.bodyResponse:
+    properties:
+      message:
+        type: string
+    type: object
   rest.courseResp:
     properties:
       archived:
@@ -309,12 +291,68 @@ definitions:
     type: object
   rest.getPositionCoursesResponse:
     properties:
-      course_id:
+      courses_id:
         items:
           type: integer
         type: array
       position_id:
         type: integer
+    type: object
+  rest.reqCreateLesson:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: integer
+      name:
+        type: string
+      url_picture:
+        type: string
+    type: object
+  rest.reqCreateUser:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      patronymic:
+        type: string
+      position_id:
+        type: integer
+      surname:
+        type: string
+    type: object
+  rest.reqEditAdmin:
+    properties:
+      company_name:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  rest.reqEditUser:
+    properties:
+      active:
+        type: boolean
+      archived:
+        type: boolean
+      email:
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      position_id:
+        type: integer
+      surname:
+        type: string
     type: object
   rest.sEmail:
     properties:
@@ -535,7 +573,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.UserCreate'
+          $ref: '#/definitions/rest.reqCreateUser'
       produces:
       - application/json
       responses:
@@ -546,22 +584,22 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ. Сотрудники. Добавление сотрудника
       tags:
       - admin
   /admin/info:
-    post:
+    patch:
       parameters:
       - description: Admin Edit
         in: body
@@ -575,23 +613,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.AdminEdit'
+            $ref: '#/definitions/rest.reqEditAdmin'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ. Профиль.Редактирование данных
@@ -605,7 +643,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.Lesson'
+          $ref: '#/definitions/rest.reqCreateLesson'
       produces:
       - application/json
       responses:
@@ -728,21 +766,19 @@ paths:
         "201":
           description: Created
           schema:
-            items:
-              $ref: '#/definitions/rest.sEmail'
-            type: array
+            $ref: '#/definitions/rest.sEmail'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       summary: Админ. Профиль. Регистрация администратора
       tags:
       - admin
@@ -797,27 +833,27 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Сотрудники.Регенерация пригласительной ссылки
@@ -882,15 +918,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       summary: Общие. Профиль. Аутентификация
   /logout:
     post:
@@ -900,14 +936,16 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/rest.bodyResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Общие. Профиль. Выход из сессии
@@ -930,15 +968,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Общие. Профиль. Восстановление пароля
@@ -956,11 +994,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Должности.Получение всех должностей
@@ -984,11 +1022,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Должности.Создание должности
@@ -1012,11 +1050,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Должности.Получение данных должности
@@ -1040,19 +1078,19 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Должности.Получить список курсов для должности
@@ -1083,15 +1121,15 @@ paths:
         "400":
           description: Неверный формат запроса
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Пользователь не является сотрудником компании
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Должности. Редактировать список курсов для должности
@@ -1121,15 +1159,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Должности.Редактирование/ Архивирование должности
@@ -1150,15 +1188,15 @@ paths:
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ. Сотрудники. Получение всех сотрудников
@@ -1183,19 +1221,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Сотрудники. Получение данных сотрудника
@@ -1214,7 +1252,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.UserEdit'
+          $ref: '#/definitions/rest.reqEditUser'
       produces:
       - application/json
       responses:
@@ -1225,19 +1263,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Админ.Сотрудники.Редактирование/ Архивирование сотрудника
@@ -1257,19 +1295,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Сотрудник. Курсы. Получение всех курсов + прогресс
@@ -1331,19 +1369,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Сотрудник. Курс. Получение данных об уроках курса
@@ -1402,19 +1440,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Сотрудник.Урок. Получение данных урока по id
@@ -1439,9 +1477,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/rest.updateLessonStatusResponse'
-            type: array
+            $ref: '#/definitions/rest.updateLessonStatusResponse'
         "400":
           description: Bad Request
           schema:
@@ -1482,19 +1518,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.sErr'
+            $ref: '#/definitions/rest.errResponse'
       security:
       - Bearer: []
       summary: Сотрудник. Профиль. Активация пользователя и установка пароля
