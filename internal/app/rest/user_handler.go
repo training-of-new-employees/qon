@@ -53,7 +53,7 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 //	@Summary	Админ. Сотрудники. Добавление сотрудника
 //	@Tags		admin
 //	@Produce	json
-//	@Param		object	body		model.UserCreate	true	"User Create"
+//	@Param		object	body		reqCreateUser	true	"User Create"
 //	@Success	201		{object}	model.User
 //	@Failure	400		{object}	sErr
 //	@Failure	409		{object}	sErr
@@ -64,25 +64,33 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 //	@Router		/admin/employee [post]
 func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	userReq := model.UserCreate{}
 
-	if err := c.ShouldBindJSON(&userReq); err != nil {
+	reqUser := reqCreateUser{}
+	if err := c.ShouldBindJSON(&reqUser); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
-	if err := userReq.Validation(); err != nil {
+	user := model.UserCreate{
+		PositionID: reqUser.PositionID,
+		Email:      reqUser.Email,
+		Name:       reqUser.Name,
+		Surname:    reqUser.Surname,
+		Patronymic: reqUser.Patronymic,
+	}
+
+	if err := user.Validation(); err != nil {
 		r.handleError(c, err)
 		return
 	}
 
-	user, err := r.services.User().CreateUser(ctx, userReq)
+	created, err := r.services.User().CreateUser(ctx, user)
 	if err != nil {
 		r.handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, created)
 
 }
 
@@ -552,7 +560,7 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 //	@Summary		Общие. Профиль. Выход из сессии
 //	@Description	После выхода из сессии, авторизационный токен становится невалидным.
 //	@Produce		json
-//	@Success		200
+//	@Success		200 {object}  bodyResponse
 //	@Failure		401	{object}	sErr
 //	@Failure		500	{object}	sErr
 //
