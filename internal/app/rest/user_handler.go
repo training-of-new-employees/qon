@@ -77,6 +77,9 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 		Name:       reqUser.Name,
 		Surname:    reqUser.Surname,
 		Patronymic: reqUser.Patronymic,
+		Password:   reqUser.Password,
+		CompanyID:  r.getUserSession(c).OrgID,
+		IsActive:   true,
 	}
 
 	if err := user.Validation(); err != nil {
@@ -166,8 +169,8 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Description	Изменение по id
 //	@Tags			user
 //	@Produce		json
-//	@Param			id		path		int				true	"User ID"
-//	@Param			object	body		reqEditUser true	"User info"
+//	@Param			id		path		int			true	"User ID"
+//	@Param			object	body		reqEditUser	true	"User info"
 //	@Success		200		{object}	model.UserEdit
 //	@Failure		400		{object}	errResponse
 //	@Failure		403		{object}	errResponse
@@ -191,6 +194,8 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
+
+	session := r.getUserSession(c)
 	edit := &model.UserEdit{
 		ID:         id,
 		PositionID: reqEdit.PositionID,
@@ -200,9 +205,9 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		Name:       reqEdit.Name,
 		Patronymic: reqEdit.Patronymic,
 		Surname:    reqEdit.Surname,
+		CompanyID:  &session.OrgID,
 	}
 
-	session := r.getUserSession(c)
 	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, edit.ID, session.OrgID) {
 		r.handleError(c, errs.ErrNoAccess)
 		return

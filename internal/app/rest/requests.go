@@ -6,6 +6,7 @@ type reqCreateUser struct {
 	Name       string `json:"name" db:"name"`
 	Surname    string `json:"surname" db:"surname"`
 	Patronymic string `json:"patronymic" db:"patronymic"`
+	Password   string `json:"password" db:"enc_password"`
 }
 
 type reqEditUser struct {
