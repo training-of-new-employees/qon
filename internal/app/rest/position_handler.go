@@ -18,8 +18,8 @@ import (
 //	@Produce	json
 //	@Param		object	body		model.PositionSet	true	"Position Create"
 //	@Success	201		{object}	model.Position
-//	@Failure	400		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -61,8 +61,8 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
 //	@Success	200	{object}	model.Position
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -92,10 +92,10 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
 //	@Success	200	{object}	getPositionCoursesResponse
-//	@Failure	401	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	401	{object}	errResponse
+//	@Failure	403	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -132,8 +132,8 @@ type getPositionCoursesResponse struct {
 //	@Tags		position
 //	@Produce	json
 //	@Success	200	{array}		model.Position
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -158,9 +158,9 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 //	@Param		id		path		int					true	"Position ID"
 //	@Param		object	body		model.PositionSet	true	"Position info"
 //	@Success	200		{object}	model.Position
-//	@Failure	400		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -201,9 +201,9 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 // @Param		id		path		int							true	"Position ID"
 // @Param		object	body		model.PositionAssignCourses	true	"Courses"
 // @Success	200		{object}	assignCoursesResponse
-// @Failure	400		{object}	sErr	"Неверный формат запроса"
-// @Failure	401		{object}	sErr	"Пользователь не является сотрудником компании"
-// @Failure	500		{object}	sErr	"Внутренняя ошибка сервера"
+// @Failure	400		{object}	errResponse	"Неверный формат запроса"
+// @Failure	401		{object}	errResponse	"Пользователь не является сотрудником компании"
+// @Failure	500		{object}	errResponse	"Внутренняя ошибка сервера"
 //
 // @Security	Bearer
 //

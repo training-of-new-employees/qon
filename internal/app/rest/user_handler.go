@@ -21,9 +21,9 @@ import (
 //	@Produce	json
 //	@Param		object	body		model.CreateAdmin	true	"Create Admin"
 //	@Success	201		{object}	sEmail
-//	@Failure	400		{object}	sErr
-//	@Failure	409		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	409		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //	@Router		/admin/register [post]
 func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -55,9 +55,9 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 //	@Produce	json
 //	@Param		object	body		reqCreateUser	true	"User Create"
 //	@Success	201		{object}	model.User
-//	@Failure	400		{object}	sErr
-//	@Failure	409		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	409		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -101,9 +101,9 @@ func (r *RestServer) handlerCreateUser(c *gin.Context) {
 //	@Tags			user
 //	@Produce		json
 //	@Success		200	{array}		model.User
-//	@Failure		403	{object}	sErr
-//	@Failure		404	{object}	sErr
-//	@Failure		500	{object}	sErr
+//	@Failure		403	{object}	errResponse
+//	@Failure		404	{object}	errResponse
+//	@Failure		500	{object}	errResponse
 //
 //	@Security		Bearer
 //
@@ -128,10 +128,10 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		int	true	"User ID"
 //	@Success		200	{object}	model.UserInfo
-//	@Failure		400	{object}	sErr
-//	@Failure		403	{object}	sErr
-//	@Failure		404	{object}	sErr
-//	@Failure		500	{object}	sErr
+//	@Failure		400	{object}	errResponse
+//	@Failure		403	{object}	errResponse
+//	@Failure		404	{object}	errResponse
+//	@Failure		500	{object}	errResponse
 //
 //	@Security		Bearer
 //
@@ -169,10 +169,10 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 //	@Param			id		path		int				true	"User ID"
 //	@Param			object	body		model.UserEdit	true	"User info"
 //	@Success		200		{object}	model.UserEdit
-//	@Failure		400		{object}	sErr
-//	@Failure		403		{object}	sErr
-//	@Failure		404		{object}	sErr
-//	@Failure		500		{object}	sErr
+//	@Failure		400		{object}	errResponse
+//	@Failure		403		{object}	errResponse
+//	@Failure		404		{object}	errResponse
+//	@Failure		500		{object}	errResponse
 //
 //	@Security		Bearer
 //
@@ -220,10 +220,10 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 //	@Produce	json
 //	@Param		object	body		model.UserActivation	true	"User Set Password"
 //	@Success	200		{object}	sToken
-//	@Failure	400		{object}	sErr
-//	@Failure	401		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -269,9 +269,9 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 //	@Produce	json
 //	@Param		object	body		model.UserSignIn	true	"User SignIn"
 //	@Success	200		{object}	sToken
-//	@Failure	400		{object}	sErr
-//	@Failure	401		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //	@Router		/login [post]
 func (r *RestServer) handlerSignIn(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -374,9 +374,9 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 //	@Produce	json
 //	@Param		object	body		model.EmailReset	true	"User Reset Password"
 //	@Success	200		{object}	sEmail
-//	@Failure	400		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -405,10 +405,10 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Produce	json
 //	@Param		object	body		model.AdminEdit	true	"Admin Edit"
 //	@Success	200		{object}	model.AdminEdit
-//	@Failure	400		{object}	sErr
-//	@Failure	401		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -445,12 +445,12 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 // @Produce		json
 // @Param			object	body		model.InvitationLinkRequest	true	"User email"
 // @Success		200		{object}	model.InvitationLinkResponse
-// @Failure		400		{object}	sErr
-// @Failure		401		{object}	sErr
-// @Failure		403		{object}	sErr
-// @Failure		404		{object}	sErr
-// @Failure		409		{object}	sErr
-// @Failure		500		{object}	sErr
+// @Failure		400		{object}	errResponse
+// @Failure		401		{object}	errResponse
+// @Failure		403		{object}	errResponse
+// @Failure		404		{object}	errResponse
+// @Failure		409		{object}	errResponse
+// @Failure		500		{object}	errResponse
 //
 // @Security		Bearer
 //
@@ -568,8 +568,8 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 //	@Description	После выхода из сессии, авторизационный токен становится невалидным.
 //	@Produce		json
 //	@Success		200	{object}	bodyResponse
-//	@Failure		401	{object}	sErr
-//	@Failure		500	{object}	sErr
+//	@Failure		401	{object}	errResponse
+//	@Failure		500	{object}	errResponse
 //
 //	@Security		Bearer
 //

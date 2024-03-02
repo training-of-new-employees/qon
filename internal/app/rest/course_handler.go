@@ -104,10 +104,10 @@ func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 //	@Tags		course
 //	@Produce	json
 //	@Success	200	{array}		model.CoursePreview
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -235,10 +235,10 @@ type courseResp struct {
 //	@Param		id	path	int	true	"Course ID"
 //	@Produce	json
 //	@Success	200	{array}		model.LessonPreview
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //

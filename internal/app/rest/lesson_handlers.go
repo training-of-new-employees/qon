@@ -165,10 +165,10 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 //	@Param		id	path	int	true	"Lesson ID"
 //	@Produce	json
 //	@Success	200	{object}	model.Lesson
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //	@Security	Bearer
 //	@Router		/users/lessons/{id} [get]
 func (r *RestServer) handlerGetLesson(c *gin.Context) {
@@ -195,7 +195,7 @@ func (r *RestServer) handlerGetLesson(c *gin.Context) {
 //	@Param		id		path	int							true	"Lesson ID"
 //	@Param		object	body	model.LessonStatusUpdate	true	"Lesson Status Update"
 //	@Produce	json
-//	@Success	200	{object}		updateLessonStatusResponse
+//	@Success	200	{object}	updateLessonStatusResponse
 //	@Failure	400	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
