@@ -195,7 +195,7 @@ func (r *RestServer) handlerGetLesson(c *gin.Context) {
 //	@Param		id		path	int							true	"Lesson ID"
 //	@Param		object	body	model.LessonStatusUpdate	true	"Lesson Status Update"
 //	@Produce	json
-//	@Success	200	{array}		updateLessonStatusResponse
+//	@Success	200	{object}		updateLessonStatusResponse
 //	@Failure	400	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse

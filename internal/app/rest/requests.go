@@ -8,6 +8,14 @@ type reqCreateUser struct {
 	Patronymic string `json:"patronymic" db:"patronymic"`
 }
 
+type reqEditAdmin struct {
+	Email      *string `json:"email,omitempty"        db:"email"`
+	Company    *string `json:"company_name,omitempty" db:"company_name"`
+	Name       *string `json:"name,omitempty"         db:"name"`
+	Patronymic *string `json:"patronymic,omitempty"   db:"patronymic"`
+	Surname    *string `json:"surname,omitempty"      db:"surname"`
+}
+
 type reqCreateLesson struct {
 	CourseID   int    `db:"course_id"   json:"course_id"`
 	Name       string `db:"name"        json:"name"`

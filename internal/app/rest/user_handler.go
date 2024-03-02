@@ -415,13 +415,20 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Router		/admin/info [patch]
 func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	ctx := c.Request.Context()
+	reqEdit := reqEditAdmin{}
 
-	edit := model.AdminEdit{}
-	if err := c.ShouldBindJSON(&edit); err != nil {
+	if err := c.ShouldBindJSON(&reqEdit); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
-	edit.ID = r.getUserSession(c).UserID
+	edit := model.AdminEdit{
+		ID:         r.getUserSession(c).UserID,
+		Company:    reqEdit.Company,
+		Email:      reqEdit.Email,
+		Name:       reqEdit.Name,
+		Patronymic: reqEdit.Patronymic,
+		Surname:    reqEdit.Surname,
+	}
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	if err != nil {
