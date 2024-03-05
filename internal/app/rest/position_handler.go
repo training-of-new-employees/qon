@@ -3,12 +3,12 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/utils"
 )
 
 // CreatePosition godoc
@@ -70,8 +70,8 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 func (r *RestServer) handlerGetPosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id < 0 {
+	id, err := utils.ConvertID(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
@@ -103,8 +103,8 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 func (r *RestServer) handlerGetPositionCourses(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id < 0 {
+	id, err := utils.ConvertID(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
@@ -169,7 +169,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 	positionReq := model.PositionSet{}
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -243,8 +243,8 @@ func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 func (r *RestServer) handlerAssignCourses(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id < 0 {
+	id, err := utils.ConvertID(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}

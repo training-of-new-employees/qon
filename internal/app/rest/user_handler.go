@@ -13,6 +13,7 @@ import (
 	"github.com/training-of-new-employees/qon/internal/logger"
 	"github.com/training-of-new-employees/qon/internal/model"
 	"github.com/training-of-new-employees/qon/internal/pkg/access"
+	"github.com/training-of-new-employees/qon/internal/utils"
 )
 
 // CreateAdmin godoc
@@ -123,7 +124,7 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 func (r *RestServer) handlerGetUser(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userID, err := strconv.Atoi(c.Param("id"))
+	userID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -161,7 +162,7 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 func (r *RestServer) handlerEditUser(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return

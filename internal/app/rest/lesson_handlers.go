@@ -2,12 +2,12 @@ package rest
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/utils"
 )
 
 // @Summary	Создание урока
@@ -53,7 +53,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 // @Failure	500	{object}	errResponse
 // @Router		/admin/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
-	lessonID, err := strconv.Atoi(c.Param("id"))
+	lessonID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -86,7 +86,7 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	var err error
 	lessonUpdate := model.LessonUpdate{}
 
-	lessonUpdate.ID, err = strconv.Atoi(c.Param("id"))
+	lessonUpdate.ID, err = utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -124,7 +124,7 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 //	@Failure	500	{object}	errResponse
 //	@Router		/admin/courses/{id}/lessons [get]
 func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
-	courseID, err := strconv.Atoi(c.Param("id"))
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -155,7 +155,7 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 //	@Security	Bearer
 //	@Router		/users/lessons/{id} [get]
 func (r *RestServer) handlerGetLesson(c *gin.Context) {
-	lessonID, err := strconv.Atoi(c.Param("id"))
+	lessonID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -185,7 +185,7 @@ func (r *RestServer) handlerGetLesson(c *gin.Context) {
 //	@Failure	500	{object}	errResponse
 //	@Router		/users/lessons/{id} [patch]
 func (r *RestServer) handlerUpdateLessonStatus(c *gin.Context) {
-	lessonID, err := strconv.Atoi(c.Param("id"))
+	lessonID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
