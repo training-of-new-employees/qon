@@ -7,28 +7,6 @@ import (
 	"github.com/training-of-new-employees/qon/internal/pkg/randomseq"
 )
 
-func NewTestReqCreatePosition(CompanyID, PositionID int) (reqCreateUser, model.User) {
-	request := reqCreateUser{
-		Email:      randomseq.RandomEmail(),
-		Name:       fmt.Sprintf("Test%s", randomseq.RandomName(10)),
-		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
-		Surname:    fmt.Sprintf("Test%s", randomseq.RandomName(10)),
-		PositionID: PositionID,
-	}
-
-	user := model.User{
-		ID:         2,
-		CompanyID:  CompanyID,
-		PositionID: PositionID,
-		Email:      request.Email,
-		Name:       request.Name,
-		Patronymic: request.Patronymic,
-		Surname:    request.Surname,
-	}
-
-	return request, user
-}
-
 func NewTestReqCreateUser(CompanyID, PositionID int) (reqCreateUser, model.User) {
 	request := reqCreateUser{
 		Email:      randomseq.RandomEmail(),
