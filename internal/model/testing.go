@@ -16,7 +16,7 @@ func NewTestUserCreate() UserCreate {
 		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		Surname:    fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		IsAdmin:    false,
-		IsActive:   true,
+		IsActive:   false,
 	}
 }
 

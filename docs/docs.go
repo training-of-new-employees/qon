@@ -85,7 +85,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CourseSet"
+                            "$ref": "#/definitions/rest.reqCreateCourse"
                         }
                     }
                 ],
@@ -372,7 +372,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.AdminEdit"
+                            "$ref": "#/definitions/rest.reqEditAdmin"
                         }
                     }
                 ],
@@ -380,7 +380,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/rest.reqEditAdmin"
+                            "$ref": "#/definitions/model.AdminEdit"
                         }
                     },
                     "400": {
@@ -1011,7 +1011,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionSet"
+                            "$ref": "#/definitions/rest.reqCreatePosition"
                         }
                     }
                 ],
@@ -2294,14 +2294,35 @@ const docTemplate = `{
                 }
             }
         },
+        "rest.reqCreateCourse": {
+            "type": "object",
+            "required": [
+                "description",
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "rest.reqCreateLesson": {
             "type": "object",
+            "required": [
+                "content",
+                "course_id",
+                "name"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
                 },
                 "course_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
                     "type": "string"
@@ -2311,23 +2332,44 @@ const docTemplate = `{
                 }
             }
         },
-        "rest.reqCreateUser": {
+        "rest.reqCreatePosition": {
             "type": "object",
+            "required": [
+                "company_id",
+                "name"
+            ],
             "properties": {
-                "email": {
-                    "type": "string"
+                "company_id": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "rest.reqCreateUser": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "position_id",
+                "surname"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "somebody@example.org"
                 },
-                "password": {
+                "name": {
                     "type": "string"
                 },
                 "patronymic": {
                     "type": "string"
                 },
                 "position_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "surname": {
                     "type": "string"
@@ -2341,7 +2383,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "somebody@example.org"
                 },
                 "name": {
                     "type": "string"
@@ -2364,16 +2407,14 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "somebody@example.org"
                 },
                 "name": {
                     "type": "string"
                 },
                 "patronymic": {
                     "type": "string"
-                },
-                "position_id": {
-                    "type": "integer"
                 },
                 "surname": {
                     "type": "string"

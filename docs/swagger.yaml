@@ -298,37 +298,69 @@ definitions:
       position_id:
         type: integer
     type: object
+  rest.reqCreateCourse:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
   rest.reqCreateLesson:
     properties:
       content:
         type: string
       course_id:
+        example: 1
         type: integer
       name:
         type: string
       url_picture:
         type: string
+    required:
+    - content
+    - course_id
+    - name
+    type: object
+  rest.reqCreatePosition:
+    properties:
+      company_id:
+        example: 1
+        type: integer
+      name:
+        type: string
+    required:
+    - company_id
+    - name
     type: object
   rest.reqCreateUser:
     properties:
       email:
+        example: somebody@example.org
         type: string
       name:
-        type: string
-      password:
         type: string
       patronymic:
         type: string
       position_id:
+        example: 1
         type: integer
       surname:
         type: string
+    required:
+    - email
+    - name
+    - position_id
+    - surname
     type: object
   rest.reqEditAdmin:
     properties:
       company_name:
         type: string
       email:
+        example: somebody@example.org
         type: string
       name:
         type: string
@@ -344,13 +376,12 @@ definitions:
       archived:
         type: boolean
       email:
+        example: somebody@example.org
         type: string
       name:
         type: string
       patronymic:
         type: string
-      position_id:
-        type: integer
       surname:
         type: string
     type: object
@@ -425,7 +456,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.CourseSet'
+          $ref: '#/definitions/rest.reqCreateCourse'
       produces:
       - application/json
       responses:
@@ -606,14 +637,14 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.AdminEdit'
+          $ref: '#/definitions/rest.reqEditAdmin'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/rest.reqEditAdmin'
+            $ref: '#/definitions/model.AdminEdit'
         "400":
           description: Bad Request
           schema:
@@ -1011,7 +1042,7 @@ paths:
         name: object
         required: true
         schema:
-          $ref: '#/definitions/model.PositionSet'
+          $ref: '#/definitions/rest.reqCreatePosition'
       produces:
       - application/json
       responses:

@@ -139,7 +139,7 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 //	@Summary	Админ.Курсы.Создание курса
 //	@Tags		course
 //	@Produce	json
-//	@Param		object	body		model.CourseSet	true	"Course Create"
+//	@Param		object	body		reqCreateCourse	true	"Course Create"
 //	@Success	201		{object}	model.Course
 //	@Failure	400		{object}	errResponse
 //	@Failure	401		{object}	errResponse
@@ -150,12 +150,21 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 //	@Router		/admin/courses [post]
 func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	course := model.NewCourseSet(0, r.getUserSession(c).UserID)
-	err := c.BindJSON(&course)
+
+	reqCourse := reqCreateCourse{}
+
+	err := c.BindJSON(&reqCourse)
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+
+	course := model.CourseSet{
+		CreatedBy:   r.getUserSession(c).UserID,
+		Name:        reqCourse.Name,
+		Description: reqCourse.Description,
+	}
+
 	err = course.Validation()
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)

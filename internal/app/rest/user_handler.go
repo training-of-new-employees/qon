@@ -65,21 +65,19 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	reqUser := reqCreateUser{}
-	if err := c.ShouldBindJSON(&reqUser); err != nil {
+	request := reqCreateUser{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
 	user := model.UserCreate{
-		PositionID: reqUser.PositionID,
-		Email:      reqUser.Email,
-		Name:       reqUser.Name,
-		Surname:    reqUser.Surname,
-		Patronymic: reqUser.Patronymic,
-		Password:   reqUser.Password,
 		CompanyID:  r.getUserSession(c).OrgID,
-		IsActive:   true,
+		PositionID: request.PositionID,
+		Email:      request.Email,
+		Name:       request.Name,
+		Surname:    request.Surname,
+		Patronymic: request.Patronymic,
 	}
 
 	if err := user.Validation(); err != nil {
@@ -189,8 +187,8 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		return
 	}
 
-	reqEdit := reqEditUser{}
-	if err := c.ShouldBindJSON(&reqEdit); err != nil {
+	request := reqEditUser{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
@@ -198,14 +196,12 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 	session := r.getUserSession(c)
 	edit := &model.UserEdit{
 		ID:         id,
-		PositionID: reqEdit.PositionID,
-		IsActive:   reqEdit.IsActive,
-		IsArchived: reqEdit.IsArchived,
-		Email:      reqEdit.Email,
-		Name:       reqEdit.Name,
-		Patronymic: reqEdit.Patronymic,
-		Surname:    reqEdit.Surname,
-		CompanyID:  &session.OrgID,
+		Email:      request.Email,
+		Name:       request.Name,
+		Patronymic: request.Patronymic,
+		Surname:    request.Surname,
+		IsArchived: request.IsArchived,
+		IsActive:   request.IsActive,
 	}
 
 	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, edit.ID, session.OrgID) {
@@ -417,8 +413,8 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Summary	Админ. Профиль.Редактирование данных
 //	@Tags		admin
 //	@Produce	json
-//	@Param		object	body		model.AdminEdit	true	"Admin Edit"
-//	@Success	200		{object}	reqEditAdmin
+//	@Param		object	body		reqEditAdmin	true	"Admin Edit"
+//	@Success	200		{object}	model.AdminEdit
 //	@Failure	400		{object}	errResponse
 //	@Failure	401		{object}	errResponse
 //	@Failure	404		{object}	errResponse
@@ -429,19 +425,19 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 //	@Router		/admin/info [patch]
 func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	ctx := c.Request.Context()
-	reqEdit := reqEditAdmin{}
+	request := reqEditAdmin{}
 
-	if err := c.ShouldBindJSON(&reqEdit); err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 	edit := model.AdminEdit{
 		ID:         r.getUserSession(c).UserID,
-		Company:    reqEdit.Company,
-		Email:      reqEdit.Email,
-		Name:       reqEdit.Name,
-		Patronymic: reqEdit.Patronymic,
-		Surname:    reqEdit.Surname,
+		Company:    request.Company,
+		Email:      request.Email,
+		Name:       request.Name,
+		Patronymic: request.Patronymic,
+		Surname:    request.Surname,
 	}
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)

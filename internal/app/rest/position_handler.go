@@ -16,7 +16,7 @@ import (
 //	@Summary	Админ.Должности.Создание должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		object	body		model.PositionSet	true	"Position Create"
+//	@Param		object	body		reqCreatePosition	true	"Position Create"
 //	@Success	201		{object}	model.Position
 //	@Failure	400		{object}	errResponse
 //	@Failure	500		{object}	errResponse
@@ -26,11 +26,17 @@ import (
 //	@Router		/positions [post]
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
-	positionReq := model.PositionSet{}
 
-	if err := c.ShouldBindJSON(&positionReq); err != nil {
+	request := &reqCreatePosition{}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
+	}
+
+	positionReq := model.PositionSet{
+		CompanyID: request.CompanyID,
+		Name:      request.Name,
 	}
 
 	if err := positionReq.Validation(); err != nil {
