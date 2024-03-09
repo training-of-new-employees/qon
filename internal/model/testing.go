@@ -16,7 +16,7 @@ func NewTestUserCreate() UserCreate {
 		Patronymic: fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		Surname:    fmt.Sprintf("Test%s", randomseq.RandomName(10)),
 		IsAdmin:    false,
-		IsActive:   true,
+		IsActive:   false,
 	}
 }
 
@@ -36,7 +36,7 @@ func NewTestPositionSet() PositionSet {
 
 func NewTestPositionAssignCourses() PositionAssignCourses {
 	return PositionAssignCourses{
-		CourseID: []int{1, 2, 3},
+		CoursesID: []int{1, 2, 3},
 	}
 }
 

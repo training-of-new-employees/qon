@@ -84,13 +84,11 @@ func (s *RestServer) InitRoutes() {
 	userAdminGroup.GET("", s.handlerGetUsers)
 	userAdminGroup.GET("/:id", s.handlerGetUser)
 	userAdminGroup.PATCH("/:id", s.handlerEditUser)
-	userAdminGroup.PATCH("/archive/:id", s.handlerArchiveUser)
 
 	position := mvp.Group("/positions")
 	position.Use(s.IsAuthenticated())
 	position.Use(s.IsAdmin())
 	position.POST("", s.handlerCreatePosition)
-	position.POST("/course", s.handlerAssignCourse)
 	position.GET("", s.handlerGetPositions)
 	position.GET("/:id/courses", s.handlerGetPositionCourses)
 	position.PATCH("/:id/courses", s.handlerAssignCourses)

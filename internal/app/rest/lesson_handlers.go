@@ -10,28 +10,38 @@ import (
 	"github.com/training-of-new-employees/qon/internal/model"
 )
 
-// @Summary	Создание урока
+// @Summary	Админ.Урок.Создание урока в рамках курса
 // @Tags		lessons
 // @Produce	json
-// @Param		object	body		model.Lesson	true	"Lesson Create"
+// @Param		object	body		reqCreateLesson	true	"Lesson Create"
 // @Success	201		{object}	model.Lesson
 // @Failure	400		{object}	errResponse
 // @Failure	404		{object}	errResponse
 // @Failure	500		{object}	errResponse
+//
+// @Security	Bearer
+//
 // @Router		/admin/lessons [post]
 func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	ctx := c.Request.Context()
-	lessonCreate := model.Lesson{}
-	if err := c.ShouldBindJSON(&lessonCreate); err != nil {
+	reqLesson := reqCreateLesson{}
+	if err := c.ShouldBindJSON(&reqLesson); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
-	us := r.getUserSession(c)
+	lessonCreate := model.Lesson{
+		Name:       reqLesson.Name,
+		Content:    reqLesson.Content,
+		CourseID:   reqLesson.CourseID,
+		URLPicture: reqLesson.URLPicture,
+	}
+
 	if err := lessonCreate.Validation(); err != nil {
 		r.handleError(c, err)
 		return
 	}
+	us := r.getUserSession(c)
 	lesson, err := r.services.Lesson().CreateLesson(ctx, lessonCreate, us.UserID)
 	if err != nil {
 		r.handleError(c, err)
@@ -41,7 +51,7 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 	c.JSON(http.StatusCreated, lesson)
 }
 
-// @Summary	Получение урока
+// @Summary	Админ.Урок.Получение урока курса
 // @Tags		lessons
 // @Produce	json
 // @Param		id	path	int	true	"Lesson ID"
@@ -51,6 +61,9 @@ func (r *RestServer) handlerLessonCreate(c *gin.Context) {
 // @Failure	403	{object}	errResponse
 // @Failure	404	{object}	errResponse
 // @Failure	500	{object}	errResponse
+//
+// @Security	Bearer
+//
 // @Router		/admin/lessons/{id} [get]
 func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	lessonID, err := strconv.Atoi(c.Param("id"))
@@ -70,7 +83,7 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 	c.JSON(http.StatusOK, lesson)
 }
 
-// @Summary	Обновление урока
+// @Summary	Админ.Урок.Редактирование/Архивирование урока курса
 // @Tags		lessons
 // @Produce	json
 // @Param		id		path		int					true	"Lesson ID"
@@ -81,6 +94,9 @@ func (r *RestServer) handlerLessonGet(c *gin.Context) {
 // @Failure	403		{object}	errResponse
 // @Failure	404		{object}	errResponse
 // @Failure	500		{object}	errResponse
+//
+// @Security	Bearer
+//
 // @Router		/admin/lessons/{id} [patch]
 func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 	var err error
@@ -113,15 +129,18 @@ func (r *RestServer) handlerLessonUpdate(c *gin.Context) {
 
 // GetLessonsList godoc
 //
-//	@Summary	Получение уроков курса
+//	@Summary	Админ.Уроки.Получение уроков в рамках курса.
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
-//	@Success	200	{object}	[]model.Lesson
+//	@Success	200	{array}		model.Lesson
 //	@Failure	404	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	403	{object}	errResponse
 //	@Failure	500	{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/admin/courses/{id}/lessons [get]
 func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 	courseID, err := strconv.Atoi(c.Param("id"))
@@ -143,15 +162,15 @@ func (r *RestServer) handlerGetLessonsList(c *gin.Context) {
 
 // GetUserLesson godoc
 //
-//	@Summary	Получение данных урока пользователя
+//	@Summary	Сотрудник.Урок. Получение данных урока по id
 //	@Tags		lessons
 //	@Param		id	path	int	true	"Lesson ID"
 //	@Produce	json
 //	@Success	200	{object}	model.Lesson
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //	@Security	Bearer
 //	@Router		/users/lessons/{id} [get]
 func (r *RestServer) handlerGetLesson(c *gin.Context) {
@@ -173,16 +192,19 @@ func (r *RestServer) handlerGetLesson(c *gin.Context) {
 
 // UpdateLessonStatus godoc
 //
-//	@Summary	Обновление статуса прогресса у урока
+//	@Summary	Сотрудник. Урок. Прогресс по уроку
 //	@Tags		lessons
 //	@Param		id		path	int							true	"Lesson ID"
 //	@Param		object	body	model.LessonStatusUpdate	true	"Lesson Status Update"
 //	@Produce	json
-//	@Success	200	{array}		updateLessonStatusResponse
+//	@Success	200	{object}	updateLessonStatusResponse
 //	@Failure	400	{object}	errResponse
 //	@Failure	401	{object}	errResponse
 //	@Failure	404	{object}	errResponse
 //	@Failure	500	{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/users/lessons/{id} [patch]
 func (r *RestServer) handlerUpdateLessonStatus(c *gin.Context) {
 	lessonID, err := strconv.Atoi(c.Param("id"))

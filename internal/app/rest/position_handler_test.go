@@ -512,7 +512,7 @@ func (suite *handlerTestSuite) TestPositionAssignCourses() {
 
 				suite.positionService.
 					EXPECT().
-					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CoursesID, userID).
 					Return(nil)
 
 				body, _ := json.Marshal(positionAssignCourse)
@@ -529,7 +529,7 @@ func (suite *handlerTestSuite) TestPositionAssignCourses() {
 
 				suite.positionService.
 					EXPECT().
-					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CoursesID, userID).
 					Return(errs.ErrPositionNotFound)
 
 				body, _ := json.Marshal(positionAssignCourse)
@@ -546,7 +546,7 @@ func (suite *handlerTestSuite) TestPositionAssignCourses() {
 
 				suite.positionService.
 					EXPECT().
-					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CoursesID, userID).
 					Return(errs.ErrPositionCourseUsed)
 
 				body, _ := json.Marshal(positionAssignCourse)
@@ -583,7 +583,7 @@ func (suite *handlerTestSuite) TestPositionAssignCourses() {
 
 				suite.positionService.
 					EXPECT().
-					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CourseID, userID).
+					AssignCourses(gomock.Any(), positionID, positionAssignCourse.CoursesID, userID).
 					Return(errs.ErrInternal)
 
 				body, _ := json.Marshal(positionAssignCourse)

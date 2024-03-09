@@ -36,7 +36,7 @@ type (
 	}
 
 	PositionAssignCourses struct {
-		CourseID []int `json:"course_id"`
+		CoursesID []int `json:"courses_id"`
 	}
 )
 

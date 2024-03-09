@@ -97,6 +97,8 @@ func (suite *handlerTestSuite) TestHandlerCreateAdminInCache() {
 }
 
 func (suite *handlerTestSuite) TestHandlerCreateUser() {
+	companyID := 1
+
 	testCases := []struct {
 		name         string
 		expectedCode int
@@ -106,23 +108,11 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 			name:         "success",
 			expectedCode: http.StatusCreated,
 			prepare: func() []byte {
-				u := model.NewTestUserCreate()
+				request, user := NewTestReqCreateUser(companyID, 2)
 
-				u.CompanyID = 1
-				u.PositionID = 2
+				suite.userService.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(&user, nil)
 
-				user := &model.User{
-					ID:         2,
-					Email:      u.Email,
-					CompanyID:  u.CompanyID,
-					PositionID: u.PositionID,
-					Name:       u.Name,
-					Patronymic: u.Patronymic,
-					Surname:    u.Surname,
-				}
-				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(user, nil)
-
-				body, _ := json.Marshal(u)
+				body, _ := json.Marshal(request)
 
 				return body
 			},
@@ -131,11 +121,8 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 			name:         "invalid email",
 			expectedCode: http.StatusBadRequest,
 			prepare: func() []byte {
-				u := model.NewTestUserCreate()
-
-				u.Email = "invalid"
-				u.CompanyID = 1
-				u.PositionID = 2
+				request, _ := NewTestReqCreateUser(companyID, 2)
+				request.Email = "invalid"
 
 				// TODO: если валидация входящих данных будет перенесена в сервис, раскомментировать
 				//
@@ -150,7 +137,7 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 				// }
 				// suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(user, nil)
 
-				body, _ := json.Marshal(u)
+				body, _ := json.Marshal(request)
 
 				return body
 			},
@@ -169,14 +156,11 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 			expectedCode: http.StatusConflict,
 			prepare: func() []byte {
 				// подготовка моков для выполнения тест-кейса
-				u := model.NewTestUserCreate()
+				request, _ := NewTestReqCreateUser(companyID, 2)
 
-				u.CompanyID = 1
-				u.PositionID = 2
+				suite.userService.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(nil, errs.ErrEmailAlreadyExists)
 
-				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(nil, errs.ErrEmailAlreadyExists)
-
-				body, _ := json.Marshal(u)
+				body, _ := json.Marshal(request)
 
 				return body
 			},
@@ -186,14 +170,11 @@ func (suite *handlerTestSuite) TestHandlerCreateUser() {
 			expectedCode: http.StatusInternalServerError,
 			prepare: func() []byte {
 				// подготовка моков для выполнения тест-кейса
-				u := model.NewTestUserCreate()
+				request, _ := NewTestReqCreateUser(companyID, 2)
 
-				u.CompanyID = 1
-				u.PositionID = 2
+				suite.userService.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(nil, errs.ErrInternal)
 
-				suite.userService.EXPECT().CreateUser(gomock.Any(), u).Return(nil, errs.ErrInternal)
-
-				body, _ := json.Marshal(u)
+				body, _ := json.Marshal(request)
 
 				return body
 			},
@@ -375,11 +356,11 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 				positionID := 2
 
-				editField, expected := model.NewTestEditUser(userID, companyID, positionID)
+				request, expected := NewTestReqEditUser(userID, companyID, positionID)
 
-				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(&expected, nil)
+				suite.userService.EXPECT().EditUser(gomock.Any(), gomock.Any(), companyID).Return(&expected, nil)
 
-				body, _ := json.Marshal(editField)
+				body, _ := json.Marshal(request)
 
 				return fmt.Sprint(userID), body
 			},
@@ -411,10 +392,10 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 				positionID := 2
 
-				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
-				editField.Email = p[string]("№testuser@.yandex.ru")
+				request, _ := NewTestReqEditUser(userID, companyID, positionID)
+				request.Email = p[string]("№testuser@.yandex.ru")
 
-				body, _ := json.Marshal(editField)
+				body, _ := json.Marshal(request)
 
 				return fmt.Sprint(userID), body
 			},
@@ -426,10 +407,10 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 				positionID := 2
 
-				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
-				editField.Email = p[string]("y.ru")
+				request, _ := NewTestReqEditUser(userID, companyID, positionID)
+				request.Email = p[string]("y.ru")
 
-				body, _ := json.Marshal(editField)
+				body, _ := json.Marshal(request)
 
 				return fmt.Sprint(userID), body
 			},
@@ -441,10 +422,10 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 				positionID := 2
 
-				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
-				editField.Name = p[string]("")
+				request, _ := NewTestReqEditUser(userID, companyID, positionID)
+				request.Name = p[string]("")
 
-				body, _ := json.Marshal(editField)
+				body, _ := json.Marshal(request)
 
 				return fmt.Sprint(userID), body
 			},
@@ -456,11 +437,10 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 				positionID := 2
 
-				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				request, _ := NewTestReqEditUser(userID, companyID, positionID)
+				suite.userService.EXPECT().EditUser(gomock.Any(), gomock.Any(), companyID).Return(nil, errs.ErrUserNotFound)
 
-				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(nil, errs.ErrUserNotFound)
-
-				body, _ := json.Marshal(editField)
+				body, _ := json.Marshal(request)
 
 				return fmt.Sprint(userID), body
 			},
@@ -472,11 +452,10 @@ func (suite *handlerTestSuite) TestHandlerEditUser() {
 				userID := 2
 				positionID := 2
 
-				editField, _ := model.NewTestEditUser(userID, companyID, positionID)
+				request, _ := NewTestReqEditUser(userID, companyID, positionID)
+				suite.userService.EXPECT().EditUser(gomock.Any(), gomock.Any(), companyID).Return(nil, errs.ErrInternal)
 
-				suite.userService.EXPECT().EditUser(gomock.Any(), &editField, companyID).Return(nil, errs.ErrInternal)
-
-				body, _ := json.Marshal(editField)
+				body, _ := json.Marshal(request)
 
 				return fmt.Sprint(userID), body
 

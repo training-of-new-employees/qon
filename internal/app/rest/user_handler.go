@@ -2,7 +2,6 @@ package rest
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,14 +16,14 @@ import (
 
 // CreateAdmin godoc
 //
-//	@Summary	Создание администратора
+//	@Summary	Админ. Профиль. Регистрация администратора
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.CreateAdmin	true	"Create Admin"
-//	@Success	201		{array}		sEmail
-//	@Failure	400		{object}	sErr
-//	@Failure	409		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Success	201		{object}	sEmail
+//	@Failure	400		{object}	errResponse
+//	@Failure	409		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //	@Router		/admin/register [post]
 func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -51,49 +50,64 @@ func (r *RestServer) handlerCreateAdminInCache(c *gin.Context) {
 
 // CreateUser godoc
 //
-//	@Summary	Создание пользователя
+//	@Summary	Админ. Сотрудники. Добавление сотрудника
 //	@Tags		admin
 //	@Produce	json
-//	@Param		object	body		model.UserCreate	true	"User Create"
+//	@Param		object	body		reqCreateUser	true	"User Create"
 //	@Success	201		{object}	model.User
-//	@Failure	400		{object}	sErr
-//	@Failure	409		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	409		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/admin/employee [post]
 func (r *RestServer) handlerCreateUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	userReq := model.UserCreate{}
 
-	if err := c.ShouldBindJSON(&userReq); err != nil {
+	request := reqCreateUser{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
 
-	if err := userReq.Validation(); err != nil {
+	user := model.UserCreate{
+		CompanyID:  r.getUserSession(c).OrgID,
+		PositionID: request.PositionID,
+		Email:      request.Email,
+		Name:       request.Name,
+		Surname:    request.Surname,
+		Patronymic: request.Patronymic,
+	}
+
+	if err := user.Validation(); err != nil {
 		r.handleError(c, err)
 		return
 	}
 
-	user, err := r.services.User().CreateUser(ctx, userReq)
+	created, err := r.services.User().CreateUser(ctx, user)
 	if err != nil {
 		r.handleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, created)
 
 }
 
 // GetUsers godoc
 //
-//	@Summary		Получение данных пользователей
+//	@Summary		Админ. Сотрудники. Получение всех сотрудников
 //	@Description	Список сотрдуников в компании админа
 //	@Tags			user
 //	@Produce		json
 //	@Success		200	{array}		model.User
-//	@Failure		403	{object}	sErr
-//	@Failure		404	{object}	sErr
-//	@Failure		500	{object}	sErr
+//	@Failure		403	{object}	errResponse
+//	@Failure		404	{object}	errResponse
+//	@Failure		500	{object}	errResponse
+//
+//	@Security		Bearer
+//
 //	@Router			/users [get]
 func (r *RestServer) handlerGetUsers(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -109,16 +123,19 @@ func (r *RestServer) handlerGetUsers(c *gin.Context) {
 
 // GetUser godoc
 //
-//	@Summary		Получение данных пользователя
+//	@Summary		Админ.Сотрудники. Получение данных сотрудника
 //	@Description	Получение по id
 //	@Tags			user
 //	@Produce		json
 //	@Param			id	path		int	true	"User ID"
 //	@Success		200	{object}	model.UserInfo
-//	@Failure		400	{object}	sErr
-//	@Failure		403	{object}	sErr
-//	@Failure		404	{object}	sErr
-//	@Failure		500	{object}	sErr
+//	@Failure		400	{object}	errResponse
+//	@Failure		403	{object}	errResponse
+//	@Failure		404	{object}	errResponse
+//	@Failure		500	{object}	errResponse
+//
+//	@Security		Bearer
+//
 //	@Router			/users/{id} [get]
 func (r *RestServer) handlerGetUser(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -146,17 +163,20 @@ func (r *RestServer) handlerGetUser(c *gin.Context) {
 
 // EditUser godoc
 //
-//	@Summary		Изменение данных пользователя
+//	@Summary		Админ.Сотрудники.Редактирование/ Архивирование сотрудника
 //	@Description	Изменение по id
 //	@Tags			user
 //	@Produce		json
-//	@Param			id		path		int				true	"User ID"
-//	@Param			object	body		model.UserEdit	true	"User info"
+//	@Param			id		path		int			true	"User ID"
+//	@Param			object	body		reqEditUser	true	"User info"
 //	@Success		200		{object}	model.UserEdit
-//	@Failure		400		{object}	sErr
-//	@Failure		403		{object}	sErr
-//	@Failure		404		{object}	sErr
-//	@Failure		500		{object}	sErr
+//	@Failure		400		{object}	errResponse
+//	@Failure		403		{object}	errResponse
+//	@Failure		404		{object}	errResponse
+//	@Failure		500		{object}	errResponse
+//
+//	@Security		Bearer
+//
 //	@Router			/users/{id} [patch]
 func (r *RestServer) handlerEditUser(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -167,14 +187,23 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 		return
 	}
 
-	edit := &model.UserEdit{}
-	if err := c.ShouldBindJSON(&edit); err != nil {
+	request := reqEditUser{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
-	edit.ID = id
 
 	session := r.getUserSession(c)
+	edit := &model.UserEdit{
+		ID:         id,
+		Email:      request.Email,
+		Name:       request.Name,
+		Patronymic: request.Patronymic,
+		Surname:    request.Surname,
+		IsArchived: request.IsArchived,
+		IsActive:   request.IsActive,
+	}
+
 	if !access.CanUser(session.IsAdmin, session.OrgID, session.UserID, edit.ID, session.OrgID) {
 		r.handleError(c, errs.ErrNoAccess)
 		return
@@ -196,15 +225,18 @@ func (r *RestServer) handlerEditUser(c *gin.Context) {
 
 // SetPassword godoc
 //
-//	@Summary	Активация пользователя и установка ему пароля
+//	@Summary	Сотрудник. Профиль. Активация пользователя и установка пароля
 //	@Tags		user
 //	@Produce	json
 //	@Param		object	body		model.UserActivation	true	"User Set Password"
 //	@Success	200		{object}	sToken
-//	@Failure	400		{object}	sErr
-//	@Failure	401		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/users/set-password [post]
 func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -241,51 +273,15 @@ func (r *RestServer) handlerSetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, s().SetToken(tokens.AccessToken))
 }
 
-// ArchiveUser godoc
-//
-//	@Summary	Архивирование пользователя по id
-//	@Tags		user
-//	@Produce	json
-//	@Param		id	path	int	true	"User ID"
-//	@Success	200
-//	@Failure	400	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
-//	@Router		/users/archive/{id} [patch]
-func (r *RestServer) handlerArchiveUser(c *gin.Context) {
-	ctx := c.Request.Context()
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		msg := fmt.Errorf("got invalid user id: %s", idParam)
-		logger.Log.Warn("error", zap.Error(msg))
-		c.JSON(http.StatusBadRequest, s().SetError(msg))
-		return
-	}
-	us := r.getUserSession(c)
-	err = r.services.User().ArchiveUser(ctx, id, us.OrgID)
-	switch {
-	case errors.Is(err, errs.ErrUserNotFound):
-		c.JSON(http.StatusNotFound, s().SetError(err))
-		return
-	case err != nil:
-		c.JSON(http.StatusInternalServerError, s().SetError(err))
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
 // SignIn godoc
 //
-//	@Summary	Вход пользователя
+//	@Summary	Общие. Профиль. Аутентификация
 //	@Produce	json
 //	@Param		object	body		model.UserSignIn	true	"User SignIn"
 //	@Success	200		{object}	sToken
-//	@Failure	400		{object}	sErr
-//	@Failure	401		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //	@Router		/login [post]
 func (r *RestServer) handlerSignIn(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -332,7 +328,7 @@ func (r *RestServer) handlerSignIn(c *gin.Context) {
 
 // EmailVerification godoc
 //
-//	@Summary	Верификация email'a пользователя
+//	@Summary	Админ. Профиль. Верификация почты
 //	@Tags		admin
 //	@Produce	json
 //	@Param		object	body		model.Code	true	"User Email Verification"
@@ -384,13 +380,16 @@ func (r *RestServer) handlerAdminEmailVerification(c *gin.Context) {
 
 // ResetPassword godoc
 //
-//	@Summary	Сброс пароля пользователя
+//	@Summary	Общие. Профиль. Восстановление пароля
 //	@Produce	json
 //	@Param		object	body		model.EmailReset	true	"User Reset Password"
 //	@Success	200		{object}	sEmail
-//	@Failure	400		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/password [post]
 func (r *RestServer) handlerResetPassword(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -411,25 +410,35 @@ func (r *RestServer) handlerResetPassword(c *gin.Context) {
 
 // AdminEdit godoc
 //
-//	@Summary	Изменение данных администратора
+//	@Summary	Админ. Профиль.Редактирование данных
 //	@Tags		admin
 //	@Produce	json
-//	@Param		object	body		model.AdminEdit	true	"Admin Edit"
+//	@Param		object	body		reqEditAdmin	true	"Admin Edit"
 //	@Success	200		{object}	model.AdminEdit
-//	@Failure	400		{object}	sErr
-//	@Failure	401		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
-//	@Router		/admin/info [post]
+//	@Failure	400		{object}	errResponse
+//	@Failure	401		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
+//	@Router		/admin/info [patch]
 func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	ctx := c.Request.Context()
+	request := reqEditAdmin{}
 
-	edit := model.AdminEdit{}
-	if err := c.ShouldBindJSON(&edit); err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
 	}
-	edit.ID = r.getUserSession(c).UserID
+	edit := model.AdminEdit{
+		ID:         r.getUserSession(c).UserID,
+		Company:    request.Company,
+		Email:      request.Email,
+		Name:       request.Name,
+		Patronymic: request.Patronymic,
+		Surname:    request.Surname,
+	}
 
 	edited, err := r.services.User().EditAdmin(ctx, edit)
 	if err != nil {
@@ -440,18 +449,21 @@ func (r *RestServer) handlerEditAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, edited)
 }
 
-// @Summary		Регенерация пригласительной ссылки
+// @Summary		Админ.Сотрудники.Регенерация пригласительной ссылки
 // @Description	Изменение по email сотрудника
 // @Tags			admin
 // @Produce		json
 // @Param			object	body		model.InvitationLinkRequest	true	"User email"
 // @Success		200		{object}	model.InvitationLinkResponse
-// @Failure		400		{object}	sErr
-// @Failure		401		{object}	sErr
-// @Failure		403		{object}	sErr
-// @Failure		404		{object}	sErr
-// @Failure		409		{object}	sErr
-// @Failure		500		{object}	sErr
+// @Failure		400		{object}	errResponse
+// @Failure		401		{object}	errResponse
+// @Failure		403		{object}	errResponse
+// @Failure		404		{object}	errResponse
+// @Failure		409		{object}	errResponse
+// @Failure		500		{object}	errResponse
+//
+// @Security		Bearer
+//
 // @Router			/invitation-link [patch]
 func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -481,7 +493,7 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 
 // GetInvitationLink godoc
 //
-//	@Summary	Получить пригласительную ссылку
+//	@Summary	Админ. Сотрудники. Получение пригласительной ссылки
 //	@Tags		admin
 //	@Produce	json
 //	@Param		email	path		string	true	"User email"
@@ -491,6 +503,9 @@ func (r *RestServer) handlerRegenerationInvitationLink(c *gin.Context) {
 //	@Failure	403		{object}	errResponse
 //	@Failure	404		{object}	errResponse
 //	@Failure	500		{object}	errResponse
+//
+//	@Security	Bearer
+//
 //	@Router		/invitation-link/{email}  [get]
 func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -515,8 +530,8 @@ func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 
 // GetUser godoc
 //
-//	@Summary		Получение данные авторизованного пользователя
-//	@Description	Получение по сесии авторизованного пользователя
+//	@Summary		Общие. Профиль. Получение данных авторизованного пользователя
+//	@Description	Получение по сессии авторизованного пользователя
 //	@Tags			user
 //	@Produce		json
 //	@Success		200	{object}	model.UserInfo
@@ -525,6 +540,9 @@ func (r *RestServer) handlerGetInvitationLink(c *gin.Context) {
 //	@Failure		403	{object}	sErr
 //	@Failure		404	{object}	sErr
 //	@Failure		500	{object}	sErr
+//
+//	@Security		Bearer
+//
 //	@Router			/users/info [get]
 func (r *RestServer) handlerUserInfo(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -556,12 +574,15 @@ func (r *RestServer) handlerUserInfo(c *gin.Context) {
 
 // LogOut godoc
 //
-//	@Summary		Выход из сессии
+//	@Summary		Общие. Профиль. Выход из сессии
 //	@Description	После выхода из сессии, авторизационный токен становится невалидным.
 //	@Produce		json
-//	@Success		200
-//	@Failure		401	{object}	sErr
-//	@Failure		500	{object}	sErr
+//	@Success		200	{object}	bodyResponse
+//	@Failure		401	{object}	errResponse
+//	@Failure		500	{object}	errResponse
+//
+//	@Security		Bearer
+//
 //	@Router			/logout [post]
 func (r *RestServer) handlerLogOut(c *gin.Context) {
 	us := r.getUserSession(c)
