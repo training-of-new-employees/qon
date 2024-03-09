@@ -54,7 +54,7 @@ func (cs *courseService) GetUserCourse(ctx context.Context, courseID, userID int
 }
 
 func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, courseID int) ([]model.Lesson, error) {
-	course, err := cs.db.CourseStorage().GetUserCourse(ctx, userID, courseID)
+	course, err := cs.db.CourseStorage().GetUserCourse(ctx, courseID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -64,12 +64,22 @@ func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, c
 		return nil, err
 	}
 
-	if len(lessons) == 0 {
-		return lessons, nil
+	filteredLessons := make([]model.Lesson, 0, len(lessons))
+
+	for _, lesson := range lessons {
+		if lesson.Archived {
+			continue
+		}
+
+		filteredLessons = append(filteredLessons, lesson)
 	}
 
-	lessonsIds := make([]int, 0, len(lessons))
-	for _, lesson := range lessons {
+	if len(filteredLessons) == 0 {
+		return filteredLessons, nil
+	}
+
+	lessonsIds := make([]int, 0, len(filteredLessons))
+	for _, lesson := range filteredLessons {
 		lessonsIds = append(lessonsIds, lesson.ID)
 	}
 
@@ -78,11 +88,11 @@ func (cs *courseService) GetUserCourseLessons(ctx context.Context, userID int, c
 		return nil, err
 	}
 
-	for idx, lesson := range lessons {
-		lessons[idx].Status = statuses[lesson.ID]
+	for idx, lesson := range filteredLessons {
+		filteredLessons[idx].Status = statuses[lesson.ID]
 	}
 
-	return lessons, nil
+	return filteredLessons, nil
 }
 
 func (cs *courseService) GetCompanyCourses(ctx context.Context, companyID int) ([]model.Course, error) {

@@ -3,17 +3,17 @@ package rest
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/utils"
 )
 
 // GetAdminCourses godoc
 //
-//	@Summary	Получение данных о курсах администратором
+//	@Summary	Админ.Курсы.Получение всех курсов
 //	@Tags		course
 //	@Produce	json
 //	@Success	200	{array}		model.Course
@@ -38,7 +38,7 @@ func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 
 // GetAdminCourse godoc
 //
-//	@Summary	Получение данных курса администратором
+//	@Summary	Админ.Курсы.Получение данных курса
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
@@ -53,11 +53,13 @@ func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 //	@Router		/admin/courses/{id} [get]
 func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	courseID, err := strconv.Atoi(c.Param("id"))
+
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+
 	us := r.getUserSession(c)
 	course, err := r.services.Course().GetCompanyCourse(ctx, courseID, us.OrgID)
 	if err != nil {
@@ -69,7 +71,7 @@ func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 
 // GetUserCourse godoc
 //
-//	@Summary	Получение данных курса пользователем
+//	@Summary	Сотрудник.Курс.Получение данных курса по id
 //	@Tags		course
 //	@Produce	json
 //	@Param		id	path		int	true	"Course ID"
@@ -84,7 +86,8 @@ func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 //	@Router		/users/courses/{id} [get]
 func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	courseID, err := strconv.Atoi(c.Param("id"))
+
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -100,14 +103,14 @@ func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 
 // GetUserCourses godoc
 //
-//	@Summary	Получение данных о курсах пользователем
+//	@Summary	Сотрудник. Курсы. Получение всех курсов + прогресс
 //	@Tags		course
 //	@Produce	json
 //	@Success	200	{array}		model.CoursePreview
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -136,10 +139,10 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 
 // CreateCourse godoc
 //
-//	@Summary	Создание нового курса
+//	@Summary	Админ.Курсы.Создание курса
 //	@Tags		course
 //	@Produce	json
-//	@Param		object	body		model.CourseSet	true	"Course Create"
+//	@Param		object	body		reqCreateCourse	true	"Course Create"
 //	@Success	201		{object}	model.Course
 //	@Failure	400		{object}	errResponse
 //	@Failure	401		{object}	errResponse
@@ -150,12 +153,21 @@ func (r *RestServer) handlerGetUserCourses(c *gin.Context) {
 //	@Router		/admin/courses [post]
 func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	course := model.NewCourseSet(0, r.getUserSession(c).UserID)
-	err := c.BindJSON(&course)
+
+	reqCourse := reqCreateCourse{}
+
+	err := c.BindJSON(&reqCourse)
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+
+	course := model.CourseSet{
+		CreatedBy:   r.getUserSession(c).UserID,
+		Name:        reqCourse.Name,
+		Description: reqCourse.Description,
+	}
+
 	err = course.Validation()
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
@@ -172,7 +184,7 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 
 // EditCourse godoc
 //
-//	@Summary	Изменение данных курса
+//	@Summary	Админ.Курсы.Редактирование/Архивирование курса
 //	@Tags		course
 //	@Produce	json
 //	@Param		id		path		int				true	"Course ID"
@@ -188,8 +200,8 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 //	@Router		/admin/courses/{id} [patch]
 func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	sID := c.Param("id")
-	id, err := strconv.Atoi(sID)
+
+	id, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -230,15 +242,15 @@ type courseResp struct {
 
 // GetUserCourseLessons godoc
 //
-//	@Summary	Получение данных о уроках курса
+//	@Summary	Сотрудник. Курс. Получение данных об уроках курса
 //	@Tags		course
 //	@Param		id	path	int	true	"Course ID"
 //	@Produce	json
 //	@Success	200	{array}		model.LessonPreview
-//	@Failure	400	{object}	sErr
-//	@Failure	401	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	400	{object}	errResponse
+//	@Failure	401	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -246,8 +258,8 @@ type courseResp struct {
 func (r *RestServer) handlerGetUserCourseLessons(c *gin.Context) {
 	ctx := c.Request.Context()
 	us := r.getUserSession(c)
-	courseIDStr := c.Param("id")
-	courseID, err := strconv.Atoi(courseIDStr)
+
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return

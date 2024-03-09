@@ -10,6 +10,18 @@ import (
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
+const (
+	minEmailL       = 7
+	maxEmailL       = 50
+	minCompanyNameL = 1
+	maxCompanyNameL = 256
+	minPatronymicL  = 1
+	minNameL        = 1
+	maxNameL        = 128
+	minPasswordL    = 6
+	maxPasswordL    = 30
+)
+
 type (
 	User struct {
 		ID           int       `db:"id"           json:"id"`
@@ -81,7 +93,7 @@ func (u *UserCreate) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 	// Проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.By(validateEmail(&u.Email))); err != nil {
+	if err := validation.Validate(&u.Email, validation.Length(minEmailL, maxEmailL), validation.By(validateEmail(&u.Email))); err != nil {
 		return errs.ErrInvalidEmail
 	}
 	// проверка на пустоту id компании
@@ -97,7 +109,7 @@ func (u *UserCreate) Validation() error {
 		return errs.ErrUserNameNotEmpty
 	}
 	// проверка требований к имени
-	if err := validation.Validate(&u.Name, validation.RuneLength(2, 128), validation.By(validateUserName(&u.Name))); err != nil {
+	if err := validation.Validate(&u.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateUserName(&u.Name))); err != nil {
 		return errs.ErrInvalidUserName
 	}
 	// проверка на пустоту фамилии пользователя
@@ -105,12 +117,12 @@ func (u *UserCreate) Validation() error {
 		return errs.ErrUserSurnameNotEmpty
 	}
 	// проверка требований к фамилии
-	if err := validation.Validate(&u.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(&u.Surname))); err != nil {
+	if err := validation.Validate(&u.Surname, validation.RuneLength(minNameL, maxNameL), validation.By(validateUserName(&u.Surname))); err != nil {
 		return errs.ErrInvalidUserSurname
 	}
 	if u.Patronymic != "" {
 		// проверка требований к отчеству
-		if err := validation.Validate(&u.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(&u.Patronymic))); err != nil {
+		if err := validation.Validate(&u.Patronymic, validation.RuneLength(minPatronymicL, maxNameL), validation.By(validateUserName(&u.Patronymic))); err != nil {
 			return errs.ErrInvalidUserPatronymic
 		}
 	}
@@ -118,6 +130,7 @@ func (u *UserCreate) Validation() error {
 	return nil
 }
 
+// Validation - валидация входящих данных при редактировании данных пользователя.
 func (ue *UserEdit) Validation() error {
 	if ue.Email != nil {
 		// проверка на пустоту поля емейл
@@ -125,7 +138,7 @@ func (ue *UserEdit) Validation() error {
 			return errs.ErrEmailNotEmpty
 		}
 		// Проверка емейла на корректность
-		if err := validation.Validate(&ue.Email, validation.By(validateEmail(ue.Email))); err != nil {
+		if err := validation.Validate(&ue.Email, validation.Length(minEmailL, maxEmailL), validation.By(validateEmail(ue.Email))); err != nil {
 			return errs.ErrInvalidEmail
 		}
 	}
@@ -134,7 +147,7 @@ func (ue *UserEdit) Validation() error {
 		if err := validation.Validate(&ue.Name, validation.Required); err != nil {
 			return errs.ErrUserNameNotEmpty
 		}
-		if err := validation.Validate(&ue.Name, validation.RuneLength(2, 128), validation.By(validateUserName(ue.Name))); err != nil {
+		if err := validation.Validate(&ue.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateUserName(ue.Name))); err != nil {
 			return errs.ErrInvalidUserName
 		}
 	}
@@ -143,22 +156,22 @@ func (ue *UserEdit) Validation() error {
 			return errs.ErrUserSurnameNotEmpty
 		}
 		// проверка требований к фамилии
-		if err := validation.Validate(&ue.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(ue.Surname))); err != nil {
+		if err := validation.Validate(&ue.Surname, validation.RuneLength(minNameL, maxNameL), validation.By(validateUserName(ue.Surname))); err != nil {
 			return errs.ErrInvalidUserSurname
 		}
 	}
 
 	if ue.Patronymic != nil {
 		// проверка требований к отчеству
-		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(ue.Patronymic))); err != nil {
+		if err := validation.Validate(&ue.Patronymic, validation.RuneLength(minPatronymicL, maxNameL), validation.By(validateUserName(ue.Patronymic))); err != nil {
 			return errs.ErrInvalidUserPatronymic
 		}
 	}
 	return nil
 }
 
+// SetPassword - преобразование пароля в хеш.
 func (u *UserCreate) SetPassword() error {
-
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 	if err != nil {
 		return fmt.Errorf("error SetPassword: %v", err)
@@ -169,20 +182,8 @@ func (u *UserCreate) SetPassword() error {
 	return nil
 }
 
-func (u *UserCreate) SetActive() error {
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
-	if err != nil {
-		return fmt.Errorf("error SetPassword: %v", err)
-	}
-
-	u.Password = string(hash)
-
-	return nil
-}
-
+// CheckPassword - проверка правильности введенного пароля путем сравнения с его хеш-значением.
 func (u *User) CheckPassword(password string) error {
-
 	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
 		return fmt.Errorf("error hash password validation: %v", err)
 	}
@@ -190,6 +191,7 @@ func (u *User) CheckPassword(password string) error {
 	return nil
 }
 
+// Validation - валидация входящих данных при аутентификации.
 func (u *UserSignIn) Validation() error {
 	if u.Email == "" || u.Password == "" {
 		return errs.ErrEmailOrPasswordEmpty
@@ -214,7 +216,7 @@ func (u *UserActivation) Validation() error {
 	}
 
 	// Проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.By(validateEmail(&u.Email))); err != nil {
+	if err := validation.Validate(&u.Email, validation.Length(minEmailL, maxEmailL), validation.By(validateEmail(&u.Email))); err != nil {
 		return errs.ErrInvalidEmail
 	}
 
@@ -222,7 +224,7 @@ func (u *UserActivation) Validation() error {
 		return errs.ErrPasswordNotEmpty
 	}
 
-	if err := validation.Validate(&u.Password, validation.Length(6, 30)); err != nil {
+	if err := validation.Validate(&u.Password, validation.Length(minPasswordL, maxPasswordL)); err != nil {
 		return errs.ErrInvalidPassword
 	}
 
@@ -276,7 +278,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrEmailNotEmpty
 	}
 	// Проверка емейла на корректность
-	if err := validation.Validate(&u.Email, validation.By(validateEmail(&u.Email))); err != nil {
+	if err := validation.Validate(&u.Email, validation.Length(minEmailL, maxEmailL), validation.By(validateEmail(&u.Email))); err != nil {
 		return errs.ErrInvalidEmail
 	}
 	// Проверка на пустоту пароля
@@ -284,7 +286,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrPasswordNotEmpty
 	}
 	// Проверка на длину пароля
-	if err := validation.Validate(&u.Password, validation.Length(6, 30)); err != nil {
+	if err := validation.Validate(&u.Password, validation.Length(minPasswordL, maxPasswordL)); err != nil {
 		return errs.ErrInvalidPassword
 	}
 	// Проверка состава пароля
@@ -296,7 +298,7 @@ func (u *CreateAdmin) Validation() error {
 		return errs.ErrCompanyNameNotEmpty
 	}
 	// Проверка имени компании на состав
-	if err := validation.Validate(&u.Company, validation.Length(1, 256), validation.By(validateNameDescription(&u.Company))); err != nil {
+	if err := validation.Validate(&u.Company, validation.Length(minCompanyNameL, maxCompanyNameL), validation.By(validateObjName(&u.Company))); err != nil {
 		return errs.ErrInvalidCompanyName
 	}
 
@@ -316,6 +318,7 @@ func (u *CreateAdmin) SetPassword() error {
 
 }
 
+// Validation - - валидация входящих данных при редактировании администратора.
 func (ae *AdminEdit) Validation() error {
 	if ae.Email != nil {
 		// проверка на пустоту поля емейл
@@ -323,7 +326,7 @@ func (ae *AdminEdit) Validation() error {
 			return errs.ErrEmailNotEmpty
 		}
 		// Проверка емейла на корректность
-		if err := validation.Validate(&ae.Email, validation.By(validateEmail(ae.Email))); err != nil {
+		if err := validation.Validate(&ae.Email, validation.Length(minEmailL, maxEmailL), validation.By(validateEmail(ae.Email))); err != nil {
 			return errs.ErrInvalidEmail
 		}
 	}
@@ -332,7 +335,7 @@ func (ae *AdminEdit) Validation() error {
 		if err := validation.Validate(&ae.Name, validation.Required); err != nil {
 			return errs.ErrUserNameNotEmpty
 		}
-		if err := validation.Validate(&ae.Name, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Name))); err != nil {
+		if err := validation.Validate(&ae.Name, validation.RuneLength(minNameL, maxNameL), validation.By(validateUserName(ae.Name))); err != nil {
 			return errs.ErrInvalidUserName
 		}
 	}
@@ -341,21 +344,21 @@ func (ae *AdminEdit) Validation() error {
 			return errs.ErrUserSurnameNotEmpty
 		}
 		// проверка требований к фамилии
-		if err := validation.Validate(&ae.Surname, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Surname))); err != nil {
+		if err := validation.Validate(&ae.Surname, validation.RuneLength(minNameL, maxNameL), validation.By(validateUserName(ae.Surname))); err != nil {
 			return errs.ErrInvalidUserSurname
 		}
 	}
 
 	if ae.Patronymic != nil {
 		// проверка требований к отчеству
-		if err := validation.Validate(&ae.Patronymic, validation.RuneLength(2, 128), validation.By(validateUserName(ae.Patronymic))); err != nil {
+		if err := validation.Validate(&ae.Patronymic, validation.RuneLength(minPatronymicL, maxNameL), validation.By(validateUserName(ae.Patronymic))); err != nil {
 			return errs.ErrInvalidUserPatronymic
 		}
 	}
 
 	if ae.Company != nil {
 		// Проверка имени компании на состав
-		if err := validation.Validate(&ae.Company, validation.Length(1, 256), validation.By(validateNameDescription(ae.Company))); err != nil {
+		if err := validation.Validate(&ae.Company, validation.Length(minCompanyNameL, maxCompanyNameL), validation.By(validateObjName(ae.Company))); err != nil {
 			return errs.ErrInvalidCompanyName
 		}
 	}

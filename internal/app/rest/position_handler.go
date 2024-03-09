@@ -3,34 +3,40 @@ package rest
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/utils"
 )
 
 // CreatePosition godoc
 //
-//	@Summary	Создание новой должности
+//	@Summary	Админ.Должности.Создание должности
 //	@Tags		position
 //	@Produce	json
-//	@Param		object	body		model.PositionSet	true	"Position Create"
+//	@Param		object	body		reqCreatePosition	true	"Position Create"
 //	@Success	201		{object}	model.Position
-//	@Failure	400		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
 //	@Router		/positions [post]
 func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
-	positionReq := model.PositionSet{}
 
-	if err := c.ShouldBindJSON(&positionReq); err != nil {
+	request := &reqCreatePosition{}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
 		r.handleError(c, errs.ErrInvalidRequest)
 		return
+	}
+
+	positionReq := model.PositionSet{
+		CompanyID: request.CompanyID,
+		Name:      request.Name,
 	}
 
 	if err := positionReq.Validation(); err != nil {
@@ -56,13 +62,13 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 
 // GetPosition godoc
 //
-//	@Summary	Получение всех должностей
+//	@Summary	Админ.Должности.Получение данных должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
 //	@Success	200	{object}	model.Position
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -70,8 +76,8 @@ func (r *RestServer) handlerCreatePosition(c *gin.Context) {
 func (r *RestServer) handlerGetPosition(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id < 0 {
+	id, err := utils.ConvertID(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
@@ -87,15 +93,15 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 
 // GetPositionCourses godoc
 //
-//	@Summary	Получение всех курсов привязанных к должности
+//	@Summary	Админ.Должности.Получить список курсов для должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id	path		int	true	"Position ID"
 //	@Success	200	{object}	getPositionCoursesResponse
-//	@Failure	401	{object}	sErr
-//	@Failure	403	{object}	sErr
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	401	{object}	errResponse
+//	@Failure	403	{object}	errResponse
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -103,8 +109,8 @@ func (r *RestServer) handlerGetPosition(c *gin.Context) {
 func (r *RestServer) handlerGetPositionCourses(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id < 0 {
+	id, err := utils.ConvertID(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
@@ -117,23 +123,23 @@ func (r *RestServer) handlerGetPositionCourses(c *gin.Context) {
 
 	c.JSON(http.StatusOK, getPositionCoursesResponse{
 		PositionID: id,
-		CourseID:   courses,
+		CoursesID:  courses,
 	})
 }
 
 type getPositionCoursesResponse struct {
 	PositionID int   `json:"position_id"`
-	CourseID   []int `json:"course_id"`
+	CoursesID  []int `json:"courses_id"`
 }
 
 // GetPositions godoc
 //
-//	@Summary	Получение всех должностей
+//	@Summary	Админ.Должности.Получение всех должностей
 //	@Tags		position
 //	@Produce	json
 //	@Success	200	{array}		model.Position
-//	@Failure	404	{object}	sErr
-//	@Failure	500	{object}	sErr
+//	@Failure	404	{object}	errResponse
+//	@Failure	500	{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -152,15 +158,15 @@ func (r *RestServer) handlerGetPositions(c *gin.Context) {
 
 // UpdatePosition godoc
 //
-//	@Summary	Обновление данных о должности
+//	@Summary	Админ.Должности.Редактирование/ Архивирование должности
 //	@Tags		position
 //	@Produce	json
 //	@Param		id		path		int					true	"Position ID"
 //	@Param		object	body		model.PositionSet	true	"Position info"
 //	@Success	200		{object}	model.Position
-//	@Failure	400		{object}	sErr
-//	@Failure	404		{object}	sErr
-//	@Failure	500		{object}	sErr
+//	@Failure	400		{object}	errResponse
+//	@Failure	404		{object}	errResponse
+//	@Failure	500		{object}	errResponse
 //
 //	@Security	Bearer
 //
@@ -169,7 +175,7 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	ctx := c.Request.Context()
 	positionReq := model.PositionSet{}
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -194,48 +200,16 @@ func (r *RestServer) handlerUpdatePosition(c *gin.Context) {
 	c.JSON(http.StatusOK, position)
 }
 
-//	@Summary	Присвоение курса к должности
-//	@Accept		json
-//	@Tags		position
-//	@Produce	json
-//	@Success	200
-//	@Failure	400	{object}	error	"Неверный формат запроса"
-//	@Failure	401	{object}	error	"Пользователь не является сотрудником компании"
-//	@Failure	500	{object}	error	"Внутренняя ошибка сервера"
-//
-//	@Security	Bearer
-//
-//	@Router		/positions/course [post]
-
-func (r *RestServer) handlerAssignCourse(c *gin.Context) {
-	positionCourse := model.PositionCourse{}
-	if err := c.ShouldBindJSON(&positionCourse); err != nil {
-		r.handleError(c, errs.ErrInvalidRequest)
-		return
-	}
-
-	ctx := c.Request.Context()
-	us := r.getUserSession(c)
-
-	err := r.services.Position().AssignCourse(ctx, positionCourse.PositionID, positionCourse.CourseID, us.UserID)
-	if err != nil {
-		r.handleError(c, err)
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
-// @Summary	Присвоение нескольких курсов к должности
+// @Summary	Админ.Должности. Редактировать список курсов для должности
 // @Accept		json
 // @Tags		position
 // @Produce	json
 // @Param		id		path		int							true	"Position ID"
 // @Param		object	body		model.PositionAssignCourses	true	"Courses"
 // @Success	200		{object}	assignCoursesResponse
-// @Failure	400		{object}	sErr	"Неверный формат запроса"
-// @Failure	401		{object}	sErr	"Пользователь не является сотрудником компании"
-// @Failure	500		{object}	sErr	"Внутренняя ошибка сервера"
+// @Failure	400		{object}	errResponse	"Неверный формат запроса"
+// @Failure	401		{object}	errResponse	"Пользователь не является сотрудником компании"
+// @Failure	500		{object}	errResponse	"Внутренняя ошибка сервера"
 //
 // @Security	Bearer
 //
@@ -243,8 +217,8 @@ func (r *RestServer) handlerAssignCourse(c *gin.Context) {
 func (r *RestServer) handlerAssignCourses(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id < 0 {
+	id, err := utils.ConvertID(c.Param("id"))
+	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
@@ -260,7 +234,7 @@ func (r *RestServer) handlerAssignCourses(c *gin.Context) {
 		return
 	}
 
-	err = r.services.Position().AssignCourses(ctx, id, body.CourseID, r.getUserSession(c).UserID)
+	err = r.services.Position().AssignCourses(ctx, id, body.CoursesID, r.getUserSession(c).UserID)
 	if err != nil {
 		fmt.Println(err)
 		r.handleError(c, err)
@@ -268,12 +242,12 @@ func (r *RestServer) handlerAssignCourses(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, assignCoursesResponse{
-		CourseID:   body.CourseID,
+		CoursesID:  body.CoursesID,
 		PositionID: id,
 	})
 }
 
 type assignCoursesResponse struct {
 	PositionID int   `json:"position_id"`
-	CourseID   []int `json:"course_id"`
+	CoursesID  []int `json:"course_id"`
 }

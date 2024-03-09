@@ -8,6 +8,11 @@ import (
 	"github.com/training-of-new-employees/qon/internal/errs"
 )
 
+const (
+	minPositionNameL = 1
+	maxPositionNameL = 256
+)
+
 type (
 	Position struct {
 		ID         int       `db:"id"         json:"id"`
@@ -31,17 +36,18 @@ type (
 	}
 
 	PositionAssignCourses struct {
-		CourseID []int `json:"course_id"`
+		CoursesID []int `json:"courses_id"`
 	}
 )
 
+// Validation - валидация данных при создании должности.
 func (p *PositionSet) Validation() error {
 	// проверка на пустоту имя компании
 	if err := validation.Validate(p.Name, validation.Required); err != nil {
 		return errs.ErrPositionNameNotEmpty
 	}
 	// проверка на корректность имени компании
-	if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateNameDescription(&p.Name))); err != nil {
+	if err := validation.Validate(p.Name, validation.RuneLength(minPositionNameL, maxPositionNameL), validation.By(validateObjName(&p.Name))); err != nil {
 		return errs.ErrInvalidPositionName
 	}
 	// проверка на наличие id компании
@@ -53,9 +59,9 @@ func (p *PositionSet) Validation() error {
 }
 
 func (p *PositionSet) ValidationEdit() error {
-	// проверка на корректность имени компании
+	// проверка на корректность названия компании
 	if p.Name != "" {
-		if err := validation.Validate(p.Name, validation.RuneLength(2, 256), validation.By(validateNameDescription(&p.Name))); err != nil {
+		if err := validation.Validate(p.Name, validation.RuneLength(minPositionNameL, maxPositionNameL), validation.By(validateObjName(&p.Name))); err != nil {
 			return errs.ErrInvalidPositionName
 		}
 	}

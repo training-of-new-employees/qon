@@ -5,7 +5,6 @@
 //
 //	mockgen -source=internal/store/store.go -destination=mocks/store/store.go
 //
-
 // Package mock_store is a generated GoMock package.
 package mock_store
 

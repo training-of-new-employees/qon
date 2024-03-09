@@ -28,7 +28,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных о курсах администратором",
+                "summary": "Админ.Курсы.Получение всех курсов",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -77,7 +77,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Создание нового курса",
+                "summary": "Админ.Курсы.Создание курса",
                 "parameters": [
                     {
                         "description": "Course Create",
@@ -85,7 +85,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CourseSet"
+                            "$ref": "#/definitions/rest.reqCreateCourse"
                         }
                     }
                 ],
@@ -130,7 +130,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных курса администратором",
+                "summary": "Админ.Курсы.Получение данных курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -185,7 +185,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Изменение данных курса",
+                "summary": "Админ.Курсы.Редактирование/Архивирование курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -240,13 +240,18 @@ const docTemplate = `{
         },
         "/admin/courses/{id}/lessons": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение уроков курса",
+                "summary": "Админ.Уроки.Получение уроков в рамках курса.",
                 "parameters": [
                     {
                         "type": "integer",
@@ -295,13 +300,18 @@ const docTemplate = `{
         },
         "/admin/employee": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin"
                 ],
-                "summary": "Создание пользователя",
+                "summary": "Админ. Сотрудники. Добавление сотрудника",
                 "parameters": [
                     {
                         "description": "User Create",
@@ -309,7 +319,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserCreate"
+                            "$ref": "#/definitions/rest.reqCreateUser"
                         }
                     }
                 ],
@@ -323,33 +333,38 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
             }
         },
         "/admin/info": {
-            "post": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin"
                 ],
-                "summary": "Изменение данных администратора",
+                "summary": "Админ. Профиль.Редактирование данных",
                 "parameters": [
                     {
                         "description": "Admin Edit",
@@ -357,7 +372,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.AdminEdit"
+                            "$ref": "#/definitions/rest.reqEditAdmin"
                         }
                     }
                 ],
@@ -371,25 +386,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -397,13 +412,18 @@ const docTemplate = `{
         },
         "/admin/lessons": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Создание урока",
+                "summary": "Админ.Урок.Создание урока в рамках курса",
                 "parameters": [
                     {
                         "description": "Lesson Create",
@@ -411,7 +431,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Lesson"
+                            "$ref": "#/definitions/rest.reqCreateLesson"
                         }
                     }
                 ],
@@ -445,13 +465,18 @@ const docTemplate = `{
         },
         "/admin/lessons/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Получение урока",
+                "summary": "Админ.Урок.Получение урока курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -498,13 +523,18 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Обновление урока",
+                "summary": "Админ.Урок.Редактирование/Архивирование урока курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -571,7 +601,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Создание администратора",
+                "summary": "Админ. Профиль. Регистрация администратора",
                 "parameters": [
                     {
                         "description": "Create Admin",
@@ -587,28 +617,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/rest.sEmail"
-                            }
+                            "$ref": "#/definitions/rest.sEmail"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -622,7 +649,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Верификация email'a пользователя",
+                "summary": "Админ. Профиль. Верификация почты",
                 "parameters": [
                     {
                         "description": "User Email Verification",
@@ -664,6 +691,11 @@ const docTemplate = `{
         },
         "/invitation-link": {
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Изменение по email сотрудника",
                 "produces": [
                     "application/json"
@@ -671,7 +703,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Регенерация пригласительной ссылки",
+                "summary": "Админ.Сотрудники.Регенерация пригласительной ссылки",
                 "parameters": [
                     {
                         "description": "User email",
@@ -693,37 +725,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -731,13 +763,18 @@ const docTemplate = `{
         },
         "/invitation-link/{email}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "admin"
                 ],
-                "summary": "Получить пригласительную ссылку",
+                "summary": "Админ. Сотрудники. Получение пригласительной ссылки",
                 "parameters": [
                     {
                         "type": "string",
@@ -792,7 +829,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Вход пользователя",
+                "summary": "Общие. Профиль. Аутентификация",
                 "parameters": [
                     {
                         "description": "User SignIn",
@@ -814,19 +851,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -834,25 +871,33 @@ const docTemplate = `{
         },
         "/logout": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "После выхода из сессии, авторизационный токен становится невалидным.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Выход из сессии",
+                "summary": "Общие. Профиль. Выход из сессии",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.bodyResponse"
+                        }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -860,10 +905,15 @@ const docTemplate = `{
         },
         "/password": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Сброс пароля пользователя",
+                "summary": "Общие. Профиль. Восстановление пароля",
                 "parameters": [
                     {
                         "description": "User Reset Password",
@@ -885,19 +935,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -916,7 +966,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Получение всех должностей",
+                "summary": "Админ.Должности.Получение всех должностей",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -930,13 +980,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -953,7 +1003,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Создание новой должности",
+                "summary": "Админ.Должности.Создание должности",
                 "parameters": [
                     {
                         "description": "Position Create",
@@ -961,7 +1011,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PositionSet"
+                            "$ref": "#/definitions/rest.reqCreatePosition"
                         }
                     }
                 ],
@@ -975,13 +1025,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1000,7 +1050,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Обновление данных о должности",
+                "summary": "Админ.Должности.Редактирование/ Архивирование должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1029,19 +1079,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1060,7 +1110,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Получение всех должностей",
+                "summary": "Админ.Должности.Получение данных должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1080,13 +1130,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1105,7 +1155,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Получение всех курсов привязанных к должности",
+                "summary": "Админ.Должности.Получить список курсов для должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1125,25 +1175,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1163,7 +1213,7 @@ const docTemplate = `{
                 "tags": [
                     "position"
                 ],
-                "summary": "Присвоение нескольких курсов к должности",
+                "summary": "Админ.Должности. Редактировать список курсов для должности",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1192,19 +1242,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Пользователь не является сотрудником компании",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1212,6 +1262,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Список сотрдуников в компании админа",
                 "produces": [
                     "application/json"
@@ -1219,7 +1274,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Получение данных пользователей",
+                "summary": "Админ. Сотрудники. Получение всех сотрудников",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1233,68 +1288,19 @@ const docTemplate = `{
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/archive/{id}": {
-            "patch": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Архивирование пользователя по id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1313,7 +1319,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных о курсах пользователем",
+                "summary": "Сотрудник. Курсы. Получение всех курсов + прогресс",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1327,25 +1333,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1364,7 +1370,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных курса пользователем",
+                "summary": "Сотрудник.Курс.Получение данных курса по id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1421,7 +1427,7 @@ const docTemplate = `{
                 "tags": [
                     "course"
                 ],
-                "summary": "Получение данных о уроках курса",
+                "summary": "Сотрудник. Курс. Получение данных об уроках курса",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1444,25 +1450,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1470,14 +1476,19 @@ const docTemplate = `{
         },
         "/users/info": {
             "get": {
-                "description": "Получение по сесии авторизованного пользователя",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Получение по сессии авторизованного пользователя",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
-                "summary": "Получение данные авторизованного пользователя",
+                "summary": "Общие. Профиль. Получение данных авторизованного пользователя",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1531,7 +1542,7 @@ const docTemplate = `{
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Получение данных урока пользователя",
+                "summary": "Сотрудник.Урок. Получение данных урока по id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1551,37 +1562,42 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "lessons"
                 ],
-                "summary": "Обновление статуса прогресса у урока",
+                "summary": "Сотрудник. Урок. Прогресс по уроку",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1604,10 +1620,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/rest.updateLessonStatusResponse"
-                            }
+                            "$ref": "#/definitions/rest.updateLessonStatusResponse"
                         }
                     },
                     "400": {
@@ -1639,13 +1652,18 @@ const docTemplate = `{
         },
         "/users/set-password": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
-                "summary": "Активация пользователя и установка ему пароля",
+                "summary": "Сотрудник. Профиль. Активация пользователя и установка пароля",
                 "parameters": [
                     {
                         "description": "User Set Password",
@@ -1667,25 +1685,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -1693,6 +1711,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Получение по id",
                 "produces": [
                     "application/json"
@@ -1700,7 +1723,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Получение данных пользователя",
+                "summary": "Админ.Сотрудники. Получение данных сотрудника",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1720,30 +1743,35 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Изменение по id",
                 "produces": [
                     "application/json"
@@ -1751,7 +1779,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Изменение данных пользователя",
+                "summary": "Админ.Сотрудники.Редактирование/ Архивирование сотрудника",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1766,7 +1794,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UserEdit"
+                            "$ref": "#/definitions/rest.reqEditUser"
                         }
                     }
                 ],
@@ -1780,25 +1808,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.sErr"
+                            "$ref": "#/definitions/rest.errResponse"
                         }
                     }
                 }
@@ -2038,7 +2066,7 @@ const docTemplate = `{
         "model.PositionAssignCourses": {
             "type": "object",
             "properties": {
-                "course_id": {
+                "courses_id": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -2114,41 +2142,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.UserCreate": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "admin": {
-                    "type": "boolean"
-                },
-                "archived": {
-                    "type": "boolean"
-                },
-                "company_id": {
-                    "type": "integer"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "patronymic": {
-                    "type": "string"
-                },
-                "position_id": {
-                    "type": "integer"
-                },
-                "surname": {
                     "type": "string"
                 }
             }
@@ -2254,6 +2247,14 @@ const docTemplate = `{
                 }
             }
         },
+        "rest.bodyResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "rest.courseResp": {
             "type": "object",
             "properties": {
@@ -2282,7 +2283,7 @@ const docTemplate = `{
         "rest.getPositionCoursesResponse": {
             "type": "object",
             "properties": {
-                "course_id": {
+                "courses_id": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -2290,6 +2291,133 @@ const docTemplate = `{
                 },
                 "position_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "rest.reqCreateCourse": {
+            "type": "object",
+            "required": [
+                "description",
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.reqCreateLesson": {
+            "type": "object",
+            "required": [
+                "content",
+                "course_id",
+                "name"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "course_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url_picture": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.reqCreatePosition": {
+            "type": "object",
+            "required": [
+                "company_id",
+                "name"
+            ],
+            "properties": {
+                "company_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.reqCreateUser": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "position_id",
+                "surname"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "somebody@example.org"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "position_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.reqEditAdmin": {
+            "type": "object",
+            "properties": {
+                "company_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "somebody@example.org"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.reqEditUser": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "archived": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "somebody@example.org"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "surname": {
+                    "type": "string"
                 }
             }
         },
