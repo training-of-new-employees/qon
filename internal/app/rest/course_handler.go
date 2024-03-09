@@ -3,12 +3,12 @@ package rest
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/training-of-new-employees/qon/internal/errs"
 	"github.com/training-of-new-employees/qon/internal/model"
+	"github.com/training-of-new-employees/qon/internal/utils"
 )
 
 // GetAdminCourses godoc
@@ -53,11 +53,13 @@ func (r *RestServer) handlerGetAdminCourses(c *gin.Context) {
 //	@Router		/admin/courses/{id} [get]
 func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	courseID, err := strconv.Atoi(c.Param("id"))
+
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
 	}
+
 	us := r.getUserSession(c)
 	course, err := r.services.Course().GetCompanyCourse(ctx, courseID, us.OrgID)
 	if err != nil {
@@ -84,7 +86,8 @@ func (r *RestServer) handlerGetAdminCourse(c *gin.Context) {
 //	@Router		/users/courses/{id} [get]
 func (r *RestServer) handlerGetUserCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	courseID, err := strconv.Atoi(c.Param("id"))
+
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -197,8 +200,8 @@ func (r *RestServer) handlerCreateCourse(c *gin.Context) {
 //	@Router		/admin/courses/{id} [patch]
 func (r *RestServer) handlerEditCourse(c *gin.Context) {
 	ctx := c.Request.Context()
-	sID := c.Param("id")
-	id, err := strconv.Atoi(sID)
+
+	id, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
@@ -255,8 +258,8 @@ type courseResp struct {
 func (r *RestServer) handlerGetUserCourseLessons(c *gin.Context) {
 	ctx := c.Request.Context()
 	us := r.getUserSession(c)
-	courseIDStr := c.Param("id")
-	courseID, err := strconv.Atoi(courseIDStr)
+
+	courseID, err := utils.ConvertID(c.Param("id"))
 	if err != nil {
 		r.handleError(c, errs.ErrBadRequest)
 		return
