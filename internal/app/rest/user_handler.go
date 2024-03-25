@@ -3,7 +3,6 @@ package rest
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
